@@ -18,6 +18,11 @@ distributor:
           frequency: 0.01
       threshold: 0.2
 
+locator:
+  type: SURFACE
+  range:
+    min: ${meta.yml:ocean-level} + 2
+    max: $meta.yml:top-y
 structures:
   distribution:
     type: CONSTANT

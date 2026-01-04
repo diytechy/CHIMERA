@@ -1,3 +1,34 @@
+biomeSpread:
+  # Basic size of biomes (distance between 2 biome centers)
+  # Increase to make biomes bigger
+  cellDistance: 350
+
+  # how far biome centers can vary away from their centers
+  # Increase to make biome sizes vary more (scale 0-1)
+
+  cellJitter: 0.9
+
+  # Frequency of rivers. Increase to make rivers closer together and smaller, decrease for bigger, more spaced out rivers
+  riverScale: 0.0013
+
+  # applies to biomes with borders, controls the ratio of inner/outer biomes
+  borderBiomes:
+    edgeThreshold: 0.8
+
+  # sink holes have a chance to generate in the world. They go down to -50 and generate a smaller biome there. Placed anywhere over other biomes
+  sinkHoles:
+    stretchFactor: 2.5  # Length-width ratio of the sinkholes. Increase for more stretched/longer sinkholes
+    angle: 0.435        # Angle in which they are spawned. In radians (0.425 = 25 Degrees)
+    size: 0.83          # Sizing of the invidial sinkholes. Inversed, increase to make them smaller. Scale 0-1
+    borderSize: 0.02   # Size of the border biome around the sinkhole
+    frequency: 0.0025   # frequency of sinkhole placement. Increase for more smaller sinkholes, decrease for fewer, but larger ones
+
+  mountainFrequency: 0.004  # shared frequence of some larger mountain biomes, allows them to blend easier
+
+  canyons:
+    minY: 25 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
+    canyonAmount: 0.93 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
+
 # This file provides various general options for configuring this config pack.
 # The options are specific to this config pack (and are not general to Terra as a whole!)
 #
@@ -6,7 +37,7 @@
 # explanation of how this works.
 
 global-scale: 1
-# Modifies the scale of all biome distribution, you can use this parameter 
+# Modifies the scale of all biome distribution, you can use this parameter
 # to if you want just about every biome to be larger or smaller.
 # By doubling the scale, you double the length & width of everything,
 # e.g. if you have a biome that is 300 blocks wide with a scale of 1, and
@@ -27,12 +58,7 @@ terrain-base-y-level: 65
 # guide and some configs will lower terrain below this point (however not by much).
 # Default: 65
 
-terrain-height: 230
-# Number of blocks above the base terrain level that terrain can go do, similarly to
-# terrain-base-y-level this number is also a guide and some configs will produce terrain
-# above this number (however not by much). Note that the sum of terrain-height and 
-# terrain-base-y-level should no exceed the world height, otherwise you may see terrain
-# clipping.
+terrain-height: 100
 # Default: 230
 
 terrain-ocean-base-y-level: 60
@@ -80,16 +106,15 @@ continental-spread: 1
 #
 # Default: 1
 
-continental-scale: 2
+continental-scale: 0.8
 # Controls the scale of land / coastal / oceanic distribution. Increasing
 # this produces larger landmasses and larger oceans, and vice-versa when
 # decreasing it. This does not control the ratio of land / ocean, for that
 # you should change continental-offset instead.
 # Default: 2
 
-continental-coast-width: 15
-# Determines the width of costal biomes in blocks.
-# Default: 15
+continental-coast-width: 30
+# Default: 30
 
 continental-coast-threshold: 0.05
 # Determines how far from a continental value of 0 is considered for calculating 
@@ -200,7 +225,7 @@ flatness-factor: 0.95
 # Temperature
 # ---
 
-temperature-scale: 1.01
+temperature-scale: 0.4
 # Controls the scale of temperature zones. Most biomes are placed according to
 # a temperature map so hot biomes can't generate next to cold biomes, as well as
 # allowing for biomes of similar temperatures to generate together. Increasing this

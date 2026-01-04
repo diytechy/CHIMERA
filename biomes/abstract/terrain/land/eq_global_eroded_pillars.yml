@@ -2,9 +2,11 @@ id: EQ_GLOBAL_ERODED_PILLARS
 type: BIOME
 abstract: true
 
+# Tall thin pillars with cracks in them, reminiscent of Zhangjiajie National Forest Park.
+
 vars: &variables
-  base: $customization.yml:terrain-base-y-level
-  scale: $customization.yml:terrain-height
+  base: 64
+  height: 10
   
   pillarHeight: 80
   pillarPlatformHeight: 20
@@ -22,7 +24,7 @@ terrain:
     variables: *variables
     expression: |
       -y + base
-      + if(y<pillarYMin||y>base+scale+pillarHeight+pillarHeightVariation,0, // Skip unnecessary calculations
+      + if(y<pillarYMin||y>base+height+pillarHeight+pillarHeightVariation,0, // Skip unnecessary calculations
         max(
           // Pillar 'platform'
           maskSmooth(
@@ -73,4 +75,13 @@ terrain:
     dimensions: 2
     type: EXPRESSION
     variables: *variables
-    expression: scale * elevationDetailed(x, z)
+    expression: (noise(x, z)+1)/2 * height
+    samplers:
+      noise:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.01
+          salt: 3

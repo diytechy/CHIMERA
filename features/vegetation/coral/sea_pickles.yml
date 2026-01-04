@@ -32,7 +32,7 @@ structures:
     sampler:
       type: OPEN_SIMPLEX_2
       frequency: 0.04
-    salt: 1232
+      salt: 1232
   structures:
     - sea_pickle: 1
     - blank: 5

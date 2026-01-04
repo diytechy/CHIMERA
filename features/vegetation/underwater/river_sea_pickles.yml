@@ -1,0 +1,47 @@
+id: RIVER_SEA_PICKLES
+type: FEATURE
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 5621
+  threshold: 0.90
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:deepslate-top} - 7
+    max: ${meta.yml:ocean-level} + 3
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH
+        block: minecraft:water
+        offset: 0
+      - type: MATCH_SET
+        blocks: $features/vegetation/meta.yml:aquatic-plantable-blocks
+        offset: -1
+
+structures:
+  distribution:
+    type: DOMAIN_WARP
+    amplitude: 1
+    warp:
+      type: GAUSSIAN
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.03
+      salt: 7744
+  structures:
+    # bias heavily to single-pickle placements, make level-4 rare and increase blanks
+    - BLOCK:minecraft:sea_pickle[pickles=1]: 8
+    - BLOCK:minecraft:sea_pickle[pickles=2]: 3
+    - BLOCK:minecraft:sea_pickle[pickles=3]: 1
+    - BLOCK:minecraft:sea_pickle[pickles=4]: 1
+    - blank: 12
+
+blocks:
+  - materials:
+      - minecraft:sea_pickle
+    layers: 1

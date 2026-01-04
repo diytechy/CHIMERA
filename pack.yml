@@ -1,6 +1,6 @@
-id: OVERWORLD
+id: ORIGEN
 version: 2.0.0
-author: "Astrash, Sancires, Aureus, RogueShade"
+author: "Astrash, Sancires, Aureus, Rearth, Belikhun"
 
 generator: NOISE_3D
 
@@ -38,8 +38,10 @@ addons:
 # (Not commenting the old one will result in an error!)
 
 # Default biome distribution
-biomes: $biome-distribution/presets/default.yml:biomes
+# biomes: $biome-distribution/presets/default.yml:biomes
+biomes: $biome-distribution/presets/rearth.yml:biomes
 
+# biomes: $biome-distribution/presets/single.yml:biomes
 # Single biome - Generates a single biome, as well as other complementary biomes such as cave and river biomes.
 #                It is recommended to disable 'terrain-factor-continental' in customization.yml when using this preset.
 #biomes: $biome-distribution/presets/single.yml:biomes
@@ -136,6 +138,7 @@ functions:
     - math/functions/terrace.yml:functions
     - math/functions/interpolation.yml:functions
     - math/functions/maskSmooth.yml:functions
+    - math/functions/clamp.yml:functions
     - math/functions/shelf.yml:functions
 
 samplers:

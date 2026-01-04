@@ -1,0 +1,69 @@
+stages:
+  - type: REPLACE
+    from: cold
+    sampler:
+      type: CELLULAR
+      jitter: ${customization.yml:biomeSpread.cellJitter}
+      return: CellValue
+      frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+    to:
+      FROSTY_FINGERS: 2
+      COLD_STEPPE: 1
+      SNOWY_MEADOW: 1
+      SNOWY_MOUNTAINS: 1
+      MOUNTAIN_MIRRORS: 2
+      ALPINE_ASCENDANCY: 2
+      BARE_BOULDERFIELDS: 1
+      TUNDRA_TRACKS: 2
+      FROZEN_FUNGI: 2
+      SNOWY_SPIRES: 3
+      _patchwork_cold: 15
+  - type: REPLACE
+    from: medium
+    sampler:
+      jitter: ${customization.yml:biomeSpread.cellJitter}
+      type: CELLULAR
+      return: CellValue
+      frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+    to:
+      FOSSILIZED_FENLANDS: 3
+      MURKY_MARSHLANDS: 2
+      VERTICAL_VISTAS: 2
+      VERDANT_VALLEYS: 2
+      BLACK_FOREST: 1
+      FLOWERING_FOREST: 1
+      TALL_TIMBERLAND: 1
+      _pillow_plains: 2
+      _secluded_valleys: 1
+      SAKURA_STREAMS: 1
+      BAMBOO_BASIN: 2
+      BADLANDS_BALCONIES: 2
+      SCARLET_SANCTUARY: 2
+      GLOOMY_GORGE: 2
+      ROCKY_REFUGE: 2
+      WHITE_WALLOWS: 2
+      _plateao: 2
+      _patchwork_medium: 22
+      # LAND_MEDIUM_A: 1
+      # LAND_MEDIUM_B: 1
+  - type: REPLACE
+    from: warm
+    sampler:
+      type: CELLULAR
+      jitter: ${customization.yml:biomeSpread.cellJitter}
+      return: CellValue
+      frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+    to:
+      MESA_MONUMENTS: 2
+      LUSH_LOOPS: 2
+      CARVING_CREAKS: 2
+      ARID_ARBORETUM: 2
+      SALT_FLATS: 1
+      DESERT_SPIKES_GOLD: 1
+      OVERGROWN_CLIFFS: 2
+      CANOPY_CASCADES: 2
+      WATERY_WILDS: 2
+      _desert: 2
+      _patchwork_warm: 15
+      # LAND_WARM_A: 1
+      # LAND_WARM_B: 1

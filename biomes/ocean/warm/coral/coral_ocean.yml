@@ -11,7 +11,9 @@ tags:
 features:
   flora:
     - CORAL_PLANTS
+    - CORAL_FANS
     - SEA_PICKLES
+    - SEA_PICKLES_CORAL
     - SPARSE_BIG_CORAL_PLANTS
   trees:
     - DENDRIFORM_REEF

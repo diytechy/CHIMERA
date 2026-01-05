@@ -66,4 +66,4 @@ features:
     - BAMBOO_PATCHES
   trees:
     - MESQUITE_TREES
-    - SWAMP_TREES
+    - SPARSE_SWAMP_TREES

@@ -5,8 +5,8 @@ abstract: true
 # Tall thin pillars with cracks in them, reminiscent of Zhangjiajie National Forest Park.
 
 vars: &variables
-  base: 64
-  height: 10
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:terrain-height
   
   pillarHeight: 80
   pillarPlatformHeight: 20

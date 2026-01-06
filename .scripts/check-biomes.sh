@@ -24,15 +24,52 @@ cd "$REPO_ROOT"
 declare -a yaml_error_files=()
 declare -a yaml_error_messages=()
 
+# Determine which Python command to use
+PYTHON_CMD=""
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+fi
+
 # Check if Python with yaml module is available
 yaml_lint_available=false
-if command -v python3 &> /dev/null; then
-    if python3 -c "import yaml" 2>/dev/null; then
+yaml_lint_skip_reason=""
+
+if [[ -z "$PYTHON_CMD" ]]; then
+    yaml_lint_skip_reason="Python is not installed"
+else
+    if $PYTHON_CMD -c "import yaml" 2>/dev/null; then
         yaml_lint_available=true
-    fi
-elif command -v python &> /dev/null; then
-    if python -c "import yaml" 2>/dev/null; then
-        yaml_lint_available=true
+    else
+        # Python exists but PyYAML is missing - offer to install
+        echo ""
+        echo "[WARNING] PyYAML module is not installed."
+        echo ""
+
+        # Check if we're in an interactive terminal
+        if [[ -t 0 ]]; then
+            read -p "Would you like to install PyYAML now? (y/N): " install_choice
+            if [[ "$install_choice" =~ ^[Yy]$ ]]; then
+                echo "Installing PyYAML..."
+                if $PYTHON_CMD -m pip install pyyaml 2>&1; then
+                    echo "PyYAML installed successfully!"
+                    yaml_lint_available=true
+                else
+                    echo "[ERROR] Failed to install PyYAML."
+                    echo "  Try manually: $PYTHON_CMD -m pip install pyyaml"
+                    yaml_lint_skip_reason="PyYAML installation failed"
+                fi
+            else
+                yaml_lint_skip_reason="PyYAML not installed (user declined)"
+            fi
+        else
+            # Non-interactive mode - just show instructions
+            yaml_lint_skip_reason="PyYAML module not installed"
+            echo "  To enable YAML linting, run:"
+            echo "    $PYTHON_CMD -m pip install pyyaml"
+            echo ""
+        fi
     fi
 fi
 
@@ -44,7 +81,7 @@ if [[ "$yaml_lint_available" == true ]]; then
 
     for yaml_file in $all_yaml_files; do
         # Use Python to validate YAML syntax
-        error_output=$(python3 -c "
+        error_output=$($PYTHON_CMD -c "
 import yaml
 import sys
 try:
@@ -72,8 +109,7 @@ except Exception as e:
     echo "  YAML files checked: $(echo "$all_yaml_files" | wc -w)"
     echo "  Syntax errors found: $yaml_error_count"
 else
-    echo "[WARNING] YAML linting skipped - Python with PyYAML not available"
-    echo "  Install with: pip install pyyaml"
+    echo "[WARNING] YAML linting skipped - $yaml_lint_skip_reason"
     yaml_error_count=0
 fi
 

@@ -8,7 +8,7 @@ This project contains an updated configuration for Origen, which is packaged int
 
 This world is templated for the most recent Terra version 7.0 build (https://github.com/PolyhedralDev/Terra).  Older documentation related to configuration development can be referenced from https://terra.polydev.org/config/development/index.html
 
-The core "build" for this repository is intended to be a batch script ".scripts/AuditAndPackage.bat" which would trigger additional scripts (powershell or  python) to audit the various configuration files (yml) for formatting errors, package the required folders and files for the package into a zip folder (everything in the root folder not starting with "."), create a table (csv) of the biomes and their respective attributes (BiomeTable.csv), and create a .md or .adoc file containing suggestions for improvements (SuggestedImprovements.md or SuggestedImprovements.adoc)  Claude should create the necessary files to perform this build if they do not already exist.
+The core "build" for this repository is intended to be a batch script ".scripts/AuditAndPackage.bat" which is described further below.
 
 ## Architecture
 
@@ -24,7 +24,14 @@ The core "build" for this repository is intended to be a batch script ".scripts/
 
 ### Key Files
 
-- `.scripts/AuditAndPackage.bat`: The triggered batch file to trigger the expected processes from a windows environment.  The script should first make the package and then check the biomes.  For simplicity, it may make sense for this batch file to simply call pack.sh and check-biomes.sh using wsl, but the batch file should provide proper feedback to the user if dependencies are not available.
+- `.scripts/AuditAndPackage.bat`: The triggered batch file to trigger the expected processes from a windows environment.  The script should follow the high level steps:
+1. Make the package
+2. Create the biome table
+3. Audit the yml files for formatting ( linting)
+
+For simplicity, it may make sense for this batch file to simply call pack.sh and check-biomes.sh using wsl, but the batch file should provide proper feedback to the user if dependencies are not available.  As a fallback it could also trigger additional scripts (powershell, python, bash files).
+
+Claude should create the necessary files to perform this build if they do not already exist.
 
 
 - `.scripts/check-biomes.sh`: The main bash file that originally just validated color definitions per biome.  This would also likely be a good place to generate the BiomeTable.csv.

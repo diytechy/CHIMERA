@@ -1,6 +1,15 @@
 #!/bin/bash
 
 # Sets up the files to be included in the release
+# Creates Overworld.zip in .artifacts folder
 
-mkdir .artifacts
-zip -r ./.artifacts/Overworld.zip * -x ".*"
+set -e
+
+SCRIPT_DIR=""
+REPO_ROOT=""
+ARTIFACTS_DIR="/.artifacts"
+OUTPUT_FILE="/Overworld.zip"
+
+cd ""
+
+# Create artifacts directory if it doesnt

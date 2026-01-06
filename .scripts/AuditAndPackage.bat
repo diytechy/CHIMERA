@@ -34,14 +34,7 @@ REM Remove existing zip if present
 if exist ".artifacts\Overworld.zip" del /q ".artifacts\Overworld.zip"
 
 REM Use PowerShell to create zip (excludes hidden files/folders)
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$ErrorActionPreference = 'Stop'; ^
-    $source = '%REPO_ROOT%'; ^
-    $dest = '%REPO_ROOT%\.artifacts\Overworld.zip'; ^
-    $items = Get-ChildItem -Path $source -Exclude '.*' | Where-Object { -not $_.Name.StartsWith('.') }; ^
-    if ($items.Count -eq 0) { Write-Error 'No files to package'; exit 1 }; ^
-    Compress-Archive -Path $items.FullName -DestinationPath $dest -Force; ^
-    Write-Host \"Package created: $dest\""
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference = 'Stop'; $source = '%REPO_ROOT%'; $dest = '%REPO_ROOT%\.artifacts\Overworld.zip'; $items = Get-ChildItem -Path $source -Exclude '.*' | Where-Object { -not $_.Name.StartsWith('.') }; if ($items.Count -eq 0) { Write-Error 'No files to package'; exit 1 }; Compress-Archive -Path $items.FullName -DestinationPath $dest -Force; Write-Host ('Package created: ' + $dest)"
 
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Package creation failed!

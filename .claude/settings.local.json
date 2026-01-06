@@ -9,7 +9,10 @@
       "Bash(wsl bash -c 'grep \"\"TROPICAL_RAINFOREST\"\" \"\".scripts/BiomeTable.csv\"\"')",
       "Bash(wsl bash -c \"cd ''/mnt/c/Projects/terra-origen'' && bash .scripts/pack.sh\")",
       "Bash(wsl bash -c \"which zip || apt list --installed 2>/dev/null | grep zip || echo ''zip not found''\")",
-      "Bash(wsl bash:*)"
+      "Bash(wsl bash:*)",
+      "Bash(cmd /c AuditAndPackage.bat)",
+      "Bash(cmd /c \".scripts\\\\AuditAndPackage.bat\")",
+      "Bash(powershell -Command \"& { cmd /c ''.scripts\\\\AuditAndPackage.bat'' }\")"
     ]
   }
 }

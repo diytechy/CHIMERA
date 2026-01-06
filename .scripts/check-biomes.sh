@@ -3,6 +3,11 @@
 # ============================================================================
 # check-biomes.sh
 # Validates biome configurations and generates SuggestedImprovements.md
+#
+# Checks performed:
+#   1. YAML syntax validation (linting)
+#   2. Missing color key validation
+#   3. Color reference mismatch validation
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,6 +15,71 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTPUT_FILE="$REPO_ROOT/SuggestedImprovements.md"
 
 cd "$REPO_ROOT"
+
+# ============================================================================
+# YAML Linting
+# ============================================================================
+
+# Arrays to collect YAML syntax errors
+declare -a yaml_error_files=()
+declare -a yaml_error_messages=()
+
+# Check if Python with yaml module is available
+yaml_lint_available=false
+if command -v python3 &> /dev/null; then
+    if python3 -c "import yaml" 2>/dev/null; then
+        yaml_lint_available=true
+    fi
+elif command -v python &> /dev/null; then
+    if python -c "import yaml" 2>/dev/null; then
+        yaml_lint_available=true
+    fi
+fi
+
+if [[ "$yaml_lint_available" == true ]]; then
+    echo "Running YAML lint check..."
+
+    # Find all YAML files in the repository (excluding hidden folders)
+    all_yaml_files="$(find . -name "*.yml" -not -path "*/.*" | sort)"
+
+    for yaml_file in $all_yaml_files; do
+        # Use Python to validate YAML syntax
+        error_output=$(python3 -c "
+import yaml
+import sys
+try:
+    with open('$yaml_file', 'r') as f:
+        yaml.safe_load(f)
+except yaml.YAMLError as e:
+    # Extract just the error message without the full traceback
+    error_msg = str(e).split('\n')[0]
+    print(error_msg)
+    sys.exit(1)
+except Exception as e:
+    print(str(e))
+    sys.exit(1)
+" 2>&1)
+
+        if [[ $? -ne 0 ]]; then
+            yaml_error_files+=("$yaml_file")
+            # Clean up error message for markdown table
+            clean_error=$(echo "$error_output" | tr '\n' ' ' | sed 's/|/\\|/g')
+            yaml_error_messages+=("$clean_error")
+        fi
+    done
+
+    yaml_error_count=${#yaml_error_files[@]}
+    echo "  YAML files checked: $(echo "$all_yaml_files" | wc -w)"
+    echo "  Syntax errors found: $yaml_error_count"
+else
+    echo "[WARNING] YAML linting skipped - Python with PyYAML not available"
+    echo "  Install with: pip install pyyaml"
+    yaml_error_count=0
+fi
+
+# ============================================================================
+# Biome Color Validation
+# ============================================================================
 
 biome_config_paths="$(find biomes/*/ -name "*.yml" -not -path "biomes/abstract/*" | sort)"
 
@@ -48,7 +118,7 @@ done
 # Count issues
 missing_count=${#missing_color_files[@]}
 mismatch_count=${#mismatch_files[@]}
-total_count=$((missing_count + mismatch_count))
+total_count=$((yaml_error_count + missing_count + mismatch_count))
 
 # Generate SuggestedImprovements.md
 cat > "$OUTPUT_FILE" << 'HEADER'
@@ -62,19 +132,38 @@ echo "## Summary" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "| Issue Type | Count |" >> "$OUTPUT_FILE"
 echo "|------------|-------|" >> "$OUTPUT_FILE"
+echo "| YAML syntax errors | $yaml_error_count |" >> "$OUTPUT_FILE"
 echo "| Missing valid color key | $missing_count |" >> "$OUTPUT_FILE"
 echo "| Color reference mismatch | $mismatch_count |" >> "$OUTPUT_FILE"
 echo "| **Total** | **$total_count** |" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 
 if [[ $total_count -eq 0 ]]; then
-    echo "No issues found. All biome configurations are valid." >> "$OUTPUT_FILE"
+    echo "No issues found. All configurations are valid." >> "$OUTPUT_FILE"
     echo "SuggestedImprovements.md generated: 0 issues found"
     exit 0
 fi
 
 echo "---" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
+
+# YAML syntax errors section
+if [[ $yaml_error_count -gt 0 ]]; then
+    echo "## YAML Syntax Errors" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    echo "These files contain YAML syntax errors that must be fixed:" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    echo "| File | Error |" >> "$OUTPUT_FILE"
+    echo "|------|-------|" >> "$OUTPUT_FILE"
+
+    for i in "${!yaml_error_files[@]}"; do
+        echo "| \`${yaml_error_files[$i]}\` | ${yaml_error_messages[$i]} |" >> "$OUTPUT_FILE"
+    done
+
+    echo "" >> "$OUTPUT_FILE"
+    echo "---" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+fi
 
 # Missing color keys section
 if [[ $missing_count -gt 0 ]]; then
@@ -116,6 +205,13 @@ fi
 cat >> "$OUTPUT_FILE" << 'RECOMMENDATIONS'
 ## Recommendations
 
+### For YAML Syntax Errors
+Fix the syntax errors in the listed files. Common issues include:
+- Incorrect indentation (YAML uses spaces, not tabs)
+- Missing colons after keys
+- Unquoted special characters
+- Duplicate keys
+
 ### For Missing Color Keys
 Add a color definition to each biome file in the format:
 ```yaml
@@ -135,6 +231,7 @@ RECOMMENDATIONS
 
 # Console output
 echo "SuggestedImprovements.md generated: $total_count issues found"
+echo "  - YAML syntax errors: $yaml_error_count"
 echo "  - Missing color key: $missing_count"
 echo "  - Color mismatch: $mismatch_count"
 

@@ -6,9 +6,23 @@ This document lists configuration issues found during the biome validation audit
 
 | Issue Type | Count |
 |------------|-------|
+| YAML syntax errors | 4 |
 | Missing valid color key | 24 |
 | Color reference mismatch | 61 |
-| **Total** | **85** |
+| **Total** | **89** |
+
+---
+
+## YAML Syntax Errors
+
+These files contain YAML syntax errors that must be fixed:
+
+| File | Error |
+|------|-------|
+| `./features/rearth/sharp_terraces.yml` | found duplicate anchor 'range'; first occurrence  |
+| `./features/rearth/sharp_terraces_edge.yml` | found duplicate anchor 'range'; first occurrence  |
+| `./palettes/rearth/ocean_brown_mix` | [Errno 2] No such file or directory: './palettes/rearth/ocean_brown_mix'  |
+| `deep.yml` | [Errno 2] No such file or directory: 'deep.yml'  |
 
 ---
 
@@ -116,6 +130,13 @@ These biome files have a color reference that does not match the biome ID:
 ---
 
 ## Recommendations
+
+### For YAML Syntax Errors
+Fix the syntax errors in the listed files. Common issues include:
+- Incorrect indentation (YAML uses spaces, not tabs)
+- Missing colons after keys
+- Unquoted special characters
+- Duplicate keys
 
 ### For Missing Color Keys
 Add a color definition to each biome file in the format:

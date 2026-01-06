@@ -7,8 +7,8 @@ This document lists configuration issues found during the biome validation audit
 | Issue Type | Count |
 |------------|-------|
 | Missing valid color key | 24 |
-| Color reference mismatch | 67 |
-| **Total** | **91** |
+| Color reference mismatch | 61 |
+| **Total** | **85** |
 
 ---
 
@@ -16,7 +16,6 @@ This document lists configuration issues found during the biome validation audit
 
 These biome files do not contain a valid color key (expected format: `color: $biomes/colors.yml:BIOME_ID`):
 
-### rearth/base/
 | File | Action Required |
 |------|-----------------|
 | `biomes/rearth/base/eq_canyon.yml` | Add color key |
@@ -27,10 +26,6 @@ These biome files do not contain a valid color key (expected format: `color: $bi
 | `biomes/rearth/base/eq_sinkhole.yml` | Add color key |
 | `biomes/rearth/base/eq_terrace_mountain.yml` | Add color key |
 | `biomes/rearth/base/eq_tilted_plateau.yml` | Add color key |
-
-### rearth/rivers/
-| File | Action Required |
-|------|-----------------|
 | `biomes/rearth/rivers/badlands_balconies_river.yml` | Add color key |
 | `biomes/rearth/rivers/frozen_fungi_river.yml` | Add color key |
 | `biomes/rearth/rivers/frozen_mountain_river.yml` | Add color key |
@@ -44,10 +39,6 @@ These biome files do not contain a valid color key (expected format: `color: $bi
 | `biomes/rearth/rivers/vertical_frozen_vistas_river.yml` | Add color key |
 | `biomes/rearth/rivers/vertical_jungle_vistas_river.yml` | Add color key |
 | `biomes/rearth/rivers/vertical_vistas_river.yml` | Add color key |
-
-### rearth/variants/
-| File | Action Required |
-|------|-----------------|
 | `biomes/rearth/variants/arid_arboretum.yml` | Add color key |
 | `biomes/rearth/variants/frozen_arch_ocean.yml` | Add color key |
 | `biomes/rearth/variants/rocky_refuge.yml` | Add color key |
@@ -56,14 +47,8 @@ These biome files do not contain a valid color key (expected format: `color: $bi
 
 ## Color Reference Mismatches
 
-These biome files have a color reference that does not match the biome ID. Either update the color reference to match, or add the color definition to `biomes/colors.yml`.
+These biome files have a color reference that does not match the biome ID:
 
-### ocean/
-| File | Biome ID | Current Color Reference |
-|------|----------|------------------------|
-| `biomes/ocean/warm/tropical_island_shallows.yml` | TROPICAL_ISLAND_SHALLOWS | TROPICAL_ISLAND_SHALLOWS |
-
-### rearth/debug/
 | File | Biome ID | Current Color Reference |
 |------|----------|------------------------|
 | `biomes/rearth/debug/coast_cold_a.yml` | COAST_COLD_A | FROZEN_BEACH |
@@ -82,10 +67,6 @@ These biome files have a color reference that does not match the biome ID. Eithe
 | `biomes/rearth/debug/variant_f.yml` | VARIANT_F | BEACH |
 | `biomes/rearth/debug/variant_g.yml` | VARIANT_G | DARK_FOREST |
 | `biomes/rearth/debug/variant_h.yml` | VARIANT_H | OAK_FOREST |
-
-### rearth/variants/
-| File | Biome ID | Current Color Reference |
-|------|----------|------------------------|
 | `biomes/rearth/variants/abyssal_ocean.yml` | ABYSSAL_ALLEYS | DEEP_OCEAN |
 | `biomes/rearth/variants/arch_oceans.yml` | STONEGATE_SEAS | SANDSTONE_ARCHIPELAGO |
 | `biomes/rearth/variants/badlands_balconies.yml` | BADLANDS_BALCONIES | BADLANDS_BUTTES |
@@ -132,19 +113,6 @@ These biome files have a color reference that does not match the biome ID. Eithe
 | `biomes/rearth/variants/vertical_vistas.yml` | VERTICAL_VISTAS | BAMBOO_JUNGLE |
 | `biomes/rearth/variants/white_wallows.yml` | WHITE_WALLOWS | MUDDY_COASTS |
 
-### river/
-| File | Biome ID | Current Color Reference |
-|------|----------|------------------------|
-| `biomes/river/dry/desert/badlands_river.yml` | BADLANDS_RIVER | BADLANDS_RIVER |
-| `biomes/river/dry/desert/orange/orange_desert_river.yml` | ORANGE_DESERT_RIVER | ORANGE_DESERT_RIVER |
-| `biomes/river/dry/desert/red/red_desert_river.yml` | RED_DESERT_RIVER | RED_DESERT_RIVER |
-| `biomes/river/dry/desert/white/desert_river.yml` | DESERT_RIVER | DESERT_RIVER |
-| `biomes/river/dry/warm_semi_arid/white/tar_pit_river.yml` | TAR_PIT_RIVER | TAR_PIT_RIVER |
-| `biomes/river/temperate/dry_temperate_mountains_river.yml` | DRY_TEMPERATE_MOUNTAINS_RIVER | DRY_TEMPERATE_MOUNTAINS_RIVER |
-| `biomes/river/temperate/dry_temperate_white_mountains_river.yml` | DRY_TEMPERATE_WHITE_MOUNTAINS_RIVER | DRY_TEMPERATE_WHITE_MOUNTAINS_RIVER |
-| `biomes/river/temperate/highlands_river.yml` | HIGHLANDS_RIVER | HIGHLANDS_RIVER |
-| `biomes/river/temperate/temperate_mountains_river.yml` | TEMPERATE_MOUNTAINS_RIVER | TEMPERATE_MOUNTAINS_RIVER |
-
 ---
 
 ## Recommendations
@@ -159,11 +127,8 @@ And ensure the corresponding color is defined in `biomes/colors.yml`.
 ### For Color Reference Mismatches
 Two options:
 1. **Option A**: Update the color reference to match the biome ID and add the new color to `biomes/colors.yml`
-2. **Option B**: If intentionally reusing another biome's color, consider if this is the desired behavior for map visualization
-
-### Note on River Biomes
-Several river biomes show as "mismatches" but appear to have matching IDs and color references. This may be a false positive due to whitespace or encoding issues in those files.
+2. **Option B**: If intentionally reusing another biome's color, this may be acceptable for map visualization
 
 ---
 
-*Generated by AuditAndPackage.bat validation step*
+*Generated by check-biomes.sh*

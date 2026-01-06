@@ -8,7 +8,7 @@ REM
 REM This script:
 REM   1. Creates the Overworld.zip package from all configuration files
 REM   2. Generates BiomeTable.csv with biome attributes
-REM   3. Validates biome configurations (color definitions)
+REM   3. Audits biome configs and generates SuggestedImprovements.md
 REM ============================================================================
 
 echo.
@@ -80,14 +80,14 @@ if %ERRORLEVEL% neq 0 (
 echo [OK] BiomeTable.csv generated successfully.
 echo.
 
-echo [Step 3/3] Validating biome configurations...
+echo [Step 3/3] Auditing biomes and generating SuggestedImprovements.md...
 echo --------------------------------------------
 wsl bash -c "cd '%WSL_PATH%' && bash .scripts/check-biomes.sh"
 if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Biome validation failed! See errors above.
+    echo [ERROR] Biome audit failed!
     exit /b 1
 )
-echo [OK] Biome validation passed.
+echo [OK] Biome audit completed.
 echo.
 
 :success
@@ -98,6 +98,7 @@ echo.
 echo Outputs:
 echo   - .artifacts\Overworld.zip
 if exist ".scripts\BiomeTable.csv" echo   - .scripts\BiomeTable.csv
+if exist "SuggestedImprovements.md" echo   - SuggestedImprovements.md
 echo.
 
 exit /b 0

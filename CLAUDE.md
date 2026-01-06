@@ -33,6 +33,7 @@ For simplicity, it may make sense for this batch file to simply call pack.sh and
 
 Claude should create the necessary files to perform this build if they do not already exist.
 
+- `pack.yml`: The main definition file, that tells the Terra plugin how to generate the world, where the primary key file is called out at "biomes:".
 
 - `.scripts/check-biomes.sh`: The main bash file that originally just validated color definitions per biome.  This would also likely be a good place to generate the BiomeTable.csv.
 
@@ -51,6 +52,7 @@ The climate would be
 Precipitation would just be a flag indicating if the biome is prescribed a precipitation designation in precipitation.yml
 Temperature would just be a flag indicating if the biome is prescribed a precipitation designation in temperature.yml
 Elevation would just be a flag indicating if the biome is prescribed a precipitation designation in elevation.yml
+Additional columns should also be created for each preset (Each yml file in the "presets" folder), indicating if that biome will be generated as a part of the respective preset, note this also will then require the full definition described in "stages" and "extrusions" to derive which biomes will ultimately be generated and if they are a part of the preset.
 
 ## Important Notes
 

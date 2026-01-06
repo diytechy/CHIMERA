@@ -15,12 +15,20 @@ OUTPUT_FILE="$SCRIPT_DIR/BiomeTable.csv"
 PRECIPITATION_FILE="biome-distribution/stages/climate/precipitation.yml"
 TEMPERATURE_FILE="biome-distribution/stages/climate/temperature.yml"
 ELEVATION_FILE="biome-distribution/stages/climate/elevation.yml"
+SET_BIOMES_FILE="biome-distribution/stages/set_biomes_in_climates.yml"
 
 # Preset directory
 PRESET_DIR="biome-distribution/presets"
 
 # Temporary file for caching biome lists per preset
 TEMP_PRESET_CACHE="/tmp/preset_biomes_$$"
+
+# Temporary files for climate mapping
+TEMP_CLIMATE_DIR="/tmp/climate_maps_$$"
+BIOME_ZONE_MAP="$TEMP_CLIMATE_DIR/biome_zones.map"
+TEMP_INTERMEDIATE_MAP="$TEMP_CLIMATE_DIR/temperature_intermediate.map"
+PRECIP_INTERMEDIATE_MAP="$TEMP_CLIMATE_DIR/precipitation_intermediate.map"
+ELEV_INTERMEDIATE_MAP="$TEMP_CLIMATE_DIR/elevation_intermediate.map"
 
 # Find all biome files (excluding abstract biomes)
 biome_files=$(find biomes -name "*.yml" -not -path "biomes/abstract/*" -not -name "colors.yml" | sort)
@@ -41,16 +49,54 @@ extract_biomes_from_yaml() {
         return
     fi
 
-    # Extract biome IDs - looks for patterns like:
+    # Temporary array to collect biome IDs
+    local biomes=()
+
+    # Method 1: Extract from "from: BIOME_NAME" and "to: BIOME_NAME" (single values)
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[[:space:]]*(from|to):[[:space:]]*([A-Z_][A-Z_0-9]*)[[:space:]]*$ ]]; then
+            biomes+=("${BASH_REMATCH[2]}")
+        fi
+    done < "$file"
+
+    # Method 2: Extract biome IDs from weighted lists - looks for patterns like:
     # - BIOME_NAME: 1
-    # - BIOME_NAME
-    # biome-name: value
-    # Also handles "to:" sections in REPLACE operations
-    grep -E '^\s*-?\s*[A-Z_a-z-]+\s*:' "$file" 2>/dev/null | \
-        grep -vE '(type|from|sampler|range|min|max|frequency|salt|return|variables|functions|expression|biomes|stages|extrusions|provider|pipeline|source|blend|amplitude|default-from|default-to|<<)' | \
+    # BIOME_NAME: weight
+    # Also filters out YAML keys and common configuration terms
+    while IFS= read -r line; do
+        biomes+=("$line")
+    done < <(grep -E '^\s*-?\s*[A-Z_a-z-]+\s*:' "$file" 2>/dev/null | \
+        grep -vE '(type|sampler|range|min|max|frequency|salt|return|variables|functions|expression|biomes|stages|extrusions|provider|pipeline|source|blend|amplitude|default-from|default-to|<<|resolution|jitter|lookup|dimensions)' | \
         sed -E 's/^\s*-?\s*([A-Z_a-z-]+)\s*:.*/\1/' | \
-        grep -vE '^(to|SELF)$' | \
-        sort -u
+        grep -vE '^(from|to|SELF)$')
+
+    # Method 3: Extract from source biomes section (e.g., "biomes:" followed by list)
+    # This catches patterns like:
+    #   biomes:
+    #     ocean: 1
+    #     land: 1
+    local in_biomes_section=0
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[[:space:]]*biomes:[[:space:]]*$ ]]; then
+            in_biomes_section=1
+            continue
+        fi
+
+        if [ $in_biomes_section -eq 1 ]; then
+            # Check if still in indented section
+            if [[ "$line" =~ ^[[:space:]]{2,}([a-z_-]+):[[:space:]]*[0-9] ]]; then
+                # Convert to uppercase with underscores for consistency
+                local biome=$(echo "${BASH_REMATCH[1]}" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+                biomes+=("$biome")
+            elif [[ "$line" =~ ^[a-z] ]]; then
+                # New top-level key, exit biomes section
+                in_biomes_section=0
+            fi
+        fi
+    done < "$file"
+
+    # Output unique biome IDs, sorted
+    printf '%s\n' "${biomes[@]}" | sort -u | grep -v '^$'
 }
 
 # Function to recursively extract biomes from a preset by following stage/extrusion includes
@@ -133,21 +179,156 @@ check_preset() {
     fi
 }
 
-# Function to check if a biome-style ID appears in a climate file
-# Converts UPPERCASE_UNDERSCORE to lowercase-hyphen format for matching
-check_climate_file() {
-    local biome_id="$1"
-    local climate_file="$2"
+# Function to extract base climate zones from a climate file
+# Parses YAML anchors (e.g., &iceCap) from default-to section
+extract_base_climate_zones() {
+    local climate_file="$1"
 
-    # Convert ID: MAPLE_GROVE -> maple-grove
-    local search_id=$(echo "$biome_id" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
-
-    if grep -qi "$search_id" "$climate_file" 2>/dev/null; then
-        echo "Y"
-    else
-        echo "N"
+    if [ ! -f "$climate_file" ]; then
+        return
     fi
+
+    # Extract lines with anchors from default-to section
+    # Format: - zone-name: &anchorName weight
+    awk '/default-to:/,/^[[:space:]]*to:/ {
+        if ($0 ~ /&[a-zA-Z]+/) {
+            match($0, /- ([a-z-]+):/, arr)
+            if (arr[1] != "") print arr[1]
+        }
+    }' "$climate_file" | sort -u
 }
+
+# Function to build intermediate climate zone mapping
+# Maps intermediate zones (e.g., "polar-mesa") to base zones (e.g., "ice-cap")
+build_intermediate_zone_map() {
+    local climate_file="$1"
+    local map_file="$2"
+
+    if [ ! -f "$climate_file" ]; then
+        return
+    fi
+
+    # First, extract anchor definitions (base zones with their anchor names)
+    # Format: - ice-cap: &iceCap 1
+    declare -A anchors
+    while IFS= read -r line; do
+        if [[ "$line" =~ -[[:space:]]*([a-z-]+):[[:space:]]*\&([a-zA-Z]+) ]]; then
+            local zone="${BASH_REMATCH[1]}"
+            local anchor="${BASH_REMATCH[2]}"
+            anchors[$anchor]="$zone"
+        fi
+    done < "$climate_file"
+
+    # Now extract intermediate zone mappings using aliases
+    # Format: - polar-mesa: *iceCap
+    local current_intermediate=""
+    while IFS= read -r line; do
+        # Check if this is an intermediate zone name (indented under "to:")
+        if [[ "$line" =~ ^[[:space:]]{6}([a-z-]+):$ ]]; then
+            current_intermediate="${BASH_REMATCH[1]}"
+        # Check if this is an alias reference
+        elif [[ "$line" =~ -[[:space:]]*([a-z-]+):[[:space:]]*\*([a-zA-Z]+) ]]; then
+            local intermediate_zone="${BASH_REMATCH[1]}"
+            local alias="${BASH_REMATCH[2]}"
+            local base_zone="${anchors[$alias]}"
+
+            if [ -n "$base_zone" ]; then
+                # Write mapping to file: intermediate_zone -> base_zone
+                echo "${intermediate_zone}|${base_zone}" >> "$map_file"
+            fi
+        # Alternative: alias without zone name (uses current_intermediate)
+        elif [[ "$line" =~ ^[[:space:]]{8}-[[:space:]]+\*([a-zA-Z]+) ]] && [ -n "$current_intermediate" ]; then
+            local alias="${BASH_REMATCH[1]}"
+            local base_zone="${anchors[$alias]}"
+
+            if [ -n "$base_zone" ]; then
+                echo "${current_intermediate}|${base_zone}" >> "$map_file"
+            fi
+        fi
+    done < "$climate_file"
+}
+
+# Function to extract biome to intermediate zone mappings
+# Parses set_biomes_in_climates.yml
+extract_biome_zone_mappings() {
+    local set_biomes_file="$1"
+    local output_file="$2"
+
+    if [ ! -f "$set_biomes_file" ]; then
+        return
+    fi
+
+    local current_zone=""
+    while IFS= read -r line; do
+        # Detect intermediate zone (6 spaces indentation)
+        if [[ "$line" =~ ^[[:space:]]{6}([a-z-]+):[[:space:]]*$ ]]; then
+            current_zone="${BASH_REMATCH[1]}"
+        # Detect biome mapping (8+ spaces indentation)
+        elif [[ "$line" =~ ^[[:space:]]{8}-[[:space:]]*([A-Z_]+): ]] && [ -n "$current_zone" ]; then
+            local biome="${BASH_REMATCH[1]}"
+            echo "${biome}|${current_zone}" >> "$output_file"
+        fi
+    done < "$set_biomes_file"
+}
+
+# Function to check if a biome has a climate designation
+# Uses the mapping files to trace biome -> intermediate zone -> base zone -> climate file
+check_climate_with_mapping() {
+    local biome_id="$1"
+    local climate_name="$2"  # "temperature", "precipitation", or "elevation"
+    local biome_zone_map="$3"
+    local intermediate_map="$4"
+    local base_zones="$5"
+
+    # Get intermediate zones for this biome
+    local intermediate_zones=$(grep "^${biome_id}|" "$biome_zone_map" 2>/dev/null | cut -d'|' -f2 | sort -u)
+
+    if [ -z "$intermediate_zones" ]; then
+        echo "N"
+        return
+    fi
+
+    # Check if any intermediate zone maps to a base zone in this climate file
+    while IFS= read -r intermediate_zone; do
+        # Get base zones for this intermediate zone
+        local base_zone_matches=$(grep "^${intermediate_zone}|" "$intermediate_map" 2>/dev/null | cut -d'|' -f2)
+
+        # Check if any base zone matches the climate file's base zones
+        while IFS= read -r base_zone; do
+            if echo "$base_zones" | grep -q "^${base_zone}$"; then
+                echo "Y"
+                return
+            fi
+        done <<< "$base_zone_matches"
+
+        # Also check if the intermediate zone itself is a base zone
+        if echo "$base_zones" | grep -q "^${intermediate_zone}$"; then
+            echo "Y"
+            return
+        fi
+    done <<< "$intermediate_zones"
+
+    echo "N"
+}
+
+# Build climate mapping cache
+echo "Building climate mapping cache..."
+mkdir -p "$TEMP_CLIMATE_DIR"
+
+# Extract base climate zones
+TEMP_BASE_ZONES=$(extract_base_climate_zones "$TEMPERATURE_FILE")
+PRECIP_BASE_ZONES=$(extract_base_climate_zones "$PRECIPITATION_FILE")
+ELEV_BASE_ZONES=$(extract_base_climate_zones "$ELEVATION_FILE")
+
+# Build intermediate zone mappings
+build_intermediate_zone_map "$TEMPERATURE_FILE" "$TEMP_INTERMEDIATE_MAP"
+build_intermediate_zone_map "$PRECIPITATION_FILE" "$PRECIP_INTERMEDIATE_MAP"
+build_intermediate_zone_map "$ELEVATION_FILE" "$ELEV_INTERMEDIATE_MAP"
+
+# Extract biome to zone mappings from set_biomes_in_climates.yml
+if [ -f "$SET_BIOMES_FILE" ]; then
+    extract_biome_zone_mappings "$SET_BIOMES_FILE" "$BIOME_ZONE_MAP"
+fi
 
 # Build preset cache
 echo "Building preset cache..."
@@ -203,10 +384,10 @@ for biome_file in $biome_files; do
     # Extract Color
     color=$(grep -m1 "^color:" "$biome_file" | sed 's/color:[[:space:]]*//' | tr -d '\r')
 
-    # Check climate flags
-    precipitation=$(check_climate_file "$biome_id" "$PRECIPITATION_FILE")
-    temperature=$(check_climate_file "$biome_id" "$TEMPERATURE_FILE")
-    elevation=$(check_climate_file "$biome_id" "$ELEVATION_FILE")
+    # Check climate flags using the new mapping-based approach
+    precipitation=$(check_climate_with_mapping "$biome_id" "precipitation" "$BIOME_ZONE_MAP" "$PRECIP_INTERMEDIATE_MAP" "$PRECIP_BASE_ZONES")
+    temperature=$(check_climate_with_mapping "$biome_id" "temperature" "$BIOME_ZONE_MAP" "$TEMP_INTERMEDIATE_MAP" "$TEMP_BASE_ZONES")
+    elevation=$(check_climate_with_mapping "$biome_id" "elevation" "$BIOME_ZONE_MAP" "$ELEV_INTERMEDIATE_MAP" "$ELEV_BASE_ZONES")
 
     # Escape any commas in extends field and wrap in quotes if needed
     if [[ "$extends" == *","* ]] || [[ "$extends" == *";"* ]]; then
@@ -224,8 +405,9 @@ for biome_file in $biome_files; do
     echo "${biome_id},${extends},${color},${precipitation},${temperature},${elevation}${preset_flags}" >> "$OUTPUT_FILE"
 done
 
-# Clean up temporary cache
+# Clean up temporary caches
 rm -rf "$TEMP_PRESET_CACHE"
+rm -rf "$TEMP_CLIMATE_DIR"
 
 # Count results
 total_biomes=$(tail -n +2 "$OUTPUT_FILE" | wc -l)

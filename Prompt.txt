@@ -1,0 +1,20 @@
+Prompt:
+
+I want to create a table that maps variables between yml files that configure world generation for the Terra plugin for minecraft.
+
+I would like to generate this using a powershell script, but python can also be considered.
+
+Input:
+A folder path to a Terra project.
+
+Output:
+A csv file with the following information:
+
+BiomeID, Extends, Color, the climate it's assigned to.
+
+Each row would correspond to a biome file (stored in the folder "biomes").
+A valid biome file can be verified by seeing the "type: BIOME" key value pair.
+BiomeID would be found from the ID key in the biome file.
+Extends would be found from the "extends" key in the biomme file.
+Color would be found from the "color" key in the biome file.
+The climate would be 

@@ -94,12 +94,6 @@ class StageProcessor:
         # Get transformation mapping
         to_section = stage.get('to', {})
 
-        # Debug
-        if len(to_section) > 5:  # Only for large stages like climate
-            print(f"      DEBUG: Processing REPLACE_LIST with {len(to_section)} transformations", file=sys.stderr)
-            print(f"      DEBUG: Current biomes: {list(distribution.probabilities.keys())[:10]}", file=sys.stderr)
-            print(f"      DEBUG: Available transformations: {list(to_section.keys())[:10]}", file=sys.stderr)
-
         # Process each biome in current distribution
         for from_biome, from_prob in list(distribution.probabilities.items()):
             # Check if there's a specific transformation for this biome
@@ -148,23 +142,47 @@ class StageProcessor:
 
         from_biome = stage.get('from')
         to_spec = stage.get('to')
+        sampler = stage.get('sampler')
 
         if from_biome and from_biome in new_dist.probabilities:
             from_prob = new_dist.get(from_biome)
+
+            # Determine what fraction of the biome gets transformed
+            # If there's a sampler (like continentBorder), it only applies to some locations
+            # We approximate this as affecting a fraction of the biome
+            transform_fraction = 1.0  # Default: transform all
+            if sampler and isinstance(sampler, dict):
+                sampler_type = sampler.get('type', '')
+                if sampler_type == 'CONSTANT':
+                    transform_fraction = 1.0  # CONSTANT means always apply
+                elif sampler_type in ['EXPRESSION', 'OPEN_SIMPLEX_2', 'WHITE_NOISE', 'CELLULAR']:
+                    # Spatial samplers - estimate they affect about 30-50% of locations
+                    # We use 40% as a middle ground
+                    transform_fraction = 0.4
+
+            # Split the from_prob into transformed and non-transformed parts
+            transformed_prob = from_prob * transform_fraction
+            remaining_prob = from_prob * (1 - transform_fraction)
+
+            # Remove all of from_biome first
             new_dist.remove(from_biome)
+
+            # Add back the non-transformed part if sampler is present
+            if remaining_prob > 0:
+                new_dist.add(from_biome, remaining_prob)
 
             # Handle to as string, list, or dict
             if isinstance(to_spec, str):
                 if to_spec == 'SELF':
-                    new_dist.add(from_biome, from_prob)
+                    new_dist.add(from_biome, transformed_prob)
                 else:
-                    new_dist.add(to_spec, from_prob)
+                    new_dist.add(to_spec, transformed_prob)
             elif isinstance(to_spec, list):
                 to_weights = StageProcessor.parse_weighted_list(to_spec)
                 total_weight = sum(to_weights.values())
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
-                        prob = from_prob * (weight / total_weight)
+                        prob = transformed_prob * (weight / total_weight)
                         new_dist.add(to_biome, prob)
             elif isinstance(to_spec, dict):
                 # Dict format
@@ -175,8 +193,47 @@ class StageProcessor:
                 total_weight = sum(to_weights.values())
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
-                        prob = from_prob * (weight / total_weight)
+                        prob = transformed_prob * (weight / total_weight)
                         new_dist.add(to_biome, prob)
+
+        return new_dist
+
+    @staticmethod
+    def process_border(stage: Dict, distribution: BiomeDistribution) -> BiomeDistribution:
+        """Process a BORDER stage
+
+        BORDER stages find borders between two biomes and create a third biome at the boundary.
+        For probability calculation, we approximate this by:
+        - Taking a percentage of the 'replace' biome's probability
+        - Converting it to the 'to' biome
+        - The percentage is proportional to the 'from' biome's probability (more 'from' = more borders)
+        """
+        new_dist = distribution.copy()
+
+        from_biome = stage.get('from')
+        replace_biome = stage.get('replace')
+        to_biome = stage.get('to')
+
+        if not from_biome or not replace_biome or not to_biome:
+            return distribution
+
+        # Get probabilities
+        from_prob = new_dist.get(from_biome)
+        replace_prob = new_dist.get(replace_biome)
+
+        if from_prob <= 0 or replace_prob <= 0:
+            # Need both biomes to exist for borders
+            return distribution
+
+        # Border fraction: estimate how much of replace_biome gets converted to to_biome
+        # This is proportional to both the from_biome and replace_biome probabilities
+        # We use a conservative estimate: convert up to 20% of the replace biome
+        border_factor = min(0.20, from_prob * 0.4)  # Max 20% conversion
+        border_prob = replace_prob * border_factor
+
+        # Transfer probability from replace_biome to to_biome
+        new_dist.probabilities[replace_biome] = replace_prob - border_prob
+        new_dist.add(to_biome, border_prob)
 
         return new_dist
 
@@ -192,6 +249,8 @@ class StageProcessor:
             return StageProcessor.process_replace_list(stage_config, distribution)
         elif stage_type == 'REPLACE':
             return StageProcessor.process_replace(stage_config, distribution)
+        elif stage_type == 'BORDER':
+            return StageProcessor.process_border(stage_config, distribution)
         else:
             # EXPAND, SMOOTH, etc. don't affect probabilities
             return distribution

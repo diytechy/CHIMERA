@@ -2,6 +2,13 @@ import importlib
 import subprocess
 import sys
 
+PACKAGE_MAP = {
+    "yaml": "PyYAML",
+    "pil": "Pillow",
+    "cv2": "opencv-python",
+    # add more as needed
+}
+
 def ensure_module(module_name, package_name=None):
     """
     Ensures a Python module is installed.
@@ -9,7 +16,7 @@ def ensure_module(module_name, package_name=None):
     module_name: name used in `import`
     package_name: name used in `pip install` (if different)
     """
-    package_name = package_name or module_name
+    package_name = package_name or PACKAGE_MAP.get(module_name, module_name)
 
     try:
         return importlib.import_module(module_name)

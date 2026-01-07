@@ -176,7 +176,11 @@ class StageProcessor:
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
                         prob = from_prob * (weight / total_weight)
-                        new_dist.add(to_biome, prob)
+                        if to_biome == 'SELF':
+                            # SELF means keep the original biome
+                            new_dist.add(from_biome, prob)
+                        else:
+                            new_dist.add(to_biome, prob)
             elif isinstance(to_spec, dict):
                 # Dict format
                 to_weights = {}
@@ -187,7 +191,11 @@ class StageProcessor:
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
                         prob = from_prob * (weight / total_weight)
-                        new_dist.add(to_biome, prob)
+                        if to_biome == 'SELF':
+                            # SELF means keep the original biome
+                            new_dist.add(from_biome, prob)
+                        else:
+                            new_dist.add(to_biome, prob)
 
         return new_dist
 

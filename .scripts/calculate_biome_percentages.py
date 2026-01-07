@@ -223,27 +223,49 @@ class BiomeMetadata:
 class BiomeReader:
     """Reads biome files and extracts metadata"""
 
-    @staticmethod
-    def find_biome_file(biome_id: str, biomes_dir: Path = Path("biomes")) -> Optional[Path]:
-        """Find the YAML file for a given biome ID"""
-        # Try to find the file recursively
+    _cache: Optional[Dict[str, Path]] = None
+    _metadata_cache: Dict[str, BiomeMetadata] = {}
+
+    @classmethod
+    def build_cache(cls, biomes_dir: Path = Path("biomes")):
+        """Build cache of all biome files"""
+        if cls._cache is not None:
+            return
+
+        print(f"Building biome file cache from {biomes_dir}...", file=sys.stderr)
+        cls._cache = {}
+
         for biome_file in biomes_dir.rglob("*.yml"):
             try:
                 with open(biome_file, 'r') as f:
                     data = yaml.safe_load(f)
-                    if data and data.get('id') == biome_id and data.get('type') == 'BIOME':
-                        return biome_file
+                    if data and data.get('type') == 'BIOME':
+                        biome_id = data.get('id')
+                        if biome_id:
+                            cls._cache[biome_id] = biome_file
             except:
                 continue
-        return None
 
-    @staticmethod
-    def read_biome_metadata(biome_id: str) -> BiomeMetadata:
+        print(f"Cached {len(cls._cache)} biome files", file=sys.stderr)
+
+    @classmethod
+    def find_biome_file(cls, biome_id: str) -> Optional[Path]:
+        """Find the YAML file for a given biome ID"""
+        cls.build_cache()
+        return cls._cache.get(biome_id)
+
+    @classmethod
+    def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:
         """Read metadata for a biome"""
+        # Check metadata cache first
+        if biome_id in cls._metadata_cache:
+            return cls._metadata_cache[biome_id]
+
         metadata = BiomeMetadata(biome_id)
 
-        biome_file = BiomeReader.find_biome_file(biome_id)
+        biome_file = cls.find_biome_file(biome_id)
         if not biome_file:
+            cls._metadata_cache[biome_id] = metadata
             return metadata
 
         try:
@@ -254,6 +276,7 @@ class BiomeReader:
         except Exception as e:
             print(f"Warning: Could not read metadata for {biome_id}: {e}", file=sys.stderr)
 
+        cls._metadata_cache[biome_id] = metadata
         return metadata
 
 
@@ -277,7 +300,22 @@ class PresetAnalyzer:
             provider = biomes_config.get('provider', {})
             pipeline = provider.get('pipeline', {})
             source = pipeline.get('source', {})
+
+            # Source might be a string reference or inline config
+            if isinstance(source, str):
+                print(f"  Source is a reference: {source} (skipping)", file=sys.stderr)
+                return dist
+
             biomes = source.get('biomes', {})
+
+            # Biomes might also be a string reference
+            if isinstance(biomes, str):
+                print(f"  Biomes is a reference: {biomes} (skipping)", file=sys.stderr)
+                return dist
+
+            if not isinstance(biomes, dict):
+                print(f"  Unexpected biomes format: {type(biomes)}", file=sys.stderr)
+                return dist
 
             # Parse source biomes and weights
             total_weight = sum(biomes.values())
@@ -287,6 +325,8 @@ class PresetAnalyzer:
 
         except Exception as e:
             print(f"Warning: Could not parse source biomes: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
 
         return dist
 

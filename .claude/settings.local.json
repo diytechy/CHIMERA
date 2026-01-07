@@ -12,7 +12,8 @@
       "Bash(wsl bash:*)",
       "Bash(cmd /c AuditAndPackage.bat)",
       "Bash(cmd /c \".scripts\\\\AuditAndPackage.bat\")",
-      "Bash(powershell -Command \"& { cmd /c ''.scripts\\\\AuditAndPackage.bat'' }\")"
+      "Bash(powershell -Command \"& { cmd /c ''.scripts\\\\AuditAndPackage.bat'' }\")",
+      "Bash(grep:*)"
     ]
   }
 }

@@ -142,52 +142,40 @@ class StageProcessor:
 
     @staticmethod
     def process_replace(stage: Dict, distribution: BiomeDistribution) -> BiomeDistribution:
-        """Process a simple REPLACE stage"""
+        """Process a simple REPLACE stage
+
+        Based on Terra source code (ReplaceStage.java):
+        - The 'from' field matches biomes by tag/ID
+        - ALL matching biomes are replaced (100%, not partial)
+        - The 'sampler' determines WHICH biome from 'to' is selected at each location
+        - The 'to' weights determine proportional distribution (modified by sampler spatial pattern)
+        """
         new_dist = distribution.copy()
 
         from_biome = stage.get('from')
         to_spec = stage.get('to')
-        sampler = stage.get('sampler')
 
         if from_biome and from_biome in new_dist.probabilities:
             from_prob = new_dist.get(from_biome)
 
-            # Determine what fraction of the biome gets transformed
-            # If there's a sampler (like continentBorder), it only applies to some locations
-            # We approximate this as affecting a fraction of the biome
-            transform_fraction = 1.0  # Default: transform all
-            if sampler and isinstance(sampler, dict):
-                sampler_type = sampler.get('type', '')
-                if sampler_type == 'CONSTANT':
-                    transform_fraction = 1.0  # CONSTANT means always apply
-                elif sampler_type in ['EXPRESSION', 'OPEN_SIMPLEX_2', 'WHITE_NOISE', 'CELLULAR']:
-                    # Spatial samplers - estimate they affect about 30-50% of locations
-                    # We use 40% as a middle ground
-                    transform_fraction = 0.4
-
-            # Split the from_prob into transformed and non-transformed parts
-            transformed_prob = from_prob * transform_fraction
-            remaining_prob = from_prob * (1 - transform_fraction)
-
-            # Remove all of from_biome first
+            # According to Terra source, ALL matching biomes are replaced
+            # The sampler controls which 'to' biome is selected, not whether replacement happens
             new_dist.remove(from_biome)
 
-            # Add back the non-transformed part if sampler is present
-            if remaining_prob > 0:
-                new_dist.add(from_biome, remaining_prob)
-
-            # Handle to as string, list, or dict
+            # Distribute the probability according to 'to' weights
+            # The sampler creates spatial variation in which biome appears where,
+            # but for statistical purposes, the weights determine average distribution
             if isinstance(to_spec, str):
                 if to_spec == 'SELF':
-                    new_dist.add(from_biome, transformed_prob)
+                    new_dist.add(from_biome, from_prob)
                 else:
-                    new_dist.add(to_spec, transformed_prob)
+                    new_dist.add(to_spec, from_prob)
             elif isinstance(to_spec, list):
                 to_weights = StageProcessor.parse_weighted_list(to_spec)
                 total_weight = sum(to_weights.values())
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
-                        prob = transformed_prob * (weight / total_weight)
+                        prob = from_prob * (weight / total_weight)
                         new_dist.add(to_biome, prob)
             elif isinstance(to_spec, dict):
                 # Dict format
@@ -198,7 +186,7 @@ class StageProcessor:
                 total_weight = sum(to_weights.values())
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
-                        prob = transformed_prob * (weight / total_weight)
+                        prob = from_prob * (weight / total_weight)
                         new_dist.add(to_biome, prob)
 
         return new_dist
@@ -479,16 +467,51 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
 
     print(f"Total biomes found: {len(all_biomes)}")
 
+    # Identify unresolved intermediate biomes
+    # Common intermediate biome names used in pipelines
+    known_intermediate_names = {
+        'land', 'ocean', 'cold', 'warm', 'medium',
+        'coast_small', 'coast_wide',
+        'coast_small_cold', 'coast_small_warm', 'coast_small_medium',
+        'coast_wide_cold', 'coast_wide_warm', 'coast_wide_medium',
+        'ocean_cold', 'ocean_warm', 'ocean_medium',
+        'arid-pale-garden', 'maple-groves'  # Old naming convention
+    }
+
+    unresolved_biomes = set()
+    for biome_id in all_biomes:
+        # Check if it's an intermediate biome
+        is_intermediate = (
+            biome_id.startswith('_') or  # Underscore prefix indicates intermediate
+            biome_id in known_intermediate_names  # Known intermediate names
+        )
+        biome_file = BiomeReader.find_biome_file(biome_id)
+
+        # Also check if it doesn't have a valid biome file
+        if is_intermediate or (not biome_file and biome_id not in ['SELF']):
+            unresolved_biomes.add(biome_id)
+            print(f"  Warning: Unresolved intermediate/invalid biome: {biome_id}", file=sys.stderr)
+
     # Read metadata for each biome
     biome_metadata_map = {}
     for biome_id in sorted(all_biomes):
+        # For unresolved biomes, rename them to make it clear they're not final biomes
+        display_id = biome_id
+        if biome_id in unresolved_biomes:
+            # Convert intermediate names like "_desert" to "UNLINKED_desert"
+            if biome_id.startswith('_'):
+                display_id = f"UNLINKED{biome_id}"  # Keeps the underscore: UNLINKED_desert
+            else:
+                display_id = f"UNLINKED_{biome_id}"
+
         metadata = BiomeReader.read_biome_metadata(biome_id)
+        metadata.biome_id = display_id  # Use the display ID in output
 
         # Add percentages from all presets
         for preset_name, distribution in results.items():
             metadata.percentages[preset_name] = distribution.get(biome_id)
 
-        biome_metadata_map[biome_id] = metadata
+        biome_metadata_map[display_id] = metadata
 
     # Get sorted list of preset names
     preset_names = sorted(results.keys())
@@ -543,10 +566,41 @@ def main():
     for preset_name, distribution in results.items():
         print(f"\n{preset_name}:")
         for biome, prob in distribution.get_top_biomes(20):
-            print(f"  {biome:<40} {prob:>8.4%}")
+            marker = " [UNRESOLVED]" if biome.startswith('_') or biome in ['land', 'ocean', 'cold', 'warm', 'medium'] else ""
+            print(f"  {biome:<40} {prob:>8.4%}{marker}")
 
     # Generate CSV output
     generate_csv_output(results, output_file)
+
+    # Final summary of unresolved biomes
+    print("\n" + "=" * 70)
+    print("UNRESOLVED INTERMEDIATE BIOMES:")
+    print("=" * 70)
+    print("These biomes appear in the distribution but are not final biomes.")
+    print("They should be fully resolved through REPLACE stages or removed.")
+    print()
+
+    all_biomes = set()
+    for distribution in results.values():
+        all_biomes.update(distribution.probabilities.keys())
+
+    unresolved_found = False
+    for biome_id in sorted(all_biomes):
+        if biome_id.startswith('_') or (biome_id in ['land', 'ocean', 'cold', 'warm', 'medium', 'coast_small', 'coast_wide',
+                                                       'coast_small_cold', 'coast_small_warm', 'coast_small_medium',
+                                                       'coast_wide_cold', 'coast_wide_warm', 'coast_wide_medium',
+                                                       'ocean_cold', 'ocean_warm', 'ocean_medium']):
+            unresolved_found = True
+            # Show which presets have this biome
+            preset_info = []
+            for preset_name, distribution in results.items():
+                prob = distribution.get(biome_id)
+                if prob > 0:
+                    preset_info.append(f"{preset_name}: {prob:.4%}")
+            print(f"  {biome_id}: {', '.join(preset_info)}")
+
+    if not unresolved_found:
+        print("  None - all biomes properly resolved!")
 
 
 if __name__ == "__main__":

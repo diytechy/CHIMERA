@@ -33,3 +33,13 @@ def ensure_module(module_name, package_name=None):
         except ImportError:
             print(f"Module '{module_name}' still cannot be imported after installation.")
             sys.exit(1)
+        
+def ensure_modules(modules):
+    """
+    Accepts a list of module names and returns a dict
+    mapping module_name -> imported module object.
+    """
+    loaded = {}
+    for name in modules:
+        loaded[name] = ensure_module(name)
+    return loaded

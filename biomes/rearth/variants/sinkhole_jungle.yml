@@ -25,6 +25,11 @@ palette:
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
 features:
+  global-preprocessors:
+    - LAVA_FLOOR
+    - UNDERGROUND_LAVA_COLUMNS
+    - CONTAIN_FLOATING_WATER
+    - TEXTURED_STONE_SLANT
   flora:
     - GRASS_CAVES
   trees:

@@ -89,6 +89,12 @@ palette:
   - << meta.yml:palette-bottom
 
 features:
+  global-preprocessors:
+    - LAVA_FLOOR
+    - UNDERGROUND_LAVA_COLUMNS
+    - CONTAIN_FLOATING_WATER
+    - CAVE_GLOW_LICHEN
+    - TEXTURED_STONE_SLANT
   trees:
     - LOW_EVERGREEN_TREES
   preprocessors:

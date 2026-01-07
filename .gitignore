@@ -3,3 +3,4 @@
 *.ipr
 *.jar
 *.bak
+.scripts/__pycache__

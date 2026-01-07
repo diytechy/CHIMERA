@@ -5,7 +5,8 @@ calculate_biome_percentages.py
 Calculates actual biome percentages by tracing through Terra preset pipelines.
 Properly handles YAML anchors/aliases and cascading probability calculations.
 """
-
+import ensure_module
+ensure_module('yaml, re')
 import yaml
 import re
 import sys

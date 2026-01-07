@@ -18,3 +18,10 @@ BiomeID would be found from the ID key in the biome file.
 Extends would be found from the "extends" key in the biomme file.
 Color would be found from the "color" key in the biome file.
 The climate would be 
+
+
+1. Add any ocean biomes (set in oceans.yml) that are not currently set in set_biomes_in_climates.yml to set_biomes_in_climates.yml. Attempt to add them to the group they would be associated with based on the name and climate simantics.  Ex: ARCTIC_ARCHES likely should be placed where the ocean is shallow and cold (polar-shallow-ocean), ICEBERG_OCEAN should likely be set where the ocean is deep and cold (polar-deep-ocean and boreal-ocean), STONEGATE_SEAS should be placed where the ocean is shallow, regardless of temperature.
+
+2. Add any biomes from fill_temperature_zones.yml that that are not currently set in set_biomes_in_climates.yml using similar methods.  Ex: FROSTY_FINGERS would likely be placed somewhere like polar-coast-flat, polar-coast, polar-vast-forest-coast, perhaps boreal-vast-forest-coast.
+
+Weights should also be drafted according to the likelyhood those biomes would occur with respect to other biomes.  Remember biomes can be set in more than one group.

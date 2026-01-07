@@ -28,9 +28,9 @@ biomes:
           land: 3
           #Generate initial biome distribution of land and ocean.
       stages:
-        #Add spots to drop POI like volcanos
+        #Add spots to drop large POIs like volcanos / mesas
         #Input: ocean / land
-        #Output: ocean / land / various spot locations / coastal regions.
+        #Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
         - << biome-distribution/stages/add_spots.yml:stages
         
         #Break apart land into major transitionals
@@ -50,7 +50,11 @@ biomes:
         #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
         - << biome-distribution/stages/special/canyons.yml:stages
         
-        #Using temperature / precipitation / elevation, generate standard biome distribution.
+        #Future placeholder to add sinkholes
+        #Input: land
+        #Output: sink hole zones
+        
+        #Using temperature / precipitation / elevation, generate biome distribution.
         - << biome-distribution/stages/climate/temperature.yml:stages
         - << biome-distribution/stages/climate/precipitation.yml:stages
         - << biome-distribution/stages/climate/elevation.yml:stages
@@ -68,9 +72,10 @@ biomes:
         #Place remaining biome regions into actual biome definitions
         - << biome-distribution/stages/set_biomes_in_climates.yml:stages
         
-        #Add color variants, 
+        #Add color variants to special biomes.
         - << biome-distribution/stages/add_biome_color_variants.yml:stages
         
+        #Integrate special borders.
         - << biome-distribution/stages/special/border_biomes.yml:stages
 
         - type: FRACTAL_EXPAND

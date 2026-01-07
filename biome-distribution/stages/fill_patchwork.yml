@@ -1,6 +1,6 @@
 stages:
   - type: REPLACE
-    from: _patchwork_cold
+    from: _patchwork_cold_wet
     sampler: &patchworkSampler
       dimensions: 2
       type: DOMAIN_WARP
@@ -26,34 +26,63 @@ stages:
             type: OPEN_SIMPLEX_2
             frequency: 1 / ${customization.yml:biomeSpread.cellDistance} / 1.6
     to:
-      FROSTY_FINGERS: 2
+      FROSTY_FINGERS: 9
       COLD_STEPPE: 3
-      SNOWY_MEADOW: 3
-      SNOWY_MOUNTAINS: 3
+      SNOWY_MEADOW: 6
+      SNOWY_MOUNTAINS: 6
       TUNDRA_TRACKS: 3
       SNOWY_SPIRES: 2
   - type: REPLACE
-    from: _patchwork_medium
+    from: _patchwork_cold_dry
+    sampler: *patchworkSampler
+    to:
+      FROSTY_FINGERS: 2
+      COLD_STEPPE: 3
+      TUNDRA_TRACKS: 3
+  - type: REPLACE
+    from: _patchwork_medium_wet
     sampler: *patchworkSampler
     to:
       VERTICAL_VISTAS: 2
-      BLACK_FOREST: 3
-      SECLUDED_VALLEY_OUTER: 3
-      MURKY_MARSHLANDS: 3
-      FOSSILIZED_FENLANDS: 3
-      VERDANT_VALLEYS: 3
+      MURKY_MARSHLANDS: 6
+      VERDANT_VALLEYS: 6
       FOLIAGE_FORTRESS_OUTER: 3
-      BADLANDS_BALCONIES: 3
-      TALL_TIMBERLAND: 3
+  - type: REPLACE
+    from: _patchwork_medium_mild
+    sampler: *patchworkSampler
+    to:
+      VERTICAL_VISTAS: 2
+      BLACK_FOREST: 6
+      SECLUDED_VALLEY_OUTER: 3
+      FOSSILIZED_FENLANDS: 3
+      TALL_TIMBERLAND: 6
+      FOLIAGE_FORTRESS_OUTER: 3
       GLOOMY_GORGE: 3
       WHITE_WALLOWS: 2
   - type: REPLACE
-    from: _patchwork_warm
+    from: _patchwork_medium_dry
+    sampler: *patchworkSampler
+    to:
+      FOSSILIZED_FENLANDS: 3
+      BADLANDS_BALCONIES: 3
+      GLOOMY_GORGE: 3
+      WHITE_WALLOWS: 2
+  - type: REPLACE
+    from: _patchwork_warm_wet
+    sampler: *patchworkSampler
+    to:
+      OVERGROWN_CLIFFS: 3
+      WATERY_WILDS: 3
+  - type: REPLACE
+    from: _patchwork_warm_mild
+    sampler: *patchworkSampler
+    to:
+      MESA_MONUMENTS: 3
+      OVERGROWN_CLIFFS: 2
+  - type: REPLACE
+    from: _patchwork_warm_dry
     sampler: *patchworkSampler
     to:
       SALT_FLATS: 2
-      MESA_MONUMENTS: 3
       DESERT_SPIKES_GOLD: 3
-      OVERGROWN_CLIFFS: 3
-      WATERY_WILDS: 3
       DESERT: 2

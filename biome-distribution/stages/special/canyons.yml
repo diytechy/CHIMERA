@@ -24,7 +24,7 @@ stages:
       max: 319
     to:
       SELF: 16
-      _canyon: 7
+      _canyon: 10
   - type: REPLACE
     from: _canyon
     sampler:

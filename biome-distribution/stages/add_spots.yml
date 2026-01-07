@@ -2,7 +2,7 @@ stages:
   - type: REPLACE
     from: ALL
     to:
-      - SELF: 1
+      - SELF: 2
       - spot: 1
     sampler:
       type: EXPRESSION

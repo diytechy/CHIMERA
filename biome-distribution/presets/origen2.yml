@@ -28,13 +28,49 @@ biomes:
           land: 3
           #Generate initial biome distribution of land and ocean.
       stages:
+        #Add spots to drop POI like volcanos
+        #Input: ocean / land
+        #Output: ocean / land / various spot locations / coastal regions.
+        - << biome-distribution/stages/add_spots.yml:stages
+        
+        #Break apart land into major transitionals
+        #Input: ocean / land
+        #Output: land / vast-forest / island / ocean.
+        - << biome-distribution/stages/add_large_spots.yml:stages
+        
+        
+        #Add coast-lines between land / ocean.  Might need to return and add transition from forest?
+        #Input: ocean / land
+        #Output: ocean / land / coast
+        - << biome-distribution/stages/add_coast.yml:stages
+        
+        
+        #Split land into canyon (effectively a basin) / land distribution.
+        #Input: land
+        #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
         - << biome-distribution/stages/special/canyons.yml:stages
-        - << biome-distribution/stages/coasts.yml:stages
-        - << biome-distribution/stages/fill_coasts.yml:stages
-        - << biome-distribution/stages/oceans.yml:stages
-        - << biome-distribution/stages/spread_temperature_zones.yml:stages
-        - << biome-distribution/stages/fill_temperature_zones.yml:stages
-        - << biome-distribution/stages/fill_patchwork.yml:stages
+        
+        #Using temperature / precipitation / elevation, generate standard biome distribution.
+        - << biome-distribution/stages/climate/temperature.yml:stages
+        - << biome-distribution/stages/climate/precipitation.yml:stages
+        - << biome-distribution/stages/climate/elevation.yml:stages
+        
+        
+        #Build out coast lines and islands.
+        - << biome-distribution/stages/add_large_spot_coast.yml:stages
+        - << biome-distribution/stages/add_island_shelf.yml:stages
+        - << biome-distribution/stages/add_islands.yml:stages
+        - << biome-distribution/stages/climate/color.yml:stages
+        
+        #Add in terraces
+        - << biome-distribution/stages/add_travertine_terraces.yml:stages
+        
+        #Place remaining biome regions into actual biome definitions
+        - << biome-distribution/stages/set_biomes_in_climates.yml:stages
+        
+        #Add color variants, 
+        - << biome-distribution/stages/add_biome_color_variants.yml:stages
+        
         - << biome-distribution/stages/special/border_biomes.yml:stages
 
         - type: FRACTAL_EXPAND
@@ -50,4 +86,5 @@ biomes:
           sampler:
             type: WHITE_NOISE
 
-            
+
+        - << biome-distribution/stages/add_trenches.yml:stages

@@ -3,7 +3,7 @@ type: FEATURE
 
 distributor:
   type: PADDED_GRID
-  width: 15
+  width: 17
   padding: 3
   salt: 1923
 
@@ -12,7 +12,7 @@ locator:
   locators:
     - type: TOP
       range: &range
-        min: ${meta.yml:ocean-level} + 2
+        min: ${meta.yml:ocean-level} + 3
         max: $meta.yml:top-y
     - type: PATTERN
       range: *range

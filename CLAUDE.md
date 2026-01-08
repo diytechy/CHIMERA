@@ -24,35 +24,38 @@ The core "build" for this repository is intended to be a batch script ".scripts/
 
 ### Key Files
 
-- `.scripts/AuditAndPackage.bat`: The triggered batch file to trigger the expected processes from a windows environment.  The script should follow the high level steps:
-1. Make the package
-2. Create the biome table
-3. Audit the yml files for formatting ( linting)
+- `.scripts/AuditAndPackage.bat`: The main build script for Windows environment. The script performs three key steps:
+  1. **Make the package** - Creates `.artifacts/ORIGEN.zip` (via pack.sh or PowerShell fallback)
+  2. **Create the biome table** - Generates `BiomeTable.csv` with distribution percentages (via `calculate_biome_percentages.py`)
+  3. **Audit the yml files** - YAML linting and validation (via check-biomes.sh if WSL available)
 
-For simplicity, it may make sense for this batch file to simply call pack.sh and check-biomes.sh using wsl, but the batch file should provide proper feedback to the user if dependencies are not available.  As a fallback it could also trigger additional scripts (powershell, python, bash files).
+The batch file intelligently adapts to available tools:
+- **Python** is required for BiomeTable.csv generation
+- **WSL** is optional (used for packaging and YAML validation)
+- **PowerShell** is used as fallback for packaging if WSL unavailable
 
-Claude should create the necessary files to perform this build if they do not already exist.
+See `.scripts/WORKFLOW_DOCUMENTATION.md` for complete details.
 
-- `pack.yml`: The main definition file, that tells the Terra plugin how to generate the world, where the primary key file is called out at "biomes:".
+- `pack.yml`: The main definition file that tells the Terra plugin how to generate the world. The primary biome configuration is specified in the "biomes:" key.
 
-- `.scripts/check-biomes.sh`: The main bash file that originally just validated color definitions per biome.  This would also likely be a good place to generate the BiomeTable.csv.
+- `.scripts/calculate_biome_percentages.py`: Python script that generates BiomeTable.csv by analyzing biome distribution pipelines and calculating exact percentages for each preset.
 
-- `.scripts/BiomeTable.csv`: A table the lists the different biomes and their properties.
+- `.scripts/check-biomes.sh`: Bash script that validates YAML syntax and checks color key consistency across biome files. Generates `SuggestedImprovements.md`.
 
-The expectation of this able is to have the following columns, but other columns might provide good context:
+- `.scripts/BiomeTable.csv`: A comprehensive table listing all biomes and their distribution across presets.
 
-BiomeID, Extends, Color, Precipitation, Temperature, Elevation
+**Table Structure**:
 
-Each row would correspond to a biome file (stored in the folder "biomes").
-A valid biome file can be verified by seeing the "type: BIOME" key value pair.
-BiomeID would be found from the ID key in the biome file.
-Extends would be found from the "extends" key in the biomme file.
-Color would be found from the "color" key in the biome file.
-The climate would be 
-Precipitation would just be a flag indicating if the biome is prescribed a precipitation designation in precipitation.yml
-Temperature would just be a flag indicating if the biome is prescribed a precipitation designation in temperature.yml
-Elevation would just be a flag indicating if the biome is prescribed a precipitation designation in elevation.yml
-Additional columns should also be created for each preset (Each yml file in the "presets" folder), indicating if that biome will be generated as a part of the respective preset, note this also will then require the full definition described in "stages" and "extrusions" to derive which biomes will ultimately be generated and if they are a part of the preset.
+The table includes the following columns:
+
+- **BiomeID**: The unique identifier from the biome file's `id:` field
+- **Extends**: The parent biome(s) this biome inherits from (from `extends:` key)
+- **Color**: The color reference (from `color:` key, typically `$biomes/colors.yml:BIOME_ID`)
+- **Preset Columns**: One column per preset (default, origen2, rearth, single, single_debug) showing the **exact percentage** that biome appears in that preset's distribution
+
+**Important**: The table now shows **percentages** (e.g., "4.6875%") instead of Y/N flags, providing accurate distribution data.
+
+**Coverage**: The table includes ALL valid (non-abstract) biomes, even those with 0.0000% across all presets, providing a complete inventory of available biomes.
 
 ## Important Notes
 

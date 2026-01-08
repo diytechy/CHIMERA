@@ -39,7 +39,9 @@
       "Bash(powershell.exe -Command \"Get-ChildItem -Path ''C:\\\\Projects\\\\terra-origen\\\\biomes'' -Directory | Select-Object -First 10 Name\")",
       "Bash(powershell.exe -Command:*)",
       "Bash(find:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(.scriptsAuditAndPackage.bat)",
+      "Bash(cmd.exe /c .scripts\\\\AuditAndPackage.bat)"
     ]
   }
 }

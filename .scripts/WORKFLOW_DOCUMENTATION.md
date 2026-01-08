@@ -1,0 +1,316 @@
+# Build and Audit Workflow Documentation
+
+**Last Updated**: 2026-01-07
+
+## Overview
+
+This document describes the build and audit workflow for the Terra configuration package, including which scripts are active and which are obsolete.
+
+## Main Entry Point
+
+### `AuditAndPackage.bat` ✅ ACTIVE
+
+**Purpose**: Main build script that orchestrates the entire package creation and validation workflow.
+
+**Location**: `.scripts/AuditAndPackage.bat`
+
+**Requirements**:
+- **Windows** environment
+- **Python 3.x** (required for BiomeTable.csv generation)
+  - Install from: https://www.python.org/downloads/
+  - Required package: `pyyaml` (install with: `pip install pyyaml`)
+- **WSL** (optional, for YAML validation)
+  - Install with: `wsl --install`
+  - See: https://docs.microsoft.com/en-us/windows/wsl/install
+
+**Workflow Steps**:
+
+1. **Package Creation** (.artifacts/ORIGEN.zip)
+   - Tries WSL/bash first via `pack.sh`
+   - Falls back to PowerShell if WSL unavailable
+   - Creates zip excluding hidden files
+
+2. **BiomeTable.csv Generation** (.scripts/BiomeTable.csv)
+   - Runs `calculate_biome_percentages.py`
+   - Analyzes all presets and calculates biome distribution percentages
+   - Includes all valid (non-abstract) biomes
+   - Marks unresolved intermediate biomes
+
+3. **Configuration Audit** (SuggestedImprovements.md)
+   - Runs `check-biomes.sh` via WSL (optional)
+   - Performs YAML linting
+   - Validates color key consistency
+   - Generates improvement suggestions
+
+**Usage**:
+```batch
+.scripts\AuditAndPackage.bat
+```
+
+**Output Files**:
+- `.artifacts\ORIGEN.zip` - Terra package ready for deployment
+- `.scripts\BiomeTable.csv` - Complete biome distribution table
+- `SuggestedImprovements.md` - Configuration audit report (if WSL available)
+
+---
+
+## Active Scripts
+
+### `calculate_biome_percentages.py` ✅ ACTIVE
+
+**Purpose**: Generates BiomeTable.csv with accurate biome distribution percentages for each preset.
+
+**Location**: `.scripts/calculate_biome_percentages.py`
+
+**Features**:
+- Analyzes biome distribution pipelines
+- Calculates exact percentage distributions per preset
+- Includes all valid biomes (even those with 0% in all presets)
+- Automatically detects intermediate biomes
+- Tracks abstract vs. non-abstract biomes
+- Handles SELF keyword correctly
+- Processes REPLACE, REPLACE_LIST, and inline stages
+
+**Requirements**:
+- Python 3.x
+- PyYAML library (`pip install pyyaml`)
+
+**Usage**:
+```bash
+python .scripts/calculate_biome_percentages.py
+```
+
+**Output**:
+- `.scripts/BiomeTable.csv` with columns:
+  - BiomeID
+  - Extends
+  - Color
+  - Preset percentages (default, origen2, rearth, single, single_debug)
+
+**Output Format**: Percentages instead of Y/N flags
+
+### `pack.sh` ✅ ACTIVE
+
+**Purpose**: Creates the Terra configuration package zip file.
+
+**Location**: `.scripts/pack.sh`
+
+**Requirements**:
+- Bash environment (WSL or Linux)
+- `zip` command
+
+**Usage**:
+```bash
+bash .scripts/pack.sh
+```
+
+**Output**: `.artifacts/ORIGEN.zip`
+
+### `check-biomes.sh` ✅ ACTIVE
+
+**Purpose**: Validates biome configurations and generates audit report.
+
+**Location**: `.scripts/check-biomes.sh`
+
+**Features**:
+- YAML syntax validation (linting)
+- Missing color key detection
+- Color reference mismatch detection
+
+**Requirements**:
+- Bash environment (WSL or Linux)
+- Python with PyYAML library
+
+**Usage**:
+```bash
+bash .scripts/check-biomes.sh
+```
+
+**Output**: `SuggestedImprovements.md`
+
+---
+
+## Obsolete Scripts
+
+### `generate-biome-table.sh` ⚠️ OBSOLETE
+
+**Status**: **REPLACED by `calculate_biome_percentages.py`**
+
+**Location**: `.scripts/generate-biome-table.sh`
+
+**Why Obsolete**:
+- Only provided Y/N flags for preset inclusion
+- Did not calculate distribution percentages
+- Could not track intermediate biomes accurately
+- Less accurate than Python script
+- Required complex bash logic
+
+**Replacement**: Use `calculate_biome_percentages.py` instead
+
+**Can be deleted**: Yes (kept for reference only)
+
+### `calculate-biome-percentages.sh` ⚠️ OBSOLETE
+
+**Status**: **REPLACED by `calculate_biome_percentages.py`**
+
+**Location**: `.scripts/calculate-biome-percentages.sh`
+
+**Why Obsolete**:
+- Original bash implementation
+- Superseded by improved Python version
+- Less maintainable than Python script
+
+**Replacement**: Use `calculate_biome_percentages.py` instead
+
+**Can be deleted**: Yes (kept for reference only)
+
+---
+
+## Supporting Files
+
+### `ViewTable.bat` ✅ ACTIVE
+
+**Purpose**: Quick viewer for BiomeTable.csv
+
+**Location**: `.scripts/ViewTable.bat`
+
+**Usage**: Double-click to open BiomeTable.csv in default CSV viewer
+
+### `lib.sh` ✅ ACTIVE
+
+**Purpose**: Shared bash library functions
+
+**Location**: `.scripts/lib.sh`
+
+**Used by**: Various bash scripts
+
+### `vars.sh` ✅ ACTIVE
+
+**Purpose**: Shared environment variables
+
+**Location**: `.scripts/vars.sh`
+
+**Used by**: Various bash scripts
+
+---
+
+## Workflow Diagram
+
+```
+AuditAndPackage.bat (Main Entry Point)
+│
+├─[Step 1]─> pack.sh (via WSL) OR PowerShell
+│            └─> Creates .artifacts/ORIGEN.zip
+│
+├─[Step 2]─> calculate_biome_percentages.py (via Python)
+│            └─> Creates .scripts/BiomeTable.csv
+│
+└─[Step 3]─> check-biomes.sh (via WSL, optional)
+             └─> Creates SuggestedImprovements.md
+```
+
+## Migration Notes
+
+### From Old Workflow to New Workflow
+
+**Old**:
+```batch
+AuditAndPackage.bat
+  └─> generate-biome-table.sh (bash)
+      └─> BiomeTable.csv (Y/N flags)
+```
+
+**New**:
+```batch
+AuditAndPackage.bat
+  └─> calculate_biome_percentages.py (Python)
+      └─> BiomeTable.csv (percentages)
+```
+
+### Key Improvements
+
+1. **No WSL dependency for BiomeTable**: Python works natively on Windows
+2. **Accurate percentages**: Know exact distribution instead of just Y/N
+3. **Better intermediate tracking**: Automatically detects unresolved biomes
+4. **Complete biome coverage**: Includes all valid biomes, even unused ones
+5. **More maintainable**: Python is easier to debug and extend
+
+---
+
+## Cleanup Recommendations
+
+The following files can be **safely deleted** (obsolete):
+
+- `.scripts/generate-biome-table.sh` - Replaced by calculate_biome_percentages.py
+- `.scripts/calculate-biome-percentages.sh` - Replaced by calculate_biome_percentages.py
+
+Before deleting, ensure:
+1. Python is installed and working
+2. `calculate_biome_percentages.py` produces correct output
+3. No custom scripts depend on the old bash versions
+
+---
+
+## Troubleshooting
+
+### BiomeTable.csv not generating
+
+**Symptom**: Step 2 skipped with "Python not available" warning
+
+**Solution**:
+1. Install Python: https://www.python.org/downloads/
+2. Install PyYAML: `pip install pyyaml`
+3. Run batch file again
+
+### Package creation fails
+
+**Symptom**: Step 1 fails with PowerShell error
+
+**Solution**:
+1. Check that files exist in repository root
+2. Ensure pack.yml contains valid `id:` field
+3. Try running pack.sh via WSL instead
+
+### SuggestedImprovements.md not generating
+
+**Symptom**: Step 3 skipped with "WSL not available" warning
+
+**Solution**:
+1. Install WSL: `wsl --install`
+2. Install Python in WSL: `sudo apt install python3 python3-pip`
+3. Install PyYAML in WSL: `pip3 install pyyaml`
+4. Run batch file again
+
+**Alternative**: This step is optional for packaging
+
+---
+
+## Quick Reference
+
+### Full Build (Recommended)
+
+```batch
+.scripts\AuditAndPackage.bat
+```
+
+### Individual Steps
+
+```batch
+# Step 1: Package only
+bash .scripts/pack.sh
+# OR
+powershell -Command "Compress-Archive -Path * -DestinationPath .artifacts\ORIGEN.zip -Force"
+
+# Step 2: BiomeTable only
+python .scripts\calculate_biome_percentages.py
+
+# Step 3: Audit only
+bash .scripts/check-biomes.sh
+```
+
+---
+
+**Related Documentation**:
+- `BIOME_TABLE_UPDATE.md` - Details on BiomeTable.csv changes
+- `ABSTRACT_BIOMES.md` - Explanation of abstract biome system
+- `ORIGEN2_REARTH_SYNC.md` - Biome synchronization between presets

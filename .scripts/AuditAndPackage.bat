@@ -7,7 +7,7 @@ REM Main build script for Terra configuration package
 REM
 REM This script:
 REM   1. Creates the package zip (name from pack.yml id:)
-REM   2. Generates BiomeTable.csv with biome attributes
+REM   2. Generates BiomeTable.csv with biome distribution percentages
 REM   3. Audits biome configs and generates SuggestedImprovements.md
 REM ============================================================================
 
@@ -32,7 +32,31 @@ echo Package ID: %PACK_ID%
 echo.
 
 REM ============================================================================
-REM Check WSL availability (used for all steps if available)
+REM Check Python availability (required for biome table generation)
+REM ============================================================================
+set "PYTHON_CMD="
+where python >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    set "PYTHON_CMD=python"
+) else (
+    where python3 >nul 2>nul
+    if !ERRORLEVEL! equ 0 (
+        set "PYTHON_CMD=python3"
+    )
+)
+
+if "%PYTHON_CMD%"=="" (
+    echo [WARNING] Python is not available. BiomeTable.csv generation will be skipped.
+    echo   To install Python: https://www.python.org/downloads/
+    set "PYTHON_AVAILABLE=0"
+) else (
+    echo Python found: %PYTHON_CMD%
+    set "PYTHON_AVAILABLE=1"
+)
+echo.
+
+REM ============================================================================
+REM Check WSL availability (optional, for check-biomes.sh)
 REM ============================================================================
 set "WSL_AVAILABLE=0"
 set "WSL_PATH="
@@ -43,8 +67,12 @@ if %ERRORLEVEL% equ 0 (
     if !ERRORLEVEL! equ 0 (
         set "WSL_AVAILABLE=1"
         for /f "tokens=*" %%i in ('wsl wslpath -a "%REPO_ROOT%"') do set "WSL_PATH=%%i"
+        echo WSL found: Available
     )
+) else (
+    echo WSL found: Not available
 )
+echo.
 
 REM ============================================================================
 REM Step 1: Create package (try WSL first, fallback to PowerShell)
@@ -87,37 +115,46 @@ if "%PACK_SUCCESS%"=="0" (
 echo.
 
 REM ============================================================================
-REM Step 2 and 3: Run bash scripts via WSL (if available)
+REM Step 2: Generate BiomeTable.csv (using Python script)
 REM ============================================================================
+echo [Step 2/3] Generating BiomeTable.csv...
+echo --------------------------------------------
 
-if "%WSL_AVAILABLE%"=="0" (
-    echo [WARNING] WSL is not available. Skipping BiomeTable.csv generation and audit.
+if "%PYTHON_AVAILABLE%"=="1" (
+    %PYTHON_CMD% .scripts\calculate_biome_percentages.py
+    if !ERRORLEVEL! neq 0 (
+        echo [ERROR] BiomeTable.csv generation failed!
+        exit /b 1
+    )
+    echo [OK] BiomeTable.csv generated successfully.
+) else (
+    echo [WARNING] Python not available - BiomeTable.csv generation skipped.
+    echo   Install Python from: https://www.python.org/downloads/
+    echo   Required packages: pyyaml (install with: pip install pyyaml)
+)
+echo.
+
+REM ============================================================================
+REM Step 3: Audit biome configs (using bash script via WSL)
+REM ============================================================================
+echo [Step 3/3] Auditing biomes and generating SuggestedImprovements.md...
+echo --------------------------------------------
+
+if "%WSL_AVAILABLE%"=="1" (
+    wsl bash -c "cd '%WSL_PATH%' && bash .scripts/check-biomes.sh"
+    if !ERRORLEVEL! neq 0 (
+        echo [WARNING] Biome audit completed with warnings.
+    ) else (
+        echo [OK] Biome audit completed.
+    )
+) else (
+    echo [WARNING] WSL is not available. Biome audit skipped.
     echo.
-    echo To enable full functionality, install WSL:
+    echo To enable YAML validation and linting, install WSL:
     echo   wsl --install
     echo.
     echo See: https://docs.microsoft.com/en-us/windows/wsl/install
-    goto :success
 )
-
-echo [Step 2/3] Generating BiomeTable.csv...
-echo --------------------------------------------
-wsl bash -c "cd '%WSL_PATH%' && bash .scripts/generate-biome-table.sh"
-if %ERRORLEVEL% neq 0 (
-    echo [ERROR] BiomeTable.csv generation failed!
-    exit /b 1
-)
-echo [OK] BiomeTable.csv generated successfully.
-echo.
-
-echo [Step 3/3] Auditing biomes and generating SuggestedImprovements.md...
-echo --------------------------------------------
-wsl bash -c "cd '%WSL_PATH%' && bash .scripts/check-biomes.sh"
-if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Biome audit failed!
-    exit /b 1
-)
-echo [OK] Biome audit completed.
 echo.
 
 :success

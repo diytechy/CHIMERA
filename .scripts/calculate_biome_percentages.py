@@ -285,6 +285,7 @@ class BiomeReader:
 
     _cache: Optional[Dict[str, Path]] = None
     _metadata_cache: Dict[str, BiomeMetadata] = {}
+    _valid_biomes: Optional[Set[str]] = None
 
     @classmethod
     def build_cache(cls, biomes_dir: Path = Path("biomes")):
@@ -294,6 +295,7 @@ class BiomeReader:
 
         print(f"Building biome file cache from {biomes_dir}...", file=sys.stderr)
         cls._cache = {}
+        cls._valid_biomes = set()
 
         for biome_file in biomes_dir.rglob("*.yml"):
             try:
@@ -301,18 +303,28 @@ class BiomeReader:
                     data = yaml.safe_load(f)
                     if data and data.get('type') == 'BIOME':
                         biome_id = data.get('id')
+                        is_abstract = data.get('abstract', False)
                         if biome_id:
                             cls._cache[biome_id] = biome_file
+                            # Only non-abstract biomes are valid for world generation
+                            if not is_abstract:
+                                cls._valid_biomes.add(biome_id)
             except:
                 continue
 
-        print(f"Cached {len(cls._cache)} biome files", file=sys.stderr)
+        print(f"Cached {len(cls._cache)} biome files ({len(cls._valid_biomes)} valid, {len(cls._cache) - len(cls._valid_biomes)} abstract)", file=sys.stderr)
 
     @classmethod
     def find_biome_file(cls, biome_id: str) -> Optional[Path]:
         """Find the YAML file for a given biome ID"""
         cls.build_cache()
         return cls._cache.get(biome_id)
+
+    @classmethod
+    def get_all_valid_biomes(cls) -> Set[str]:
+        """Get all valid (non-abstract) biome IDs"""
+        cls.build_cache()
+        return cls._valid_biomes.copy()
 
     @classmethod
     def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:
@@ -468,37 +480,32 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
     """Generate BiomeTable.csv with percentages"""
     print(f"\nGenerating CSV output: {output_path}")
 
-    # Collect all unique biomes
-    all_biomes = set()
-    for distribution in results.values():
-        all_biomes.update(distribution.probabilities.keys())
+    # Get all valid biomes from file system (non-abstract biomes)
+    valid_biomes = BiomeReader.get_all_valid_biomes()
+    print(f"Valid biomes found in files: {len(valid_biomes)}")
 
-    print(f"Total biomes found: {len(all_biomes)}")
+    # Collect all biomes referenced in distributions
+    distribution_biomes = set()
+    for distribution in results.values():
+        distribution_biomes.update(distribution.probabilities.keys())
+
+    print(f"Biomes found in distributions: {len(distribution_biomes)}")
+
+    # Combine both sets - we want all valid biomes plus any referenced in distributions
+    all_biomes = valid_biomes | distribution_biomes
+
+    print(f"Total biomes to include in table: {len(all_biomes)}")
 
     # Identify unresolved intermediate biomes
-    # Common intermediate biome names used in pipelines
-    known_intermediate_names = {
-        'land', 'ocean', 'cold', 'warm', 'medium',
-        'coast_small', 'coast_wide',
-        'coast_small_cold', 'coast_small_warm', 'coast_small_medium',
-        'coast_wide_cold', 'coast_wide_warm', 'coast_wide_medium',
-        'ocean_cold', 'ocean_warm', 'ocean_medium',
-        'arid-pale-garden', 'maple-groves'  # Old naming convention
-    }
-
+    # An intermediate biome is one that appears in distributions but is NOT a valid biome
     unresolved_biomes = set()
-    for biome_id in all_biomes:
-        # Check if it's an intermediate biome
-        is_intermediate = (
-            biome_id.startswith('_') or  # Underscore prefix indicates intermediate
-            biome_id in known_intermediate_names  # Known intermediate names
-        )
-        biome_file = BiomeReader.find_biome_file(biome_id)
-
-        # Also check if it doesn't have a valid biome file
-        if is_intermediate or (not biome_file and biome_id not in ['SELF']):
+    for biome_id in distribution_biomes:
+        # A biome is intermediate/unresolved if:
+        # 1. It's not in the valid biomes set (no valid biome file exists)
+        # 2. It's not 'SELF' (which is a special keyword, not a biome)
+        if biome_id not in valid_biomes and biome_id != 'SELF':
             unresolved_biomes.add(biome_id)
-            print(f"  Warning: Unresolved intermediate/invalid biome: {biome_id}", file=sys.stderr)
+            print(f"  Warning: Unresolved intermediate biome: {biome_id}", file=sys.stderr)
 
     # Read metadata for each biome
     biome_metadata_map = {}
@@ -539,6 +546,8 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
             writer.writerow(row)
 
     print(f"CSV written successfully: {output_path}")
+    print(f"  Valid biomes: {len(valid_biomes)}")
+    print(f"  Unresolved intermediates: {len(unresolved_biomes)}")
 
 
 def main():
@@ -571,10 +580,13 @@ def main():
     print("SUMMARY - Top 20 biomes per preset:")
     print("=" * 70)
 
+    # Get valid biomes for marking unresolved ones
+    valid_biomes = BiomeReader.get_all_valid_biomes()
+
     for preset_name, distribution in results.items():
         print(f"\n{preset_name}:")
         for biome, prob in distribution.get_top_biomes(20):
-            marker = " [UNRESOLVED]" if biome.startswith('_') or biome in ['land', 'ocean', 'cold', 'warm', 'medium'] else ""
+            marker = " [UNRESOLVED]" if biome not in valid_biomes and biome != 'SELF' else ""
             print(f"  {biome:<40} {prob:>8.4%}{marker}")
 
     # Generate CSV output
@@ -588,16 +600,14 @@ def main():
     print("They should be fully resolved through REPLACE stages or removed.")
     print()
 
-    all_biomes = set()
+    distribution_biomes = set()
     for distribution in results.values():
-        all_biomes.update(distribution.probabilities.keys())
+        distribution_biomes.update(distribution.probabilities.keys())
 
     unresolved_found = False
-    for biome_id in sorted(all_biomes):
-        if biome_id.startswith('_') or (biome_id in ['land', 'ocean', 'cold', 'warm', 'medium', 'coast_small', 'coast_wide',
-                                                       'coast_small_cold', 'coast_small_warm', 'coast_small_medium',
-                                                       'coast_wide_cold', 'coast_wide_warm', 'coast_wide_medium',
-                                                       'ocean_cold', 'ocean_warm', 'ocean_medium']):
+    for biome_id in sorted(distribution_biomes):
+        # Check if biome is not valid and not the special 'SELF' keyword
+        if biome_id not in valid_biomes and biome_id != 'SELF':
             unresolved_found = True
             # Show which presets have this biome
             preset_info = []

@@ -283,6 +283,8 @@ stages:
         - OAK_FOREST: 1
         - FOSSILIZED_FENLANDS: 1
         - MURKY_MARSHLANDS: 1
+        - _pillow_plains: 1
+        - _secluded_valleys: 1
       temperate-warm:
         - OAK_FOREST: 1
         - FLOWERING_FOREST: 1
@@ -292,6 +294,7 @@ stages:
         - WOODED_BUTTES: 1
         - VERDANT_VALLEYS: 1
         - SAKURA_STREAMS: 1
+        - _plateao: 1
       temperate-warm-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
@@ -396,6 +399,7 @@ stages:
         - DESERT: 4
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
+        - _desert: 1
       hot-desert-white:
         - DESERT: 1
         - DESERT_PILLARS: 1
@@ -405,6 +409,7 @@ stages:
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
         - CARVING_CREAKS: 1
+        - _desert: 1
       hot-desert-highlands-white:
         - DESERT_PILLARS: 1
         - DESERT_SPIKES: 1
@@ -547,11 +552,13 @@ stages:
       tropical-savanna-dry-flat:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
+        - MESA_MONUMENTS: 1
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
+        - MESA_MONUMENTS: 1
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1
@@ -564,8 +571,10 @@ stages:
       tropical-coast-flat:
         - MUDDY_COASTS: 1
         - PALM_BEACH: 1
+        - MANGROVE_SWAMP: 1
       tropical-coast:
         - LUSH_SEA_CAVES: 1
+        - MANGROVE_SWAMP: 1
       tropical-coast-highlands:
         - LUSH_SEA_CAVES: 1
 
@@ -582,12 +591,14 @@ stages:
         - SHALLOW_CORAL_OCEAN: 2
         - SEAGRASS_MEADOW: 2
         - STONEGATE_SEAS: 1
+        - MARINE_MONOLITHS: 1
       hot-shallow-ocean-midlands:
         - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_OVERHANGS: 1
         - SEAGRASS_MEADOW: 1
         - CORAL_OCEAN: 1
         - CORAL_OCEAN_OVERHANGS: 1
+        - MARINE_MONOLITHS: 1
       hot-ocean:
         - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_SLOPES: 1

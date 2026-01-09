@@ -32,3 +32,4 @@ type: EXTRUSION
 5. Attempt to update add_biome_color_variants.yml to place other respective colored biomes that don't currently exist, like "RED_DRY_PALM_FOREST" should be distributed from "DRY_PALM_FOREST".
 6. For the additional unique missing biomes (those that are not variants, generics (like coast_medium_a), coasts, rivers, ect), please estimate what climate those biomes could be placed in so they also end up in the final biome output.
 7. Now look at all biome distribution and modify all stage yml files as necessary shift towards more even distribution.  Ideally no biome would be subject to less than a 10% chance off shown compared to it's overall place in the world.  Ex: If there are 200 biomes, the pure mean distribution would be 0.5%, so in general no biomes should occur less often than 0.05%.  Attempt to keep the order of percentage consistent.  Recall the weights for biome distribution must be an integer.
+8. Now look at the recolor script thinger.

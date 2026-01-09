@@ -1,51 +1,8 @@
-I want to setup some scripts to distribute the colors of the biome to be easily differentiable from eachother as well as unique.  I will describe the process I would like to follow to establish this, but there may be alternatives.
+High level goals:
 
-In order to maximize visual differences in biomes, I would like to use LAB color space to select points that are equadistant.
-
-There will be multiple regions of the LAB colorspace reserved for different biome catagories.  These regions may be grouped by meta regions, but regions would be defined as primatic rectangles located  in the LAB colorspace.
-
-A. The meta region near the +b (yellow) and -a (green) color will be reserved for standard biome climate colors.  This is the climate metaregion.  Note this meta region would be bounded by some alpha value and some beta value defining the cuboid up to the minimum alpha (green) and maximum beta (yellow).
-
-Meta region would have a boundary of:
-L: -100 to +100
-a: -100 to +40
-b: -40 to +100
-
-The climate meta region will be broken into 3 layers:
-
-A1. The layer highest to L+ (highest lumin) would be reserved only for snowy land biomes (SNOWY_LAND_BIOME), and is intended for biomes that have the term SNOW in them.
-
-A2. The layer below would be reserved for standard climate zones.  Here the lowest alpha would represent the coldest climate, and highest alpha would reprent the hotest climate.  The highest beta would be the driest climate, and the lowest beta would be the wettest climate.
-
-A3. The lowest layer would be reserved for sinkholes / carved canyons / deep valleys.
-
-B. Coastal: with the boundaries of:
-L: -20 to +100
-a: -100 to -20
-b -100 to -40
-
-C: River: with the boundaries of:
-L: -20 to +100
-a: -20 to +20
-b -100 to -40
-
-The ocean region will be anything related to the ocean.  And would be defined as a region with the boundaries of:
-L: -20 to +100
-a: 20 to 100
-b -100 to -40
-
-C: 
-Tempearture would range over the following dimentions:
-L dimention, where 0 would be very warm, and +100 would be very cold.
-alpha dimention: -100 would be very shallow ocean water
+This question relates to previous discussions about the minecraft Terra generator plugin (refer to CLAUDE.md) and this particular world generation preset.
 
 
-
-B. 
-
-The closest points would form a equlatoral tetrahedron.a
-
-#V2: Munsell Color Space
 
 I want to setup some scripts to distribute the colors of the biome to be easily differentiable from eachother as well as unique.  I will describe the process I would like to follow to establish this, but there may be alternatives.
 

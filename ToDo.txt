@@ -19,7 +19,7 @@ Eventaully: Why is it taking so long to initailize world?  Is it a defect somewh
 
 
 Latest prommpt:
-There are some issues in "calculate_biome_percentages" I'd like to resolve:
+There are some issues in "calculate_biome_percentages.py" I'd like to resolve.  This is related to claude.md within this directory.
 
 1. The export does not report any percentage for INFERNO_ISLES for Origen2, but those are added as a part of "add_special_caves.yml" in the preset file as a part of the extrusions definition.  This presents an interesting issue, as this "biome" actually generates content under the surface level of the map, thus they can be reported differently.  The table should have another column that indicates if the biome comes from that extrusion section, and should attribute the percentage of the biome it comes from without removing that percentage from the parent biome.  That way the surface level biome percentages add to 100%, and the cave level biomes only add up to the amount off space they occupy.
 2. Related, as there are surface level biomes and subsurface biomes, it would be desirable to generate packages that are specifically subsurface only and surface only so they can be evaluated seperately.  As a part off the package process, 2 additional zips should be created:

@@ -14,6 +14,7 @@ The core "build" for this repository is intended to be a batch script ".scripts/
 
 ### Key Directories
 
+- `../Terra`: If available, this should contain the source code for Terra.
 - `biomes/`: Refer to README.md in this directory.
 - `biome-distribution/`: Refer to README.md in this directory.
 - `features/`: Refer to README.md in this directory.
@@ -25,7 +26,7 @@ The core "build" for this repository is intended to be a batch script ".scripts/
 ### Key Files
 
 - `.scripts/AuditAndPackage.bat`: The main build script for Windows environment. The script performs three key steps:
-  1. **Make the package** - Creates `.artifacts/ORIGEN.zip` (via pack.sh or PowerShell fallback)
+  1. **Make the package** - Creates `.artifacts/ORIGEN2.zip` (via pack.sh or PowerShell fallback)
   2. **Create the biome table** - Generates `BiomeTable.csv` with distribution percentages (via `calculate_biome_percentages.py`)
   3. **Audit the yml files** - YAML linting and validation (via check-biomes.sh if WSL available)
 

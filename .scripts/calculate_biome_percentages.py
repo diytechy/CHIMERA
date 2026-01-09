@@ -4,6 +4,10 @@ calculate_biome_percentages.py
 
 Calculates actual biome percentages by tracing through Terra preset pipelines.
 Properly handles YAML anchors/aliases and cascading probability calculations.
+
+Now also handles extrusion biomes (caves, underground biomes) which generate
+content below the surface level. Extrusion biomes are tracked separately so
+surface biomes still add to 100%.
 """
 from ensure_module import ensure_modules
 
@@ -17,7 +21,7 @@ import sys
 import csv
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any, Optional, Set
 
 class BiomeDistribution:
     """Tracks probability distribution of biomes"""
@@ -257,6 +261,131 @@ class StageProcessor:
             return distribution
 
 
+class ExtrusionDistribution:
+    """
+    Tracks extrusion biome distributions.
+
+    Extrusions are underground biome replacements that happen at specific Y-ranges.
+    They don't replace surface biome percentages - instead they occupy additional
+    underground space, derived from the surface biomes above them.
+    """
+
+    def __init__(self):
+        # Maps biome_id -> (parent_biome_or_ALL, weight_fraction, source_file)
+        self.extrusion_biomes: Dict[str, List[Tuple[str, float, str]]] = defaultdict(list)
+
+    def add_extrusion_biome(self, biome_id: str, parent: str, weight_fraction: float, source_file: str):
+        """
+        Add an extrusion biome.
+
+        Args:
+            biome_id: The cave/underground biome being added
+            parent: The parent biome (or 'ALL' if applies to all)
+            weight_fraction: The fraction of the parent space this biome occupies
+            source_file: The extrusion file this came from
+        """
+        self.extrusion_biomes[biome_id].append((parent, weight_fraction, source_file))
+
+    def get_extrusion_biomes(self) -> Set[str]:
+        """Get all biomes that come from extrusions"""
+        return set(self.extrusion_biomes.keys())
+
+    def calculate_percentage(self, biome_id: str, surface_distribution: BiomeDistribution) -> float:
+        """
+        Calculate the effective percentage for an extrusion biome.
+
+        For 'ALL' parent: percentage = weight_fraction (applies uniformly)
+        For specific parent: percentage = parent_pct * weight_fraction
+        """
+        if biome_id not in self.extrusion_biomes:
+            return 0.0
+
+        total_pct = 0.0
+        for parent, weight_fraction, _ in self.extrusion_biomes[biome_id]:
+            if parent == 'ALL':
+                # Applies to all surface biomes - use the weight fraction directly
+                # This represents the fraction of underground space
+                total_pct += weight_fraction
+            else:
+                # Applies only where parent biome exists
+                parent_pct = surface_distribution.get(parent)
+                total_pct += parent_pct * weight_fraction
+
+        return total_pct
+
+    def get_source_info(self, biome_id: str) -> str:
+        """Get the source file(s) for an extrusion biome"""
+        if biome_id not in self.extrusion_biomes:
+            return ""
+        sources = set(src for _, _, src in self.extrusion_biomes[biome_id])
+        return ", ".join(sorted(sources))
+
+
+class ExtrusionProcessor:
+    """Processes extrusion definitions from preset files"""
+
+    @staticmethod
+    def parse_extrusion_file(extrusion_path: Path) -> List[Dict]:
+        """Load extrusions from a file"""
+        try:
+            with open(extrusion_path, 'r') as f:
+                data = yaml.safe_load(f)
+                return data.get('extrusions', [])
+        except Exception as e:
+            print(f"Warning: Could not load extrusion file {extrusion_path}: {e}", file=sys.stderr)
+            return []
+
+    @staticmethod
+    def process_extrusion(extrusion_config: Dict, source_file: str) -> List[Tuple[str, str, float]]:
+        """
+        Process a single extrusion config.
+
+        Returns list of (biome_id, parent, weight_fraction) tuples.
+        """
+        results = []
+
+        extrusion_type = extrusion_config.get('type')
+        if extrusion_type != 'REPLACE':
+            return results
+
+        from_biome = extrusion_config.get('from', '')
+        to_spec = extrusion_config.get('to')
+
+        if not to_spec:
+            return results
+
+        # Parse the 'to' specification to get weights
+        if isinstance(to_spec, str):
+            # Single biome replacement
+            if to_spec != 'SELF':
+                results.append((to_spec, from_biome, 1.0))
+        elif isinstance(to_spec, list):
+            # Weighted list
+            weights = StageProcessor.parse_weighted_list(to_spec)
+            total_weight = sum(weights.values())
+
+            if total_weight > 0:
+                for biome_id, weight in weights.items():
+                    if biome_id != 'SELF':
+                        weight_fraction = weight / total_weight
+                        results.append((biome_id, from_biome, weight_fraction))
+        elif isinstance(to_spec, dict):
+            # Dict format
+            weights = {}
+            for k, v in to_spec.items():
+                if isinstance(v, (int, float)):
+                    weights[k] = v
+            total_weight = sum(weights.values())
+
+            if total_weight > 0:
+                for biome_id, weight in weights.items():
+                    if biome_id != 'SELF':
+                        weight_fraction = weight / total_weight
+                        results.append((biome_id, from_biome, weight_fraction))
+
+        return results
+
+
 class BiomeMetadata:
     """Holds metadata for a biome"""
 
@@ -265,17 +394,27 @@ class BiomeMetadata:
         self.extends: Optional[str] = None
         self.color: Optional[str] = None
         self.percentages: Dict[str, float] = {}  # preset_name -> percentage
+        self.extrusion_percentages: Dict[str, float] = {}  # preset_name -> extrusion percentage
+        self.is_extrusion: bool = False  # True if this biome only comes from extrusions
+        self.extrusion_source: str = ""  # Which extrusion file(s) this comes from
 
-    def to_csv_row(self, preset_names: List[str]) -> List[str]:
+    def to_csv_row(self, preset_names: List[str], include_extrusion: bool = True) -> List[str]:
         """Convert to CSV row format"""
         row = [
             self.biome_id,
             self.extends or '',
-            self.color or ''
+            self.color or '',
+            'extrusion' if self.is_extrusion else 'surface',
+            self.extrusion_source if self.is_extrusion else ''
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
-            pct = self.percentages.get(preset_name, 0.0)
+            if self.is_extrusion:
+                # For extrusion-only biomes, show extrusion percentage
+                pct = self.extrusion_percentages.get(preset_name, 0.0)
+            else:
+                # For surface biomes, show surface percentage
+                pct = self.percentages.get(preset_name, 0.0)
             row.append(f"{pct:.4%}")
         return row
 
@@ -438,6 +577,53 @@ class PresetAnalyzer:
             print(f"Warning: Could not load {stage_path}: {e}", file=sys.stderr)
             return []
 
+    def get_extrusion_refs(self) -> List[Tuple[str, Path]]:
+        """Extract list of extrusion file references from preset"""
+        extrusion_refs = []
+
+        try:
+            biomes_config = self.preset_data.get('biomes', {})
+            extrusions = biomes_config.get('extrusions', [])
+
+            for extrusion in extrusions:
+                if isinstance(extrusion, str):
+                    # Include reference: << file.yml:extrusions
+                    match = re.match(r'<<\s+([^:]+\.yml):extrusions', extrusion)
+                    if match:
+                        extrusion_file = Path(match.group(1))
+                        extrusion_refs.append((extrusion_file.stem, extrusion_file))
+
+        except Exception as e:
+            print(f"Warning: Could not parse extrusions: {e}", file=sys.stderr)
+
+        return extrusion_refs
+
+    def calculate_extrusions(self) -> ExtrusionDistribution:
+        """Extract and process extrusion definitions"""
+        extrusion_dist = ExtrusionDistribution()
+
+        extrusion_refs = self.get_extrusion_refs()
+        if not extrusion_refs:
+            return extrusion_dist
+
+        print(f"  Processing {len(extrusion_refs)} extrusion files...")
+
+        for source_name, extrusion_path in extrusion_refs:
+            print(f"    - {extrusion_path}")
+            extrusions = ExtrusionProcessor.parse_extrusion_file(extrusion_path)
+
+            for extrusion_config in extrusions:
+                results = ExtrusionProcessor.process_extrusion(extrusion_config, source_name)
+                for biome_id, parent, weight_fraction in results:
+                    extrusion_dist.add_extrusion_biome(biome_id, parent, weight_fraction, source_name)
+
+        # Log what we found
+        extrusion_biomes = extrusion_dist.get_extrusion_biomes()
+        if extrusion_biomes:
+            print(f"  Found {len(extrusion_biomes)} extrusion biomes: {sorted(extrusion_biomes)}")
+
+        return extrusion_dist
+
     def calculate_percentages(self) -> BiomeDistribution:
         """Calculate final biome percentages for this preset"""
         print(f"\nProcessing preset: {self.preset_name}")
@@ -476,30 +662,54 @@ class PresetAnalyzer:
         return distribution
 
 
-def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path):
-    """Generate BiomeTable.csv with percentages"""
+def generate_csv_output(
+    results: Dict[str, BiomeDistribution],
+    extrusion_results: Dict[str, ExtrusionDistribution],
+    output_path: Path
+):
+    """
+    Generate BiomeTable.csv with percentages.
+
+    The table now includes:
+    - Source column: 'surface' for regular biomes, 'extrusion' for underground biomes
+    - ExtrusionSource column: which extrusion file(s) the biome comes from
+    - Percentages: surface biomes sum to 100%, extrusion biomes shown separately
+    """
     print(f"\nGenerating CSV output: {output_path}")
 
     # Get all valid biomes from file system (non-abstract biomes)
     valid_biomes = BiomeReader.get_all_valid_biomes()
     print(f"Valid biomes found in files: {len(valid_biomes)}")
 
-    # Collect all biomes referenced in distributions
-    distribution_biomes = set()
+    # Collect all biomes referenced in distributions (surface)
+    surface_biomes = set()
     for distribution in results.values():
-        distribution_biomes.update(distribution.probabilities.keys())
+        surface_biomes.update(distribution.probabilities.keys())
 
-    print(f"Biomes found in distributions: {len(distribution_biomes)}")
+    print(f"Biomes found in surface distributions: {len(surface_biomes)}")
 
-    # Combine both sets - we want all valid biomes plus any referenced in distributions
-    all_biomes = valid_biomes | distribution_biomes
+    # Collect all biomes referenced in extrusions
+    extrusion_biomes_set = set()
+    for extrusion_dist in extrusion_results.values():
+        extrusion_biomes_set.update(extrusion_dist.get_extrusion_biomes())
+
+    print(f"Biomes found in extrusions: {len(extrusion_biomes_set)}")
+
+    # Determine which biomes are extrusion-only (not in surface distributions)
+    extrusion_only_biomes = extrusion_biomes_set - surface_biomes
+    print(f"Extrusion-only biomes: {len(extrusion_only_biomes)}")
+    if extrusion_only_biomes:
+        print(f"  {sorted(extrusion_only_biomes)}")
+
+    # Combine all sets - we want all valid biomes plus any referenced
+    all_biomes = valid_biomes | surface_biomes | extrusion_biomes_set
 
     print(f"Total biomes to include in table: {len(all_biomes)}")
 
     # Identify unresolved intermediate biomes
     # An intermediate biome is one that appears in distributions but is NOT a valid biome
     unresolved_biomes = set()
-    for biome_id in distribution_biomes:
+    for biome_id in surface_biomes:
         # A biome is intermediate/unresolved if:
         # 1. It's not in the valid biomes set (no valid biome file exists)
         # 2. It's not 'SELF' (which is a special keyword, not a biome)
@@ -522,9 +732,26 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
         metadata = BiomeReader.read_biome_metadata(biome_id)
         metadata.biome_id = display_id  # Use the display ID in output
 
+        # Mark if this is an extrusion-only biome
+        if biome_id in extrusion_only_biomes:
+            metadata.is_extrusion = True
+            # Get the extrusion source from any preset that has it
+            for preset_name, extrusion_dist in extrusion_results.items():
+                source_info = extrusion_dist.get_source_info(biome_id)
+                if source_info:
+                    metadata.extrusion_source = source_info
+                    break
+
         # Add percentages from all presets
         for preset_name, distribution in results.items():
+            # Surface percentage
             metadata.percentages[preset_name] = distribution.get(biome_id)
+
+            # Extrusion percentage (calculated from parent biomes)
+            if preset_name in extrusion_results:
+                extrusion_dist = extrusion_results[preset_name]
+                extrusion_pct = extrusion_dist.calculate_percentage(biome_id, distribution)
+                metadata.extrusion_percentages[preset_name] = extrusion_pct
 
         biome_metadata_map[display_id] = metadata
 
@@ -535,8 +762,8 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row
-        header = ['BiomeID', 'Extends', 'Color'] + preset_names
+        # Header row - now includes Source and ExtrusionSource columns
+        header = ['BiomeID', 'Extends', 'Color', 'Source', 'ExtrusionSource'] + preset_names
         writer.writerow(header)
 
         # Data rows
@@ -547,6 +774,8 @@ def generate_csv_output(results: Dict[str, BiomeDistribution], output_path: Path
 
     print(f"CSV written successfully: {output_path}")
     print(f"  Valid biomes: {len(valid_biomes)}")
+    print(f"  Surface biomes: {len(surface_biomes)}")
+    print(f"  Extrusion-only biomes: {len(extrusion_only_biomes)}")
     print(f"  Unresolved intermediates: {len(unresolved_biomes)}")
 
 
@@ -564,12 +793,17 @@ def main():
 
     # Analyze each preset
     results = {}
+    extrusion_results = {}
 
     for preset_file in preset_dir.glob("*.yml"):
         try:
             analyzer = PresetAnalyzer(preset_file)
             distribution = analyzer.calculate_percentages()
             results[analyzer.preset_name] = distribution
+
+            # Also extract extrusion data
+            extrusion_dist = analyzer.calculate_extrusions()
+            extrusion_results[analyzer.preset_name] = extrusion_dist
         except Exception as e:
             print(f"\nError processing {preset_file}: {e}", file=sys.stderr)
             import traceback
@@ -589,8 +823,29 @@ def main():
             marker = " [UNRESOLVED]" if biome not in valid_biomes and biome != 'SELF' else ""
             print(f"  {biome:<40} {prob:>8.4%}{marker}")
 
-    # Generate CSV output
-    generate_csv_output(results, output_file)
+    # Output extrusion summary
+    print("\n\n" + "=" * 70)
+    print("EXTRUSION BIOMES (underground/caves):")
+    print("=" * 70)
+    print("These biomes generate below the surface via extrusion definitions.")
+    print("Percentages represent the fraction of underground space they occupy.")
+    print()
+
+    for preset_name in sorted(extrusion_results.keys()):
+        extrusion_dist = extrusion_results[preset_name]
+        surface_dist = results.get(preset_name)
+
+        if not extrusion_dist.extrusion_biomes:
+            continue
+
+        print(f"\n{preset_name}:")
+        for biome_id in sorted(extrusion_dist.extrusion_biomes.keys()):
+            pct = extrusion_dist.calculate_percentage(biome_id, surface_dist)
+            sources = extrusion_dist.get_source_info(biome_id)
+            print(f"  {biome_id:<40} {pct:>8.4%}  (from: {sources})")
+
+    # Generate CSV output with extrusion data
+    generate_csv_output(results, extrusion_results, output_file)
 
     # Final summary of unresolved biomes
     print("\n" + "=" * 70)

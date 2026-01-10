@@ -8,6 +8,8 @@ Properly handles YAML anchors/aliases and cascading probability calculations.
 Now also handles extrusion biomes (caves, underground biomes) which generate
 content below the surface level. Extrusion biomes are tracked separately so
 surface biomes still add to 100%.
+
+Includes schema validation for Terra stage types to catch configuration errors.
 """
 from ensure_module import ensure_modules
 
@@ -22,6 +24,265 @@ import csv
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Tuple, Any, Optional, Set
+
+
+# =============================================================================
+# Terra Schema Validation
+# =============================================================================
+
+class TerraSchemaValidator:
+    """
+    Validates Terra configuration files against known schema.
+
+    Based on Terra 7.0 source code:
+    - Stage types from biome-provider-pipeline addon
+    - Sampler types from noise addon
+    """
+
+    # Valid pipeline stage types and their required fields
+    STAGE_TYPES = {
+        'REPLACE': {
+            'required': ['from', 'to'],
+            'optional': ['sampler', 'range'],
+        },
+        'REPLACE_LIST': {
+            'required': ['default-from', 'default-to', 'to'],
+            'optional': ['sampler', 'range'],
+        },
+        'BORDER': {
+            'required': ['from', 'replace', 'to'],
+            'optional': ['sampler'],
+        },
+        'BORDER_LIST': {
+            'required': ['from', 'default-replace', 'default-to', 'replace'],
+            'optional': ['sampler'],
+        },
+        'SMOOTH': {
+            'required': [],
+            'optional': ['sampler'],
+        },
+        'FRACTAL_EXPAND': {
+            'required': [],
+            'optional': ['sampler'],
+        },
+    }
+
+    # Valid sampler types
+    SAMPLER_TYPES = {
+        'CELLULAR', 'CONSTANT', 'DOMAIN_WARP', 'EXPRESSION',
+        'GAUSSIAN', 'IMAGE', 'KERNEL', 'LINEAR', 'NORMALIZER',
+        'OPEN_SIMPLEX_2', 'OPEN_SIMPLEX_2S', 'PERLIN', 'PROBABILITY',
+        'SIMPLEX', 'VALUE', 'VALUE_CUBIC', 'WHITE_NOISE',
+        'DISTANCE', 'LINEAR_HEIGHTMAP', 'TRANSLATE', 'CLAMP',
+        'ADD', 'SUB', 'MUL', 'DIV', 'MAX', 'MIN',
+    }
+
+    # Valid provider types
+    PROVIDER_TYPES = {
+        'PIPELINE', 'EXTRUSION', 'SINGLE', 'SAMPLER', 'IMAGE',
+    }
+
+    def __init__(self):
+        self.errors: List[Tuple[str, str, str]] = []  # (file, location, message)
+        self.warnings: List[Tuple[str, str, str]] = []
+
+    def validate_stage(self, stage: Dict, file_path: str, stage_index: int) -> bool:
+        """Validate a single pipeline stage configuration."""
+        if not isinstance(stage, dict):
+            return True  # Skip non-dict stages (e.g., string references)
+
+        stage_type = stage.get('type')
+        location = f"stage[{stage_index}]"
+
+        if not stage_type:
+            self.errors.append((file_path, location, "Stage missing 'type' field"))
+            return False
+
+        if stage_type not in self.STAGE_TYPES:
+            # Check for common typos
+            similar = self._find_similar(stage_type, self.STAGE_TYPES.keys())
+            msg = f"Invalid stage type '{stage_type}'"
+            if similar:
+                msg += f". Did you mean '{similar}'?"
+            self.errors.append((file_path, location, msg))
+            return False
+
+        # Check required fields
+        schema = self.STAGE_TYPES[stage_type]
+        for field in schema['required']:
+            if field not in stage:
+                self.errors.append((
+                    file_path, location,
+                    f"Stage type '{stage_type}' missing required field '{field}'"
+                ))
+
+        # Validate nested sampler if present
+        if 'sampler' in stage:
+            self.validate_sampler(stage['sampler'], file_path, f"{location}.sampler")
+
+        return True
+
+    def validate_sampler(self, sampler: Any, file_path: str, location: str) -> bool:
+        """Validate a sampler configuration."""
+        if not isinstance(sampler, dict):
+            return True
+
+        sampler_type = sampler.get('type')
+        if not sampler_type:
+            # Sampler might be a reference or have implicit type
+            return True
+
+        if sampler_type not in self.SAMPLER_TYPES:
+            similar = self._find_similar(sampler_type, self.SAMPLER_TYPES)
+            msg = f"Unknown sampler type '{sampler_type}'"
+            if similar:
+                msg += f". Did you mean '{similar}'?"
+            self.warnings.append((file_path, location, msg))
+
+        # Recursively validate nested samplers
+        for key in ['sampler', 'samplers', 'lookup']:
+            if key in sampler:
+                nested = sampler[key]
+                if isinstance(nested, dict):
+                    if 'type' in nested:
+                        self.validate_sampler(nested, file_path, f"{location}.{key}")
+                    else:
+                        # Named samplers dict
+                        for name, s in nested.items():
+                            self.validate_sampler(s, file_path, f"{location}.{key}.{name}")
+
+        return True
+
+    def validate_yaml_file(self, file_path: Path) -> Tuple[Optional[Dict], List[str]]:
+        """
+        Load and validate a YAML file.
+        Returns (parsed_data, errors) where errors is a list of error messages.
+        """
+        errors = []
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            return data, errors
+        except yaml.YAMLError as e:
+            # Extract meaningful error info
+            error_str = str(e)
+            if hasattr(e, 'problem_mark'):
+                mark = e.problem_mark
+                # Check for common issues and provide helpful messages
+                if 'duplicate anchor' in error_str.lower():
+                    # Extract anchor name from error
+                    import re as regex
+                    anchor_match = regex.search(r"anchor ['\"]?(\w+)['\"]?", error_str)
+                    anchor_name = anchor_match.group(1) if anchor_match else "unknown"
+                    error_msg = (
+                        f"YAML error at line {mark.line + 1}: Duplicate anchor '&{anchor_name}'. "
+                        f"Use alias '*{anchor_name}' to reference existing anchor instead of redefining it."
+                    )
+                else:
+                    error_msg = f"YAML error at line {mark.line + 1}, column {mark.column + 1}: {e.problem}"
+            else:
+                error_msg = f"YAML error: {error_str.split(chr(10))[0]}"
+            errors.append(error_msg)
+            return None, errors
+        except Exception as e:
+            errors.append(f"Error reading file: {e}")
+            return None, errors
+
+    def validate_stage_file(self, file_path: Path) -> bool:
+        """Validate a stage definition file."""
+        data, yaml_errors = self.validate_yaml_file(file_path)
+
+        for err in yaml_errors:
+            self.errors.append((str(file_path), "file", err))
+
+        if data is None:
+            return False
+
+        stages = data.get('stages', [])
+        if not isinstance(stages, list):
+            return True
+
+        for i, stage in enumerate(stages):
+            self.validate_stage(stage, str(file_path), i)
+
+        return True
+
+    def _find_similar(self, value: str, candidates: Any) -> Optional[str]:
+        """Find a similar string from candidates (for typo suggestions)."""
+        value_lower = value.lower().replace('-', '_')
+        for candidate in candidates:
+            candidate_lower = candidate.lower().replace('-', '_')
+            # Check for common transformations
+            if value_lower == candidate_lower:
+                return candidate
+            # Check Levenshtein distance of 1-2
+            if self._levenshtein_distance(value_lower, candidate_lower) <= 2:
+                return candidate
+        return None
+
+    @staticmethod
+    def _levenshtein_distance(s1: str, s2: str) -> int:
+        """Calculate Levenshtein distance between two strings."""
+        if len(s1) < len(s2):
+            return TerraSchemaValidator._levenshtein_distance(s2, s1)
+        if len(s2) == 0:
+            return len(s1)
+
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+
+        return previous_row[-1]
+
+    def get_report(self) -> str:
+        """Generate a validation report."""
+        lines = []
+
+        if self.errors:
+            lines.append("\n" + "=" * 70)
+            lines.append("SCHEMA VALIDATION ERRORS:")
+            lines.append("=" * 70)
+            for file_path, location, message in self.errors:
+                lines.append(f"  ERROR in {file_path}")
+                lines.append(f"    Location: {location}")
+                lines.append(f"    Message: {message}")
+                lines.append("")
+
+        if self.warnings:
+            lines.append("\n" + "-" * 70)
+            lines.append("SCHEMA VALIDATION WARNINGS:")
+            lines.append("-" * 70)
+            for file_path, location, message in self.warnings:
+                lines.append(f"  WARNING in {file_path}")
+                lines.append(f"    Location: {location}")
+                lines.append(f"    Message: {message}")
+                lines.append("")
+
+        if not self.errors and not self.warnings:
+            lines.append("\nSchema validation passed - no errors or warnings found.")
+
+        return "\n".join(lines)
+
+    def has_errors(self) -> bool:
+        """Check if any validation errors were found."""
+        return len(self.errors) > 0
+
+
+# Global validator instance
+_validator: Optional[TerraSchemaValidator] = None
+
+def get_validator() -> TerraSchemaValidator:
+    """Get or create the global validator instance."""
+    global _validator
+    if _validator is None:
+        _validator = TerraSchemaValidator()
+    return _validator
 
 class BiomeDistribution:
     """Tracks probability distribution of biomes"""
@@ -728,14 +989,30 @@ class PresetAnalyzer:
         return stage_files
 
     def load_stage_file(self, stage_path: Path) -> List[Dict]:
-        """Load stages from a stage file"""
-        try:
-            with open(stage_path, 'r') as f:
-                data = yaml.safe_load(f)
-                return data.get('stages', [])
-        except Exception as e:
-            print(f"Warning: Could not load {stage_path}: {e}", file=sys.stderr)
+        """Load stages from a stage file with schema validation"""
+        validator = get_validator()
+
+        # Use validator to load and check YAML
+        data, yaml_errors = validator.validate_yaml_file(stage_path)
+
+        if yaml_errors:
+            for err in yaml_errors:
+                validator.errors.append((str(stage_path), "file", err))
+            print(f"Warning: Could not load {stage_path}: {yaml_errors[0]}", file=sys.stderr)
             return []
+
+        if data is None:
+            return []
+
+        stages = data.get('stages', [])
+        if not isinstance(stages, list):
+            return []
+
+        # Validate each stage
+        for i, stage in enumerate(stages):
+            validator.validate_stage(stage, str(stage_path), i)
+
+        return stages
 
     def get_extrusion_refs(self) -> List[Tuple[str, Path]]:
         """Extract list of extrusion file references from preset"""
@@ -1034,6 +1311,15 @@ def main():
 
     if not unresolved_found:
         print("  None - all biomes properly resolved!")
+
+    # Output schema validation report
+    validator = get_validator()
+    print(validator.get_report())
+
+    # Return exit code based on validation errors
+    if validator.has_errors():
+        print("\nValidation completed with errors. Please fix the issues above.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

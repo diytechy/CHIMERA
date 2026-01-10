@@ -14,7 +14,7 @@ stages:
       _warm_canyon: 8
       
   #Perform cellular distribution to create zones where canyons will actually occur so they are not everywhere in the land-mass.
-  - type: REPLACE-LIST
+  - type: REPLACE_LIST
     sampler:
       type: CELLULAR
       return: CellValue
@@ -33,7 +33,7 @@ stages:
         - land: *LandDist
       
   #Further contain the canyons so that they are not on the edge of biomes borders (like an ocean, which is very strange)
-  - type: REPLACE-LIST
+  - type: REPLACE_LIST
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -55,7 +55,7 @@ stages:
         - land: *LandBorderDist
         - SELF: *CanyonCentDist
         
-  - type: REPLACE-LIST
+  - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       dimensions: 2

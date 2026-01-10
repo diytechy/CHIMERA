@@ -45,17 +45,20 @@ biomes:
         - << biome-distribution/stages/add_coast.yml:stages
         
         
-        #Split land into canyon (effectively a basin) / land distribution.
-        #Input: land
-        #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
-        - << biome-distribution/stages/special/canyons.yml:stages
-        
         #Future placeholder to add sinkholes
         #Input: land
         #Output: sink hole zones
         
-        #Using temperature / precipitation / elevation, generate biome distribution.
+        #Using temperature, main biome distribution structure.
         - << biome-distribution/stages/climate/temperature.yml:stages
+        
+        
+        #Split land into canyon (effectively a basin) / land distribution.
+        #Input: land
+        #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
+        // - << biome-distribution/stages/special/canyons2.yml:stages
+        
+        %Split precipitation / elevation, generate biome distribution.
         - << biome-distribution/stages/climate/precipitation.yml:stages
         - << biome-distribution/stages/climate/elevation.yml:stages
         

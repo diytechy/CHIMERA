@@ -17,6 +17,7 @@ Eventaully: Why is it taking so long to initailize world?  Is it a defect somewh
  --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH  - 1.21.11-74-3ebc5b3 (MC: 1.21.11) ---
 [ERROR]: The server has not responded for 10 seconds! Creating thread dump
 
+All these prompts relate to previous discussions outlined in CLAUDE.md
 
 Latest prommpt:
 There are some issues in "calculate_biome_percentages.py" I'd like to resolve.  This is related to claude.md within this directory.

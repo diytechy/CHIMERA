@@ -239,18 +239,33 @@ class StageProcessor:
         BORDER stages find borders between two biomes and create a third biome at the boundary.
         For probability calculation, we approximate this by:
         - Taking a percentage of the 'replace' biome's probability
-        - Converting it to the 'to' biome
+        - Converting it to the 'to' biome(s)
         - The percentage is proportional to the 'from' biome's probability (more 'from' = more borders)
 
         Tag matching: Both 'from' and 'replace' can be tags that match multiple biomes.
+        The 'to' field can be a single biome or a weighted list.
         """
         new_dist = distribution.copy()
 
         from_identifier = stage.get('from')
         replace_identifier = stage.get('replace')
-        to_biome = stage.get('to')
+        to_spec = stage.get('to')
 
-        if not from_identifier or not replace_identifier or not to_biome:
+        if not from_identifier or not replace_identifier or not to_spec:
+            return distribution
+
+        # Parse the 'to' specification - can be string or weighted list
+        if isinstance(to_spec, str):
+            to_weights = {to_spec: 1}
+        elif isinstance(to_spec, list):
+            to_weights = StageProcessor.parse_weighted_list(to_spec)
+        elif isinstance(to_spec, dict):
+            to_weights = {k: v for k, v in to_spec.items() if isinstance(v, (int, float))}
+        else:
+            return distribution
+
+        total_to_weight = sum(to_weights.values())
+        if total_to_weight <= 0:
             return distribution
 
         # Find all biomes that match the 'from' identifier (for calculating border probability)
@@ -285,9 +300,16 @@ class StageProcessor:
             border_factor = min(0.20, from_total_prob * 0.4)  # Max 20% conversion
             border_prob = replace_prob * border_factor
 
-            # Transfer probability from replace_biome to to_biome
+            # Transfer probability from replace_biome to to_biome(s)
             new_dist.probabilities[replace_biome] = replace_prob - border_prob
-            new_dist.add(to_biome, border_prob)
+
+            # Distribute border_prob according to to_weights
+            for to_biome, weight in to_weights.items():
+                prob = border_prob * (weight / total_to_weight)
+                if to_biome == 'SELF':
+                    new_dist.add(replace_biome, prob)
+                else:
+                    new_dist.add(to_biome, prob)
 
         return new_dist
 
@@ -557,13 +579,18 @@ class BiomeReader:
         Check if a biome matches an identifier (either by ID or tag).
 
         Args:
-            identifier: The ID or tag to match against (e.g., 'LAND_CAVES', 'JUNGLE')
+            identifier: The ID or tag to match against (e.g., 'LAND_CAVES', 'JUNGLE', 'ALL')
             biome_id: The biome ID to check
 
         Returns:
             True if biome_id equals identifier OR biome_id has identifier as a tag
+            Special case: 'ALL' matches every biome
         """
         cls.build_cache()
+
+        # Special case: ALL matches everything
+        if identifier == 'ALL':
+            return True
 
         # Direct ID match
         if identifier == biome_id:

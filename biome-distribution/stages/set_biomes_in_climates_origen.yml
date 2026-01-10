@@ -16,19 +16,30 @@ stages:
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
+        - SNOWY_SPIRES: 2
+        - BARE_BOULDERFIELDS: 1
 
       tundra-flat:
-        - TUNDRA: 1
+        - TUNDRA: 2
+        - TUNDRA_TRACKS: 1
       tundra:
-        - TUNDRA: 1
+        - TUNDRA: 2
         - SNOWY_TUFF_MOUNTAINS: 1
+        - FROZEN_FUNGI: 1
+        - TUNDRA_TRACKS: 1
       tundra-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 1
+        - MOUNTAIN_MIRRORS: 2
+        - ALPINE_ASCENDANCY: 2
+        - SNOWY_SPIRES: 1
+        - BARE_BOULDERFIELDS: 1
 
       polar-coast-flat:
-        - FROZEN_BEACH: 1
+        - FROZEN_BEACH: 2
+        - FROSTY_FINGERS: 1
       polar-coast:
-        - SNOWY_SEA_CAVES: 1
+        - SNOWY_SEA_CAVES: 2
+        - FROSTY_FINGERS: 1
       polar-coast-highlands:
         - SNOWY_SEA_CAVES: 1
 
@@ -42,17 +53,21 @@ stages:
         - COLD_EXTINCT_VOLCANO: 1
 
       polar-shallow-ocean:
-        - FROZEN_OCEAN: 1
+        - FROZEN_OCEAN: 2
+        - ARCTIC_ARCHES: 1
+        - STONEGATE_SEAS: 1
       polar-shallow-ocean-midlands:
         - FROZEN_OCEAN: 1
         - FROZEN_OCEAN_OVERHANGS: 1
       polar-ocean:
         - FROZEN_OCEAN: 1
         - FROZEN_OCEAN_SLOPES: 1
-        - ICEBERG_OCEAN: 1
+        - ICEBERG_OCEAN: 2
+        - ABYSSAL_ALLEYS: 1
       polar-deep-ocean:
         - FROZEN_DEEP_OCEAN: 1
         - FROZEN_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
 
 
       boreal-hot-flat:
@@ -68,8 +83,10 @@ stages:
         - maple-groves: 1
         - BIRCH_FOREST: 2
         - PINE_CANOPY: 2
+        - TALL_TIMBERLAND: 1
       boreal-hot-highlands:
         - MOUNTAINS: 1
+        - VERTICAL_VISTAS: 1
 
       boreal-warm-flat:
         - STEPPE: 1
@@ -80,14 +97,17 @@ stages:
         - BIRCH_FOREST: 2
         - maple-groves: 1
         - PINE_CANOPY: 2
+        - FOSSILIZED_FENLANDS: 1
       boreal-warm:
         - SEQUOIA_FOREST: 5
         - OLD_GROWTH_SEQUOIA_FOREST: 1
         - TAIGA_CLEARING: 5
         - TAIGA: 11
         - FIR_FIELDS: 3
+        - TALL_TIMBERLAND: 1
       boreal-warm-highlands:
         - MOUNTAINS: 1
+        - VERTICAL_VISTAS: 1
 
       boreal-cold-flat:
         - TAIGA: 2
@@ -99,17 +119,26 @@ stages:
         - TAIGA: 2
         - FIR_FIELDS: 1
         - maple-groves: 1
+        - BLACK_FOREST: 1
+        - GLOOMY_GORGE: 1
       boreal-cold-highlands:
         - MOUNTAINS: 1
+        - ROCKY_REFUGE: 1
+        - ALPINE_ASCENDANCY: 1
       
       boreal-snowy-flat:
-        - SNOWY_MEADOW: 1
+        - SNOWY_MEADOW: 2
+        - WHITE_WALLOWS: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1
+        - FROZEN_FUNGI: 1
       boreal-snowy-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
+        - MOUNTAIN_MIRRORS: 1
+        - ALPINE_ASCENDANCY: 1
+        - BARE_BOULDERFIELDS: 1
 
       boreal-hot-dry-flat:
         - PRAIRIE: 1
@@ -181,16 +210,20 @@ stages:
         - BOREAL_EXTINCT_VOLCANO: 1
 
       boreal-shallow-ocean:
-        - KELP_FOREST_GRAVEL: 1
+        - KELP_FOREST_GRAVEL: 2
+        - STONEGATE_SEAS: 1
       boreal-shallow-ocean-midlands:
         - COLD_OCEAN: 1
         - COLD_OCEAN_OVERHANGS: 1
       boreal-ocean:
         - COLD_OCEAN: 1
         - COLD_OCEAN_SLOPES: 1
+        - ICEBERG_OCEAN: 1
+        - ABYSSAL_ALLEYS: 1
       boreal-deep-ocean:
         - COLD_DEEP_OCEAN: 1
         - COLD_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
 
       temperate-hot-dry-flat:
         - STEPPE: 1
@@ -228,12 +261,17 @@ stages:
         - TEMPERATE_RAINFOREST: 1
         - AZALEA_FOREST: 1
         - OAK_FOREST: 1
+        - VERDANT_VALLEYS: 1
+        - FLOWERING_FOREST: 1
+        - SAKURA_STREAMS: 1
       temperate-hot-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
         - TEMPERATE_ALPHA_MOUNTAINS: 1
         - TEMPERATE_MOUNTAINS: 1
         - TEMPERATE_MONTANE_RAINFOREST: 3
+        - VERTICAL_VISTAS: 1
+        - ROCKY_REFUGE: 1
 
       temperate-warm-flat:
         - FLOWERING_FOREST: 1
@@ -243,6 +281,10 @@ stages:
         - WOODED_BUTTES: 1
         - ROCKY_GRASSLAND: 1
         - OAK_FOREST: 1
+        - FOSSILIZED_FENLANDS: 1
+        - MURKY_MARSHLANDS: 1
+        - _pillow_plains: 1
+        - _secluded_valleys: 1
       temperate-warm:
         - OAK_FOREST: 1
         - FLOWERING_FOREST: 1
@@ -250,12 +292,17 @@ stages:
         - DARK_FOREST: 1
         - SAKURA_GROVE: 1
         - WOODED_BUTTES: 1
+        - VERDANT_VALLEYS: 1
+        - SAKURA_STREAMS: 1
+        - _plateao: 1
       temperate-warm-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
         - TEMPERATE_ALPHA_MOUNTAINS: 1
         - TEMPERATE_MOUNTAINS: 1
         - TEMPERATE_MONTANE_RAINFOREST: 3
+        - VERTICAL_VISTAS: 1
+        - ROCKY_REFUGE: 1
 
       temperate-cold-flat:
         - PRAIRIE: 3
@@ -266,6 +313,8 @@ stages:
         - DARK_FOREST: 2
         - SAKURA_GROVE: 2
         - WOODED_BUTTES: 2
+        - FOSSILIZED_FENLANDS: 1
+        - MURKY_MARSHLANDS: 1
       temperate-cold:
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -274,11 +323,15 @@ stages:
         - DARK_FOREST: 1
         - SAKURA_GROVE: 1
         - WOODED_BUTTES: 1
+        - BLACK_FOREST: 1
+        - GLOOMY_GORGE: 1
+        - TALL_TIMBERLAND: 1
       temperate-cold-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
         - TEMPERATE_ALPHA_MOUNTAINS: 1
         - TEMPERATE_MOUNTAINS: 1
+        - ROCKY_REFUGE: 1
 
       temperate-coast-flat:
         - BEACH: 2
@@ -291,6 +344,7 @@ stages:
 
       temperate-mesa:
         - TEMPERATE_MESA: 1
+        - MESA_MONUMENTS: 1
 
       temperate-crater-lake:
         - TEMPERATE_CRATER_LAKE: 1
@@ -299,17 +353,20 @@ stages:
         - TEMPERATE_EXTINCT_VOLCANO: 1
 
       temperate-shallow-ocean:
-        - KELP_FOREST: 1
-        - SEAGRASS_MEADOW: 1
+        - KELP_FOREST: 2
+        - SEAGRASS_MEADOW: 2
+        - STONEGATE_SEAS: 1
       temperate-shallow-ocean-midlands:
         - ROCKY_SHALLOW_OCEAN: 1
         - OCEAN_OVERHANGS: 1
       temperate-ocean:
         - OCEAN: 1
         - OCEAN_SLOPES: 1
+        - ABYSSAL_ALLEYS: 1
       temperate-deep-ocean:
         - DEEP_OCEAN: 1
         - DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
 
       # Red hot desert
       hot-desert-flat-red:
@@ -342,6 +399,7 @@ stages:
         - DESERT: 4
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
+        - _desert: 1
       hot-desert-white:
         - DESERT: 1
         - DESERT_PILLARS: 1
@@ -350,6 +408,8 @@ stages:
         - DESERT_TERRACES: 1
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
+        - CARVING_CREAKS: 1
+        - _desert: 1
       hot-desert-highlands-white:
         - DESERT_PILLARS: 1
         - DESERT_SPIKES: 1
@@ -361,8 +421,11 @@ stages:
       # Red hot steppe
       hot-steppe-flat-red:
         - RED_XERIC_SHRUBLAND: 1
+        - BADLANDS_BALCONIES: 1
+        - SCARLET_SANCTUARY: 1
       hot-steppe-red:
         - RED_XERIC_SHRUBLAND: 1
+        - SCARLET_SANCTUARY: 1
       hot-steppe-highlands-red:
         - RED_XERIC_MOUNTAINS: 1
 
@@ -383,11 +446,13 @@ stages:
         - TAR_PITS: 1
         - DRY_PALM_FOREST: 1
         - FIRMIHIN_FOREST: 1
+        - ARID_ARBORETUM: 1
       hot-steppe-white:
         - XERIC_SHRUBLAND: 1
         - TAR_PITS: 1
         - DRY_PALM_FOREST: 1
         - FIRMIHIN_FOREST: 1
+        - ARID_ARBORETUM: 1
       hot-steppe-highlands-white:
         - XERIC_MOUNTAINS: 1
         - DIKSAM_PLATEAU: 1
@@ -438,6 +503,7 @@ stages:
 
       desert-mesa:
         - DESERT_MESA: 1
+        - MESA_MONUMENTS: 1
 
       desert-crater-lake:
         - DESERT_CRATER_LAKE: 1
@@ -451,11 +517,15 @@ stages:
         - ROCKY_JUNGLE: 1
         - TROPICAL_RAINFOREST: 1
         - TROPICAL_FLOODPLAIN: 1
+        - WATERY_WILDS: 1
       tropical-rainforest:
         - BAMBOO_JUNGLE: 1
         - OVERGROWN_CLIFFS: 1
         - CLOUD_FOREST: 1
         - TROPICAL_RAINFOREST: 1
+        - LUSH_LOOPS: 1
+        - CANOPY_CASCADES: 1
+        - WATERY_WILDS: 1
       tropical-rainforest-highlands:
         - JUNGLE: 1
         - ROCKY_JUNGLE: 1
@@ -465,11 +535,15 @@ stages:
       tropical-monsoon-flat:
         - DRY_WOODLANDS: 1
         - MONSOON_FOREST: 1
+        - BAMBOO_BASIN: 1
       tropical-monsoon:
         - DRY_WOODLANDS: 1
         - MONSOON_FOREST: 1
         - OVERGROWN_CLIFFS: 1
         - CLOUD_FOREST: 1
+        - LUSH_LOOPS: 1
+        - CANOPY_CASCADES: 1
+        - BAMBOO_BASIN: 1
       tropical-monsoon-highlands:
         - DRY_WOODLANDS: 1
         - MONSOON_FOREST: 1
@@ -478,24 +552,31 @@ stages:
       tropical-savanna-dry-flat:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
+        - MESA_MONUMENTS: 1
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
+        - MESA_MONUMENTS: 1
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1
       tropical-savanna-wet:
         - WET_SAVANNA: 1
+        - OVERGROWN_CLIFFS: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
 
       tropical-coast-flat:
         - MUDDY_COASTS: 1
         - PALM_BEACH: 1
-      tropical-coast: LUSH_SEA_CAVES
-      tropical-coast-highlands: LUSH_SEA_CAVES
+        - MANGROVE_SWAMP: 1
+      tropical-coast:
+        - LUSH_SEA_CAVES: 1
+        - MANGROVE_SWAMP: 1
+      tropical-coast-highlands:
+        - LUSH_SEA_CAVES: 1
 
       tropical-mesa:
         - TROPICAL_MESA: 1
@@ -507,21 +588,26 @@ stages:
         - TROPICAL_EXTINCT_VOLCANO: 1
 
       hot-shallow-ocean:
-        - SHALLOW_CORAL_OCEAN: 1
-        - SEAGRASS_MEADOW: 1
+        - SHALLOW_CORAL_OCEAN: 2
+        - SEAGRASS_MEADOW: 2
+        - STONEGATE_SEAS: 1
+        - MARINE_MONOLITHS: 1
       hot-shallow-ocean-midlands:
         - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_OVERHANGS: 1
         - SEAGRASS_MEADOW: 1
         - CORAL_OCEAN: 1
         - CORAL_OCEAN_OVERHANGS: 1
+        - MARINE_MONOLITHS: 1
       hot-ocean:
         - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_SLOPES: 1
         - CORAL_OCEAN_SLOPES: 1
+        - ABYSSAL_ALLEYS: 1
       hot-deep-ocean:
         - TROPICAL_DEEP_OCEAN: 1
         - TROPICAL_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
 
       polar-mushroom:
         - POLAR_MUSHROOM_FIELDS: 1

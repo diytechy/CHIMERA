@@ -48,7 +48,7 @@ biomes:
         #Split land into canyon (effectively a basin) / land distribution.
         #Input: land
         #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
-        - << biome-distribution/stages/special/canyons.yml:stages
+        - << biome-distribution/stages/special/build_canyon_regions.yml:stages
         
         #Future placeholder to add sinkholes
         #Input: land
@@ -70,7 +70,7 @@ biomes:
         - << biome-distribution/stages/add_travertine_terraces.yml:stages
         
         #Place remaining biome regions into actual biome definitions
-        - << biome-distribution/stages/set_biomes_in_climates.yml:stages
+        - << biome-distribution/stages/set_biomes_in_climates_origen.yml:stages
         
         #Add color variants to special biomes.
         - << biome-distribution/stages/add_biome_color_variants.yml:stages

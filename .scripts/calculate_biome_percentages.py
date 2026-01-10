@@ -153,12 +153,96 @@ class TerraSchemaValidator:
 
         return True
 
+    def validate_anchors_and_aliases(self, file_path: Path) -> List[str]:
+        """
+        Pre-parse validation of YAML anchors and aliases.
+
+        Checks:
+        1. No anchor is defined more than once
+        2. All aliases reference anchors that were defined earlier
+
+        Returns list of error messages.
+        """
+        errors = []
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            return [f"Could not read file: {e}"]
+
+        lines = content.split('\n')
+
+        # Track anchors: name -> (line_number, column)
+        anchors_defined: Dict[str, Tuple[int, int]] = {}
+        # Track aliases: name -> [(line_number, column), ...]
+        aliases_used: Dict[str, List[Tuple[int, int]]] = defaultdict(list)
+
+        # Regex patterns for anchors and aliases
+        # Anchor: &name (not preceded by *)
+        anchor_pattern = re.compile(r'(?<!\*)&([a-zA-Z_][a-zA-Z0-9_]*)')
+        # Alias: *name
+        alias_pattern = re.compile(r'\*([a-zA-Z_][a-zA-Z0-9_]*)')
+
+        for line_num, line in enumerate(lines, start=1):
+            # Skip comments
+            line_content = line.split('#')[0] if '#' in line else line
+
+            # Find anchors
+            for match in anchor_pattern.finditer(line_content):
+                anchor_name = match.group(1)
+                col = match.start() + 1
+
+                if anchor_name in anchors_defined:
+                    first_line, first_col = anchors_defined[anchor_name]
+                    errors.append(
+                        f"Line {line_num}: Duplicate anchor '&{anchor_name}' "
+                        f"(first defined at line {first_line}). "
+                        f"Use alias '*{anchor_name}' to reference it instead."
+                    )
+                else:
+                    anchors_defined[anchor_name] = (line_num, col)
+
+            # Find aliases
+            for match in alias_pattern.finditer(line_content):
+                alias_name = match.group(1)
+                col = match.start() + 1
+                aliases_used[alias_name].append((line_num, col))
+
+        # Check for undefined aliases
+        for alias_name, usages in aliases_used.items():
+            if alias_name not in anchors_defined:
+                for line_num, col in usages:
+                    errors.append(
+                        f"Line {line_num}: Alias '*{alias_name}' references undefined anchor. "
+                        f"Define anchor '&{alias_name}' before using it."
+                    )
+            else:
+                # Check that alias is used after anchor is defined
+                anchor_line = anchors_defined[alias_name][0]
+                for line_num, col in usages:
+                    if line_num < anchor_line:
+                        errors.append(
+                            f"Line {line_num}: Alias '*{alias_name}' used before anchor is defined "
+                            f"(anchor defined at line {anchor_line})."
+                        )
+
+        return errors
+
     def validate_yaml_file(self, file_path: Path) -> Tuple[Optional[Dict], List[str]]:
         """
         Load and validate a YAML file.
         Returns (parsed_data, errors) where errors is a list of error messages.
         """
         errors = []
+
+        # Pre-parse validation for anchors and aliases
+        anchor_errors = self.validate_anchors_and_aliases(file_path)
+        if anchor_errors:
+            errors.extend(anchor_errors)
+            # Don't try to parse if we found anchor/alias issues
+            return None, errors
+
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)

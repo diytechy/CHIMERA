@@ -9,6 +9,7 @@ color: $biomes/colors.yml:SEQUOIA_FOREST
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_COLD_RIVER
 
 vanilla: minecraft:old_growth_spruce_taiga

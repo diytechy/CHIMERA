@@ -9,6 +9,7 @@ color: $biomes/colors.yml:TEMPERATE_MONTANE_RAINFOREST
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER
 
 vanilla: minecraft:forest

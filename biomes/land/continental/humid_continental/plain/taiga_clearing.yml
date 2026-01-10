@@ -9,6 +9,7 @@ color: $biomes/colors.yml:TAIGA_CLEARING
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_COLD_RIVER
 
 vanilla: minecraft:meadow

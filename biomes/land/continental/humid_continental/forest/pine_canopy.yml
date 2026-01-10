@@ -9,6 +9,7 @@ color: $biomes/colors.yml:PINE_CANOPY
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_COLD_RIVER
 
 vanilla: minecraft:old_growth_pine_taiga

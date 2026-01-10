@@ -11,6 +11,7 @@ vanilla: minecraft:desert
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_DESERT_RIVER
 
 particles:

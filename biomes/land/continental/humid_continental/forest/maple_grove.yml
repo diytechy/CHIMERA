@@ -9,6 +9,7 @@ color: $biomes/colors.yml:MAPLE_GROVE
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_COLD_RIVER
 
 vanilla: minecraft:taiga

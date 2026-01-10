@@ -9,6 +9,7 @@ color: $biomes/colors.yml:MOORLAND
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER
 
 vanilla: minecraft:savanna

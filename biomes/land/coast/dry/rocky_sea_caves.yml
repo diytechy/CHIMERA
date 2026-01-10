@@ -11,6 +11,7 @@ vanilla: minecraft:stony_shore
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER
 
 palette:

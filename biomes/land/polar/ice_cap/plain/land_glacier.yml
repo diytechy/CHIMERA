@@ -11,6 +11,7 @@ vanilla: minecraft:frozen_peaks
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - ICE_CAVES
   - USE_LAND_GLACIER_RIVER
 

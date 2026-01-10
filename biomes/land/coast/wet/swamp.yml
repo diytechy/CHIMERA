@@ -11,6 +11,7 @@ vanilla: minecraft:swamp
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_SWAMP_RIVER
 
 colors:

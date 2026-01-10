@@ -8,6 +8,7 @@ color: $biomes/colors.yml:TEMPERATE_OVERPASS
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER_TEMPERATE_MARSH
 
 vanilla: minecraft:plains

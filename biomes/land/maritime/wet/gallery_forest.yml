@@ -15,6 +15,7 @@ colors:
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
 
 palette:
   - GRASS: $meta.yml:top-y

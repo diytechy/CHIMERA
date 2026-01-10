@@ -9,6 +9,7 @@ color: $biomes/colors.yml:FIR_FIELDS
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_COLD_RIVER
 
 vanilla: minecraft:windswept_forest

@@ -85,6 +85,14 @@ class TerraSchemaValidator:
     def __init__(self):
         self.errors: List[Tuple[str, str, str]] = []  # (file, location, message)
         self.warnings: List[Tuple[str, str, str]] = []
+        # Track which stage files failed to load and which presets were affected
+        self.failed_stage_files: Dict[str, List[str]] = defaultdict(list)  # file -> [presets]
+        self.skipped_stages_by_preset: Dict[str, List[str]] = defaultdict(list)  # preset -> [files]
+
+    def record_failed_stage_load(self, stage_file: str, preset_name: str):
+        """Record that a stage file failed to load for a preset."""
+        self.failed_stage_files[stage_file].append(preset_name)
+        self.skipped_stages_by_preset[preset_name].append(stage_file)
 
     def validate_stage(self, stage: Dict, file_path: str, stage_index: int) -> bool:
         """Validate a single pipeline stage configuration."""
@@ -348,7 +356,22 @@ class TerraSchemaValidator:
                 lines.append(f"    Message: {message}")
                 lines.append("")
 
-        if not self.errors and not self.warnings:
+        # Report skipped stage files and their impact
+        if self.skipped_stages_by_preset:
+            lines.append("\n" + "=" * 70)
+            lines.append("SKIPPED STAGE FILES (biome calculations may be incomplete):")
+            lines.append("=" * 70)
+            for preset_name in sorted(self.skipped_stages_by_preset.keys()):
+                skipped_files = self.skipped_stages_by_preset[preset_name]
+                lines.append(f"\n  Preset '{preset_name}' skipped {len(skipped_files)} stage file(s):")
+                for stage_file in skipped_files:
+                    lines.append(f"    - {stage_file}")
+            lines.append("")
+            lines.append("  These presets may have missing or incorrect biome percentages.")
+            lines.append("  Fix the errors above and re-run to get accurate calculations.")
+            lines.append("")
+
+        if not self.errors and not self.warnings and not self.skipped_stages_by_preset:
             lines.append("\nSchema validation passed - no errors or warnings found.")
 
         return "\n".join(lines)
@@ -1072,7 +1095,7 @@ class PresetAnalyzer:
 
         return stage_files
 
-    def load_stage_file(self, stage_path: Path) -> List[Dict]:
+    def load_stage_file(self, stage_path: Path, record_failure: bool = True) -> List[Dict]:
         """Load stages from a stage file with schema validation"""
         validator = get_validator()
 
@@ -1083,9 +1106,15 @@ class PresetAnalyzer:
             for err in yaml_errors:
                 validator.errors.append((str(stage_path), "file", err))
             print(f"Warning: Could not load {stage_path}: {yaml_errors[0]}", file=sys.stderr)
+            # Record that this stage file failed for this preset
+            if record_failure:
+                validator.record_failed_stage_load(str(stage_path), self.preset_name)
             return []
 
         if data is None:
+            # Record failure if we couldn't load the file
+            if record_failure:
+                validator.record_failed_stage_load(str(stage_path), self.preset_name)
             return []
 
         stages = data.get('stages', [])

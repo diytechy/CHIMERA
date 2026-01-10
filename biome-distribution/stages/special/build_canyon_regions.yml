@@ -83,5 +83,5 @@ stages:
       - SANDY_SPLITS: &CanyonFloorDist     9
     to: # 0 = outer, 1 = inner
       _cold_canyon:
-      - land: &CanyonLandDist             16
-      - ICY_INCISIONS: &CanyonFloorDist     9
+      - land: *CanyonLandDist
+      - ICY_INCISIONS: *CanyonFloorDist

@@ -41,7 +41,9 @@
       "Bash(find:*)",
       "Bash(powershell -Command:*)",
       "Bash(.scriptsAuditAndPackage.bat)",
-      "Bash(cmd.exe /c .scripts\\\\AuditAndPackage.bat)"
+      "Bash(cmd.exe /c .scripts\\\\AuditAndPackage.bat)",
+      "Bash(ls:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

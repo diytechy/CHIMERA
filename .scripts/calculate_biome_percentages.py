@@ -153,25 +153,40 @@ class StageProcessor:
         - ALL matching biomes are replaced (100%, not partial)
         - The 'sampler' determines WHICH biome from 'to' is selected at each location
         - The 'to' weights determine proportional distribution (modified by sampler spatial pattern)
+
+        Tag matching: If 'from' is a tag (e.g., LAND_CAVES), all biomes with that tag
+        in the distribution are replaced.
         """
         new_dist = distribution.copy()
 
-        from_biome = stage.get('from')
+        from_identifier = stage.get('from')
         to_spec = stage.get('to')
 
-        if from_biome and from_biome in new_dist.probabilities:
-            from_prob = new_dist.get(from_biome)
+        if not from_identifier:
+            return new_dist
 
-            # According to Terra source, ALL matching biomes are replaced
-            # The sampler controls which 'to' biome is selected, not whether replacement happens
-            new_dist.remove(from_biome)
+        # Find all biomes in the distribution that match the 'from' identifier
+        # This includes direct ID matches AND biomes with the identifier as a tag
+        matching_biomes = []
+        for biome_id in list(new_dist.probabilities.keys()):
+            if BiomeReader.matches_biome_or_tag(from_identifier, biome_id):
+                matching_biomes.append(biome_id)
+
+        # Process each matching biome
+        for matched_biome in matching_biomes:
+            from_prob = new_dist.get(matched_biome)
+            if from_prob <= 0:
+                continue
+
+            # Remove the matched biome from distribution
+            new_dist.remove(matched_biome)
 
             # Distribute the probability according to 'to' weights
             # The sampler creates spatial variation in which biome appears where,
             # but for statistical purposes, the weights determine average distribution
             if isinstance(to_spec, str):
                 if to_spec == 'SELF':
-                    new_dist.add(from_biome, from_prob)
+                    new_dist.add(matched_biome, from_prob)
                 else:
                     new_dist.add(to_spec, from_prob)
             elif isinstance(to_spec, list):
@@ -182,7 +197,7 @@ class StageProcessor:
                         prob = from_prob * (weight / total_weight)
                         if to_biome == 'SELF':
                             # SELF means keep the original biome
-                            new_dist.add(from_biome, prob)
+                            new_dist.add(matched_biome, prob)
                         else:
                             new_dist.add(to_biome, prob)
             elif isinstance(to_spec, dict):
@@ -197,7 +212,7 @@ class StageProcessor:
                         prob = from_prob * (weight / total_weight)
                         if to_biome == 'SELF':
                             # SELF means keep the original biome
-                            new_dist.add(from_biome, prob)
+                            new_dist.add(matched_biome, prob)
                         else:
                             new_dist.add(to_biome, prob)
 
@@ -212,33 +227,53 @@ class StageProcessor:
         - Taking a percentage of the 'replace' biome's probability
         - Converting it to the 'to' biome
         - The percentage is proportional to the 'from' biome's probability (more 'from' = more borders)
+
+        Tag matching: Both 'from' and 'replace' can be tags that match multiple biomes.
         """
         new_dist = distribution.copy()
 
-        from_biome = stage.get('from')
-        replace_biome = stage.get('replace')
+        from_identifier = stage.get('from')
+        replace_identifier = stage.get('replace')
         to_biome = stage.get('to')
 
-        if not from_biome or not replace_biome or not to_biome:
+        if not from_identifier or not replace_identifier or not to_biome:
             return distribution
 
-        # Get probabilities
-        from_prob = new_dist.get(from_biome)
-        replace_prob = new_dist.get(replace_biome)
+        # Find all biomes that match the 'from' identifier (for calculating border probability)
+        from_total_prob = 0.0
+        for biome_id in new_dist.probabilities.keys():
+            if BiomeReader.matches_biome_or_tag(from_identifier, biome_id):
+                from_total_prob += new_dist.get(biome_id)
 
-        if from_prob <= 0 or replace_prob <= 0:
-            # Need both biomes to exist for borders
-            return distribution
+        if from_total_prob <= 0:
+            # No 'from' biomes exist, no borders possible
+            return new_dist
 
-        # Border fraction: estimate how much of replace_biome gets converted to to_biome
-        # This is proportional to both the from_biome and replace_biome probabilities
-        # We use a conservative estimate: convert up to 20% of the replace biome
-        border_factor = min(0.20, from_prob * 0.4)  # Max 20% conversion
-        border_prob = replace_prob * border_factor
+        # Find all biomes that match the 'replace' identifier
+        replace_biomes = []
+        for biome_id in list(new_dist.probabilities.keys()):
+            if BiomeReader.matches_biome_or_tag(replace_identifier, biome_id):
+                replace_biomes.append(biome_id)
 
-        # Transfer probability from replace_biome to to_biome
-        new_dist.probabilities[replace_biome] = replace_prob - border_prob
-        new_dist.add(to_biome, border_prob)
+        if not replace_biomes:
+            # No 'replace' biomes exist, no borders possible
+            return new_dist
+
+        # Process each matching replace biome
+        for replace_biome in replace_biomes:
+            replace_prob = new_dist.get(replace_biome)
+            if replace_prob <= 0:
+                continue
+
+            # Border fraction: estimate how much of replace_biome gets converted to to_biome
+            # This is proportional to both the from_biome and replace_biome probabilities
+            # We use a conservative estimate: convert up to 20% of the replace biome
+            border_factor = min(0.20, from_total_prob * 0.4)  # Max 20% conversion
+            border_prob = replace_prob * border_factor
+
+            # Transfer probability from replace_biome to to_biome
+            new_dist.probabilities[replace_biome] = replace_prob - border_prob
+            new_dist.add(to_biome, border_prob)
 
         return new_dist
 
@@ -295,21 +330,29 @@ class ExtrusionDistribution:
         Calculate the effective percentage for an extrusion biome.
 
         For 'ALL' parent: percentage = weight_fraction (applies uniformly)
-        For specific parent: percentage = parent_pct * weight_fraction
+        For specific parent/tag: percentage = sum(matching_biome_pcts) * weight_fraction
+
+        Tag matching: If parent is a tag (e.g., LAND_CAVES), we sum the probabilities
+        of all surface biomes that have that tag.
         """
         if biome_id not in self.extrusion_biomes:
             return 0.0
 
         total_pct = 0.0
-        for parent, weight_fraction, _ in self.extrusion_biomes[biome_id]:
-            if parent == 'ALL':
+        for parent_identifier, weight_fraction, _ in self.extrusion_biomes[biome_id]:
+            if parent_identifier == 'ALL':
                 # Applies to all surface biomes - use the weight fraction directly
                 # This represents the fraction of underground space
                 total_pct += weight_fraction
             else:
-                # Applies only where parent biome exists
-                parent_pct = surface_distribution.get(parent)
-                total_pct += parent_pct * weight_fraction
+                # Find all biomes in the surface distribution that match the parent identifier
+                # This includes direct ID matches AND biomes with the identifier as a tag
+                matching_pct = 0.0
+                for surface_biome in surface_distribution.probabilities.keys():
+                    if BiomeReader.matches_biome_or_tag(parent_identifier, surface_biome):
+                        matching_pct += surface_distribution.get(surface_biome)
+
+                total_pct += matching_pct * weight_fraction
 
         return total_pct
 
@@ -420,21 +463,25 @@ class BiomeMetadata:
 
 
 class BiomeReader:
-    """Reads biome files and extracts metadata"""
+    """Reads biome files and extracts metadata including tags"""
 
     _cache: Optional[Dict[str, Path]] = None
     _metadata_cache: Dict[str, BiomeMetadata] = {}
     _valid_biomes: Optional[Set[str]] = None
+    _biome_tags: Dict[str, List[str]] = {}  # biome_id -> list of tags
+    _tag_index: Dict[str, Set[str]] = {}  # tag -> set of biome_ids with that tag
 
     @classmethod
     def build_cache(cls, biomes_dir: Path = Path("biomes")):
-        """Build cache of all biome files"""
+        """Build cache of all biome files including tags"""
         if cls._cache is not None:
             return
 
         print(f"Building biome file cache from {biomes_dir}...", file=sys.stderr)
         cls._cache = {}
         cls._valid_biomes = set()
+        cls._biome_tags = {}
+        cls._tag_index = defaultdict(set)
 
         for biome_file in biomes_dir.rglob("*.yml"):
             try:
@@ -448,10 +495,23 @@ class BiomeReader:
                             # Only non-abstract biomes are valid for world generation
                             if not is_abstract:
                                 cls._valid_biomes.add(biome_id)
+
+                            # Extract tags
+                            tags = data.get('tags', [])
+                            if isinstance(tags, list):
+                                cls._biome_tags[biome_id] = tags
+                                # Build reverse index: tag -> biomes
+                                for tag in tags:
+                                    cls._tag_index[tag].add(biome_id)
             except:
                 continue
 
+        # Count unique tags
+        unique_tags = set(cls._tag_index.keys())
+        biomes_with_tags = sum(1 for tags in cls._biome_tags.values() if tags)
+
         print(f"Cached {len(cls._cache)} biome files ({len(cls._valid_biomes)} valid, {len(cls._cache) - len(cls._valid_biomes)} abstract)", file=sys.stderr)
+        print(f"Found {len(unique_tags)} unique tags across {biomes_with_tags} biomes", file=sys.stderr)
 
     @classmethod
     def find_biome_file(cls, biome_id: str) -> Optional[Path]:
@@ -464,6 +524,68 @@ class BiomeReader:
         """Get all valid (non-abstract) biome IDs"""
         cls.build_cache()
         return cls._valid_biomes.copy()
+
+    @classmethod
+    def get_biome_tags(cls, biome_id: str) -> List[str]:
+        """Get tags for a specific biome"""
+        cls.build_cache()
+        return cls._biome_tags.get(biome_id, [])
+
+    @classmethod
+    def get_biomes_with_tag(cls, tag: str) -> Set[str]:
+        """Get all biomes that have a specific tag"""
+        cls.build_cache()
+        return cls._tag_index.get(tag, set()).copy()
+
+    @classmethod
+    def matches_biome_or_tag(cls, identifier: str, biome_id: str) -> bool:
+        """
+        Check if a biome matches an identifier (either by ID or tag).
+
+        Args:
+            identifier: The ID or tag to match against (e.g., 'LAND_CAVES', 'JUNGLE')
+            biome_id: The biome ID to check
+
+        Returns:
+            True if biome_id equals identifier OR biome_id has identifier as a tag
+        """
+        cls.build_cache()
+
+        # Direct ID match
+        if identifier == biome_id:
+            return True
+
+        # Tag match - check if the biome has this tag
+        biome_tags = cls._biome_tags.get(biome_id, [])
+        return identifier in biome_tags
+
+    @classmethod
+    def get_matching_biomes(cls, identifier: str) -> Set[str]:
+        """
+        Get all biomes that match an identifier (by ID or tag).
+
+        Args:
+            identifier: The ID or tag to match (e.g., 'LAND_CAVES', 'ALL')
+
+        Returns:
+            Set of biome IDs that match
+        """
+        cls.build_cache()
+
+        # Special case: ALL matches all valid biomes
+        if identifier == 'ALL':
+            return cls._valid_biomes.copy()
+
+        matching = set()
+
+        # Direct ID match
+        if identifier in cls._valid_biomes:
+            matching.add(identifier)
+
+        # Tag match - get all biomes with this tag
+        matching.update(cls._tag_index.get(identifier, set()))
+
+        return matching
 
     @classmethod
     def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:

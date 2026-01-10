@@ -1,4 +1,4 @@
-id: ORIGEN2
+id: ExploreExpand
 version: 2.0.1
 author: "Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy"
 
@@ -39,7 +39,8 @@ addons:
 
 # Default biome distribution
 # biomes: $biome-distribution/presets/default.yml:biomes
-biomes: $biome-distribution/presets/origen2.yml:biomes
+biomes: $biome-distribution/presets/ExploreExpand.yml:biomes
+#biomes: $biome-distribution/presets/origen2.yml:biomes
 
 # biomes: $biome-distribution/presets/single.yml:biomes
 # Single biome - Generates a single biome, as well as other complementary biomes such as cave and river biomes.

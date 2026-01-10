@@ -89,7 +89,11 @@ class StageProcessor:
 
     @staticmethod
     def process_replace_list(stage: Dict, distribution: BiomeDistribution) -> BiomeDistribution:
-        """Process a REPLACE_LIST stage"""
+        """Process a REPLACE_LIST stage
+
+        Tag matching: Both 'default-from' and the keys in 'to' section can be tags.
+        A biome matches if its ID equals the identifier OR it has the identifier as a tag.
+        """
         new_dist = BiomeDistribution()
 
         # Get default-from and default-to
@@ -105,38 +109,48 @@ class StageProcessor:
 
         # Process each biome in current distribution
         for from_biome, from_prob in list(distribution.probabilities.items()):
+            matched = False
+
             # Check if there's a specific transformation for this biome
-            if from_biome in to_section:
-                to_list = to_section[from_biome]
+            # Check both direct ID match AND tag matches for each key in to_section
+            for to_key, to_list in to_section.items():
+                if BiomeReader.matches_biome_or_tag(to_key, from_biome):
+                    matched = True
+                    # Handle shorthand (single biome) vs list
+                    if isinstance(to_list, str):
+                        # Shorthand: direct replacement
+                        if to_list == 'SELF':
+                            new_dist.add(from_biome, from_prob)
+                        else:
+                            new_dist.add(to_list, from_prob)
+                    elif isinstance(to_list, list):
+                        # Weighted list
+                        to_weights = StageProcessor.parse_weighted_list(to_list)
+                        total_weight = sum(to_weights.values())
 
-                # Handle shorthand (single biome) vs list
-                if isinstance(to_list, str):
-                    # Shorthand: direct replacement
-                    if to_list == 'SELF':
-                        new_dist.add(from_biome, from_prob)
-                    else:
-                        new_dist.add(to_list, from_prob)
-                elif isinstance(to_list, list):
-                    # Weighted list
-                    to_weights = StageProcessor.parse_weighted_list(to_list)
-                    total_weight = sum(to_weights.values())
+                        if total_weight > 0:
+                            for to_biome, weight in to_weights.items():
+                                prob = from_prob * (weight / total_weight)
+                                if to_biome == 'SELF':
+                                    # SELF means keep the original biome
+                                    new_dist.add(from_biome, prob)
+                                else:
+                                    new_dist.add(to_biome, prob)
+                    break  # Only apply one transformation per biome
 
-                    if total_weight > 0:
-                        for to_biome, weight in to_weights.items():
-                            prob = from_prob * (weight / total_weight)
-                            if to_biome == 'SELF':
-                                # SELF means keep the original biome
-                                new_dist.add(from_biome, prob)
-                            else:
-                                new_dist.add(to_biome, prob)
+            # If no specific match, check default-from (also using tag matching)
+            if not matched and default_from and BiomeReader.matches_biome_or_tag(default_from, from_biome):
+                matched = True
+                if total_default_weight > 0:
+                    # Apply default transformation
+                    for to_biome, weight in default_weights.items():
+                        prob = from_prob * (weight / total_default_weight)
+                        if to_biome == 'SELF':
+                            new_dist.add(from_biome, prob)
+                        else:
+                            new_dist.add(to_biome, prob)
 
-            elif from_biome == default_from and total_default_weight > 0:
-                # Apply default transformation
-                for to_biome, weight in default_weights.items():
-                    prob = from_prob * (weight / total_default_weight)
-                    new_dist.add(to_biome, prob)
-
-            else:
+            if not matched:
                 # No transformation, pass through
                 # But never pass through literal "SELF"
                 if from_biome != 'SELF':

@@ -481,10 +481,7 @@ class BiomeMetadata:
         """Convert to CSV row format"""
         row = [
             self.biome_id,
-            self.extends or '',
-            self.color or '',
-            'extrusion' if self.is_extrusion else 'surface',
-            self.extrusion_source if self.is_extrusion else ''
+            'extrusion' if self.is_extrusion else 'surface'
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
@@ -925,8 +922,8 @@ def generate_csv_output(
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row - now includes Source and ExtrusionSource columns
-        header = ['BiomeID', 'Extends', 'Color', 'Source', 'ExtrusionSource'] + preset_names
+        # Header row - excludes Extends, Color, and ExtrusionSource
+        header = ['BiomeID', 'Source'] + preset_names
         writer.writerow(header)
 
         # Data rows

@@ -13,7 +13,7 @@ vanilla: minecraft:jungle
 
 tags:
   - LAND_CAVES
-  - SPECIAL_CAVES\n  - SPECIAL_CAVES
+  - SPECIAL_CAVES
   - JUNGLE_CAVES
   - USE_TROPICAL_RIVER
   - DEEP_DARK

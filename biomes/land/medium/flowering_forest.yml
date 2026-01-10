@@ -1,23 +1,23 @@
 id: FLOWERING_FOREST
 type: BIOME
 extends:
-  - ENVIRONMENT_LAND_TEMPERATE_SUBTROPICAL_HUMID
-  - BROADLEAF_FOREST
+- ENVIRONMENT_LAND_TEMPERATE_SUBTROPICAL_HUMID
+- BROADLEAF_FOREST
 color: $biomes/colors.yml:FLOWERING_FOREST
-
 vanilla: minecraft:flower_forest
-
 colors:
-  grass: 0x60bf4b
-  foliage: 0x80c465
-  water: 0x0677ce
-  water-fog: 0x0677ce
-
+  grass: 6340427
+  foliage: 8438885
+  water: 423886
+  water-fog: 423886
 features:
   flora:
-    - GRASS
-    - MIXED_FLOWER_COVER
-    - BEETROOT_PATCHES
-    - BUSH
-    - SUBTROPICAL_BUSHES
-    - WILDFLOWERS
+  - GRASS
+  - MIXED_FLOWER_COVER
+  - BEETROOT_PATCHES
+  - BUSH
+  - SUBTROPICAL_BUSHES
+  - WILDFLOWERS
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES

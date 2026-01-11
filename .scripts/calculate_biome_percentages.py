@@ -1439,7 +1439,8 @@ class PresetAnalyzer:
         return dist
 
     def get_stage_files(self) -> List[Path]:
-        """Extract list of stage files from preset"""
+        """Extract list of stage files from preset. Also detect PRELIM markers placed in preset files (including comments) and
+        insert an inline marker at the corresponding position so the preliminary check runs at the expected point."""
         stage_files = []
 
         try:
@@ -1461,6 +1462,31 @@ class PresetAnalyzer:
                 elif isinstance(stage, dict):
                     # Inline stage - we'll process it directly
                     stage_files.append(('INLINE', stage))
+
+            # Detect PRELIM markers that may be present as comments or free text in the preset YAML file
+            try:
+                preset_lines = []
+                with open(self.preset_path, 'r', encoding='utf-8') as pf:
+                    preset_lines = pf.readlines()
+
+                # Collect line numbers of stage << references and marker occurrences
+                stage_line_indices = []  # list of line indices where << *.yml:stages appears
+                for i, line in enumerate(preset_lines):
+                    if '<<' in line and ':stages' in line:
+                        stage_line_indices.append(i)
+
+                marker_indices = [i for i, line in enumerate(preset_lines) if '***PRELIM_CHK_HERE***' in line]
+
+                # For each marker, determine insertion index in stage_files based on how many stage refs precede it
+                for marker_line in marker_indices:
+                    insert_pos = sum(1 for idx in stage_line_indices if idx <= marker_line)
+                    # Only insert if not already represented (avoid duplicates)
+                    # We insert a plain inline marker tuple at the computed position
+                    if ('INLINE', '***PRELIM_CHK_HERE***') not in stage_files:
+                        stage_files.insert(insert_pos, ('INLINE', '***PRELIM_CHK_HERE***'))
+            except Exception:
+                # Non-fatal; ignore any errors reading preset file
+                pass
 
         except Exception as e:
             print(f"Warning: Could not parse stages: {e}", file=sys.stderr)

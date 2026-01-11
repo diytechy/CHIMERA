@@ -1,0 +1,5 @@
+id: temperate-shallow-ocean-midlands
+type: BIOME
+abstract: true
+tags:
+  - ocean

@@ -1,4 +1,4 @@
-As a part of the calculate_biome_percentages.py, when going through the presets, if the presets includes the line "***PRELIM_CHK_HERE***", pause the processing of stages and ensure any biomes IDs detected so far exist in the biome folder (a yaml file with type: BIOME).  If they do not, create a yaml file for it in "biomes\abstract\placeholders\{BIOMEID}" with the following sections:
+As a part of the calculate_biome_percentages.py, when going through the presets, if the preset file includes the line "***PRELIM_CHK_HERE***", the script is supposed to pause the processing of stages and ensure any biomes IDs detected so far exist in the biome folder (a yaml file with type: BIOME).  If they do not, create a yaml file for it in "biomes\abstract\placeholders\{BIOMEID}" with the following sections:
 id: {BIOMEID}
 type: BIOME
 abstract: true
@@ -6,6 +6,12 @@ abstract: true
 If the {BIOMEID} contains "island", include a list "tags" with the entry "island".
 If the {BIOMEID} contains "coast", include a list "tags" with the entry "coast".
 If the {BIOMEID} contains "ocean", include a list "tags" with the entry "ocean".
+
+During the pause it is also supposed to create preliminary_biomes_{self.preset_name}.csv with the biomes propigated so far in the stage.
+
+The funcitonality is not working. The preset "origin2" has the marker "***PRELIM_CHK_HERE***" right after the elevation.yml stage file.
+
+The elevation.yml stage file finishes it's stage with multiple placeholder biomes including "boreal-shallow-ocean".  Since "***PRELIM_CHK_HERE***" occurs after this stage,  boreal-shallow-ocean should have a placeholder biome created in biomes\abstract\placeholders, and it should be listed in preliminary_biomes_{presetID}.csv
 
 ## Latest prompt / prep:
 

@@ -1,0 +1,5 @@
+id: boreal-coast
+type: BIOME
+abstract: true
+tags:
+  - coast

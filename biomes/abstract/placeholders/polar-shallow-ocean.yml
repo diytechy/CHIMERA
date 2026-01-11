@@ -1,0 +1,5 @@
+id: polar-shallow-ocean
+type: BIOME
+abstract: true
+tags:
+  - ocean

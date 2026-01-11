@@ -55,6 +55,7 @@ biomes:
         - << biome-distribution/stages/climate/temperature.yml:stages
         - << biome-distribution/stages/climate/precipitation.yml:stages
         - << biome-distribution/stages/climate/elevation.yml:stages
+        # ***PRELIM_CHK_HERE***
         
         #***PRELIM_CHK_HERE*** <- Special line for calculate_biome_percentages.py to audit here.
         

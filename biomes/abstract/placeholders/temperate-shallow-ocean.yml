@@ -1,0 +1,5 @@
+id: temperate-shallow-ocean
+type: BIOME
+abstract: true
+tags:
+  - ocean

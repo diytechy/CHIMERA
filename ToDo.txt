@@ -1,11 +1,11 @@
-As a part of the calculate_biome_percentages.py, when going through the presets, if the presets includes the line "***PRELIM_CHK_HERE***", pause the processing of stages and ensure any biomes IDs detected so far exist in the main biome folder.  If they do not, create a yaml file for it in "biomes\abstract\placeholders" with the following sections:
-id: *Name of the biome"
+As a part of the calculate_biome_percentages.py, when going through the presets, if the presets includes the line "***PRELIM_CHK_HERE***", pause the processing of stages and ensure any biomes IDs detected so far exist in the biome folder (a yaml file with type: BIOME).  If they do not, create a yaml file for it in "biomes\abstract\placeholders\{BIOMEID}" with the following sections:
+id: {BIOMEID}
 type: BIOME
 abstract: true
 
-If the biome name contains "island", include a list "tags" with the entry "island".
-If the biome name contains "coast", include a list "tags" with the entry "coast".
-If the biome name contains "ocean", include a list "tags" with the entry "ocean".
+If the {BIOMEID} contains "island", include a list "tags" with the entry "island".
+If the {BIOMEID} contains "coast", include a list "tags" with the entry "coast".
+If the {BIOMEID} contains "ocean", include a list "tags" with the entry "ocean".
 
 ## Latest prompt / prep:
 

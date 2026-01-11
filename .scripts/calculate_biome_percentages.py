@@ -1554,20 +1554,35 @@ class PresetAnalyzer:
 
         # Get and process stages
         stage_refs = self.get_stage_files()
+        detected_biomes = set(distribution.probabilities.keys())
 
         for i, stage_ref in enumerate(stage_refs):
             if isinstance(stage_ref, tuple) and stage_ref[0] == 'INLINE':
                 # Inline stage
                 print(f"\nStage {i+1}: INLINE")
                 _, stage_config = stage_ref
+                
+                # Check for preliminary check marker
+                if isinstance(stage_config, dict) and stage_config.get('type') == '***PRELIM_CHK_HERE***':
+                    self._check_and_create_placeholder_biomes(detected_biomes)
+                    continue
+                    
                 distribution = StageProcessor.process_stage(stage_config, distribution)
+                detected_biomes.update(distribution.probabilities.keys())
             else:
                 # File reference
                 print(f"\nStage {i+1}: {stage_ref}")
+                
+                # Check if stage file contains preliminary check marker
+                if self._has_prelim_check_marker(stage_ref):
+                    self._check_and_create_placeholder_biomes(detected_biomes)
+                    continue
+                    
                 stages = self.load_stage_file(stage_ref)
 
                 for stage_config in stages:
                     distribution = StageProcessor.process_stage(stage_config, distribution)
+                    detected_biomes.update(distribution.probabilities.keys())
 
                 # Debug: Show distribution after key stages
                 if 'temperature.yml' in str(stage_ref) or 'set_biomes_in_climates.yml' in str(stage_ref):
@@ -1579,6 +1594,63 @@ class PresetAnalyzer:
         print(distribution)
 
         return distribution
+
+    def _has_prelim_check_marker(self, stage_path: Path) -> bool:
+        """Check if stage file contains the preliminary check marker"""
+        try:
+            with open(stage_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                return '***PRELIM_CHK_HERE***' in content
+        except:
+            return False
+
+    def _check_and_create_placeholder_biomes(self, detected_biomes: set):
+        """Check detected biomes exist and create placeholders if needed"""
+        print(f"\n  Preliminary check: Validating {len(detected_biomes)} detected biomes...")
+        
+        biomes_dir = Path("biomes")
+        placeholder_dir = biomes_dir / "abstract" / "placeholders"
+        
+        missing_biomes = []
+        for biome_id in detected_biomes:
+            if biome_id == 'SELF':
+                continue
+                
+            biome_file = BiomeReader.find_biome_file(biome_id)
+            if not biome_file:
+                missing_biomes.append(biome_id)
+        
+        if missing_biomes:
+            print(f"  Creating {len(missing_biomes)} placeholder biomes...")
+            placeholder_dir.mkdir(parents=True, exist_ok=True)
+            
+            for biome_id in missing_biomes:
+                placeholder_path = placeholder_dir / f"{biome_id}.yml"
+                
+                # Create basic YAML content
+                content = f"id: {biome_id}\ntype: BIOME\nabstract: true\n"
+                
+                # Add tags based on biome ID content
+                tags = []
+                biome_lower = biome_id.lower()
+                if 'island' in biome_lower:
+                    tags.append('island')
+                if 'coast' in biome_lower:
+                    tags.append('coast')
+                if 'ocean' in biome_lower:
+                    tags.append('ocean')
+                
+                if tags:
+                    content += f"tags:\n"
+                    for tag in tags:
+                        content += f"  - {tag}\n"
+                
+                with open(placeholder_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                
+                print(f"    Created: {placeholder_path}")
+        else:
+            print(f"  All biomes exist - no placeholders needed")
 
 
 def generate_csv_output(

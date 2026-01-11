@@ -2,13 +2,19 @@ High level goals:
 
 This question relates to previous discussions about the minecraft Terra generator plugin (refer to CLAUDE.md) and this particular world generation preset.
 
-
-
-I want to setup some scripts to distribute the colors of the biome to be easily differentiable from eachother as well as unique.  I will describe the process I would like to follow to establish this, but there may be alternatives.
+I want to create a scripts (ideally python) in .scripts to distribute the colors of the biome to be easily differentiable from eachother as well as unique.  I will describe the process I would like to follow to establish this, but there may be alternatives.
 
 In order to maximize visual differences in biomes, I would like to use Munsell color space to select points that are well differentiable.
 
+Inputs: BiomeTable.csv (Which has BiomeIDs, Source, Land, Temperature, Elevation, Precipitation)
+
+Note: Biomes that are extrusions (not surfaces) will only be generated as a part of A3.
+
+Outputs: A YAML file (biomes\colors.yml, an example currently exists) that have entries of each biome ID and a value with the hexidecimal RGB value of the color derived below (which would be converted from the colorspace used to RGB)
+
 There will be multiple regions in the colorspace reserved for different biome catagories.  These regions may be grouped by meta regions, the sectional restrctions / dimensions of the regions will be noted below.
+
+Note if temperature or elevation information is not available for the biome, it can be estimated based on name semantics.
 
 A. The meta region reserved for standard biome climate colors, with a boundary of:
 Hue: 15 (Yellow / Red) to 55 (Blue / Green)
@@ -17,62 +23,76 @@ Value: Full Scale
 
 The climate meta region will be broken into 3 layers sliced along different value levels.
 
-A1. The highest level (highest value / brightness level) would be reserved only for snowy land biomes (SNOWY_LAND_BIOME), and is intended for biomes that have the term SNOW or very similar in them.
+A1. The highest level (highest value / brightness level) would be reserved only for snowy land biomes (biomes that have the term SNOW or very similar semantics).
 
-A2. The layer below would be reserved for standard climate zones.  The dimensions would scale according to:
+Limitted range of A: Value is 75% (SNOWY_VALUE_BOUNDARY) to 100%
+
+A2A. The layer below would be reserved for standard climate zones.  The dimensions would scale according to:
 
 Hue: Would scale precipitation, where Lowest value (15 from above) is driest, and the Highest value (55 from above) is the wettest.
-Chroma: Would decrease (become more gray) as temperature decreases.
-Value: Would increase as elevation increases.
+Chroma: Would decrease (become more gray) as temperature decreases.  (Bound between 50%, STONY_CHROMA_CUTOFF to 100%)
+Value: Would increase as elevation increases from 25% to 75% (VALLEY_VALUE_BOUNDARY TO SNOWY_VALUE_BOUNDARY)
 
 Thus, the region here would have points in the colorspace that map back to the three biome climate dimensions of temperature, precipitation, and elevation.
 
+A3. The lowest layer would be reserved for caves / extrusions, with chroma and hue values that attempt to align with biome elevation.
 
-A3. The lowest layer would be reserved for sinkholes / carved canyons / deep valleys with corresponding biome descriptors.
+Limitted range of A: Value is 0% TO 25% (VALLEY_VALUE_BOUNDARY) to 100%
 
 B. Coastal: with the boundaries of:
 Hue: 55 to 62.5
-Hue increases with depth.
-Chrome: Temperature from medium (50%) to hot (100%)
+Hue increases with depth. (Based on elevation value or text in the Biome name)
+Chroma: 33% (STONY_CHROMA_CUTOFF) to 100% maps temperature from medium (0.5) to hot (1).
 Value: Temperature from medium (50%) to freeze (100%)
-No need to reserve chroma for lower values.
-Value for lower values could be for icey canyons.
 
 C: River: with the boundaries of:
 Hue: 62.5 to 70
 Same defs as coastal
+Biome IDs with the text "River" or similar.
 
 D:
 The ocean region will be anything related to the ocean.  And would be defined as a region with the boundaries of:
 Hue: 70 to 80
 Same defs as coastal
+Biome IDs with the text "Ocean" or similar.
 
 E:
 The crater region
 Hue: 80 to 85
-Chrome: Temperature
-Value: Elevation
+Chroma: Temperature (33% (STONY_CHROMA_CUTOFF) to 100%)
+Value: Elevation (25%,VALLEY_VALUE_BOUNDARY to 100%)
 
 F:
-The special region
+The special region, for regions that have unique semantics, like mushroom / alien, ect.
 Hue: 85 to 95
-Chrome: Temperature
-Value: Elevation
+Chroma: Temperature (33% (STONY_CHROMA_CUTOFF) to 100%)
+Value: Match E
 
 G:
 Volcano region:
 Hue: 95 to 5
-Chrome: Temperature
-Value: Elevation
+Chroma: Temperature (33% (STONY_CHROMA_CUTOFF) to 100%)
+Value: Match E
 
 H:
 Mesa / Canyon region:
 Hue: 5 to 15
-Chrome: Temperature
-Value: Elevation
+Chroma: Temperature (33% (STONY_CHROMA_CUTOFF) to 100%)
+Value: Match E
 
 I:
 Icey canyons / trenches:
 Hue: 55 to 80
-Chrome: Temperature?  Lock at 50%?
-Value: 25?
+Chrome: Temperature (33% (STONY_CHROMA_CUTOFF) to 100%)
+Value: 0% to 25% (VALLEY_VALUE_BOUNDARY), representing Elevation
+
+J:
+The central mid-section (Chroma less than 33% or STONY_CHROMA_CUTOFF, Value 25% to 75% (VALLEY_VALUE_BOUNDARY TO SNOWY_VALUE_BOUNDARY) ) would be reserved for regions with the name "Stony", "Mountian", or similar semantics.
+
+K:
+The lower central section (Chroma less than 33%) would be for cold sinkholes / carved canyons / deep valleys.
+
+L:
+The remaining red hues (80% to 5% hue) below 25% (VALLEY_VALUE_BOUNDARY) value level will be reserved for hot sinkholes / carved canyons / deep valleys.
+
+All biomes should have colors derived from these regions, and spaced within the region to maximize the amount of distance between each point so that they are visually distinct, while not going outside of the region boundaries ascribed to the biome.

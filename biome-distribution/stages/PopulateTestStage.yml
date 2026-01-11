@@ -13,3 +13,4 @@ stages:
       live-volcano: ERUPTED_VOLCANO
       extinct-volcano: TROPICAL_EXTINCT_VOLCANO
       mesa: TROPICAL_MESA
+      volcano-coast: MUDDY_COASTS

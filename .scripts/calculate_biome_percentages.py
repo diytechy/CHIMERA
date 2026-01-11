@@ -1563,7 +1563,10 @@ class PresetAnalyzer:
                 _, stage_config = stage_ref
                 
                 # Check for preliminary check marker
-                if isinstance(stage_config, dict) and stage_config.get('type') == '***PRELIM_CHK_HERE***':
+                if isinstance(stage_config, str) and '***PRELIM_CHK_HERE***' in stage_config:
+                    self._check_and_create_placeholder_biomes(detected_biomes)
+                    continue
+                elif isinstance(stage_config, dict) and stage_config.get('type') == '***PRELIM_CHK_HERE***':
                     self._check_and_create_placeholder_biomes(detected_biomes)
                     continue
                     
@@ -1596,11 +1599,13 @@ class PresetAnalyzer:
         return distribution
 
     def _has_prelim_check_marker(self, stage_path: Path) -> bool:
-        """Check if stage file contains the preliminary check marker"""
+        """Check if stage file contains the preliminary check marker in comments"""
         try:
             with open(stage_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-                return '***PRELIM_CHK_HERE***' in content
+                for line in f:
+                    if '#' in line and '***PRELIM_CHK_HERE***' in line:
+                        return True
+            return False
         except:
             return False
 

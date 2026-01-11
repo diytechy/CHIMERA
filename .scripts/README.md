@@ -82,4 +82,20 @@ This will:
 
 ---
 
+## Biome colorizer
+
+A small utility to generate `biomes/colors.generated.yml` from `.scripts/BiomeTable.csv` using an approximate Munsell-like H/C/V mapping.
+
+Run:
+
+```batch
+python .scripts\biome_colorizer.py --input .scripts/BiomeTable.csv --output biomes/colors.generated.yml --seed 42
+```
+
+Notes:
+- The conversion uses an HSV-based approximation and deterministic jitter controlled by `--seed`.
+- The generated file is `biomes/colors.generated.yml`; you can review and merge or use it to replace `biomes/colors.yml` as desired.
+
+---
+
 For detailed information, see **WORKFLOW_DOCUMENTATION.md**.

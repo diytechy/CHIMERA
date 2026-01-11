@@ -41,3 +41,20 @@ From temperature.yml:
 			  
 These are out of sync when spot coast generation runs?  This might be why multiple biomes have no coast...
 
+Let me check what fields are actually required for a minimal biome:
+
+● Search(pattern: "@Value|@Default", path: "C:\Projects\Terra\common\addons\config-biome",     
+        output_mode: "content", head_limit: 50)
+  ⎿  Found 8 lines (ctrl+o to expand)
+
+● Read(C:\Projects\Terra\common\addons\config-biome\src\main\java\com\dfsek\terra\addons\biome\
+      BiomeTemplate.java)
+  ⎿  Read 85 lines
+
+● Looking at BiomeTemplate, the required field without @Default is vanilla (maps to a Minecraft biome). But intermediate biomes that get replaced don't need to be valid for final generation.
+
+  Let me check if there's a base abstract biome that provides the vanilla field:
+  
+1: To extend biome specific coasts into ocean, requires individual biome propigation, likely meaning "add_large_spot_coast" should occur after setting biomes.
+2. The alternative is to call "add_large_spot_coast" before more detailed propigation.
+

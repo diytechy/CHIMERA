@@ -1,3 +1,6 @@
+Add caves to coasts / rivers / arches / islands?
+
+
 As a part of the calculate_biome_percentages.py, when going through the presets, if the preset file includes the line "***PRELIM_CHK_HERE***", the script is supposed to pause the processing of stages and ensure any biomes IDs detected so far exist in the biome folder (a yaml file with type: BIOME).  If they do not, create a yaml file for it in "biomes\abstract\placeholders\{BIOMEID}" with the following sections:
 id: {BIOMEID}
 type: BIOME

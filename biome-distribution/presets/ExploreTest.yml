@@ -29,13 +29,13 @@ biomes:
             type: EXPRESSION
             expression: continents(x, z)
         biomes:
-          ocean: 1
+          ocean: 3
           land: 1
       stages:
         #Add spots to drop large POIs like volcanos / mesas
         #Input: ocean / land
         #Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
-        #- << biome-distribution/stages/add_spots.yml:stages
+        - << biome-distribution/stages/add_spots.yml:stages
         
         #Break apart land into major transitionals
         #Input: ocean / land
@@ -52,12 +52,15 @@ biomes:
         #Split land into canyon (effectively a basin) / land distribution.
         #Input: land
         #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
-        - << biome-distribution/stages/special/build_canyon_regions.yml:stages
+        #- << biome-distribution/stages/special/build_canyon_regions_1.yml:stages
+        #- << biome-distribution/stages/special/build_canyon_regions_2.yml:stages
+        #- << biome-distribution/stages/special/build_canyon_regions_3.yml:stages
+        #- << biome-distribution/stages/special/build_canyon_regions_4.yml:stages
         
         
         #Input: land
         #Output: sink hole zones
-        - << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
+        #- << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
         
         #Input: land
         #Output: sink hole zones

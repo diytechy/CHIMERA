@@ -582,7 +582,12 @@ class ClimateTracker:
 
         # Determine origin type (Land vs Ocean)
         origin_type = None
-        ocean_patterns = ['ocean', 'deep-ocean', 'shallow-ocean', 'sea', 'reef', 'kelp']
+        ocean_patterns = [
+            'ocean', 'deep-ocean', 'shallow-ocean', 'sea', 'reef', 'kelp',
+            'depths',  # DEEP_DEPTHS, etc.
+            'abyssal',  # ABYSSAL_ALLEYS, etc.
+            'trench',   # Ocean trenches
+        ]
         for pattern in ocean_patterns:
             if pattern in name_lower:
                 origin_type = 'Ocean'
@@ -675,11 +680,18 @@ class ClimateTracker:
 
 
 class BiomeDistribution:
-    """Tracks probability distribution of biomes with climate context"""
+    """Tracks probability distribution of biomes with climate context and origin tracking"""
+
+    # Source biomes that are considered "Ocean" origin
+    OCEAN_SOURCES = {'ocean', 'deep-ocean', 'shallow-ocean'}
+    # Source biomes that are considered "Land" origin
+    LAND_SOURCES = {'land', 'coast', 'mesa', 'crater-lake', 'extinct-volcano', 'island', 'vast-forest'}
 
     def __init__(self):
         self.probabilities: Dict[str, float] = {}
         self.climate: ClimateTracker = ClimateTracker()
+        # Track origin weights: biome_id -> {"Land": weight, "Ocean": weight}
+        self.origin_weights: Dict[str, Dict[str, float]] = defaultdict(lambda: {"Land": 0.0, "Ocean": 0.0})
 
     def set(self, biome: str, prob: float):
         """Set probability for a biome"""
@@ -698,6 +710,30 @@ class BiomeDistribution:
         """Add probability to a biome (accumulate)"""
         self.probabilities[biome] = self.get(biome) + prob
 
+    def set_origin(self, biome: str, origin: str, weight: float = 1.0):
+        """Set origin weight for a biome"""
+        if origin in ("Land", "Ocean"):
+            self.origin_weights[biome][origin] += weight
+
+    def add_origin_from(self, to_biome: str, from_biome: str, weight: float):
+        """Propagate origin from one biome to another with given weight"""
+        if from_biome in self.origin_weights:
+            for origin, orig_weight in self.origin_weights[from_biome].items():
+                if orig_weight > 0:
+                    # Propagate proportionally
+                    self.origin_weights[to_biome][origin] += weight * orig_weight
+
+    def get_origin(self, biome: str) -> Optional[str]:
+        """Get the majority origin for a biome based on accumulated weights"""
+        if biome not in self.origin_weights:
+            return None
+        weights = self.origin_weights[biome]
+        land_weight = weights.get("Land", 0.0)
+        ocean_weight = weights.get("Ocean", 0.0)
+        if land_weight == 0 and ocean_weight == 0:
+            return None
+        return "Land" if land_weight >= ocean_weight else "Ocean"
+
     def normalize(self):
         """Normalize probabilities to sum to 1.0"""
         total = sum(self.probabilities.values())
@@ -710,6 +746,9 @@ class BiomeDistribution:
         new_dist = BiomeDistribution()
         new_dist.probabilities = self.probabilities.copy()
         new_dist.climate = self.climate.copy()
+        # Deep copy origin weights
+        for biome, weights in self.origin_weights.items():
+            new_dist.origin_weights[biome] = weights.copy()
         return new_dist
 
     def get_top_biomes(self, n: int = 20) -> List[Tuple[str, float]]:
@@ -760,6 +799,21 @@ class StageProcessor:
         # Get transformation mapping
         to_section = stage.get('to', {})
 
+        # Helper to add biome with origin propagation
+        def add_with_origin(to_biome: str, from_biome: str, prob: float):
+            if to_biome == 'SELF':
+                new_dist.add(from_biome, prob)
+                new_dist.add_origin_from(from_biome, from_biome, prob)
+            else:
+                new_dist.add(to_biome, prob)
+                new_dist.add_origin_from(to_biome, from_biome, prob)
+
+        # Copy origin weights from source distribution for reference
+        for biome, weights in distribution.origin_weights.items():
+            for origin, weight in weights.items():
+                if weight > 0:
+                    new_dist.origin_weights[biome][origin] = weight
+
         # Process each biome in current distribution
         for from_biome, from_prob in list(distribution.probabilities.items()):
             matched = False
@@ -772,10 +826,7 @@ class StageProcessor:
                     # Handle shorthand (single biome) vs list
                     if isinstance(to_list, str):
                         # Shorthand: direct replacement
-                        if to_list == 'SELF':
-                            new_dist.add(from_biome, from_prob)
-                        else:
-                            new_dist.add(to_list, from_prob)
+                        add_with_origin(to_list, from_biome, from_prob)
                     elif isinstance(to_list, list):
                         # Weighted list
                         to_weights = StageProcessor.parse_weighted_list(to_list)
@@ -784,11 +835,7 @@ class StageProcessor:
                         if total_weight > 0:
                             for to_biome, weight in to_weights.items():
                                 prob = from_prob * (weight / total_weight)
-                                if to_biome == 'SELF':
-                                    # SELF means keep the original biome
-                                    new_dist.add(from_biome, prob)
-                                else:
-                                    new_dist.add(to_biome, prob)
+                                add_with_origin(to_biome, from_biome, prob)
                     break  # Only apply one transformation per biome
 
             # If no specific match, check default-from (also using tag matching)
@@ -798,16 +845,15 @@ class StageProcessor:
                     # Apply default transformation
                     for to_biome, weight in default_weights.items():
                         prob = from_prob * (weight / total_default_weight)
-                        if to_biome == 'SELF':
-                            new_dist.add(from_biome, prob)
-                        else:
-                            new_dist.add(to_biome, prob)
+                        add_with_origin(to_biome, from_biome, prob)
 
             if not matched:
                 # No transformation, pass through
                 # But never pass through literal "SELF"
                 if from_biome != 'SELF':
                     new_dist.add(from_biome, from_prob)
+                    # Preserve origin for pass-through biomes
+                    new_dist.add_origin_from(from_biome, from_biome, from_prob)
 
         return new_dist
 
@@ -848,25 +894,27 @@ class StageProcessor:
             # Remove the matched biome from distribution
             new_dist.remove(matched_biome)
 
+            # Helper to add biome with origin propagation
+            def add_with_origin(to_biome: str, prob: float):
+                if to_biome == 'SELF':
+                    new_dist.add(matched_biome, prob)
+                    new_dist.add_origin_from(matched_biome, matched_biome, prob)
+                else:
+                    new_dist.add(to_biome, prob)
+                    new_dist.add_origin_from(to_biome, matched_biome, prob)
+
             # Distribute the probability according to 'to' weights
             # The sampler creates spatial variation in which biome appears where,
             # but for statistical purposes, the weights determine average distribution
             if isinstance(to_spec, str):
-                if to_spec == 'SELF':
-                    new_dist.add(matched_biome, from_prob)
-                else:
-                    new_dist.add(to_spec, from_prob)
+                add_with_origin(to_spec, from_prob)
             elif isinstance(to_spec, list):
                 to_weights = StageProcessor.parse_weighted_list(to_spec)
                 total_weight = sum(to_weights.values())
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
                         prob = from_prob * (weight / total_weight)
-                        if to_biome == 'SELF':
-                            # SELF means keep the original biome
-                            new_dist.add(matched_biome, prob)
-                        else:
-                            new_dist.add(to_biome, prob)
+                        add_with_origin(to_biome, prob)
             elif isinstance(to_spec, dict):
                 # Dict format
                 to_weights = {}
@@ -877,11 +925,7 @@ class StageProcessor:
                 if total_weight > 0:
                     for to_biome, weight in to_weights.items():
                         prob = from_prob * (weight / total_weight)
-                        if to_biome == 'SELF':
-                            # SELF means keep the original biome
-                            new_dist.add(matched_biome, prob)
-                        else:
-                            new_dist.add(to_biome, prob)
+                        add_with_origin(to_biome, prob)
 
         return new_dist
 
@@ -1130,7 +1174,8 @@ class BiomeMetadata:
         self.is_extrusion: bool = False  # True if this biome only comes from extrusions
         self.extrusion_source: str = ""  # Which extrusion file(s) this comes from
         # Climate attributes (from default preset)
-        self.biome_type: Optional[str] = None  # "Land" or "Ocean"
+        self.biome_type: Optional[str] = None  # "Land" or "Ocean" (inferred from name)
+        self.origin: Optional[str] = None  # "Land" or "Ocean" (derived from pipeline lineage)
         self.temperature: Optional[float] = None  # 0-1 (coldest to hottest)
         self.precipitation: Optional[float] = None  # 0-1 (driest to wettest)
         self.elevation: Optional[float] = None  # 0-1 (lowest to highest)
@@ -1141,6 +1186,10 @@ class BiomeMetadata:
         self.temperature = context.temperature
         self.precipitation = context.precipitation
         self.elevation = context.elevation
+
+    def set_origin(self, origin: Optional[str]):
+        """Set the pipeline-derived origin (Land/Ocean)"""
+        self.origin = origin
 
     @staticmethod
     def format_climate_value(value: Optional[float]) -> str:
@@ -1154,7 +1203,8 @@ class BiomeMetadata:
         row = [
             self.biome_id,
             'extrusion' if self.is_extrusion else 'surface',
-            self.biome_type or "",  # Type column
+            self.origin or "",  # Origin column (derived from pipeline)
+            self.biome_type or "",  # Type column (inferred from name)
             self.format_climate_value(self.temperature),  # Temperature column
             self.format_climate_value(self.precipitation),  # Precipitation column
             self.format_climate_value(self.elevation),  # Elevation column
@@ -1368,7 +1418,18 @@ class PresetAnalyzer:
             total_weight = sum(biomes.values())
             if total_weight > 0:
                 for biome, weight in biomes.items():
-                    dist.set(biome, weight / total_weight)
+                    prob = weight / total_weight
+                    dist.set(biome, prob)
+
+                    # Set origin based on source biome type
+                    biome_lower = biome.lower()
+                    if biome_lower in BiomeDistribution.OCEAN_SOURCES:
+                        dist.set_origin(biome, "Ocean", prob)
+                    elif biome_lower in BiomeDistribution.LAND_SOURCES:
+                        dist.set_origin(biome, "Land", prob)
+                    else:
+                        # Default to Land for unknown sources
+                        dist.set_origin(biome, "Land", prob)
 
         except Exception as e:
             print(f"Warning: Could not parse source biomes: {e}", file=sys.stderr)
@@ -1617,6 +1678,11 @@ def generate_csv_output(
                 extrusion_pct = extrusion_dist.calculate_percentage(biome_id, distribution)
                 metadata.extrusion_percentages[preset_name] = extrusion_pct
 
+        # Get origin from default preset (pipeline-derived)
+        if default_preset in results:
+            origin = results[default_preset].get_origin(biome_id)
+            metadata.set_origin(origin)
+
         biome_metadata_map[display_id] = metadata
 
     # Get sorted list of preset names
@@ -1647,8 +1713,8 @@ def generate_csv_output(
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row with climate columns
-        header = ['BiomeID', 'Source', 'Type', 'Temperature', 'Precipitation', 'Elevation'] + preset_names
+        # Header row with origin and climate columns
+        header = ['BiomeID', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'] + preset_names
         writer.writerow(header)
 
         # Data rows

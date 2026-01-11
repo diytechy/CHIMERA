@@ -43,7 +43,8 @@
       "Bash(.scriptsAuditAndPackage.bat)",
       "Bash(cmd.exe /c .scripts\\\\AuditAndPackage.bat)",
       "Bash(ls:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git rev-parse:*)"
     ]
   }
 }

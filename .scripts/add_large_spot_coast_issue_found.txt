@@ -28,3 +28,16 @@ This confirms the issue:
     to: boreal-vast-forest-coast
 
   The island coast stages (lines 1-72) already do this correctly - they use replace: polar-ocean, replace: boreal-ocean, etc. The vast-forest coast stages need the same treatment.
+
+From temperature.yml:
+              - boreal-vast-forest: *borealCold
+              - boreal-vast-forest: *borealWarm
+              - boreal-vast-forest: *borealHot
+			  
+
+              - boreal-ocean: *borealCold
+              - lukewarm-ocean: *borealWarm
+              - lukewarm-ocean: *borealHot
+			  
+These are out of sync when spot coast generation runs?  This might be why multiple biomes have no coast...
+

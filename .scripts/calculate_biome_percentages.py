@@ -23,6 +23,7 @@ import sys
 import csv
 from pathlib import Path
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any, Optional, Set
 
 
@@ -391,11 +392,294 @@ def get_validator() -> TerraSchemaValidator:
         _validator = TerraSchemaValidator()
     return _validator
 
+
+# =============================================================================
+# Climate Context Tracking
+# =============================================================================
+
+@dataclass
+class ClimateContext:
+    """
+    Tracks climate attributes for a biome.
+
+    Attributes:
+        origin_type: "Land" or "Ocean" based on source biome
+        temperature: Normalized temperature value (0=coldest, 1=hottest), None if not climate-affected
+        precipitation: Normalized precipitation value (0=driest, 1=wettest), None if not climate-affected
+        elevation: Normalized elevation value (0=lowest, 1=highest), None if not climate-affected
+    """
+    origin_type: Optional[str] = None
+    temperature: Optional[float] = None
+    precipitation: Optional[float] = None
+    elevation: Optional[float] = None
+
+    def copy(self) -> 'ClimateContext':
+        return ClimateContext(
+            origin_type=self.origin_type,
+            temperature=self.temperature,
+            precipitation=self.precipitation,
+            elevation=self.elevation
+        )
+
+    @staticmethod
+    def weighted_combine(contexts: List[Tuple['ClimateContext', float]]) -> 'ClimateContext':
+        """
+        Combine multiple climate contexts with weights.
+        Returns a new context with weighted average values.
+        """
+        if not contexts:
+            return ClimateContext()
+
+        total_weight = sum(w for _, w in contexts)
+        if total_weight <= 0:
+            return ClimateContext()
+
+        # Determine origin type (use majority)
+        origin_counts: Dict[str, float] = defaultdict(float)
+        for ctx, weight in contexts:
+            if ctx.origin_type:
+                origin_counts[ctx.origin_type] += weight
+
+        origin_type = max(origin_counts.keys(), key=lambda k: origin_counts[k]) if origin_counts else None
+
+        # Calculate weighted averages for numeric fields
+        def weighted_avg(field_name: str) -> Optional[float]:
+            values = [(getattr(ctx, field_name), w) for ctx, w in contexts if getattr(ctx, field_name) is not None]
+            if not values:
+                return None
+            total = sum(v * w for v, w in values)
+            weight_sum = sum(w for _, w in values)
+            return total / weight_sum if weight_sum > 0 else None
+
+        return ClimateContext(
+            origin_type=origin_type,
+            temperature=weighted_avg('temperature'),
+            precipitation=weighted_avg('precipitation'),
+            elevation=weighted_avg('elevation')
+        )
+
+
+class ClimateTracker:
+    """
+    Tracks climate context for biomes as they flow through the pipeline.
+
+    The climate values are derived from the position in weighted lists:
+    - Temperature: ice-cap (0) to tropical-rainforest (1)
+    - Precipitation: desert (0) to veryWet (1)
+    - Elevation: flat/deep (0) to highlands (1)
+    """
+
+    # Temperature bands from temperature.yml (coldest to hottest)
+    TEMPERATURE_BANDS = [
+        'ice-cap', 'tundra', 'boreal-snowy', 'boreal-cold', 'boreal-warm', 'boreal-hot',
+        'temperate-cold', 'temperate-warm', 'temperate-hot',
+        'tropical-savanna-wet', 'tropical-monsoon', 'tropical-rainforest'
+    ]
+
+    # Precipitation bands from precipitation.yml (driest to wettest)
+    PRECIPITATION_BANDS = ['desert', 'desertBorder', 'semiArid', 'mid', 'mildlyWet', 'veryWet']
+
+    # Elevation bands from elevation.yml (lowest to highest)
+    ELEVATION_BANDS = ['flat', 'lowlands', 'midlands', 'highlands']
+    OCEAN_ELEVATION_BANDS = ['deep', 'regular', 'shallow']
+
+    def __init__(self):
+        # Maps biome_id -> ClimateContext
+        self.contexts: Dict[str, ClimateContext] = {}
+        # Maps biome_id -> list of (parent_biome, weight) for tracking lineage
+        self.lineage: Dict[str, List[Tuple[str, float]]] = defaultdict(list)
+
+    def set_origin(self, biome: str, origin_type: str):
+        """Set the origin type (Land/Ocean) for a source biome."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        self.contexts[biome].origin_type = origin_type
+
+    def get_context(self, biome: str) -> ClimateContext:
+        """Get the climate context for a biome."""
+        return self.contexts.get(biome, ClimateContext())
+
+    def set_context(self, biome: str, context: ClimateContext):
+        """Set the climate context for a biome."""
+        self.contexts[biome] = context
+
+    def propagate_context(self, from_biome: str, to_biome: str, weight: float = 1.0):
+        """Propagate climate context from one biome to another."""
+        if from_biome in self.contexts:
+            self.lineage[to_biome].append((from_biome, weight))
+
+    def apply_temperature(self, biome: str, band_index: int):
+        """Apply temperature band to a biome."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        # Normalize to 0-1 range
+        self.contexts[biome].temperature = band_index / max(1, len(self.TEMPERATURE_BANDS) - 1)
+
+    def apply_precipitation(self, biome: str, band_index: int):
+        """Apply precipitation band to a biome."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        self.contexts[biome].precipitation = band_index / max(1, len(self.PRECIPITATION_BANDS) - 1)
+
+    def apply_elevation(self, biome: str, band_index: int, is_ocean: bool = False):
+        """Apply elevation band to a biome."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        bands = self.OCEAN_ELEVATION_BANDS if is_ocean else self.ELEVATION_BANDS
+        self.contexts[biome].elevation = band_index / max(1, len(bands) - 1)
+
+    def finalize_contexts(self):
+        """
+        Finalize all contexts by computing weighted combinations from lineage.
+        Call this after all pipeline processing is complete.
+        """
+        # Process biomes that have lineage information
+        for biome, parents in self.lineage.items():
+            if not parents:
+                continue
+
+            parent_contexts = []
+            for parent_biome, weight in parents:
+                if parent_biome in self.contexts:
+                    parent_contexts.append((self.contexts[parent_biome], weight))
+
+            if parent_contexts:
+                # Combine parent contexts, preserving any directly-set values
+                combined = ClimateContext.weighted_combine(parent_contexts)
+
+                # Merge with existing context (directly-set values take precedence)
+                existing = self.contexts.get(biome, ClimateContext())
+                if existing.origin_type is None:
+                    existing.origin_type = combined.origin_type
+                if existing.temperature is None:
+                    existing.temperature = combined.temperature
+                if existing.precipitation is None:
+                    existing.precipitation = combined.precipitation
+                if existing.elevation is None:
+                    existing.elevation = combined.elevation
+
+                self.contexts[biome] = existing
+
+    def copy(self) -> 'ClimateTracker':
+        """Create a copy of this tracker."""
+        new_tracker = ClimateTracker()
+        new_tracker.contexts = {k: v.copy() for k, v in self.contexts.items()}
+        new_tracker.lineage = {k: list(v) for k, v in self.lineage.items()}
+        return new_tracker
+
+    @staticmethod
+    def infer_climate_from_name(biome_id: str) -> ClimateContext:
+        """
+        Infer climate attributes from biome naming patterns.
+
+        Terra biomes follow naming conventions that indicate climate:
+        - Temperature: polar/ice < boreal/cold < temperate < tropical/hot
+        - Precipitation: desert/arid < steppe < dry < wet/monsoon/rainforest
+        - Elevation: flat < lowlands < midlands < highlands / deep < regular < shallow
+        - Origin: ocean/deep-ocean/shallow-ocean = Ocean, others = Land
+        """
+        name_lower = biome_id.lower().replace('_', '-')
+
+        # Determine origin type (Land vs Ocean)
+        origin_type = None
+        ocean_patterns = ['ocean', 'deep-ocean', 'shallow-ocean', 'sea', 'reef', 'kelp']
+        for pattern in ocean_patterns:
+            if pattern in name_lower:
+                origin_type = 'Ocean'
+                break
+        if origin_type is None:
+            origin_type = 'Land'
+
+        # Infer temperature (0 = coldest, 1 = hottest)
+        temperature = None
+        temp_patterns = [
+            # (pattern, normalized_value)
+            ('ice-cap', 0.0), ('polar', 0.05), ('frozen', 0.05),
+            ('tundra', 0.1), ('ice', 0.1), ('icy', 0.1), ('snowy', 0.15),
+            ('boreal', 0.3), ('cold', 0.35), ('taiga', 0.3),
+            ('temperate', 0.5),
+            ('warm', 0.6), ('mediterranean', 0.65),
+            ('hot', 0.75), ('tropical', 0.85), ('jungle', 0.85),
+            ('savanna', 0.8), ('monsoon', 0.85), ('rainforest', 0.9),
+            ('desert', 0.7), ('arid', 0.7),  # Deserts can be hot or cold
+        ]
+        for pattern, value in temp_patterns:
+            if pattern in name_lower:
+                temperature = value
+                break
+
+        # Special case: cold desert
+        if 'cold' in name_lower and 'desert' in name_lower:
+            temperature = 0.25
+
+        # Infer precipitation (0 = driest, 1 = wettest)
+        # More specific patterns must come before general ones (rainforest before forest)
+        precipitation = None
+        precip_patterns = [
+            ('desert', 0.0), ('arid', 0.1),
+            ('steppe', 0.2), ('semi-arid', 0.2), ('dry', 0.25),
+            ('savanna', 0.4), ('grassland', 0.5),
+            ('woodland', 0.55),
+            ('rainforest', 0.95),  # Must come before 'forest'
+            ('forest', 0.6),
+            ('wet', 0.75), ('monsoon', 0.8),
+            ('swamp', 0.9), ('marsh', 0.85), ('bog', 0.85),
+            ('jungle', 0.85),
+        ]
+        for pattern, value in precip_patterns:
+            if pattern in name_lower:
+                precipitation = value
+                break
+
+        # Infer elevation (0 = lowest, 1 = highest)
+        elevation = None
+        elev_patterns = [
+            ('deep', 0.0), ('trench', 0.0),
+            ('shallow', 0.25), ('flat', 0.3), ('lowlands', 0.35),
+            ('midlands', 0.5), ('plains', 0.45),
+            ('highlands', 0.75), ('hills', 0.7), ('mountain', 0.85),
+            ('peak', 0.95), ('alpine', 0.9),
+        ]
+        for pattern, value in elev_patterns:
+            if pattern in name_lower:
+                elevation = value
+                break
+
+        return ClimateContext(
+            origin_type=origin_type,
+            temperature=temperature,
+            precipitation=precipitation,
+            elevation=elevation
+        )
+
+    def infer_all_contexts(self, biome_ids: Set[str]):
+        """
+        Infer climate contexts for all given biomes from their names.
+        Only sets values that haven't been explicitly set.
+        """
+        for biome_id in biome_ids:
+            inferred = self.infer_climate_from_name(biome_id)
+            existing = self.contexts.get(biome_id, ClimateContext())
+
+            # Only use inferred values where existing is None
+            if existing.origin_type is None:
+                existing.origin_type = inferred.origin_type
+            if existing.temperature is None:
+                existing.temperature = inferred.temperature
+            if existing.precipitation is None:
+                existing.precipitation = inferred.precipitation
+            if existing.elevation is None:
+                existing.elevation = inferred.elevation
+
+            self.contexts[biome_id] = existing
+
+
 class BiomeDistribution:
-    """Tracks probability distribution of biomes"""
+    """Tracks probability distribution of biomes with climate context"""
 
     def __init__(self):
         self.probabilities: Dict[str, float] = {}
+        self.climate: ClimateTracker = ClimateTracker()
 
     def set(self, biome: str, prob: float):
         """Set probability for a biome"""
@@ -425,6 +709,7 @@ class BiomeDistribution:
         """Create a copy of this distribution"""
         new_dist = BiomeDistribution()
         new_dist.probabilities = self.probabilities.copy()
+        new_dist.climate = self.climate.copy()
         return new_dist
 
     def get_top_biomes(self, n: int = 20) -> List[Tuple[str, float]]:
@@ -844,12 +1129,35 @@ class BiomeMetadata:
         self.extrusion_percentages: Dict[str, float] = {}  # preset_name -> extrusion percentage
         self.is_extrusion: bool = False  # True if this biome only comes from extrusions
         self.extrusion_source: str = ""  # Which extrusion file(s) this comes from
+        # Climate attributes (from default preset)
+        self.biome_type: Optional[str] = None  # "Land" or "Ocean"
+        self.temperature: Optional[float] = None  # 0-1 (coldest to hottest)
+        self.precipitation: Optional[float] = None  # 0-1 (driest to wettest)
+        self.elevation: Optional[float] = None  # 0-1 (lowest to highest)
+
+    def set_climate(self, context: ClimateContext):
+        """Set climate attributes from a ClimateContext"""
+        self.biome_type = context.origin_type
+        self.temperature = context.temperature
+        self.precipitation = context.precipitation
+        self.elevation = context.elevation
+
+    @staticmethod
+    def format_climate_value(value: Optional[float]) -> str:
+        """Format a climate value for CSV output"""
+        if value is None:
+            return ""
+        return f"{value:.4f}"
 
     def to_csv_row(self, preset_names: List[str], include_extrusion: bool = True) -> List[str]:
         """Convert to CSV row format"""
         row = [
             self.biome_id,
-            'extrusion' if self.is_extrusion else 'surface'
+            'extrusion' if self.is_extrusion else 'surface',
+            self.biome_type or "",  # Type column
+            self.format_climate_value(self.temperature),  # Temperature column
+            self.format_climate_value(self.precipitation),  # Precipitation column
+            self.format_climate_value(self.elevation),  # Elevation column
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
@@ -1215,15 +1523,21 @@ class PresetAnalyzer:
 def generate_csv_output(
     results: Dict[str, BiomeDistribution],
     extrusion_results: Dict[str, ExtrusionDistribution],
-    output_path: Path
+    output_path: Path,
+    default_preset: str = "origen2"
 ):
     """
-    Generate BiomeTable.csv with percentages.
+    Generate BiomeTable.csv with percentages and climate data.
 
     The table now includes:
     - Source column: 'surface' for regular biomes, 'extrusion' for underground biomes
-    - ExtrusionSource column: which extrusion file(s) the biome comes from
+    - Type column: 'Land' or 'Ocean' based on biome origin
+    - Temperature column: normalized temperature value (0=coldest, 1=hottest)
+    - Precipitation column: normalized precipitation value (0=driest, 1=wettest)
+    - Elevation column: normalized elevation value (0=lowest, 1=highest)
     - Percentages: surface biomes sum to 100%, extrusion biomes shown separately
+
+    Climate data is derived from the default preset specified in pack.yml.
     """
     print(f"\nGenerating CSV output: {output_path}")
 
@@ -1308,12 +1622,33 @@ def generate_csv_output(
     # Get sorted list of preset names
     preset_names = sorted(results.keys())
 
+    # Get climate data from the default preset
+    print(f"Using default preset '{default_preset}' for climate data")
+    default_distribution = results.get(default_preset)
+    if default_distribution:
+        # Infer climate for all biomes from their names
+        default_distribution.climate.infer_all_contexts(all_biomes)
+
+        # Apply climate data to metadata
+        for biome_id, metadata in biome_metadata_map.items():
+            # Get the original biome ID (strip UNLINKED prefix if present)
+            original_id = biome_id
+            if biome_id.startswith('UNLINKED_'):
+                original_id = biome_id[9:]  # Remove 'UNLINKED_' prefix
+            elif biome_id.startswith('UNLINKED'):
+                original_id = biome_id[8:]  # Remove 'UNLINKED' prefix (keeps underscore)
+
+            context = default_distribution.climate.get_context(original_id)
+            metadata.set_climate(context)
+    else:
+        print(f"  Warning: Default preset '{default_preset}' not found, climate data unavailable")
+
     # Write CSV
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row - excludes Extends, Color, and ExtrusionSource
-        header = ['BiomeID', 'Source'] + preset_names
+        # Header row with climate columns
+        header = ['BiomeID', 'Source', 'Type', 'Temperature', 'Precipitation', 'Elevation'] + preset_names
         writer.writerow(header)
 
         # Data rows
@@ -1329,6 +1664,34 @@ def generate_csv_output(
     print(f"  Unresolved intermediates: {len(unresolved_biomes)}")
 
 
+def get_default_preset_from_pack() -> str:
+    """
+    Read pack.yml to find the default preset name.
+    Returns the preset name (e.g., 'origen2') or 'origen2' as fallback.
+    """
+    pack_path = Path("pack.yml")
+    if not pack_path.exists():
+        print("  Warning: pack.yml not found, using 'origen2' as default preset", file=sys.stderr)
+        return "origen2"
+
+    try:
+        with open(pack_path, 'r') as f:
+            pack_data = yaml.safe_load(f)
+
+        biomes_ref = pack_data.get('biomes')
+        if isinstance(biomes_ref, str):
+            # Parse reference like "$biome-distribution/presets/origen2.yml:biomes"
+            match = re.match(r'\$biome-distribution/presets/([^.]+)\.yml:biomes', biomes_ref)
+            if match:
+                return match.group(1)
+
+        print("  Warning: Could not parse biomes reference in pack.yml, using 'origen2'", file=sys.stderr)
+        return "origen2"
+    except Exception as e:
+        print(f"  Warning: Error reading pack.yml: {e}, using 'origen2'", file=sys.stderr)
+        return "origen2"
+
+
 def main():
     """Main entry point"""
     preset_dir = Path("biome-distribution/presets")
@@ -1340,6 +1703,10 @@ def main():
 
     print("Terra Biome Percentage Calculator")
     print("=" * 70)
+
+    # Get default preset from pack.yml
+    default_preset = get_default_preset_from_pack()
+    print(f"Default preset (from pack.yml): {default_preset}")
 
     # Analyze each preset
     results = {}
@@ -1394,8 +1761,8 @@ def main():
             sources = extrusion_dist.get_source_info(biome_id)
             print(f"  {biome_id:<40} {pct:>8.4%}  (from: {sources})")
 
-    # Generate CSV output with extrusion data
-    generate_csv_output(results, extrusion_results, output_file)
+    # Generate CSV output with extrusion data and climate info
+    generate_csv_output(results, extrusion_results, output_file, default_preset)
 
     # Final summary of unresolved biomes
     print("\n" + "=" * 70)

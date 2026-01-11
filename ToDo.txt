@@ -18,18 +18,37 @@ Eventaully: Why is it taking so long to initailize world?  Is it a defect somewh
 [ERROR]: The server has not responded for 10 seconds! Creating thread dump
 
 
+1. The export does not report any percentage for INFERNO_ISLES for Origen2, but those are added as a part of "add_special_caves.yml" in the preset file as a part of the extrusions definition.  This presents an interesting issue, as this "biome" actually generates content under the surface level of the map, thus they can be reported differently.  The table should have another column that indicates if the biome comes from that extrusion section, and should attribute the percentage of the biome it comes from without removing that percentage from the parent biome.  That way the surface level biome percentages add to 100%, and the cave level biomes only add up to the amount off space they occupy.
+
+No longer needed: There appear to be a number of biome sets that are not currently attributed, specifically coasts and rivers.  Can you review which river biomes currently have no percentage, and update add_rivers.yml to add them in to propigate correctly from their parent biome?
+
+5. Attempt to update add_biome_color_variants.yml to place other respective colored biomes that don't currently exist, like "RED_DRY_PALM_FOREST" should be distributed from "DRY_PALM_FOREST".
+6. For the additional unique missing biomes (those that are not variants, generics (like coast_medium_a), coasts, rivers, ect), please estimate what climate those biomes could be placed in so they also end up in the final biome output.
+
+ Now take any remaining biomes in the table (BiomeTable.csv) that are not assigned to any presets currently, filter out any that have generic naming (like "variant_" or "_cold_A) and create a new preset with those biomes, including them in the correct schema (like caves which should be extrusions).  Only create the preset file, I will update the pack file.
+
+
+
+## Latest prompt / prep:
+
+All these prompts relate to previous discussions outlined in CLAUDE.md
+
 Latest prommpt:
 There are some issues in "calculate_biome_percentages.py" I'd like to resolve.  This is related to claude.md within this directory.
 
-1. The export does not report any percentage for INFERNO_ISLES for Origen2, but those are added as a part of "add_special_caves.yml" in the preset file as a part of the extrusions definition.  This presents an interesting issue, as this "biome" actually generates content under the surface level of the map, thus they can be reported differently.  The table should have another column that indicates if the biome comes from that extrusion section, and should attribute the percentage of the biome it comes from without removing that percentage from the parent biome.  That way the surface level biome percentages add to 100%, and the cave level biomes only add up to the amount off space they occupy.
-2. Related, as there are surface level biomes and subsurface biomes, it would be desirable to generate packages that are specifically subsurface only and surface only so they can be evaluated seperately.  As a part off the package process, 2 additional zips should be created:
-2A. A "_subsurface" package that is a copy off the original package zip file, but simply modifies the pack file such that the name is now appended with "_subsurface" and in the preset files all the stages are removed (such that only extrusions are performed).
-2B. A "_surface" package that is a copy off the original package zip file, but simply modifies the pack file such that the name is now appended with "_surface" and in the preset files all the extrusions in that specific file at the top are removed. (Ex:   
-type: EXTRUSION
-  extrusions:)
-3. Note the subsurface caves all appear to be coming out as very circular patterns, can you explore the sampler configuration for &caveSettings along with Terra's source code (At C:\Projects\Terra) to attempt to understand if there are some misconfigurations here that would allow the biome to be more "fuzzy".
-4. There appear to be a number of biome sets that are not currently attributed, specifically coasts and rivers.  Can you review which river biomes currently have no percentage, and update add_rivers.yml to add them in to propigate correctly from their parent biome?
-5. Attempt to update add_biome_color_variants.yml to place other respective colored biomes that don't currently exist, like "RED_DRY_PALM_FOREST" should be distributed from "DRY_PALM_FOREST".
-6. For the additional unique missing biomes (those that are not variants, generics (like coast_medium_a), coasts, rivers, ect), please estimate what climate those biomes could be placed in so they also end up in the final biome output.
+Now update the calculate_biome_percentages to write the temperature, elevation, and precipitation columns into the table output.  Noting that those values only correspond to biomes whose distribution is affected by temperature / precipitation / elevation expressions, and it should be derived from the default preset file called out in the pack file (ex: "biomes: $biome-distribution/presets/origen2.yml:biomes").  If a biome's distribution is not affected by one off those functions, it should have a NaN, NULL, or NONE value for the corresponding column.  It is possible biome's that have more than one parent have conflicting temperatures / ect.  In this case the ascribed temperature should be a linear combination off the temperature's it recieved from it's parent through distribution and the weight attributed from each parent.  Finally, calculate_biome_percentages should also be updated to write a Type column with either "Land" or "Ocean" depending on which first stage biome it originated from.
+
+The following still don't appear in the table for "ExploreExpand" preset. The distribution (%) should be roughly equal for all surface biomes:
+ALPINE_ASCENDANCY_RIVER
+ARCHIPELAGO
+ARID_PALE_GARDEN_COAST
+BAD_BALCOONIES_RIVER
+FROZEN_ARCHIPELAGO
+
+
+3. OPTIONAL: Note the subsurface caves all appear to be coming out as very circular patterns, can you explore the sampler configuration for &caveSettings along with Terra's source code (At C:\Projects\Terra) to attempt to understand if there are some misconfigurations here that would allow the biome to be more "fuzzy".
+
+4. The canyon biomes should be 
+
 7. Now look at all biome distribution and modify all stage yml files as necessary shift towards more even distribution.  Ideally no biome would be subject to less than a 10% chance off shown compared to it's overall place in the world.  Ex: If there are 200 biomes, the pure mean distribution would be 0.5%, so in general no biomes should occur less often than 0.05%.  Attempt to keep the order of percentage consistent.  Recall the weights for biome distribution must be an integer.
 8. Now look at the recolor script thinger.

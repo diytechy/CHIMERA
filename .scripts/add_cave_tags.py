@@ -21,7 +21,20 @@ def add_cave_tags(file_path):
         if not isinstance(data, dict) or 'tags' in data:
             return False
         
-        data['tags'] = ['LAND_CAVES', 'SPECIAL_CAVES']
+        tags = ['LAND_CAVES', 'SPECIAL_CAVES']
+        
+        # Check filename and ID for mountain/plateau variants
+        filename = file_path.stem.lower()
+        file_id = str(data.get('id', '')).lower()
+        text_to_check = f"{filename} {file_id}"
+        
+        if any(word in text_to_check for word in ['mountain', 'plateau', 'peak', 'ridge', 'cliff', 'mesa']):
+            tags.append('DEEP_DARK')
+        
+        if any(word in text_to_check for word in ['forest', 'wood', 'tree', 'grove', 'jungle']):
+            tags.append('DEEP_DARK_GROVE')
+        
+        data['tags'] = tags
         
         with open(file_path, 'w', encoding='utf-8') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)

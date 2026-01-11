@@ -8,7 +8,7 @@ extends:
 vars: &id001
   base: 67
   height: 55
-riverSampler: $biomes/rearth/variants/sakura_streams.yml:terrain.sampler.samplers.riverMask
+riverSampler: $biomes/rearth/land/sakura_streams.yml:terrain.sampler.samplers.riverMask
 terrain:
   sampler:
     dimensions: 3

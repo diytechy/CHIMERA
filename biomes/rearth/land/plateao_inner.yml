@@ -14,17 +14,17 @@ tags:
 - USE_PLATEAU_INNER_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
-vars: $biomes/rearth/variants/plateao_middle.yml:vars
+vars: $biomes/rearth/land/plateao_middle.yml:vars
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    variables: $biomes/rearth/variants/plateao_middle.yml:vars
+    variables: $biomes/rearth/land/plateao_middle.yml:vars
     expression: '-y + top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z)
       * surfaceVariationStrength
 
       '
-    samplers: $biomes/rearth/variants/plateao_middle.yml:terrain.sampler.samplers
+    samplers: $biomes/rearth/land/plateao_middle.yml:terrain.sampler.samplers
 palette:
 - GRASS_VARIATION: 319
 - << meta.yml:palette-bottom

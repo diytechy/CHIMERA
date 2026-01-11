@@ -1608,6 +1608,21 @@ class PresetAnalyzer:
         """Check detected biomes exist and create placeholders if needed"""
         print(f"\n  Preliminary check: Validating {len(detected_biomes)} detected biomes...")
         
+        # Create CSV of preliminary biomes
+        csv_path = Path(".scripts") / f"preliminary_biomes_{self.preset_name}.csv"
+        csv_path.parent.mkdir(exist_ok=True)
+        
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['BiomeID', 'Status'])
+            for biome_id in sorted(detected_biomes):
+                if biome_id == 'SELF':
+                    continue
+                status = 'EXISTS' if BiomeReader.find_biome_file(biome_id) else 'MISSING'
+                writer.writerow([biome_id, status])
+        
+        print(f"  Created preliminary biomes CSV: {csv_path}")
+        
         biomes_dir = Path("biomes")
         placeholder_dir = biomes_dir / "abstract" / "placeholders"
         

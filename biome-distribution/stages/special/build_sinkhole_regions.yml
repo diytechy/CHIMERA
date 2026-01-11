@@ -1,0 +1,62 @@
+stages:
+  #Distribute land into large temperature breaks to seperate major canyon sections, since canyons changing vegitation mid trench is a little strange.
+  - type: REPLACE
+    sampler:
+      type: EXPRESSION
+      expression: temperature(x, z)
+    from: land
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    to:
+      _cold_sinkhole: 1
+      _mod_sinkhole: 1
+      _warm_sinkhole: 1
+      
+  #Perform cellular distribution to create zones where canyons will actually occur so they are not everywhere in the land-mass.
+  - type: REPLACE_LIST
+    sampler:
+      type: CELLULAR
+      return: CellValue
+    frequency: 1 / 500
+    from: land
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    default-from: _cold_sinkhole
+    default-to:
+      - SELF: &SinkholeSurrDist     1
+      - land: &NotSinkholeLandDist       8
+    to:
+      _mod_sinkhole:
+        - SELF: *SinkholeSurrDist
+        - land: *NotSinkholeLandDist
+      _warm_sinkhole:
+        - SELF: *SinkholeSurrDist
+        - land: *NotSinkholeLandDist
+      
+  #Further contain the canyons so that they are not on the edge of biomes borders (like an ocean, which is very strange)
+  - type: REPLACE_LIST
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      variables: 
+        edgeThreshold: ${customization.yml:biomeSpread.borderBiomes.edgeThreshold}
+      expression: if(cells(x,z) < -edgeThreshold, 1, -1)
+      samplers:
+        cells:
+          dimensions: 2
+          type: CELLULAR
+          jitter: ${customization.yml:biomeSpread.cellJitter}
+          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+    default-from: _cold_sinkhole
+    default-to: # 0 = outer, 1 = inner
+      - land: &SinkholeBorderDist     2
+      - SINKHOLE_FROZEN: &SinkholeCentDist     1
+    to: # 0 = outer, 1 = inner
+      _mod_sinkhole:
+        - land: *SinkholeBorderDist
+        - SINKHOLE_FOREST: *SinkholeCentDist
+      _warm_sinkhole:
+        - land: *SinkholeBorderDist
+        - SINKHOLE_JUNGLE: *SinkholeCentDist

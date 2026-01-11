@@ -8,21 +8,17 @@ biomes:
     type: PIPELINE
     resolution: 4
     blend:
-      amplitude: 6
+      amplitude: 2
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.012
+        frequency: 0.1
     pipeline:
       source:
         type: SAMPLER
         sampler:
-          type: CELLULAR
-          jitter: ${customization.yml:biomeSpread.cellJitter}
-          return: NoiseLookup
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-          lookup:
-            type: EXPRESSION
-            expression: continents(x, z)
+        sampler:
+          type: EXPRESSION
+          expression: continents(x, z)
         biomes:
           ocean: 2
           land: 3
@@ -50,9 +46,10 @@ biomes:
         #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
         - << biome-distribution/stages/special/build_canyon_regions.yml:stages
         
-        #Future placeholder to add sinkholes
+        
         #Input: land
         #Output: sink hole zones
+        - << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
         
         #Using temperature / precipitation / elevation, generate biome distribution.
         - << biome-distribution/stages/climate/temperature.yml:stages

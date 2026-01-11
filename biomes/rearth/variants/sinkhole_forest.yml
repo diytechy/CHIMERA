@@ -12,6 +12,9 @@ slant:
 
 slant-depth: 40
 
+tags:
+- LAND_CAVES
+
 palette:
   - GRASS: 319
   - DEEPSLATE: -54

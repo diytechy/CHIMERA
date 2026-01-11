@@ -19,6 +19,9 @@ palette:
   - BEDROCK: $meta.yml:bedrock-top
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
+tags:
+- LAND_CAVES
+
 features:
   slabs:
     - SINKHOLE_SNOW_LAYERS

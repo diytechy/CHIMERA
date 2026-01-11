@@ -37,7 +37,7 @@ locator:
           - minecraft:snow
           - minecraft:air
         offset: 0
-
+        
 structures:
   distribution:
     type: WHITE_NOISE

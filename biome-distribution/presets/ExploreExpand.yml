@@ -83,8 +83,8 @@ biomes:
             # - VERDANT_RIVER: 1
             # - VERTICAL_JUNGLE_RIVER: 1
             # - VISTAS_RIVER: 1
-            
-            Other things that generate it water???
+            #
+            # Other things that generate it water???
             #- ARCHIPELAGO: 1
             #- FROZEN_ARCHIPELAGO: 1
           sampler:

@@ -38,8 +38,9 @@ stages:
         - FROZEN_BEACH: 2
         - FROSTY_FINGERS: 1
       polar-coast:
-        - SNOWY_SEA_CAVES: 2
+        - SNOWY_SEA_CAVES: 1
         - FROSTY_FINGERS: 1
+        - POLAR_PALE_GARDEN_COAST: 1
       polar-coast-highlands:
         - SNOWY_SEA_CAVES: 1
 
@@ -128,6 +129,7 @@ stages:
       
       boreal-snowy-flat:
         - SNOWY_MEADOW: 2
+        - SNOWY_PLAINS: 1
         - WHITE_WALLOWS: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
@@ -197,6 +199,7 @@ stages:
         - PINE_BARRENS: 1
       boreal-coast:
         - ROCKY_SEA_CAVES: 1
+        - POLAR_PALE_GARDEN_COAST: 1
       boreal-coast-highlands:
         - ROCKY_SEA_CAVES: 1
 
@@ -241,10 +244,12 @@ stages:
         - STEPPE: 1
         - CHAPARRAL: 1
         - MOORLAND: 1
+        - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry:
         - CHAPARRAL: 1
         - MOORLAND: 1
         - PALM_FOREST: 1
+        - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
         - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
@@ -255,12 +260,14 @@ stages:
         - TEMPERATE_RAINFOREST: 1
         - ROCKY_GRASSLAND: 1
         - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
       temperate-hot:
         - WOODED_BUTTES: 1
         - TEMPERATE_OVERPASS: 1
         - TEMPERATE_RAINFOREST: 1
         - AZALEA_FOREST: 1
         - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
         - VERDANT_VALLEYS: 1
         - FLOWERING_FOREST: 1
         - SAKURA_STREAMS: 1
@@ -285,8 +292,10 @@ stages:
         - MURKY_MARSHLANDS: 1
         - _pillow_plains: 1
         - _secluded_valleys: 1
+        - ALIEN_MARSH: 1
       temperate-warm:
         - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
         - FLOWERING_FOREST: 1
         - BROADLEAF_FOREST: 1
         - DARK_FOREST: 1
@@ -315,6 +324,7 @@ stages:
         - WOODED_BUTTES: 2
         - FOSSILIZED_FENLANDS: 1
         - MURKY_MARSHLANDS: 1
+        - ALIEN_MARSH: 1
       temperate-cold:
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -375,6 +385,7 @@ stages:
         - BADLANDS_BUTTES: 1
         - RED_DESERT: 1
         - SALT_FLATS: 1
+        - RED_DRY_PALM_FOREST: 1
       hot-desert-red:
         - ARID_SPIKES: 1
         - BADLANDS: 1
@@ -461,9 +472,11 @@ stages:
       temperate-steppe-flat:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
+        - RED_DRY_PALM_FOREST: 1
       temperate-steppe:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
+        - RED_DRY_PALM_FOREST: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
 
@@ -496,6 +509,9 @@ stages:
 
       arid-coast-flat:
         - BEACH: 1
+        - ARID_PALE_GARDEN_COAST: 1
+        - ORANGE_ARID_PALE_GARDEN_COAST: 1
+        - RED_ARID_PALE_GARDEN_COAST: 1
       arid-coast:
         - SANDSTONE_ARCHIPELAGO: 1
       arid-coast-highlands:

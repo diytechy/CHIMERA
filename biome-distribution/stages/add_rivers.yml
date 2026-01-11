@@ -84,6 +84,40 @@ stages:
       TRAVERTINE_TERRACES:
         - SELF: 1
         - TRAVERTINE_TERRACES_RIVER: 1
+      ALPINE_ASCENDANCY:
+        - SELF: 1
+        - ALPINE_ASCENDANCY_RIVER: 1
+      BAD_BALCOONIES:
+        - SELF: 1
+        - BAD_BALCOONIES_RIVER: 1
+      FROZEN_FUNGI:
+        - SELF: 1
+        - FROZEN_FUNGI_RIVER: 1
+      GLOOMY_GORGE:
+        - SELF: 1
+        - GLOOMY_GORGE_RIVER: 1
+      LUSH_LOOPS: #USE_LOOPS_RIVER:
+        - SELF: 1
+        - LOOPS_RIVER: 1
+      MOUNTAIN_MIRRORS:
+        - SELF: 1
+        - MOUNTAIN_MIRRORS_RIVER: 1
+      SCARLET_SANCTUARY:
+        - SELF: 1
+        - SCARLET_SANCTUARY_RIVER: 1
+      SWAMP:
+        - SELF: 1
+        - SWAMP_RIVER: 1
+      VERDANT_VALLEYS: #USE_VERDANT_RIVER:
+        - SELF: 1
+        - VERDANT_RIVER: 1
+      VERTICAL_JUNGLE:
+        - SELF: 1
+        - VERTICAL_JUNGLE_RIVER: 1
+      VERTICAL_VISTAS:
+        - SELF: 1
+        - VISTAS_RIVER: 1
+
     sampler: *riverSampler
   # Desert rivers
   - type: REPLACE

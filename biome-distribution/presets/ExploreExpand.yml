@@ -1,7 +1,6 @@
-# ExploreExpand preset - Equal distribution of ALL biomes for exploration/testing
-# This preset gives roughly equal weight to all surface biomes to allow easy exploration
-# of the full biome set. Not intended for normal gameplay.
-# ALL biomes are placed directly - no reliance on tag-based generation stages.
+# ExploreExpand preset - Biomes NOT in default, origen2, or rearth presets
+# This preset contains only biomes that don't appear in the main presets,
+# allowing exploration of rare/unused biomes. Not intended for normal gameplay.
 
 biomes:
   type: EXTRUSION
@@ -31,277 +30,63 @@ biomes:
             expression: continents(x, z)
         biomes:
           ocean: 1
-          land: 1
+          land: 3
       stages:
         # ========================================
-        # LAND BIOMES - Equal distribution of all
-        # Including rivers, coasts, and archipelagos
+        # LAND BIOMES - Only biomes NOT in other presets
         # ========================================
         - type: REPLACE
           from: land
           to:
-            # Polar/Arctic biomes
-            - ICE_CAPS: 1
-            - ICE_SPIKES: 1
-            - SNOWY_PLAINS: 1
-            - SNOWY_MEADOW: 1
-            - SNOWY_MOUNTAINS: 1
-            - SNOWY_BLACKSTONE_MOUNTAINS: 1
-            - SNOWY_TUFF_MOUNTAINS: 1
-            - SNOWY_TAIGA: 1
-            - SNOWY_BIRCH_FOREST: 1
-            - SNOWY_BADLANDS: 1
-            - SNOWY_DUNES: 1
-            - SNOWY_SPIRES: 1
-            - LAND_GLACIER: 1
-            - FROSTY_FINGERS: 1
-            - FROZEN_FUNGI: 1
-            - FROZEN_MARSH: 1
-            - MONTANE_FOREST: 1
-            - TUNDRA: 1
-            - TUNDRA_TRACKS: 1
-            # Boreal/Taiga biomes
-            - TAIGA: 1
-            - TAIGA_CLEARING: 1
-            - FIR_FIELDS: 1
-            - DRY_FIR_FIELDS: 1
-            - PINE_CANOPY: 1
-            - BOREAL_SHRUBLAND: 1
-            - SEQUOIA_FOREST: 1
-            - OLD_GROWTH_SEQUOIA_FOREST: 1
-            - STEPPE: 1
-            - COLD_STEPPE: 1
-            - PRAIRIE: 1
-            - SUNFLOWER_PRAIRIE: 1
-            - MAPLE_GROVE: 1
-            - RED_MAPLE_GROVE: 1
-            - YELLOW_MAPLE_GROVE: 1
-            - MOUNTAINS: 1
-            - MOUNTAIN_MIRRORS: 1
-            - ALPINE_ASCENDANCY: 1
-            # Temperate biomes
-            - OAK_FOREST: 1
-            - BIRCH_FOREST: 1
-            - ASPEN_FOREST: 1
-            - DARK_FOREST: 1
-            - BLACK_FOREST: 1
-            - BROADLEAF_FOREST: 1
-            - FLOWERING_FOREST: 1
-            - TEMPERATE_RAINFOREST: 1
-            - TEMPERATE_MONTANE_RAINFOREST: 1
-            - AZALEA_FOREST: 1
-            - TEMPERATE_MOUNTAINS: 1
-            - TEMPERATE_ALPHA_MOUNTAINS: 1
-            - DRY_TEMPERATE_MOUNTAINS: 1
-            - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
-            - HIGHLANDS: 1
-            - DENSELY_WOODED_HIGHLANDS: 1
-            - ROCKY_GRASSLAND: 1
-            - TEMPERATE_GRASSLAND: 1
-            - OAK_SAVANNA: 1
-            - MOORLAND: 1
-            - CHAPARRAL: 1
-            - PALM_FOREST: 1
-            - WOODED_BUTTES: 1
-            - TEMPERATE_OVERPASS: 1
-            - TRAVERTINE_TERRACES: 1
-            # Pale Garden biomes
-            - PALE_GARDEN: 1
-            - POLAR_PALE_GARDEN: 1
-            - ARID_PALE_GARDEN: 1
-            - ORANGE_ARID_PALE_GARDEN: 1
-            - RED_ARID_PALE_GARDEN: 1
-            # Desert/Xeric biomes
-            - DESERT: 1
-            - ORANGE_DESERT: 1
-            - RED_DESERT: 1
-            - ROCKY_DESERT: 1
-            - PEARLESCENT_DESERT: 1
-            - DESERT_PILLARS: 1
-            - DESERT_SPIKES: 1
-            - DESERT_SPIKES_GOLD: 1
-            - DESERT_TERRACES: 1
-            - SALT_FLATS: 1
-            - BADLANDS: 1
-            - BADLANDS_BUTTES: 1
-            - BADLANDS_BALCONIES: 1
-            - ARID_SPIKES: 1
-            - DRYBRUSH: 1
-            - XERIC_SHRUBLAND: 1
-            - ORANGE_XERIC_SHRUBLAND: 1
-            - RED_XERIC_SHRUBLAND: 1
-            - XERIC_MOUNTAINS: 1
-            - ORANGE_XERIC_MOUNTAINS: 1
-            - RED_XERIC_MOUNTAINS: 1
-            - DRY_PALM_FOREST: 1
-            - ORANGE_DRY_PALM_FOREST: 1
-            - RED_DRY_PALM_FOREST: 1
-            - FIRMIHIN_FOREST: 1
-            - DIKSAM_PLATEAU: 1
-            - TAR_PITS: 1
-            # Tropical/Savanna biomes
-            - SAVANNA: 1
-            - GRASS_SAVANNA: 1
-            - WET_SAVANNA: 1
-            - SAVANNA_OVERHANGS: 1
-            - DRY_WOODLANDS: 1
-            - JUNGLE: 1
-            - BAMBOO_JUNGLE: 1
-            - ROCKY_JUNGLE: 1
-            - MONSOON_FOREST: 1
-            - TROPICAL_RAINFOREST: 1
-            - CLOUD_FOREST: 1
-            - OVERGROWN_CLIFFS: 1
-            - TROPICAL_FLOODPLAIN: 1
-            # Wetland/Swamp biomes
-            - SWAMP: 1
-            - MARSH: 1
-            - MANGROVE_SWAMP: 1
-            - GALLERY_FOREST: 1
-            - ORANGE_GALLERY_FOREST: 1
-            - RED_GALLERY_FOREST: 1
+            # Unique land biomes
             - ALIEN_MARSH: 1
-            # Mushroom biomes
-            - MUSHROOM_FIELDS: 1
-            - POLAR_MUSHROOM_FIELDS: 1
-            - TROPICAL_MUSHROOM_FIELDS: 1
-            # Volcanic/Special terrain biomes
-            - ERUPTED_VOLCANO: 1
-            - PRISMATIC_SPRING: 1
-            - YELLOWSTONE: 1
-            # Spot biomes (mesas, volcanos, crater lakes)
-            - BOREAL_MESA: 1
-            - COLD_DESERT_MESA: 1
-            - DESERT_MESA: 1
-            - TEMPERATE_MESA: 1
-            - TROPICAL_MESA: 1
-            - BOREAL_EXTINCT_VOLCANO: 1
-            - COLD_EXTINCT_VOLCANO: 1
-            - DESERT_EXTINCT_VOLCANO: 1
-            - TEMPERATE_EXTINCT_VOLCANO: 1
-            - TROPICAL_EXTINCT_VOLCANO: 1
+            - OAK_SAVANNA: 1
+            - RED_DRY_PALM_FOREST: 1
+            - SNOWY_PLAINS: 1
+            - TEMPERATE_GRASSLAND: 1
+            #Has nothing:
+            # - YELLOWSTONE: 1
+            # Crater lake biomes (not generated in other presets)
+            #These should already exist, just need to uncomment:
             - BOREAL_CRATER_LAKE: 1
             - COLD_CRATER_LAKE: 1
             - DESERT_CRATER_LAKE: 1
             - TEMPERATE_CRATER_LAKE: 1
             - TROPICAL_CRATER_LAKE: 1
             # Sinkhole biomes
-            - SINKHOLE_FOREST: 1
-            - SINKHOLE_JUNGLE: 1
+            # - SINKHOLE_FOREST: 1
             - SINKHOLE_FROZEN: 1
-            - SINKHOLE_OUTER: 1
-            # Special terrain biomes (canyons, etc)
-            - ICY_INCISIONS: 1
-            - SANDY_SPLITS: 1
-            - MESA_MONUMENTS: 1
-            # Unique terrain biomes
-            - SAKURA_GROVE: 1
-            - SAKURA_STREAMS: 1
-            - BAMBOO_BASIN: 1
-            - SCARLET_SANCTUARY: 1
-            - CANOPY_CASCADES: 1
-            - LUSH_LOOPS: 1
-            - VERTICAL_VISTAS: 1
-            - GLOOMY_GORGE: 1
-            - BARE_BOULDERFIELDS: 1
-            - CARVING_CREAKS: 1
-            - FOSSILIZED_FENLANDS: 1
-            - MURKY_MARSHLANDS: 1
-            - OASIS: 1
-            - ROCKY_REFUGE: 1
-            - VERDANT_VALLEYS: 1
-            - WHITE_WALLOWS: 1
-            - WATERY_WILDS: 1
-            - TALL_TIMBERLAND: 1
-            - FOLIAGE_FORTRESS_INNER: 1
-            - FOLIAGE_FORTRESS_MIDDLE: 1
-            - FOLIAGE_FORTRESS_OUTER: 1
-            - PILLOW_PLAINS_INNER: 1
-            - PILLOW_PLAINS_MIDDLE: 1
-            - PILLOW_PLAINS_OUTER: 1
-            - SECLUDED_VALLEY: 1
-            - SECLUDED_VALLEY_OUTER: 1
-            # ========================================
-            # RIVER BIOMES - All river variants
-            # ========================================
-            - RIVER: 1
-            - COLD_RIVER: 1
-            - FROZEN_RIVER: 1
-            - LUKEWARM_RIVER: 1
-            - TROPICAL_RIVER: 1
-            - ALPINE_ASCENDANCY_RIVER: 1
-            - ARID_PALE_GARDEN_RIVER: 1
-            - BADLANDS_RIVER: 1
-            - BAD_BALCOONIES_RIVER: 1
-            - DESERT_RIVER: 1
-            - DRY_TEMPERATE_MOUNTAINS_RIVER: 1
-            - DRY_TEMPERATE_WHITE_MOUNTAINS_RIVER: 1
-            - FROZEN_FUNGI_RIVER: 1
-            - GLOOMY_GORGE_RIVER: 1
-            - HIGHLANDS_RIVER: 1
-            - LAND_GLACIER_RIVER: 1
-            - LOOPS_RIVER: 1
-            - MOUNTAIN_MIRRORS_RIVER: 1
-            - MOUNTAIN_RIVER_FROZEN: 1
-            - MOUNTAINS_RIVER: 1
-            - MUSHROOM_RIVER: 1
-            - ORANGE_ARID_PALE_GARDEN_RIVER: 1
-            - ORANGE_DESERT_RIVER: 1
-            - ORANGE_XERIC_MOUNTAINS_RIVER: 1
-            - PALE_GARDEN_RIVER: 1
-            - PLATEAO_RIVER_INNER: 1
-            - PLATEAO_RIVER_MIDDLE: 1
-            - POLAR_MUSHROOM_RIVER: 1
-            - POLAR_PALE_GARDEN_RIVER: 1
-            - RED_ARID_PALE_GARDEN_RIVER: 1
-            - RED_DESERT_RIVER: 1
-            - RED_XERIC_MOUNTAINS_RIVER: 1
-            - SCARLET_SANCTUARY_RIVER: 1
-            - SNOWY_BLACKSTONE_MOUNTAINS_RIVER: 1
-            - SNOWY_MOUNTAINS_RIVER: 1
-            - SNOWY_TUFF_MOUNTAINS_RIVER: 1
-            - SWAMP_RIVER: 1
-            - TAR_PIT_RIVER: 1
-            - TEMPERATE_MOUNTAINS_RIVER: 1
-            - TRAVERTINE_TERRACES_RIVER: 1
-            - VERDANT_RIVER: 1
-            - VERTICAL_JUNGLE_RIVER: 1
-            - VISTAS_RIVER: 1
-            - XERIC_MOUNTAINS_RIVER: 1
-            # ========================================
-            # COAST BIOMES - All coast variants
-            # ========================================
+            - SINKHOLE_JUNGLE: 1
+            # - SINKHOLE_OUTER: 1
+            # Archipelago biomes
+            # Mushroom biomes
+            - TROPICAL_MUSHROOM_FIELDS: 1
+            - TROPICAL_MUSHROOM_COAST: 1
+            # Coast biomes
             - ARID_PALE_GARDEN_COAST: 1
             - ORANGE_ARID_PALE_GARDEN_COAST: 1
             - RED_ARID_PALE_GARDEN_COAST: 1
             - PALE_GARDEN_COAST: 1
             - POLAR_PALE_GARDEN_COAST: 1
-            - MUSHROOM_COAST: 1
-            - POLAR_MUSHROOM_COAST: 1
-            - TROPICAL_MUSHROOM_COAST: 1
-            - MUDDY_COASTS: 1
-            # ========================================
-            # BEACH BIOMES - All beach variants
-            # ========================================
-            - BEACH: 1
-            - PALM_BEACH: 1
-            - BLACK_SAND_BEACH: 1
-            - SHALE_BEACH: 1
-            - SHRUB_BEACH: 1
-            - PINE_BARRENS: 1
-            - FROZEN_BEACH: 1
-            # ========================================
-            # SEA CAVES & ARCHIPELAGO BIOMES
-            # ========================================
-            - LUSH_SEA_CAVES: 1
-            - ROCKY_SEA_CAVES: 1
-            - SNOWY_SEA_CAVES: 1
-            - TERRACOTTA_SEA_CAVES: 1
-            - ARCHIPELAGO: 1
-            - FROZEN_ARCHIPELAGO: 1
-            - ROCKY_ARCHIPELAGO: 1
-            - SANDSTONE_ARCHIPELAGO: 1
-            - TEMPERATE_SEA_ARCHES: 1
+            # River biomes (unique variants)
+            # - ALPINE_ASCENDANCY_RIVER: 1
+            # - BAD_BALCOONIES_RIVER: 1
+            # - FROZEN_FUNGI_RIVER: 1
+            # - GLOOMY_GORGE_RIVER: 1
+            # - LOOPS_RIVER: 1
+            # - MOUNTAIN_MIRRORS_RIVER: 1
+            # - MOUNTAIN_RIVER_FROZEN: 1
+            # - PLATEAO_RIVER_INNER: 1
+            # - PLATEAO_RIVER_MIDDLE: 1
+            # - SCARLET_SANCTUARY_RIVER: 1
+            # - SWAMP_RIVER: 1
+            # - VERDANT_RIVER: 1
+            # - VERTICAL_JUNGLE_RIVER: 1
+            # - VISTAS_RIVER: 1
+            
+            Other things that generate it water???
+            #- ARCHIPELAGO: 1
+            #- FROZEN_ARCHIPELAGO: 1
           sampler:
             type: CELLULAR
             return: CellValue
@@ -309,84 +94,24 @@ biomes:
             salt: 1001
 
         # ========================================
-        # OCEAN BIOMES - Equal distribution of all
+        # OCEAN BIOMES - Only biomes NOT in other presets
         # ========================================
         - type: REPLACE
           from: ocean
           to:
-            # Standard oceans
-            - OCEAN: 1
-            - DEEP_OCEAN: 1
-            - DEEP_DEPTHS: 1
-            # Cold oceans
-            - COLD_OCEAN: 1
-            - COLD_DEEP_OCEAN: 1
-            - COLD_DEEP_DEPTHS: 1
-            - COLD_OCEAN_SLOPES: 1
-            - COLD_OCEAN_OVERHANGS: 1
-            # Frozen oceans
-            - FROZEN_OCEAN: 1
-            - FROZEN_DEEP_OCEAN: 1
-            - FROZEN_DEEP_DEPTHS: 1
-            - FROZEN_OCEAN_SLOPES: 1
-            - FROZEN_OCEAN_OVERHANGS: 1
-            - ICEBERG_OCEAN: 1
-            - ARCTIC_ARCHES: 1
-            # Temperate oceans
-            - OCEAN_SLOPES: 1
-            - OCEAN_OVERHANGS: 1
-            - KELP_FOREST: 1
-            - KELP_FOREST_GRAVEL: 1
-            - SEAGRASS_MEADOW: 1
-            - ROCKY_SHALLOW_OCEAN: 1
-            # Tropical oceans
-            - TROPICAL_OCEAN: 1
-            - TROPICAL_DEEP_OCEAN: 1
-            - TROPICAL_DEEP_DEPTHS: 1
-            - TROPICAL_OCEAN_SLOPES: 1
-            - TROPICAL_OCEAN_OVERHANGS: 1
-            - CORAL_OCEAN: 1
-            - CORAL_OCEAN_SLOPES: 1
-            - CORAL_OCEAN_OVERHANGS: 1
-            - SHALLOW_CORAL_OCEAN: 1
-            # Subtropical oceans
+            # Subtropical ocean biomes (unique to this preset)
             - SUBTROPICAL_OCEAN: 1
             - SUBTROPICAL_DEEP_OCEAN: 1
             - SUBTROPICAL_DEEP_DEPTHS: 1
             - SUBTROPICAL_OCEAN_SLOPES: 1
             - SUBTROPICAL_OCEAN_OVERHANGS: 1
-            # Abyssal
-            - ABYSSAL_ALLEYS: 1
-            # Special ocean terrain
-            - STONEGATE_SEAS: 1
-            - MARINE_MONOLITHS: 1
-            # ========================================
-            # OCEAN TRENCHES - All trench variants
-            # ========================================
-            - OCEAN_TRENCH: 1
-            - COLD_OCEAN_TRENCH: 1
-            - FROZEN_OCEAN_TRENCH: 1
-            - TROPICAL_OCEAN_TRENCH: 1
-            - CORAL_OCEAN_TRENCH: 1
             - SUBTROPICAL_OCEAN_TRENCH: 1
-            # Deep ocean vents
-            - DEEP_OCEAN_VENTS: 1
-            - COLD_DEEP_OCEAN_VENTS: 1
-            - FROZEN_DEEP_OCEAN_VENTS: 1
-            - TROPICAL_DEEP_OCEAN_VENTS: 1
             - SUBTROPICAL_DEEP_OCEAN_VENTS: 1
-            # Deep depths trenches
-            - DEEP_DEPTHS_TRENCH: 1
-            - COLD_DEEP_DEPTHS_TRENCH: 1
-            - FROZEN_DEEP_DEPTHS_TRENCH: 1
-            - TROPICAL_DEEP_DEPTHS_TRENCH: 1
             - SUBTROPICAL_DEEP_DEPTHS_TRENCH: 1
-            # Island shallows
-            - ISLAND_SHALLOWS: 1
-            - COLD_ISLAND_SHALLOWS: 1
-            - FROZEN_ISLAND_SHALLOWS: 1
-            - TROPICAL_ISLAND_SHALLOWS: 1
             - SUBTROPICAL_ISLAND_SHALLOWS: 1
+            # Tropical variants not in other presets
+            - TROPICAL_OCEAN_TRENCH: 1
+            - TROPICAL_DEEP_OCEAN_VENTS: 1
           sampler:
             type: CELLULAR
             return: CellValue

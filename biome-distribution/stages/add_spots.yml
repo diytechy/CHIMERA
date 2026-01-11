@@ -20,3 +20,14 @@ stages:
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1
+
+  - type: BORDER
+    from: live-volcano
+    replace: ocean
+    to:
+      - ocean: 1
+      - volcano-coast: 1
+    sampler:
+      type: EXPRESSION
+      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+      variables: $math/samplers/spots.yml:variables

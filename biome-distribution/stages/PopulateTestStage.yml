@@ -1,0 +1,15 @@
+stages:
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: coast
+    default-to: DESERT
+    to:
+      land: DRY_FIR_FIELDS
+      ocean: OCEAN
+      vast-forest: BLACK_FOREST
+      island: MUSHROOM_FIELDS
+      crater-lake: TROPICAL_CRATER_LAKE
+      live-volcano: ERUPTED_VOLCANO
+      extinct-volcano: TROPICAL_EXTINCT_VOLCANO
+      mesa: TROPICAL_MESA

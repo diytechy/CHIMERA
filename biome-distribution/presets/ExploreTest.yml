@@ -1,6 +1,11 @@
+# ExploreExpand preset - Biomes NOT in default, origen2, or rearth presets
+# This preset contains only biomes that don't appear in the main presets,
+# allowing exploration of rare/unused biomes. Not intended for normal gameplay.
+
 biomes:
   type: EXTRUSION
   extrusions:
+    # All cave extrusions
     - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
@@ -8,21 +13,24 @@ biomes:
     type: PIPELINE
     resolution: 4
     blend:
-      amplitude: 2
+      amplitude: 6
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.1
+        frequency: 0.012
     pipeline:
       source:
         type: SAMPLER
         sampler:
-        sampler:
-          type: EXPRESSION
-          expression: continents(x, z)
+          type: CELLULAR
+          jitter: ${customization.yml:biomeSpread.cellJitter}
+          return: NoiseLookup
+          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+          lookup:
+            type: EXPRESSION
+            expression: continents(x, z)
         biomes:
-          ocean: 2
-          land: 3
-          #Generate initial biome distribution of land and ocean.
+          ocean: 1
+          land: 1
       stages:
         #Add spots to drop large POIs like volcanos / mesas
         #Input: ocean / land
@@ -51,41 +59,17 @@ biomes:
         #Output: sink hole zones
         - << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
         
-        #Using temperature / precipitation / elevation, generate biome distribution.
-        - << biome-distribution/stages/climate/temperature.yml:stages
-        - << biome-distribution/stages/climate/precipitation.yml:stages
-        - << biome-distribution/stages/climate/elevation.yml:stages
+        #Input: land
+        #Output: sink hole zones
+        - << biome-distribution/stages/PopulateTestStage.yml:stages
         
-        #Build out coast lines and islands.
-        - << biome-distribution/stages/add_large_spot_coast.yml:stages
-        - << biome-distribution/stages/add_island_shelf.yml:stages
-        - << biome-distribution/stages/add_islands.yml:stages
-        - << biome-distribution/stages/climate/color.yml:stages
-        
-        #Add in terraces
-        - << biome-distribution/stages/add_travertine_terraces.yml:stages
-        
-        #Place remaining biome regions into actual biome definitions
-        - << biome-distribution/stages/set_biomes_in_climates_origen.yml:stages
-        
-        #Add color variants to special biomes.
-        - << biome-distribution/stages/add_biome_color_variants.yml:stages
-        
-        #Integrate special borders.
-        - << biome-distribution/stages/special/border_biomes.yml:stages
 
+        # ========================================
+        # SMOOTHING PASSES
+        # ========================================
         - type: FRACTAL_EXPAND
           sampler:
             type: WHITE_NOISE
         - type: SMOOTH
           sampler:
             type: WHITE_NOISE
-
-        - << biome-distribution/stages/add_rivers.yml:stages
-        
-        - type: SMOOTH
-          sampler:
-            type: WHITE_NOISE
-
-
-        - << biome-distribution/stages/add_trenches.yml:stages

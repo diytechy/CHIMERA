@@ -1455,6 +1455,9 @@ class PresetAnalyzer:
                     if match:
                         stage_file = Path(match.group(1))
                         stage_files.append(stage_file)
+                    # Support plaintext marker in stages list to trigger a preliminary check
+                    elif '***PRELIM_CHK_HERE***' in stage:
+                        stage_files.append(('INLINE', stage))
                 elif isinstance(stage, dict):
                     # Inline stage - we'll process it directly
                     stage_files.append(('INLINE', stage))
@@ -1599,11 +1602,11 @@ class PresetAnalyzer:
         return distribution
 
     def _has_prelim_check_marker(self, stage_path: Path) -> bool:
-        """Check if stage file contains the preliminary check marker in comments"""
+        """Check if stage file contains the preliminary check marker anywhere in the file"""
         try:
             with open(stage_path, 'r', encoding='utf-8') as f:
                 for line in f:
-                    if '#' in line and '***PRELIM_CHK_HERE***' in line:
+                    if '***PRELIM_CHK_HERE***' in line:
                         return True
             return False
         except:
@@ -1669,10 +1672,17 @@ class PresetAnalyzer:
                     f.write(content)
                 
                 print(f"    Created: {placeholder_path}")
-        else:
-            print(f"  All biomes exist - no placeholders needed")
 
-
+            # Refresh biome cache so the newly-created placeholder files are discovered
+            try:
+                BiomeReader._cache = None
+                BiomeReader._metadata_cache = {}
+                BiomeReader._valid_biomes = None
+                BiomeReader._biome_tags = {}
+                BiomeReader._tag_index = {}
+                BiomeReader.build_cache()
+            except Exception:
+                pass
 def generate_csv_output(
     results: Dict[str, BiomeDistribution],
     extrusion_results: Dict[str, ExtrusionDistribution],

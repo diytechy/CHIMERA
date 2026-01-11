@@ -1,29 +1,34 @@
 id: FOSSILIZED_FENLANDS
 type: BIOME
 vanilla: minecraft:plains
-extends: [ CARVING_LAND, BASE ]
-
+extends:
+- CARVING_LAND
+- BASE
 color: $biomes/colors.yml:TEMPERATE_GRASSLAND
-
 tags:
-  - USE_RIVER
-
-vars: &variables
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+vars: &id001
   base: 71
   height: 11
   stepHeight: 4
-
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    variables: *variables
-    expression: |
-      -y + base + height * surfaceOffset(x,z)
+    variables: *id001
+    expression: '-y + base + height * surfaceOffset(x,z)
+
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
+
+      '
     functions:
       clamp:
-        arguments: [x, a, b] # clamps x between a (low) and b (high)
+        arguments:
+        - x
+        - a
+        - b
         expression: min(max(x, a), b)
     samplers:
       plateous:
@@ -40,30 +45,27 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
-
 palette:
-  - GRASS_MUSHY: 319
-  - MUDDY_BEACH: 63
-  - << meta.yml:palette-bottom
-
+- GRASS_MUSHY: 319
+- MUDDY_BEACH: 63
+- << meta.yml:palette-bottom
 slant:
-  - threshold: 0.75
-    palette:
-      - CALCITE_DIORITE_MIX: 319
-      - << meta.yml:palette-bottom
-
+- threshold: 0.75
+  palette:
+  - CALCITE_DIORITE_MIX: 319
+  - << meta.yml:palette-bottom
 features:
   landforms:
-    - FOSSIL_RIBS
+  - FOSSIL_RIBS
   flora:
-    - GRASS
-    - LARGE_CEILING_VINES
-    - POPPY_PATCH
-    - PEONY_PATCH
-    - LILAC_PATCH
-    - LILY_OF_THE_VALLEY_PATCH
-    - SMALL_DRIPLEAF
-    - BAMBOO_PATCHES
+  - GRASS
+  - LARGE_CEILING_VINES
+  - POPPY_PATCH
+  - PEONY_PATCH
+  - LILAC_PATCH
+  - LILY_OF_THE_VALLEY_PATCH
+  - SMALL_DRIPLEAF
+  - BAMBOO_PATCHES
   trees:
-    - MESQUITE_TREES
-    - SPARSE_SWAMP_TREES
+  - MESQUITE_TREES
+  - SPARSE_SWAMP_TREES

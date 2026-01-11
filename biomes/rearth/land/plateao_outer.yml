@@ -1,32 +1,33 @@
 id: FOLIAGE_FORTRESS_OUTER
 type: BIOME
 vanilla: minecraft:savanna
-extends: [ CARVING_LAND, BASE ]
-
+extends:
+- CARVING_LAND
+- BASE
 color: $biomes/colors.yml:SAVANNA
-
 colors:
-  grass: 0x82BC6D
-  foliage: 0x65A949
-  water: 0xE4ECF
-  water-fog: 0xC0D8FF
-
+  grass: 8567917
+  foliage: 6662473
+  water: 937679
+  water-fog: 12638463
 tags:
-  - USE_RIVER
-
-vars: &variables
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+vars: &id001
   base: 69
   height: 11
   stepHeight: 4
-
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    variables: *variables
-    expression: |
-      -y + base + height * surfaceOffset(x,z)
+    variables: *id001
+    expression: '-y + base + height * surfaceOffset(x,z)
+
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
+
+      '
     samplers:
       plateous:
         dimensions: 2
@@ -42,27 +43,24 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
-
 palette:
-  - GRASS_MUSHY: 319
-  - MUDDY_BEACH: 63
-  - << meta.yml:palette-bottom
-
+- GRASS_MUSHY: 319
+- MUDDY_BEACH: 63
+- << meta.yml:palette-bottom
 slant:
-  - threshold: 0.75
-    palette:
-      - CALCITE_DIORITE_MIX: 319
-      - << meta.yml:palette-bottom
-
+- threshold: 0.75
+  palette:
+  - CALCITE_DIORITE_MIX: 319
+  - << meta.yml:palette-bottom
 features:
   flora:
-    - GRASS
-    - TALL_GRASS
-    - POPPY_PATCH
-    - DANDELION_PATCH
-    - ROSE_BUSH_PATCH
-    - PEONY_PATCH
-    - LILAC_PATCH
-    - LILY_OF_THE_VALLEY_PATCH
+  - GRASS
+  - TALL_GRASS
+  - POPPY_PATCH
+  - DANDELION_PATCH
+  - ROSE_BUSH_PATCH
+  - PEONY_PATCH
+  - LILAC_PATCH
+  - LILY_OF_THE_VALLEY_PATCH
   trees:
-    - ACACIA_TREES
+  - ACACIA_TREES

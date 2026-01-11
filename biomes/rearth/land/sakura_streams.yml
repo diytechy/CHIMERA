@@ -2,35 +2,31 @@ id: SAKURA_STREAMS
 type: BIOME
 vanilla: minecraft:cherry_grove
 color: $biomes/colors.yml:SAKURA_GROVE
-extends: [ CARVING_LAND, BASE ]
-
-
+extends:
+- CARVING_LAND
+- BASE
 colors:
-  foliage: 0xffb7c5
-  grass: 0xB6DB61
-  water: 0x5DB7EF
-
-vars: &variables
+  foliage: 16758725
+  grass: 11983713
+  water: 6141935
+vars: &id001
   base: 67
   height: 60
   variation: 27
-
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    variables: *variables
-    expression: |
-      // positive / higher = solid
-      -y + base
-      + lerp(-cellMountains(x,z), 
-        0.7, terrace(min(-cellMountains(x,z), 0.75)* 5, 11) / 4 * height * (mountainRandomness(x,z) * 0.4 + 1), 
-        0.25, surfaceVariation(x + 5000, z) * variation)
-      + surfaceVariation(x,z) * variation
-      + riverMask(x, y, z) * 60
+    variables: *id001
+    expression: "// positive / higher = solid\n-y + base\n+ lerp(-cellMountains(x,z),\
+      \ \n  0.7, terrace(min(-cellMountains(x,z), 0.75)* 5, 11) / 4 * height * (mountainRandomness(x,z)\
+      \ * 0.4 + 1), \n  0.25, surfaceVariation(x + 5000, z) * variation)\n+ surfaceVariation(x,z)\
+      \ * variation\n+ riverMask(x, y, z) * 60\n"
     functions:
       terrace:
-        arguments: [x, terraceStrength]
+        arguments:
+        - x
+        - terraceStrength
         expression: round(x) + 0.5 * (2*(x - round(x)))^terraceStrength
     samplers:
       cellMountains:
@@ -38,14 +34,18 @@ terrain:
         type: LINEAR
         min: -1
         max: 0.2
-        sampler: &mountainCells
+        sampler: &id002
           dimensions: 2
           type: CELLULAR
           frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
           jitter: ${customization.yml:biomeSpread.cellJitter}
           distance: Euclidean
-      mountainRandomness: # angle on the whole mountain
-        <<: *mountainCells
+      mountainRandomness:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+        jitter: ${customization.yml:biomeSpread.cellJitter}
+        distance: Euclidean
         return: CellValue
       surfaceVariation:
         dimensions: 2
@@ -59,49 +59,59 @@ terrain:
       riverMask:
         dimensions: 3
         type: EXPRESSION
-        variables: *variables
-        expression: |
-          clamp(abs(abs(riverBaseAngle(x,z) * 3) +    // basic line from center
-            riverAngleVariation(cellMountains(x,z) * 300, 0) * 0.27   // vary angle slightly going outwards
-            - rivers(x,z)) % (6.28 / 5) * lerp(cellMountains(x,z), -0.98, -0.4, -0.2, 3.5) // ensure river has proper width
-            - 0.175 + riverAngleVariation(cellMountains(x,z) * 400, x / 300 + z / 200) * 0.02, -0.13, 0)   // vary the river width going outwad, then clamp it to a min and max height
+        variables: *id001
+        expression: "clamp(abs(abs(riverBaseAngle(x,z) * 3) +    // basic line from\
+          \ center\n  riverAngleVariation(cellMountains(x,z) * 300, 0) * 0.27   //\
+          \ vary angle slightly going outwards\n  - rivers(x,z)) % (6.28 / 5) * lerp(cellMountains(x,z),\
+          \ -0.98, -0.4, -0.2, 3.5) // ensure river has proper width\n  - 0.175 +\
+          \ riverAngleVariation(cellMountains(x,z) * 400, x / 300 + z / 200) * 0.02,\
+          \ -0.13, 0)   // vary the river width going outwad, then clamp it to a min\
+          \ and max height\n"
         samplers:
-          cellMountains: *mountainCells
+          cellMountains: *id002
           rivers:
-            <<: *mountainCells
+            dimensions: 2
+            type: CELLULAR
+            frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+            jitter: ${customization.yml:biomeSpread.cellJitter}
+            distance: Euclidean
             return: Angle
           riverAngleVariation:
             dimensions: 2
             type: OPEN_SIMPLEX_2S
             frequency: 0.014
-          riverBaseAngle: # angle on the whole mountain
-            <<: *mountainCells
+          riverBaseAngle:
+            dimensions: 2
+            type: CELLULAR
+            frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+            jitter: ${customization.yml:biomeSpread.cellJitter}
+            distance: Euclidean
             return: CellValue
-
 slant:
-  - threshold: 0.6
-    palette:
-      - MOUNTAIN_RIVERS_SLANT: 319
-      - MOUNTAIN_RIVERS_SAND: 65
-      - SAND: 61
-      - << meta.yml:palette-bottom
-
-palette:
-  - MOUNTAIN_RIVERS: 319
+- threshold: 0.6
+  palette:
+  - MOUNTAIN_RIVERS_SLANT: 319
   - MOUNTAIN_RIVERS_SAND: 65
   - SAND: 61
   - << meta.yml:palette-bottom
-
+palette:
+- MOUNTAIN_RIVERS: 319
+- MOUNTAIN_RIVERS_SAND: 65
+- SAND: 61
+- << meta.yml:palette-bottom
 features:
   flora:
-    - GRASS
-    - PINK_PETALS
-    - CROSSING_VINES
-    - LARGE_LEAF_VINES
-    - ROSE_BUSH_PATCH
+  - GRASS
+  - PINK_PETALS
+  - CROSSING_VINES
+  - LARGE_LEAF_VINES
+  - ROSE_BUSH_PATCH
   trees:
-    - SAKURA_TREES
-    - GIANT_SAKURA_TREES
+  - SAKURA_TREES
+  - GIANT_SAKURA_TREES
   landforms:
-    - MOSSY_BOULDERS
-    - SMALL_MOSSY_BOULDER_PATCHES
+  - MOSSY_BOULDERS
+  - SMALL_MOSSY_BOULDER_PATCHES
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES

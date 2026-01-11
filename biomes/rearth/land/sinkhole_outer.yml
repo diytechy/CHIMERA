@@ -3,29 +3,29 @@ type: BIOME
 vanilla: minecraft:plains
 color: $biomes/colors.yml:TEMPERATE_GRASSLAND
 extends:
-  - DEPOSITS_DEFAULT
-  - ORES_DEFAULT
-  - CARVING_LAND
-
-vars: &variables
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+- CARVING_LAND
+vars: &id001
   base: ${meta.yml:ocean-level} + 5
-
 terrain:
   sampler:
     dimensions: 2
     type: EXPRESSION
-    variables: *variables
-    expression: |
-      -y + base
+    variables: *id001
+    expression: '-y + base
 
+      '
 palette:
-  - GRASS: 319
-  - SAND: 64
-  - << meta.yml:palette-bottom
-
+- GRASS: 319
+- SAND: 64
+- << meta.yml:palette-bottom
 features:
   global-preprocessors:
-    - LAVA_FLOOR
-    - UNDERGROUND_LAVA_COLUMNS
-    - CONTAIN_FLOATING_WATER
-    - TEXTURED_STONE_SLANT
+  - LAVA_FLOOR
+  - UNDERGROUND_LAVA_COLUMNS
+  - CONTAIN_FLOATING_WATER
+  - TEXTURED_STONE_SLANT
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES

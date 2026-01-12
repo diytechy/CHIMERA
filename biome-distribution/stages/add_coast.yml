@@ -1,49 +1,106 @@
 stages:
-  - type: REPLACE
-    sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.001
-    from: ocean
-    to:
-      o1: 1
-      o2: 3
-      o3: 5
-      o4: 3
-      o5: 1
-
+# Add bordering at continent edge.
   - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       expression: continentBorder(x, z)
-    default-from: o1
+    default-from: ocean
     default-to:
-      - o1: 5
-      - o1: 5
+      - SELF: 1
+      - coast: 1
     to:
-      o2:
-      - SELF: 8
-      - coast: 2
-      o3:
-      - SELF: 7
-      - coast: 3
-      o4:
-      - SELF: 6
-      - coast: 4
-      o5:
-      - SELF: 5
-      - coast: 5
       land:
-        SELF: 5
-        land-sea-border: 5
+      - SELF: 1
+      - land-sea-border: 1
+#Border from ocean, ensure there is always a border.
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: ocean
+    replace: land
+    to: land-sea-border
+#Border from coast, ensure there is always a border.
   - type: BORDER
     sampler:
       type: CONSTANT
     from: coast
     replace: land
     to: land-sea-border
+#Border from internal border, give additional buffer, may be able to be removed.
   - type: BORDER
     sampler:
       type: CONSTANT
     from: land-sea-border
     replace: land
     to: land-sea-border
+#Break apart ocean, temporary for coast variation.
+  - type: REPLACE
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.001
+      salt: 9000
+    from: ocean
+    to:
+      ocean: 1
+      o2: 3
+      o3: 5
+      o4: 3
+      o5: 1
+#Border iterations for coastal variation.
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: ocean
+    replace: coast
+    to: ocean
+  - type: REPLACE
+    sampler:
+      type: CONSTANT
+    from: o2
+    to: ocean
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: ocean
+    replace: coast
+    to: ocean
+  - type: REPLACE
+    sampler:
+      type: CONSTANT
+    from: o3
+    to: ocean
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: ocean
+    replace: coast
+    to: ocean
+  - type: REPLACE
+    sampler:
+      type: CONSTANT
+    from: o4
+    to: ocean
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: ocean
+    replace: coast
+    to: ocean
+  - type: REPLACE
+    sampler:
+      type: CONSTANT
+    from: o5
+    to: ocean
+#Break apart ocean, temporary for coast variation.
+  - type: REPLACE
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.001
+      salt: 9000
+    from: ocean
+    to:
+      ocean: 1
+      o2: 3
+      o3: 5
+      o4: 3
+      o5: 1

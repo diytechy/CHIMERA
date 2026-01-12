@@ -1439,8 +1439,7 @@ class PresetAnalyzer:
         return dist
 
     def get_stage_files(self) -> List[Path]:
-        """Extract list of stage files from preset. Also detect PRELIM markers placed in preset files (including comments) and
-        insert an inline marker at the corresponding position so the preliminary check runs at the expected point."""
+        """Extract list of stage files from preset"""
         stage_files = []
 
         try:
@@ -1456,37 +1455,9 @@ class PresetAnalyzer:
                     if match:
                         stage_file = Path(match.group(1))
                         stage_files.append(stage_file)
-                    # Support plaintext marker in stages list to trigger a preliminary check
-                    elif '***PRELIM_CHK_HERE***' in stage:
-                        stage_files.append(('INLINE', stage))
                 elif isinstance(stage, dict):
                     # Inline stage - we'll process it directly
                     stage_files.append(('INLINE', stage))
-
-            # Detect PRELIM markers that may be present as comments or free text in the preset YAML file
-            try:
-                preset_lines = []
-                with open(self.preset_path, 'r', encoding='utf-8') as pf:
-                    preset_lines = pf.readlines()
-
-                # Collect line numbers of stage << references and marker occurrences
-                stage_line_indices = []  # list of line indices where << *.yml:stages appears
-                for i, line in enumerate(preset_lines):
-                    if '<<' in line and ':stages' in line:
-                        stage_line_indices.append(i)
-
-                marker_indices = [i for i, line in enumerate(preset_lines) if '***PRELIM_CHK_HERE***' in line]
-
-                # For each marker, determine insertion index in stage_files based on how many stage refs precede it
-                for marker_line in marker_indices:
-                    insert_pos = sum(1 for idx in stage_line_indices if idx <= marker_line)
-                    # Only insert if not already represented (avoid duplicates)
-                    # We insert a plain inline marker tuple at the computed position
-                    if ('INLINE', '***PRELIM_CHK_HERE***') not in stage_files:
-                        stage_files.insert(insert_pos, ('INLINE', '***PRELIM_CHK_HERE***'))
-            except Exception:
-                # Non-fatal; ignore any errors reading preset file
-                pass
 
         except Exception as e:
             print(f"Warning: Could not parse stages: {e}", file=sys.stderr)
@@ -1583,38 +1554,20 @@ class PresetAnalyzer:
 
         # Get and process stages
         stage_refs = self.get_stage_files()
-        detected_biomes = set(distribution.probabilities.keys())
 
         for i, stage_ref in enumerate(stage_refs):
             if isinstance(stage_ref, tuple) and stage_ref[0] == 'INLINE':
                 # Inline stage
                 print(f"\nStage {i+1}: INLINE")
                 _, stage_config = stage_ref
-                
-                # Check for preliminary check marker
-                if isinstance(stage_config, str) and '***PRELIM_CHK_HERE***' in stage_config:
-                    self._check_and_create_placeholder_biomes(detected_biomes)
-                    continue
-                elif isinstance(stage_config, dict) and stage_config.get('type') == '***PRELIM_CHK_HERE***':
-                    self._check_and_create_placeholder_biomes(detected_biomes)
-                    continue
-                    
                 distribution = StageProcessor.process_stage(stage_config, distribution)
-                detected_biomes.update(distribution.probabilities.keys())
             else:
                 # File reference
                 print(f"\nStage {i+1}: {stage_ref}")
-                
-                # Check if stage file contains preliminary check marker
-                if self._has_prelim_check_marker(stage_ref):
-                    self._check_and_create_placeholder_biomes(detected_biomes)
-                    continue
-                    
                 stages = self.load_stage_file(stage_ref)
 
                 for stage_config in stages:
                     distribution = StageProcessor.process_stage(stage_config, distribution)
-                    detected_biomes.update(distribution.probabilities.keys())
 
                 # Debug: Show distribution after key stages
                 if 'temperature.yml' in str(stage_ref) or 'set_biomes_in_climates.yml' in str(stage_ref):
@@ -1627,88 +1580,7 @@ class PresetAnalyzer:
 
         return distribution
 
-    def _has_prelim_check_marker(self, stage_path: Path) -> bool:
-        """Check if stage file contains the preliminary check marker anywhere in the file"""
-        try:
-            with open(stage_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if '***PRELIM_CHK_HERE***' in line:
-                        return True
-            return False
-        except:
-            return False
 
-    def _check_and_create_placeholder_biomes(self, detected_biomes: set):
-        """Check detected biomes exist and create placeholders if needed"""
-        print(f"\n  Preliminary check: Validating {len(detected_biomes)} detected biomes...")
-        
-        # Create CSV of preliminary biomes
-        csv_path = Path(".scripts") / f"preliminary_biomes_{self.preset_name}.csv"
-        csv_path.parent.mkdir(exist_ok=True)
-        
-        with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(['BiomeID', 'Status'])
-            for biome_id in sorted(detected_biomes):
-                if biome_id == 'SELF':
-                    continue
-                status = 'EXISTS' if BiomeReader.find_biome_file(biome_id) else 'MISSING'
-                writer.writerow([biome_id, status])
-        
-        print(f"  Created preliminary biomes CSV: {csv_path}")
-        
-        biomes_dir = Path("biomes")
-        placeholder_dir = biomes_dir / "abstract" / "placeholders"
-        
-        missing_biomes = []
-        for biome_id in detected_biomes:
-            if biome_id == 'SELF':
-                continue
-                
-            biome_file = BiomeReader.find_biome_file(biome_id)
-            if not biome_file:
-                missing_biomes.append(biome_id)
-        
-        if missing_biomes:
-            print(f"  Creating {len(missing_biomes)} placeholder biomes...")
-            placeholder_dir.mkdir(parents=True, exist_ok=True)
-            
-            for biome_id in missing_biomes:
-                placeholder_path = placeholder_dir / f"{biome_id}.yml"
-                
-                # Create basic YAML content
-                content = f"id: {biome_id}\ntype: BIOME\nabstract: true\n"
-                
-                # Add tags based on biome ID content
-                tags = []
-                biome_lower = biome_id.lower()
-                if 'island' in biome_lower:
-                    tags.append('island')
-                if 'coast' in biome_lower:
-                    tags.append('coast')
-                if 'ocean' in biome_lower:
-                    tags.append('ocean')
-                
-                if tags:
-                    content += f"tags:\n"
-                    for tag in tags:
-                        content += f"  - {tag}\n"
-                
-                with open(placeholder_path, 'w', encoding='utf-8') as f:
-                    f.write(content)
-                
-                print(f"    Created: {placeholder_path}")
-
-            # Refresh biome cache so the newly-created placeholder files are discovered
-            try:
-                BiomeReader._cache = None
-                BiomeReader._metadata_cache = {}
-                BiomeReader._valid_biomes = None
-                BiomeReader._biome_tags = {}
-                BiomeReader._tag_index = {}
-                BiomeReader.build_cache()
-            except Exception:
-                pass
 def generate_csv_output(
     results: Dict[str, BiomeDistribution],
     extrusion_results: Dict[str, ExtrusionDistribution],

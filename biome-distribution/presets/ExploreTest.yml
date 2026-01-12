@@ -40,8 +40,10 @@ biomes:
         #Break apart land into major transitionals
         #Input: ocean / land
         #Output: land / vast-forest / island / ocean.
-        #- << biome-distribution/stages/add_large_spots.yml:stages
+        - << biome-distribution/stages/add_large_spots.yml:stages
         
+        
+        - << biome-distribution/stages/add_large_spot_coast_minimized.yml:stages
         
         #Add coast-lines between land / ocean.  Might need to return and add transition from forest?
         #Input: ocean / land

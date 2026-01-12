@@ -1,0 +1,13 @@
+stages:
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: island
+    replace: ocean
+    to: coast
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: vast-forest
+    replace: ocean
+    to: volcano-coast

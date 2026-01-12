@@ -10,6 +10,7 @@ stages:
         frequency: 0.002
       sampler:
         type: CELLULAR
+        salt: 1234
         return: CellValue
         frequency: 1 /  ${customization.yml:biomeSpread.regionDistance}
     from: land

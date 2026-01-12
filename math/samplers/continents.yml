@@ -40,7 +40,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(inRange(continents(x, z), -threshold, threshold),
+      if(inRange(continents(x, z), -variable_width(x, z), variable_width(x, z)),
         if(continentsEdge((x-variable_width(x, z))/variable_width(x, z), (z-variable_width(x, z))/variable_width(x, z)) != 0, 1, -1),
         -1
       )
@@ -58,7 +58,7 @@ samplers:
       variable_width:
         dimensions: 2
         type: EXPRESSION
-        expression: width * variable_width_noise(x, z)
+        expression: width * clamp((variable_width_noise(x, z) + 1) / 2)
         variables: *continentBorderVariables
         samplers:
           variable_width_noise:
@@ -66,6 +66,10 @@ samplers:
             type: OPEN_SIMPLEX_2
             frequency: 0.001
             salt: 9000
+        functions:
+          clamp:
+            arguments: [x]
+            expression: if(0 <= x && x < 1, x, 0)
       #variable_width_noise_profile:
       #  dimensions: 2
       #  type: OPEN_SIMPLEX_2

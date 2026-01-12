@@ -13,8 +13,8 @@ stages:
         return: CellValue
         frequency: 1 /  ${customization.yml:biomeSpread.regionDistance}
     to:
-      p1: 1
-      p2: 1
+      mesa: 1
+      vast-forest: 1
       SELF: 5
   - type: REPLACE
     from: ocean
@@ -31,5 +31,5 @@ stages:
         frequency: 1 /  ${customization.yml:biomeSpread.islandDistance}
     to:
       ocean: 30
-      o1: 1
+      island: 1
       ocean: 30

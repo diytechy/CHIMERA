@@ -19,7 +19,7 @@ stages:
     default-from: _warm_canyon
     default-to:
       - SELF: &CanyonDist     1
-      - land: &LandDist       3
+      - land: &LandDist       2
     to:
       _cold_canyon:
         - SELF: *CanyonDist

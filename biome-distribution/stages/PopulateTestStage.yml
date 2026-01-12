@@ -14,3 +14,5 @@ stages:
       extinct-volcano: TROPICAL_EXTINCT_VOLCANO
       mesa: TROPICAL_MESA
       volcano-coast: MUDDY_COASTS
+      coast_wide: ORANGE_DESERT
+      coast_small: RED_DESERT

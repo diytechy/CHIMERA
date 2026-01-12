@@ -21,15 +21,10 @@ biomes:
       source:
         type: SAMPLER
         sampler:
-          type: CELLULAR
-          jitter: ${customization.yml:biomeSpread.cellJitter}
-          return: NoiseLookup
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-          lookup:
-            type: EXPRESSION
-            expression: continents(x, z)
+          type: EXPRESSION
+          expression: continents(x, z)
         biomes:
-          ocean: 3
+          ocean: 1
           land: 1
       stages:
         #Add spots to drop large POIs like volcanos / mesas
@@ -39,16 +34,18 @@ biomes:
         
         #Break apart land into major transitionals
         #Input: ocean / land
+        
+        #Note: add_coast seems incorrect?  Missing something here?
+        - << biome-distribution/stages/add_coast.yml:stages
+        
         #Output: land / vast-forest / island / ocean.
-        - << biome-distribution/stages/add_large_spots.yml:stages
+        # - << biome-distribution/stages/add_large_spots.yml:stages
         
-        
-        - << biome-distribution/stages/add_large_spot_coast_minimized.yml:stages
+        # - << biome-distribution/stages/add_large_spot_coast_minimized.yml:stages
         
         #Add coast-lines between land / ocean.  Might need to return and add transition from forest?
         #Input: ocean / land
         #Output: ocean / land / coast
-        #- << biome-distribution/stages/add_coast.yml:stages
         
         
         #Split land into canyon (effectively a basin) / land distribution.

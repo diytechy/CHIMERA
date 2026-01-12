@@ -19,9 +19,16 @@ stages:
   - type: REPLACE
     from: ocean
     sampler:
-      type: CELLULAR
-      return: CellValue
-      frequency: 1 /  ${customization.yml:biomeSpread.cellDistance}
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60 
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.002
+      sampler:
+        type: CELLULAR
+        return: CellValue
+        frequency: 1 /  ${customization.yml:biomeSpread.islandDistance}
     to:
       ocean: 30
       o1: 1

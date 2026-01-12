@@ -6,9 +6,11 @@ stages:
     from: ocean
     default-from: ocean
     default-to:
-      SELF: 1
-      coast: 1
+      SELF: 2
+      coast_wide: 1
+      coast_small: 1
     to:
       land:
-        SELF: 1
-        coast_small: 1
+        SELF: 2
+        p1: 1
+        p2: 1

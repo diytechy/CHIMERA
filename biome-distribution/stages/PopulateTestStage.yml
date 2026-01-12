@@ -16,3 +16,13 @@ stages:
       volcano-coast: MUDDY_COASTS
       coast_wide: ORANGE_DESERT
       coast_small: RED_DESERT
+      p1: ALIEN_MARSH
+      p2: BADLANDS
+      p3: BAMBOO_JUNGLE
+      p4: FROSTY_FINGERS
+      p5: PRAIRIE
+      o1: DEEP_OCEAN
+      o2: FROZEN_OCEAN
+      o3: SHALLOW_CORAL_OCEAN
+      o4: OCEAN_TRENCH
+      o5: ICEBERG_OCEAN

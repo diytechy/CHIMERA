@@ -1,16 +1,50 @@
 stages:
+  - type: REPLACE
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.005
+    from: ocean
+    to:
+      o1: 1
+      o2: 3
+      o3: 5
+      o4: 3
+      o5: 1
+
   - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       expression: continentBorder(x, z)
-    from: ocean
-    default-from: ocean
+    from: o1
+    default-from: o1
     default-to:
-      SELF: 2
-      coast_wide: 1
-      coast_small: 1
+      - ocean: 5
+      - ocean: 5
     to:
+      o2:
+      - ocean: 8
+      - coast: 2
+      o3:
+      - ocean: 7
+      - coast: 3
+      o4:
+      - ocean: 6
+      - coast: 4
+      o5:
+      - ocean: 5
+      - coast: 5
       land:
-        SELF: 2
-        p1: 1
-        p2: 1
+        SELF: 5
+        land-sea-border: 5
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: coast
+    replace: land
+    to: land-sea-border
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: land-sea-border
+    replace: land
+    to: land-sea-border

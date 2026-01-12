@@ -4,9 +4,9 @@ stages:
     sampler: &patchworkSampler
       dimensions: 2
       type: DOMAIN_WARP
-      amplitude: 40
+      amplitude: 1
       warp:
-        type: CELLULAR
+        type: OPEN_SIMPLEX_2
         frequency: 1 / ${customization.yml:biomeSpread.regionDistance}
       sampler:
         type: EXPRESSION
@@ -19,7 +19,7 @@ stages:
             dimensions: 2
             type: CELLULAR
             return: CellValue
-            frequency: 1 / ${customization.yml:biomeSpread.regionDistance} / 2
+            frequency: 1 / ${customization.yml:biomeSpread.regionDistance}
             #seed: 3478596
           gradient:
             dimensions: 2
@@ -33,7 +33,31 @@ stages:
       p5: 1
   - type: REPLACE
     from: ocean
-    sampler: *patchworkSampler
+    sampler: &patchworkSampler
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 40
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 1 / ${customization.yml:biomeSpread.cellDistance} * 4
+      sampler:
+        type: EXPRESSION
+        expression: |
+          if (cells(x,z) > 0,
+            (cells(x * 2 ,z * 1.3) - 0.5) * 2,
+            gradient(x,z))
+        samplers:
+          cells:
+            dimensions: 2
+            type: CELLULAR
+            return: CellValue
+            frequency: 4 / ${customization.yml:biomeSpread.cellDistance}
+            seed: 3478596
+          gradient:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 1 / ${customization.yml:biomeSpread.cellDistance} / 1.6
     to:
+      ocean: 30
       o1: 1
       ocean: 30

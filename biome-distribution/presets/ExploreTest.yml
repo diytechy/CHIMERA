@@ -27,39 +27,38 @@ biomes:
           ocean: 1
           land: 1
       stages:
+        
+        #Add coastlines to major land continents.
+        - << biome-distribution/stages/add_coast.yml:stages
+        
         #Add spots to drop large POIs like volcanos / mesas
         #Input: ocean / land
         #Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
         - << biome-distribution/stages/add_spots.yml:stages
         
-        #Break apart land into major transitionals
-        #Input: ocean / land
+        #Segment temperature regions for respective canyon valleys / sinkholes
+        - << biome-distribution/stages/special/build_canyon_regions_1.yml:stages
         
-        #Note: add_coast seems incorrect?  Missing something here?
-        - << biome-distribution/stages/add_coast.yml:stages
-        
-        #Output: land / vast-forest / island / ocean.
-        - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
-        
-        # - << biome-distribution/stages/add_large_spot_coast_minimized.yml:stages
-        
-        #Add coast-lines between land / ocean.  Might need to return and add transition from forest?
-        #Input: ocean / land
-        #Output: ocean / land / coast
-        
-        
-        #Split land into canyon (effectively a basin) / land distribution.
-        #Input: land
-        #Output: land, ICY_INCISIONS, SANDY_SPLITS (temperature based)
-        #- << biome-distribution/stages/special/build_canyon_regions_1.yml:stages
-        #- << biome-distribution/stages/special/build_canyon_regions_2.yml:stages
-        #- << biome-distribution/stages/special/build_canyon_regions_3.yml:stages
-        #- << biome-distribution/stages/special/build_canyon_regions_4.yml:stages
-        
+        #Further segment into subzones so canyons are not everywhere.
+        - << biome-distribution/stages/special/build_canyon_regions_2.yml:stages
         
         #Input: land
         #Output: sink hole zones
-        #- << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
+        - << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
+        
+        #*************************************
+        #Should sinkholes / canyons be placed after rivers?...
+        #*************************************
+        #Now actually distribute the canyons
+        - << biome-distribution/stages/special/build_canyon_regions_3.yml:stages
+        
+        #Output: land / vast-forest / island / ocean.
+        # - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
+        
+        #
+        
+        
+        
         
         #Input: land
         #Output: sink hole zones

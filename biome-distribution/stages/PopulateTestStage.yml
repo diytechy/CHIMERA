@@ -26,4 +26,6 @@ stages:
       o3: SHALLOW_CORAL_OCEAN
       o4: OCEAN_TRENCH
       o5: ICEBERG_OCEAN
+      _cold_canyon: FROZEN_MARSH
+      _warm_canyon: SAVANNA
       land-sea-border: BARE_BOULDERFIELDS

@@ -15,7 +15,7 @@ stages:
     to:
       p1: 1
       p2: 1
-      p3: 5
+      SELF: 5
   - type: REPLACE
     from: ocean
     sampler:

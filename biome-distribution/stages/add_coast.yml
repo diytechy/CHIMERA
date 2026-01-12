@@ -1,9 +1,14 @@
 stages:
-  - type: REPLACE
-    from: ocean
+  - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       expression: continentBorder(x, z)
-    to:
+    from: ocean
+    default-from: ocean
+    default-to:
       SELF: 1
       coast: 1
+    to:
+      land:
+        SELF: 1
+        coast_small: 1

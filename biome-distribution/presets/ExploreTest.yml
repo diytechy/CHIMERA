@@ -56,17 +56,27 @@ biomes:
         #Should sinkholes / canyons be placed after rivers?...
         #*************************************
         
-        #Output: land / vast-forest / island / ocean.
+        #Output: land / vast-forest / island / ocean / island-coast
         - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
         
-        #
-        
-        
-        
-        
-        #Input: land
-        #Output: sink hole zones
+        #********* This section should only be uncommented to test intermittent distribution before climate
+        #Input: All distributions so far
+        #Resolvable biomes
         - << biome-distribution/stages/PopulateTestStage.yml:stages
+        #*************************************
+        
+        ##Build out climate regions
+        #- << biome-distribution/stages/climate/temperature.yml:stages
+        #- << biome-distribution/stages/climate/precipitation.yml:stages
+        #- << biome-distribution/stages/climate/elevation.yml:stages
+        #
+        ##Add detailed island shelf / coasts based on ocean type (from climate distribution)
+        #- << biome-distribution/stages/add_island_shelf.yml:stages
+        
+        #- << biome-distribution/stages/climate/color.yml:stages
+        #- << biome-distribution/stages/add_travertine_terraces.yml:stages
+        #- << biome-distribution/stages/set_biomes_in_climates.yml:stages
+        #- << biome-distribution/stages/add_biome_color_variants.yml:stages
         
 
         # ========================================

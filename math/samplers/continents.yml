@@ -55,6 +55,16 @@ samplers:
           - upper
         expression: x >= lower && x <= upper
     samplers:
+      variable_width_noise_profile:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.001
+        salt: 9000
+      variable_width:
+        dimensions: 2
+        type: EXPRESSION
+        expression: width
+        variables: *continentBorderVariables
       continents: *continents
       continentsEdge:
         dimensions: 2

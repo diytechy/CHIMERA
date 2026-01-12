@@ -29,3 +29,5 @@ stages:
       _cold_canyon: FROZEN_MARSH
       _warm_canyon: SAVANNA
       land-sea-border: BARE_BOULDERFIELDS
+      vast-forest-coast: PALE_GARDEN_COAST
+      island-coast: COAST_MEDIUM_A

@@ -1,5 +1,6 @@
 stages:
-  - type: REPLACE
+#Create vast forest distributions
+  - type: REPLACE_LIST
     from: land
     sampler:
       dimensions: 2
@@ -12,10 +13,18 @@ stages:
         type: CELLULAR
         return: CellValue
         frequency: 1 /  ${customization.yml:biomeSpread.regionDistance}
-    to:
+    default-from: land
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    default-to:
       mesa: 1
       vast-forest: 1
-      SELF: 5
+      SELF: 9
+    to:
+      coast:
+        mesa: 1
+        vast-forest-coast: 1
+        SELF: 9
+#Add islands
   - type: REPLACE
     from: ocean
     sampler:
@@ -29,7 +38,15 @@ stages:
         type: CELLULAR
         return: CellValue
         frequency: 1 /  ${customization.yml:biomeSpread.islandDistance}
+        salt: 2001
     to:
       ocean: 30
       island: 1
       ocean: 30
+ #Create island coastlines
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: island
+    replace: ocean
+    to: island-coast

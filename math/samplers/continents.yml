@@ -29,8 +29,8 @@ samplers:
         sampler:
           type: RIDGED
           lacunarity: 3
-          gain: 0.45
-          octaves: 4
+          gain: 0.35
+          octaves: 3
           sampler:
             type: OPEN_SIMPLEX_2
             salt: 1

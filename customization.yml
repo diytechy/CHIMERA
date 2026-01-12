@@ -2,6 +2,10 @@ biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
   cellDistance: 350
+  
+  # Basic size of large region features (vast forests / mesas)
+  # Increase to make regions larger.
+  regionDistance: 1000
 
   # how far biome centers can vary away from their centers
   # Increase to make biome sizes vary more (scale 0-1)
@@ -86,7 +90,7 @@ terrain-ocean-depth: 100
 # 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
 # These options are primarily used in the math/samplers/continents.yml config file.
 
-continental-offset: 0.25
+continental-offset: 0
 # Controls the land / ocean ratio.
 # - A value of 0 results in equal land and ocean
 # - A value of 1 results in 100% land
@@ -111,17 +115,17 @@ continental-spread: 1
 #
 # Default: 1
 
-continental-scale: 1.5
+continental-scale: 2
 # Controls the scale of land / coastal / oceanic distribution. Increasing
 # this produces larger landmasses and larger oceans, and vice-versa when
 # decreasing it. This does not control the ratio of land / ocean, for that
 # you should change continental-offset instead.
 # Default: 2
 
-continental-coast-width: 20
+continental-coast-width: 60
 # Default: 30
 
-continental-coast-threshold: 0.05
+continental-coast-threshold: 0.07
 # Determines how far from a continental value of 0 is considered for calculating 
 # areas as coastal or not. This is more of a technical performance value and should only
 # need to be increased in small increments experimentally if you are trying to increase
@@ -376,17 +380,17 @@ spawn-island-radius-outer: 400
 # Spot biomes are special circular biomes scattered around the world.
 # Examples include volcanoes, prismatic springs, and crater lakes
 
-spot-spread: 2150
+spot-spread: 1500
 # Roughly how many blocks apart each spot biome will be
 # Default: 2220
 
-spot-radius-min: 75
+spot-radius-min: 50
 # Default: 50
 
 spot-radius-max: 150
 # Default: 150
 
-large-spot-spawn-radius-offset: 4000
+large-spot-spawn-radius-offset: 2000
 # Roughly how far large spots will generate away from spawn
 # Default: 2000
 
@@ -394,7 +398,7 @@ large-spot-spread: 4150
 # Roughly how many blocks apart each spot biome will be
 # Default: 2000
 
-large-spot-radius-min: 750
+large-spot-radius-min: 500
 # Default: 750
 
 large-spot-radius-max: 1500

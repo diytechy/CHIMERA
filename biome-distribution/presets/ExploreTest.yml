@@ -39,7 +39,7 @@ biomes:
         - << biome-distribution/stages/add_coast.yml:stages
         
         #Output: land / vast-forest / island / ocean.
-        # - << biome-distribution/stages/add_large_spots.yml:stages
+        - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
         
         # - << biome-distribution/stages/add_large_spot_coast_minimized.yml:stages
         

@@ -39,6 +39,11 @@ samplers:
   continentBorder:
     dimensions: 2
     type: EXPRESSION
+    #expression: |
+    #  if(inRange(continents(x, z), -variable_width(x, z), variable_width(x, z)),
+    #    if(continentsEdge((x-variable_width(x, z))/variable_width(x, z), (z-variable_width(x, z))/variable_width(x, z)) != 0, 1, -1),
+    #    -1
+    #  )
     expression: |
       if(inRange(continents(x, z), -threshold, threshold),
         if(continentsEdge((x-width)/width, (z-width)/width) != 0, 1, -1),

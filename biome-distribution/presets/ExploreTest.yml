@@ -62,6 +62,7 @@ biomes:
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far
         #Resolvable biomes
+        - << biome-distribution/stages/PopulateTestBiomes.yml:stages
         - << biome-distribution/stages/PopulateTestStage.yml:stages
         #*************************************
         

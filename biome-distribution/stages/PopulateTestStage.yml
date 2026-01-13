@@ -21,6 +21,11 @@ stages:
       p3: BAMBOO_JUNGLE
       p4: FROSTY_FINGERS
       p5: PRAIRIE
+      l1: VARIANT_C
+      l2: VARIANT_F
+      l3: VARIANT_G
+      l4: VARIANT_H
+      l5: FIRMIHIN_FOREST
       o1: DEEP_OCEAN
       o2: FROZEN_OCEAN
       o3: SHALLOW_CORAL_OCEAN

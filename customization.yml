@@ -1,11 +1,11 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 350
+  cellDistance: 200
   
   # Basic size of large region features (vast forests / mesas)
   # Increase to make regions larger.
-  regionDistance: 700
+  regionDistance: 900
   
   # Basic size of island region features
   # Increase to make regions larger.

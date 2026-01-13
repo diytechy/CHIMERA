@@ -11,7 +11,7 @@ In `.scripts/calculate_biome_percentages.py`, make the following updates:
 3. Table columns to create
    - `BiomeID`: the existing `id` field (unchanged).
    - `Extends`: the existing `extends` value (unchanged).
-   - `VanillaID`: populated from the biome's `vanilla:` entry if that value matches a "Vanilla ID" entry in `VanillaJavaBiomes.csv`; otherwise leave blank. If multiple matches occur, use the first match.
+   - `VanillaID`: populated from the biome's `vanilla:` entry if that value matches a "Vanilla ID" entry in `VanillaJavaBiomes.csv`; otherwise leave blank. If multiple matches occur, indicate as "Multiple"
    - `LAND_CAVES`, `SPECIAL_CAVES`, `CAVERNS_LAND`: each should be `True` (or `True` / blank) depending on whether the corresponding tag/property is present for the biome after merging `extends`.
    - `River`: set to one of `Desert`, `Cold`, or `General` based on flags (after merging `extends`):
        * `Desert` if `USE_DESERT_RIVER` is set

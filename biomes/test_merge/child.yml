@@ -1,0 +1,6 @@
+extends: PARENT_BIOME
+id: CHILD_BIOME
+tags:
+- USE_RIVER
+- SPECIAL_CAVES
+type: BIOME

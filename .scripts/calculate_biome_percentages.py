@@ -1180,6 +1180,15 @@ class BiomeMetadata:
         self.precipitation: Optional[float] = None  # 0-1 (driest to wettest)
         self.elevation: Optional[float] = None  # 0-1 (lowest to highest)
 
+        # New properties from biome files
+        self.vanilla_raw: Optional[str] = None  # raw 'vanilla' value from YAML (e.g., 'minecraft:jungle')
+        self.vanilla_match: str = ""  # Matched 'Vanilla ID' or 'Multiple' or blank
+        self.tags: List[str] = []  # merged tags from extends chain
+        self.land_caves: bool = False
+        self.special_caves: bool = False
+        self.caverns_land: bool = False
+        self.river: str = ""  # 'Desert' | 'Cold' | 'General' | ''
+
     def set_climate(self, context: ClimateContext):
         """Set climate attributes from a ClimateContext"""
         self.biome_type = context.origin_type
@@ -1200,8 +1209,20 @@ class BiomeMetadata:
 
     def to_csv_row(self, preset_names: List[str], include_extrusion: bool = True) -> List[str]:
         """Convert to CSV row format"""
+        # Include new columns: Extends, VanillaID, LAND_CAVES, SPECIAL_CAVES, CAVERNS_LAND, River
+        extends_str = self.extends if self.extends else ""
+        land_caves_str = "True" if self.land_caves else ""
+        special_caves_str = "True" if self.special_caves else ""
+        caverns_str = "True" if self.caverns_land else ""
+
         row = [
             self.biome_id,
+            extends_str,
+            self.vanilla_match or "",
+            land_caves_str,
+            special_caves_str,
+            caverns_str,
+            self.river or "",
             'extrusion' if self.is_extrusion else 'surface',
             self.origin or "",  # Origin column (derived from pipeline)
             self.biome_type or "",  # Type column (inferred from name)
@@ -1352,8 +1373,86 @@ class BiomeReader:
         return matching
 
     @classmethod
+    def reset_cache(cls):
+        """Reset internal caches (useful for tests)."""
+        cls._cache = None
+        cls._metadata_cache = {}
+        cls._valid_biomes = None
+        cls._biome_tags = {}
+        cls._tag_index = defaultdict(set)
+        cls._vanilla_map = None
+
+    @classmethod
+    def _load_vanilla_map(cls):
+        """Load mapping from Vanilla Java biomes CSV file: vanilla id -> list of matches."""
+        if getattr(cls, '_vanilla_map', None) is not None:
+            return
+        cls._vanilla_map = defaultdict(list)
+        try:
+            with open(Path('VanillaJavaBiomes.csv'), 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    vanilla_id = row.get('Vanilla ID') or row.get('VanillaID') or row.get('vanilla id')
+                    if vanilla_id:
+                        cls._vanilla_map[vanilla_id].append(row)
+        except Exception:
+            # If file not found or parse error, leave map empty
+            cls._vanilla_map = defaultdict(list)
+
+    @classmethod
+    def _match_vanilla(cls, vanilla_raw: Optional[str]) -> str:
+        """Return match string for vanilla_raw: exact match or 'Multiple' or ''."""
+        if not vanilla_raw:
+            return ""
+        cls._load_vanilla_map()
+        vanilla_key = vanilla_raw.split(':')[-1] if ':' in vanilla_raw else vanilla_raw
+        matches = cls._vanilla_map.get(vanilla_key, [])
+        if len(matches) == 0:
+            return ""
+        if len(matches) == 1:
+            return vanilla_key
+        return "Multiple"
+
+    @classmethod
+    def _merge_extends(cls, biome_id: str, metadata: BiomeMetadata, visited: Optional[Set[str]] = None):
+        """Merge properties from parent biomes transitively. Child takes precedence."""
+        if visited is None:
+            visited = set()
+        if biome_id in visited:
+            return
+        visited.add(biome_id)
+
+        # Normalize extends into list
+        extends_field = metadata.extends
+        if not extends_field:
+            return
+        parent_ids = []
+        if isinstance(extends_field, list):
+            parent_ids = extends_field
+        elif isinstance(extends_field, str):
+            parent_ids = [extends_field]
+
+        for parent_id in parent_ids:
+            parent_meta = cls.read_biome_metadata(parent_id)
+            # Recurse first to gather parent's inherited properties
+            cls._merge_extends(parent_id, parent_meta, visited)
+
+            # Merge tags (union) - child's tags should override but presence is additive
+            parent_tags = getattr(parent_meta, 'tags', [])
+            combined_tags = list(dict.fromkeys((parent_tags or []) + (metadata.tags or [])))
+            metadata.tags = combined_tags
+
+            # Merge vanilla_raw if child doesn't have it
+            if not metadata.vanilla_raw and parent_meta.vanilla_raw:
+                metadata.vanilla_raw = parent_meta.vanilla_raw
+
+            # Merge color if missing
+            if not metadata.color and parent_meta.color:
+                metadata.color = parent_meta.color
+
+    @classmethod
     def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:
-        """Read metadata for a biome"""
+        """Read metadata for a biome and merge properties from parents"""
         # Check metadata cache first
         if biome_id in cls._metadata_cache:
             return cls._metadata_cache[biome_id]
@@ -1370,8 +1469,34 @@ class BiomeReader:
                 data = yaml.safe_load(f)
                 metadata.extends = data.get('extends')
                 metadata.color = data.get('color')
+                # Raw vanilla value
+                metadata.vanilla_raw = data.get('vanilla')
+                # Start with tags found on this file
+                metadata.tags = cls.get_biome_tags(biome_id)
         except Exception as e:
             print(f"Warning: Could not read metadata for {biome_id}: {e}", file=sys.stderr)
+
+        # Merge transitive properties from parents
+        cls._merge_extends(biome_id, metadata)
+
+        # After merge, set boolean flags from tags
+        tags_set = set([t for t in (metadata.tags or [])])
+        metadata.land_caves = 'LAND_CAVES' in tags_set
+        metadata.special_caves = 'SPECIAL_CAVES' in tags_set
+        metadata.caverns_land = 'CAVERNS_LAND' in tags_set
+
+        # River precedence: Desert > Cold > General
+        if 'USE_DESERT_RIVER' in tags_set:
+            metadata.river = 'Desert'
+        elif 'USE_COLD_RIVER' in tags_set:
+            metadata.river = 'Cold'
+        elif 'USE_RIVER' in tags_set:
+            metadata.river = 'General'
+        else:
+            metadata.river = ''
+
+        # Resolve VanillaID match
+        metadata.vanilla_match = cls._match_vanilla(metadata.vanilla_raw)
 
         cls._metadata_cache[biome_id] = metadata
         return metadata
@@ -1713,8 +1838,11 @@ def generate_csv_output(
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row with origin and climate columns
-        header = ['BiomeID', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'] + preset_names
+        # Header row - include new biome-derived columns before the existing ones
+        header = [
+            'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River',
+            'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'
+        ] + preset_names
         writer.writerow(header)
 
         # Data rows
@@ -1723,7 +1851,28 @@ def generate_csv_output(
             row = metadata.to_csv_row(preset_names)
             writer.writerow(row)
 
-    print(f"CSV written successfully: {output_path}")
+    print(f"CSV written successfully: {output_path}")    
+    # If a SuggestedImprovements.md exists in project root or .scripts, copy it to artifacts
+    suggested_candidates = [Path('SuggestedImprovements.md'), Path('.scripts/SuggestedImprovements.md')]
+    for cand in suggested_candidates:
+        if cand.exists():
+            try:
+                dest = Path('.artifacts') / 'SuggestedImprovements.md'
+                with open(cand, 'r', encoding='utf-8') as srcf, open(dest, 'w', encoding='utf-8') as dstf:
+                    dstf.write(srcf.read())
+                print(f"Copied {cand} -> {dest}")
+                break
+            except Exception as e:
+                print(f"Warning: Could not copy SuggestedImprovements.md: {e}", file=sys.stderr)
+    else:
+        # Create an initial placeholder file in artifacts if none found
+        try:
+            dest = Path('.artifacts') / 'SuggestedImprovements.md'
+            with open(dest, 'w', encoding='utf-8') as f:
+                f.write("# Suggested Improvements\n\nNo suggested improvements generated.\n")
+            print(f"Created placeholder {dest}")
+        except Exception as e:
+            print(f"Warning: Could not create placeholder SuggestedImprovements.md: {e}", file=sys.stderr)
     print(f"  Valid biomes: {len(valid_biomes)}")
     print(f"  Surface biomes: {len(surface_biomes)}")
     print(f"  Extrusion-only biomes: {len(extrusion_only_biomes)}")
@@ -1761,11 +1910,18 @@ def get_default_preset_from_pack() -> str:
 def main():
     """Main entry point"""
     preset_dir = Path("biome-distribution/presets")
-    output_file = Path(".scripts/BiomeTable.csv")
+    artifacts_dir = Path(".artifacts")
+    output_file = artifacts_dir / "BiomeTable.csv"
 
     if not preset_dir.exists():
         print(f"Error: Preset directory not found: {preset_dir}", file=sys.stderr)
         sys.exit(1)
+
+    # Ensure artifacts directory exists
+    try:
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"Warning: Could not create artifacts directory {artifacts_dir}: {e}", file=sys.stderr)
 
     print("Terra Biome Percentage Calculator")
     print("=" * 70)

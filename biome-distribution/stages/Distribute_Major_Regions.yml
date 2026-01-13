@@ -18,12 +18,12 @@ stages:
     default-to:
       mesa: 1
       vast-forest: 1
-      SELF: 9
+      SELF: 6
     to:
       coast:
         mesa: 1
         vast-forest-coast: 1
-        SELF: 9
+        SELF: 6
 #Add islands
   - type: REPLACE_LIST
     default-from: ocean

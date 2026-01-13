@@ -94,7 +94,7 @@ terrain-ocean-depth: 100
 # 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
 # These options are primarily used in the math/samplers/continents.yml config file.
 
-continental-offset: 0
+continental-offset: 0.1
 # Controls the land / ocean ratio.
 # - A value of 0 results in equal land and ocean
 # - A value of 1 results in 100% land
@@ -126,7 +126,7 @@ continental-scale: 2
 # you should change continental-offset instead.
 # Default: 2
 
-continental-coast-width: 80
+continental-coast-width: 55
 # Default: 30
 
 continental-coast-threshold: 0.07

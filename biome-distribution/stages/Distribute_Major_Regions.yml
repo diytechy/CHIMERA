@@ -30,7 +30,7 @@ stages:
     sampler:
       dimensions: 2
       type: DOMAIN_WARP
-      amplitude: 60 
+      amplitude: 100 
       warp:
         type: OPEN_SIMPLEX_2
         frequency: 0.002
@@ -39,10 +39,14 @@ stages:
         return: CellValue
         frequency: 1 /  ${customization.yml:biomeSpread.islandDistance}
         salt: 2001
+        jitter: 1.2
+        distance: Hybrid
     to:
-      ocean: 30
-      island: 1
-      ocean: 30
+      o1: 1
+      o2: 1
+      o3: 1
+      o4: 1
+      o5: 1
  #Create island coastlines
   - type: BORDER
     sampler:

@@ -126,7 +126,7 @@ continental-scale: 2
 # you should change continental-offset instead.
 # Default: 2
 
-continental-coast-width: 60
+continental-coast-width: 80
 # Default: 30
 
 continental-coast-threshold: 0.07

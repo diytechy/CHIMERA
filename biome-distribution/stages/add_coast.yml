@@ -92,15 +92,15 @@ stages:
     from: o5
     to: ocean
 #Break apart ocean, temporary for coast variation.
-  - type: REPLACE
-    sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.001
-      salt: 9000
-    from: ocean
-    to:
-      ocean: 1
-      o2: 3
-      o3: 5
-      o4: 3
-      o5: 1
+#  - type: REPLACE
+#    sampler:
+#      type: OPEN_SIMPLEX_2
+#      frequency: 0.001
+#      salt: 9000
+#    from: ocean
+#    to:
+#      ocean: 1
+#      o2: 3
+#      o3: 5
+#      o4: 3
+#      o5: 1

@@ -16,7 +16,7 @@ biomes:
       amplitude: 6
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.012
+        frequency: 0.02
     pipeline:
       source:
         type: SAMPLER

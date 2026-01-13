@@ -17,10 +17,17 @@ stages:
       - crater-lake: 5
       - live-volcano: 4
       - PRISMATIC_SPRING: 1
-      - mesa: 9
+      - mesa: 2
     sampler:
-      type: EXPRESSION
-      expression: spotSizePercent(x, z)*2-1
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 20 
+      warp:
+        type: SIMPLEX
+        frequency: 0.02
+      sampler:
+        type: EXPRESSION
+        expression: spotSizePercent(x, z)*2-1
 
   - type: BORDER
     from: live-volcano

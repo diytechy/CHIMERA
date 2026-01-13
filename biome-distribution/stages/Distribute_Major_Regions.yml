@@ -25,8 +25,8 @@ stages:
         vast-forest-coast: 1
         SELF: 9
 #Add islands
-  - type: REPLACE
-    from: ocean
+  - type: REPLACE_LIST
+    default-from: ocean
     sampler:
       dimensions: 2
       type: DOMAIN_WARP
@@ -55,12 +55,18 @@ stages:
             salt: 2001
             jitter: 1.2
             distance: Hybrid
+            # Ratios for default-to and to must be maintained for proper land merging with island intersections with coasts.
+    default-to: 
+      island-land: &LandMassDist 3
+      island:      &SpecIslandDist 1
+      mesa:        &MesaMassDist 1
+      ocean:       &NoChangeDist 150
     to:
-      o1: 1
-      o2: 1
-      o3: 1
-      o4: 1
-      o5: 1
+      coast:
+        land:    *LandMassDist
+        coast:   *SpecIslandDist
+        mesa:    *MesaMassDist
+        coast:   *NoChangeDist
  #Create island coastlines
   - type: BORDER
     sampler:
@@ -68,3 +74,15 @@ stages:
     from: island
     replace: ocean
     to: island-coast
+  - type: BORDER
+    sampler:
+      type: CONSTANT
+    from: island-land
+    replace: ocean
+    to: island-coast
+  - type: REPLACE
+    from: island-land
+    sampler:
+      type: CONSTANT
+    to: land
+      

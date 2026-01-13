@@ -9,7 +9,7 @@ biomeSpread:
   
   # Basic size of island region features
   # Increase to make regions larger.
-  islandDistance: 600
+  islandDistance: 400
 
   # how far biome centers can vary away from their centers
   # Increase to make biome sizes vary more (scale 0-1)

@@ -191,6 +191,19 @@ biomes:
               - hot-island: *tropicalCold
               - hot-island: *tropicalWarm
               - hot-island: *tropicalHot
+            island-coast:
+              - polar-island-coast: *iceCap
+              - polar-island-coast: *tundra
+              - boreal-island-coast: *borealSnowy
+              - boreal-island-coast: *borealCold
+              - boreal-island-coast: *borealWarm
+              - boreal-island-coast: *borealHot
+              - temperate-island-coast: *temperateCold
+              - temperate-island-coast: *temperateWarm
+              - temperate-island-coast: *temperateHot
+              - hot-island-coast: *tropicalCold
+              - hot-island-coast: *tropicalWarm
+              - hot-island-coast: *tropicalHot
             vast-forest:
               - polar-vast-forest: *iceCap
               - polar-vast-forest: *tundra

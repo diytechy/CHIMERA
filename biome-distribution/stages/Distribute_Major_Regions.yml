@@ -68,21 +68,40 @@ stages:
         mesa:    *MesaMassDist
         coast:   *NoChangeDist
  #Create island coastlines
+ #Note this is pushes coastline into oceans to ensure consistency within the island funciton if it is ever used in the future (so that island / island coast share the same cellular container)
   - type: BORDER
     sampler:
       type: CONSTANT
-    from: island
-    replace: ocean
+    from: ocean
+    replace: island
     to: island-coast
   - type: BORDER
     sampler:
       type: CONSTANT
     from: island-land
     replace: ocean
-    to: island-coast
+    to: island-land-coast
+#Placeholder to add island shelf surrounding island coast, to create more unique shelf components supporting island.
+#  - type: BORDER
+#    sampler:
+#      type: CONSTANT
+#    from: island-coast
+#    replace: ocean
+#    to: island-shelf
+#  - type: BORDER
+#    sampler:
+#      type: CONSTANT
+#    from: island-land-coast
+#    replace: ocean
+#    to: island-shelf
+#Now replace island-land back to land so it generates standard biomes.
   - type: REPLACE
     from: island-land
     sampler:
       type: CONSTANT
     to: land
-      
+  - type: REPLACE
+    from: island-land-coast
+    sampler:
+      type: CONSTANT
+    to: coast

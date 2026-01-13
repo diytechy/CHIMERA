@@ -87,16 +87,29 @@ stages:
       island:
         - polar-island: *iceCap
         - polar-island: *tundra
-        - boreal-island: *borealSnowy
-        - boreal-island: *borealCold
-        - boreal-island: *borealWarm
-        - boreal-island: *borealHot
-        - temperate-island: *temperateCold
-        - temperate-island: *temperateWarm
-        - temperate-island: *temperateHot
-        - hot-island: *tropicalCold
-        - hot-island: *tropicalWarm
-        - hot-island: *tropicalHot
+        - polar-island: *borealSnowy
+        - island: *borealCold
+        - island: *borealWarm
+        - island: *borealHot
+        - island: *temperateCold
+        - island: *temperateWarm
+        - island: *temperateHot
+        - tropical-island: *tropicalCold
+        - tropical-island: *tropicalWarm
+        - tropical-island: *tropicalHot
+      island-coast:
+        - polar-island-coast: *iceCap
+        - polar-island-coast: *tundra
+        - polar-island-coast: *borealSnowy
+        - island-coast: *borealCold
+        - island-coast: *borealWarm
+        - island-coast: *borealHot
+        - island-coast: *temperateCold
+        - island-coast: *temperateWarm
+        - island-coast: *temperateHot
+        - tropical-island-coast: *tropicalCold
+        - tropical-island-coast: *tropicalWarm
+        - tropical-island-coast: *tropicalHot
       vast-forest:
         - polar-vast-forest: *iceCap
         - polar-vast-forest: *tundra
@@ -110,3 +123,16 @@ stages:
         - tropical-vast-forest: *tropicalCold
         - tropical-vast-forest: *tropicalWarm
         - tropical-vast-forest: *tropicalHot
+      vast-forest-coast:
+        - polar-island-coast: *iceCap
+        - polar-island-coast: *tundra
+        - polar-island-coast: *borealSnowy
+        - island-coast: *borealCold
+        - island-coast: *borealWarm
+        - island-coast: *borealHot
+        - island-coast: *temperateCold
+        - island-coast: *temperateWarm
+        - island-coast: *temperateHot
+        - tropical-island-coast: *tropicalCold
+        - tropical-island-coast: *tropicalWarm
+        - tropical-island-coast: *tropicalHot

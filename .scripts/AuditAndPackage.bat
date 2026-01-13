@@ -164,8 +164,12 @@ echo ============================================
 echo.
 echo Outputs:
 if exist ".artifacts\%PACK_ID%.zip" echo   - .artifacts\%PACK_ID%.zip
-if exist ".scripts\BiomeTable.csv" echo   - .scripts\BiomeTable.csv
-if exist "SuggestedImprovements.md" echo   - SuggestedImprovements.md
+if exist ".artifacts\BiomeTable.csv" echo   - .artifacts\BiomeTable.csv
+if exist ".artifacts\SuggestedImprovements.md" (
+    echo   - .artifacts\SuggestedImprovements.md
+) else (
+    if exist "SuggestedImprovements.md" echo   - SuggestedImprovements.md
+)
 echo.
 
 exit /b 0

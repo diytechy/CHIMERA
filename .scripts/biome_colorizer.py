@@ -1,10 +1,10 @@
 """Biome colorizer
 
-Reads .scripts/BiomeTable.csv and generates biomes/colors.generated.yml using
+Reads .artifacts/BiomeTable.csv and generates biomes/colors.generated.yml using
 an approximate Munsell-like H/C/V mapping with deterministic jitter.
 
 Usage:
-  python .scripts/biome_colorizer.py --input .scripts/BiomeTable.csv --output biomes/colors.generated.yml --seed 42 --overwrite
+  python .scripts/biome_colorizer.py --input .artifacts/BiomeTable.csv --output biomes/colors.generated.yml --seed 42 --overwrite
 
 Dependencies: only standard library (csv, yaml not required; we'll write simple YAML text)
 """
@@ -347,7 +347,7 @@ def write_yaml(mapping: dict, out_path: str):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--input', default='.scripts/BiomeTable.csv')
+    p.add_argument('--input', default='.artifacts/BiomeTable.csv')
     p.add_argument('--output', default='biomes/colors.generated.yml')
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--overwrite', action='store_true')

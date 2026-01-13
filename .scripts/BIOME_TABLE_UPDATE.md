@@ -72,9 +72,11 @@ Valid biomes found in files: 329
 Biomes found in distributions: 205
 Total biomes to include in table: 329
 
-CSV written successfully: .scripts\BiomeTable.csv
+CSV written successfully: .artifacts\BiomeTable.csv
   Valid biomes: 329
   Unresolved intermediates: 0
+
+Note: The generated CSV now includes additional biome-derived columns: `Extends`, `VanillaID`, `LAND_CAVES`, `SPECIAL_CAVES`, `CAVERNS_LAND`, and `River`. These are derived by merging properties from `extends:` parents and interpreting tags present on biome files.
 ```
 
 ### Table Contents
@@ -153,5 +155,5 @@ Possible enhancements for future versions:
 
 **Related Files**:
 - `.scripts/calculate_biome_percentages.py` - Updated script
-- `.scripts/BiomeTable.csv` - Generated table (329 biomes)
+- `.artifacts/BiomeTable.csv` - Generated table (329 biomes) (now includes Extends, VanillaID, land-cave flags, and River type)
 - `.scripts/ABSTRACT_BIOMES.md` - Documentation on abstract biomes

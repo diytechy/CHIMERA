@@ -158,7 +158,7 @@ See **CLIMATE_SYSTEM_DOCUMENTATION.md** for detailed explanation of:
 bash .scripts/generate-biome-table.sh
 
 # Output location
-.scripts/BiomeTable.csv
+.artifacts/BiomeTable.csv
 ```
 
 ## Notes

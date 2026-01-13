@@ -12,8 +12,8 @@ This directory contains build, validation, and utility scripts for the Terra con
 
 This will:
 1. Create the package zip → `.artifacts/ORIGEN.zip`
-2. Generate biome distribution table → `.scripts/BiomeTable.csv`
-3. Audit configurations → `SuggestedImprovements.md`
+2. Generate biome distribution table → `.artifacts/BiomeTable.csv`
+3. Audit configurations → `.artifacts/SuggestedImprovements.md` (or `SuggestedImprovements.md` in repo root if audits are run manually)
 
 ## Main Scripts
 
@@ -84,12 +84,12 @@ This will:
 
 ## Biome colorizer
 
-A small utility to generate `biomes/colors.generated.yml` from `.scripts/BiomeTable.csv` using an approximate Munsell-like H/C/V mapping.
+A small utility to generate `biomes/colors.generated.yml` from `.artifacts/BiomeTable.csv` using an approximate Munsell-like H/C/V mapping.
 
 Run:
 
 ```batch
-python .scripts\biome_colorizer.py --input .scripts/BiomeTable.csv --output biomes/colors.generated.yml --seed 42
+python .scripts\biome_colorizer.py --input .artifacts/BiomeTable.csv --output biomes/colors.generated.yml --seed 42
 ```
 
 Notes:

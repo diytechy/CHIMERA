@@ -6,7 +6,7 @@ Checks for:
 - Same number of entries as the BiomeTable
 
 Usage:
-  python .scripts/validate_generated_colors.py --colors biomes/colors.generated.yml --biometable .scripts/BiomeTable.csv
+  python .scripts/validate_generated_colors.py --colors biomes/colors.generated.yml --biometable .artifacts/BiomeTable.csv
 """
 from __future__ import annotations
 import argparse
@@ -41,7 +41,7 @@ def count_biomes(path: str) -> int:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--colors', default='biomes/colors.generated.yml')
-    p.add_argument('--biometable', default='.scripts/BiomeTable.csv')
+    p.add_argument('--biometable', default='.artifacts/BiomeTable.csv')
     args = p.parse_args()
 
     colors = read_colors(args.colors)

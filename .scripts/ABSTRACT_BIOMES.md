@@ -228,4 +228,4 @@ To verify abstract biomes are never used in world generation:
 **Related Files**:
 - `biomes/abstract/` - All abstract biome templates
 - `.scripts/calculate_biome_percentages.py` - Biome distribution calculator (ignores abstract biomes)
-- `.scripts/BiomeTable.csv` - Generated biome distribution table
+- `.artifacts/BiomeTable.csv` - Generated biome distribution table

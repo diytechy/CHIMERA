@@ -27,7 +27,7 @@ The core "build" for this repository is intended to be a batch script ".scripts/
 
 - `.scripts/AuditAndPackage.bat`: The main build script for Windows environment. The script performs three key steps:
   1. **Make the package** - Creates `.artifacts/ORIGEN2.zip` (via pack.sh or PowerShell fallback)
-  2. **Create the biome table** - Generates `BiomeTable.csv` with distribution percentages (via `calculate_biome_percentages.py`)
+  2. **Create the biome table** - Generates `.artifacts/BiomeTable.csv` with distribution percentages (via `.scripts/calculate_biome_percentages.py`). The script also copies or creates `SuggestedImprovements.md` in `.artifacts/`.
   3. **Audit the yml files** - YAML linting and validation (via check-biomes.sh if WSL available)
 
 The batch file intelligently adapts to available tools:
@@ -43,7 +43,7 @@ See `.scripts/WORKFLOW_DOCUMENTATION.md` for complete details.
 
 - `.scripts/check-biomes.sh`: Bash script that validates YAML syntax and checks color key consistency across biome files. Generates `SuggestedImprovements.md`.
 
-- `.scripts/BiomeTable.csv`: A comprehensive table listing all biomes and their distribution across presets.
+- `.artifacts/BiomeTable.csv`: A comprehensive table listing all biomes and their distribution across presets. Includes new columns derived from biome files: `Extends`, `VanillaID`, `LAND_CAVES`, `SPECIAL_CAVES`, `CAVERNS_LAND`, and `River`.
 
 **Table Structure**:
 

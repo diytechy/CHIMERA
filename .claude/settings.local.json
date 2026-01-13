@@ -5,8 +5,8 @@
       "Bash(wsl bash -c \"grep -i ''tropical-rainforest'' biome-distribution/stages/climate/precipitation.yml | head -5\")",
       "Bash(wsl bash -c \"grep -i ''tundra'' biome-distribution/stages/climate/elevation.yml | head -5\")",
       "Bash(wsl bash -c 'search_id=\"\"tropical-rainforest\"\"; grep -qi \"\"$search_id\"\" biome-distribution/stages/climate/precipitation.yml && echo Y || echo N')",
-      "Bash(wsl bash -c 'grep -E \"\"\\(tropical-rainforest|tropical-monsoon|hot-desert|tundra\\)\"\" \"\".scripts/BiomeTable.csv\"\" | head -10')",
-      "Bash(wsl bash -c 'grep \"\"TROPICAL_RAINFOREST\"\" \"\".scripts/BiomeTable.csv\"\"')",
+      "Bash(wsl bash -c 'grep -E ""\\(tropical-rainforest|tropical-monsoon|hot-desert|tundra\\)"" "".artifacts/BiomeTable.csv"" | head -10')",
+      "Bash(wsl bash -c 'grep ""TROPICAL_RAINFOREST"" "".artifacts/BiomeTable.csv""')",
       "Bash(wsl bash -c \"cd ''/mnt/c/Projects/terra-origen'' && bash .scripts/pack.sh\")",
       "Bash(wsl bash -c \"which zip || apt list --installed 2>/dev/null | grep zip || echo ''zip not found''\")",
       "Bash(wsl bash:*)",
@@ -18,7 +18,7 @@
       "Bash(python:*)",
       "Bash(Select-Object -Last 100)",
       "Bash(powershell.exe -Command \"cd C:\\\\Projects\\\\terra-origen; python .scripts\\\\calculate_biome_percentages.py 2>&1 | Select-Object -Last 100\")",
-      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv | Select-String ''UNLINKED|_desert|_canyon|^land,|^ocean,'' | Select-Object -First 30\")",
+      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.artifacts\\\\BiomeTable.csv | Select-String ''UNLINKED|_desert|_canyon|^land,|^ocean,'' | Select-Object -First 30\")","
       "Bash(powershell.exe -Command \"cd C:\\\\Projects\\\\terra-origen; python .scripts\\\\calculate_biome_percentages.py 2>&1 | Select-String -Pattern ''Error|Traceback|Exception'' -Context 2,2\")",
       "Bash(powershell.exe -Command \"cd C:\\\\Projects\\\\terra-origen; python .scripts\\\\calculate_biome_percentages.py 2>&1; Write-Host ''Exit code:'' $LASTEXITCODE\")",
       "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv | Select-String -Pattern ''UNLINKED_desert|^DESERT,''\")",
@@ -26,8 +26,8 @@
       "Bash(powershell.exe -Command \"Get-Content ''C:\\\\Projects\\\\terra-origen\\\\biome-distribution\\\\stages\\\\special\\\\border_biomes.yml'' | Select-String ''edgeThreshold''\")",
       "Bash(powershell.exe -Command \"Get-Content ''C:\\\\Projects\\\\terra-origen\\\\customization.yml'' | Select-String -Pattern ''edgeThreshold|borderBiomes'' -Context 2,2\")",
       "Bash(powershell.exe -Command \"cd C:\\\\Projects\\\\terra-origen; python .scripts\\\\calculate_biome_percentages.py 2>&1 | Select-Object -Last 50\")",
-      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv | Select-String -Pattern ''UNLINKED|^_'' | Measure-Object\")",
-      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv | Select-String -Pattern ''^DESERT,|^OASIS,''\")",
+      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.artifacts\\\\BiomeTable.csv | Select-String -Pattern ''UNLINKED|^_'' | Measure-Object\")","
+      "Bash(powershell.exe -Command \"Get-Content C:\\\\Projects\\\\terra-origen\\\\.artifacts\\\\BiomeTable.csv | Select-String -Pattern ''^DESERT,|^OASIS,''\")","
       "Bash(powershell.exe -Command \"\\(Get-Content C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv | Select-String -Pattern ''^OASIS,''\\).Line\")",
       "Bash(powershell.exe -Command \"cd C:\\\\Projects\\\\terra-origen; python .scripts\\\\calculate_biome_percentages.py 2>&1 | Select-String -Pattern ''rearth:|DESERT|OASIS'' -Context 0,1 | Select-Object -First 30\")",
       "Bash(powershell.exe -Command \"$csv = Import-Csv C:\\\\Projects\\\\terra-origen\\\\.scripts\\\\BiomeTable.csv; $csv | Where-Object { $_''rearth'' -ne ''0.0000%'' } | Select-Object BiomeID,rearth | ForEach-Object { if \\($_BiomeID -match ''DESERT'' -or $_BiomeID -match ''OASIS''\\) { $_} }\")",

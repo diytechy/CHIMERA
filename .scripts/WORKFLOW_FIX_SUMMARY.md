@@ -76,7 +76,7 @@ This executes:
 1. **Package Creation** → `.artifacts/ORIGEN.zip`
    - Via pack.sh (WSL) OR PowerShell (fallback)
 
-2. **BiomeTable Generation** → `.scripts/BiomeTable.csv`
+2. **BiomeTable Generation** → `.artifacts/BiomeTable.csv`
    - Via `calculate_biome_percentages.py` (Python, **required**)
 
 3. **YAML Validation** → `SuggestedImprovements.md`
@@ -95,7 +95,7 @@ python .scripts/calculate_biome_percentages.py
 Building biome file cache from biomes...
 Cached 438 biome files (329 valid, 109 abstract)
 ...
-CSV written successfully: .scripts\BiomeTable.csv
+CSV written successfully: .artifacts\BiomeTable.csv
   Valid biomes: 329
   Unresolved intermediates: 4
 ```

@@ -75,8 +75,10 @@ biomes:
         
         - << biome-distribution/stages/climate/color.yml:stages
         - << biome-distribution/stages/add_travertine_terraces.yml:stages
-        - << biome-distribution/stages/set_biomes_in_climates.yml:stages
+        - << biome-distribution/stages/set_biomes_in_climates_origen.yml:stages
         - << biome-distribution/stages/add_biome_color_variants.yml:stages
+        
+        - << biome-distribution/stages/special/border_biomes.yml:stages
         
 
         # ========================================

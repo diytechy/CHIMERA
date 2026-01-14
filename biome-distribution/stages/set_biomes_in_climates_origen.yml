@@ -1,10 +1,34 @@
 stages:
   - type: REPLACE_LIST
     sampler:
-      type: CELLULAR
-      return: CellValue
-      frequency: 1 / 1000 / ${customization.yml:variation-scale} / ${customization.yml:global-scale}
-    
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 20 
+      warp:
+        type: SIMPLEX
+        frequency: 0.02
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 60 
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.003
+        sampler:
+          dimensions: 2
+          type: DOMAIN_WARP
+          amplitude: 300 
+          warp:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.0001
+          sampler:
+            type: CELLULAR
+            return: CellValue
+            frequency: 1 /  (${customization.yml:biomeSpread.cellDistance} * ${customization.yml:variation-scale})
+            salt: 2001
+            jitter: 1.2
+            distance: Hybrid
+            salt: 7777
     default-from: ice-cap-flat
     default-to:
       - ICE_SPIKES: 1
@@ -638,9 +662,13 @@ stages:
       temperate-vast-forest-coast:
         - PALE_GARDEN_COAST: 1
       tropical-vast-forest:
-        - arid-pale-garden: 1
+      - ARID_PALE_GARDEN: 1
+      - ORANGE_ARID_PALE_GARDEN: 1
+      - RED_ARID_PALE_GARDEN: 1
       tropical-vast-forest-coast:
-        - arid-pale-garden-coast: 1
+      - ARID_PALE_GARDEN_COAST: 1
+      - ORANGE_ARID_PALE_GARDEN_COAST: 1
+      - RED_ARID_PALE_GARDEN_COAST: 1
 
 
       island-polar-shallow-ocean:
@@ -657,14 +685,17 @@ stages:
 
       volcano-coast:
         - BLACK_SAND_BEACH: 1
+        
+        
+        
   - type: REPLACE_LIST
     sampler:
       type: CONSTANT
-    default-from: vast-forest-coast
-    default-to:
-      - mushroom: 1
+    default-from: mushroom
+    default-to: MUSHROOM_FIELDS
     to:
-      polar-vast-forest-coast:
-        - mushroom-coast: 1
-      tropical-vast-forest-coast:
-        - mushroom-coast: 1
+      mushroom-coast: MUSHROOM_COAST
+      polar-mushroom: POLAR_MUSHROOM_FIELDS
+      polar-mushroom-coast: POLAR_MUSHROOM_COAST
+      tropical-mushroom: TROPICAL_MUSHROOM_FIELDS
+      tropical-mushroom-coast: TROPICAL_MUSHROOM_COAST

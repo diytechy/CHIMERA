@@ -44,17 +44,15 @@ In the rearth preset, there are some special biomes that are distributed as a pa
 
 
 
-Make a list off all file differences (or a script that can create a list) between C:\Projects\Hydraxia2 and C:\Projects\ORIGEN2 noting the projects often contain the similar files but in different directories.
-Only check duplicates or moves between the root folders:
-Compare the following folders between the two projects:
-- biome-distribution
-- biomes
-- features
-- palettes
-- structures
-
-The differences should be listed as a csv with the following column details, header names can be derived from these descriptions:
+Make a script (preferably powershell) can compare two folders (Folder A (Source) and Folder B (Destination)).  For each common folder between those folders, compare all content including files in subfolders and determine the following:
  1. The file name that is being checked
- 2. The state of the file when compared to ORIGEN2 (EXACT MATCH {Both path and file match} / FILE MOVED {File name matches exactly, content matches, and in corresponding root folder of ORIGEN2, but the subfolder locations differ} / FILE DIFFERENT {File name exists in the same folder from root, but the content does not match} / FILE MISSING {File does not exist in ORIGEN2})
-3. The relative path from root of the folder to the file in question.
-3. The relative path from compare root (ORIGEN2) to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
+ 2. The relative path from root of Folder A to the file in question.  Ex: If the file is "Folder B\Houses\Birds\FileK.abc", the relative path would be "Houses\Birds"
+ 2. The state of the file when compared to the destination:
+  - MULTIPLE: The file exists more than once in Folder A or more than once in Folder B, so a comparison cannot be performed reliably.
+  - EXACT MATCH: Both path and file match in Folder B
+  - FILE MOVED: Content matches, but the subfolder location in Folder B is different.
+  - FILE DIFFERENT: File name exists in Folder B, but the content does not match
+  - FILE MISSING: The file name does not exist in Folder B.
+3. The relative path from Folder B to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
+
+If the Folder A path is not provided, assume it is "C:\Projects\Hydraxia2", if the folder B path is not provided, assume it is "C:\Projects\ORIGEN2"

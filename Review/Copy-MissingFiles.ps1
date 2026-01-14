@@ -1,8 +1,13 @@
 param(
     [string]$CsvPath = ".\hydraxia_vs_origen2.csv",
-    [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution")
+    [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution"),
+    [hashtable]$ReplaceTable = @{
+        "features/ores/distribution.yml" = "features/geological/deposits/distribution_hydraxia.yml"
+        "technical_crap/" = ""
+        "BASE" = "BASE_HYDRAXIA"
+    }
 )
-$copyLim = 32
+$copyLim = 10
 $data = Import-Csv -Path $CsvPath | ForEach-Object {
     $topFolder = ($_.RelativePathA -split '\\')[0]
     $priority = $PriorityFolders.IndexOf($topFolder)
@@ -23,6 +28,13 @@ foreach ($row in $sorted) {
         }
         
         Copy-Item -Path $source -Destination $dest -Force
+        
+        $content = Get-Content -Path $dest -Raw
+        foreach ($key in $ReplaceTable.Keys) {
+            $content = $content -creplace [regex]::Escape($key), $ReplaceTable[$key]
+        }
+        Set-Content -Path $dest -Value $content -NoNewline
+        
         Write-Host "Copied: $($row.FileName) -> $($row.RelativePathA)"
         
         $copied++

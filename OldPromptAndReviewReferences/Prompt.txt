@@ -5,79 +5,105 @@ I want to create a table that maps variables between yml files that configure wo
 I would like to generate this using a powershell script, but python can also be considered.
 
 Input:
+
 A folder path to a Terra project.
 
 Output:
+
 A csv file with the following information:
 
 BiomeID, Extends, Color, the climate it's assigned to.
 
 Each row would correspond to a biome file (stored in the folder "biomes").
-A valid biome file can be verified by seeing the "type: BIOME" key value pair.
+
+A valid biome file can be verified by seeing the "type: BIOME" key-value pair.
+
 BiomeID would be found from the ID key in the biome file.
-Extends would be found from the "extends" key in the biomme file.
+
+Extends would be found from the "extends" key in the biome file.
+
 Color would be found from the "color" key in the biome file.
+
 The climate would be 
 
+1. Add any ocean biomes (set in oceans.yml) that are not currently set in set_biomes_in_climates.yml to set_biomes_in_climates.yml. Attempt to add them to the group they would be associated with based on the name and climate semantics.  Ex: ARCTIC_ARCHES likely should be placed where the ocean is shallow and cold (polar-shallow-ocean), ICEBERG_OCEAN should likely be set where the ocean is deep and cold (polar-deep-ocean and boreal-ocean), STONEGATE_SEAS should be placed where the ocean is shallow, regardless of temperature.
 
-1. Add any ocean biomes (set in oceans.yml) that are not currently set in set_biomes_in_climates.yml to set_biomes_in_climates.yml. Attempt to add them to the group they would be associated with based on the name and climate simantics.  Ex: ARCTIC_ARCHES likely should be placed where the ocean is shallow and cold (polar-shallow-ocean), ICEBERG_OCEAN should likely be set where the ocean is deep and cold (polar-deep-ocean and boreal-ocean), STONEGATE_SEAS should be placed where the ocean is shallow, regardless of temperature.
+2. Add any biomes from fill_temperature_zones.yml that are not currently set in set_biomes_in_climates.yml using similar methods.  Ex: FROSTY_FINGERS would likely be placed somewhere like polar-coast-flat, polar-coast, polar-vast-forest-coast, perhaps boreal-vast-forest-coast.
 
-2. Add any biomes from fill_temperature_zones.yml that that are not currently set in set_biomes_in_climates.yml using similar methods.  Ex: FROSTY_FINGERS would likely be placed somewhere like polar-coast-flat, polar-coast, polar-vast-forest-coast, perhaps boreal-vast-forest-coast.
+Weights should also be drafted according to the likelihood those biomes would occur with respect to other biomes.  Remember, biomes can be set in more than one group.
 
-Weights should also be drafted according to the likelyhood those biomes would occur with respect to other biomes.  Remember biomes can be set in more than one group.
+What does the "abstract: true" flag do in biome files, for example, from "abstract\environment\land\dry\environment_land_dry_desert.yml".  Note the Terra project that reads this configuration is located in "C:\Projects\Terra" and may have context for what this flag is used for.
 
-What does the "abstract: true" flag do in biome files, for example from "abstract\environment\land\dry\environment_land_dry_desert.yml".  Note the Terra project that reads this configuration is located in "C:\Projects\Terra" and may have context for what this flag is used for.
+Thank you for explaining. It looks like the biome table (BiomeTable.csv) now only includes biomes that flow back to one of the presets. Please update the respective table generation scripts to ensure the table also includes any valid biomes (a valid biome can be defined in any yml file in the biome folder that has a biome type without an abstract flag) that are not in any of the presets and that they are listed at 0%. Additionally, I see a list of known_intermediate_names, but this is not necessary, as the stages are processed; each designated biome label should eventually result in a final valid biome designation. Thus, the intermediate biomes can be derived as a part of the script, and should not be explicit.
 
-Thank you for explaining. It looks like the biome table (BiomeTable.csv) now only includes biomes that flow back to one of the presets. Please update the respective table generation scripts to ensure the table also includes any valid biomes (a valid biome can be defined in any yml file in the biome folder that has a biome type without an abstract flag) that are not in any of the presets and that they are listed at 0%. Additionally, I see a list of known_intermediate_names, but this is not necessary, as the stages are processed, each designated biome label should eventually result in a final valid biome designation. Thus, the intermediate biomes can be derived as a part of the script, and should not be explicit.
-
-_pillow_plains is an intermediate biome that's created in "fill_temperature_zones.yml" that's further propigated into PILLOW_PLAINS_INNER and others using "fill_temperature_zones.yml".  , along with some other biomes.  I would like 
+pillowplains is an intermediate biome that's created in "fill_temperature_zones.yml" that's further propagated into PILLOW_PLAINS_INNER and others using "fill_temperature_zones.yml".  , along with some other biomes.  I would like 
 
 In the rearth preset, there are some special biomes that are distributed as a part of spread_temperature_zones, and further into fill_patchwork, and finally through the border_biomes.yml  (Ex: PILLOW_PLAINS).  I would like to pull those biomes into origen2 preset.  Can you make updates to the origen2 preset in order to:
+
 1. Add any biomes and intermittent biomes from spread_temperature_zones into appropriate biome breakdowns in precipitation.yml and or elevation.yml.
+
 2. Add the following files from the rearth preset to the origen2 preset to breakdown the biomes from spread_temperature_zones that are intermediates:
 
         - << biome-distribution/stages/fill_patchwork.yml:stages
+
         - << biome-distribution/stages/special/border_biomes.yml:stages
+
 		
+
 3. Verify all the biomes that occur in rearth also occur in origen2
 
+Make a script (preferably powershell) can compare two folders (Folder A (Source) and Folder B (Destination)).  For each common folder between those folders, compare all content, including files in subfolders, and determine the following:
 
-
-
-Make a script (preferably powershell) can compare two folders (Folder A (Source) and Folder B (Destination)).  For each common folder between those folders, compare all content including files in subfolders and determine the following:
  1. The file name that is being checked
+
  2. The fRootA complete folder path to Folder A
+
  3. The relative path from root of Folder A to the file in question.  Ex: If the file is "Folder B\Houses\Birds\FileK.abc", the relative path would be "Houses\Birds"
+
  4. The state of the file when compared to the destination:
+
   - MULTIPLE: The file exists more than once in Folder A or more than once in Folder B, so a comparison cannot be performed reliably.
+
   - EXACT MATCH: Both path and file match in Folder B
+
   - FILE MOVED: Content matches, but the subfolder location in Folder B is different.
+
   - FILE DIFFERENT: File name exists in Folder B, but the content does not match
+
   - FILE MISSING: The file name does not exist in Folder B.
+
  5. The RootB complete folder path to Folder B if the file in question did exist in the Folder B subfolder (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
+
  6. The relative path from Folder B to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
 
 If the Folder A path is not provided, assume it is "C:\Projects\Hydraxia2", if the folder B path is not provided, assume it is "C:\Projects\ORIGEN2"
 
-
 Make a script (Preferably powershell) that reads in a CSV (formatted from the previous step) and copies the listed files if the conditions are right.
 
 Inputs:
+
 1. Path to CSV (default to .\hydraxia_vs_origen2.csv)
+
 2. String array listing the priority folder labels to go through first.  (default to ["structures","features","biomes","biome-distribution")
+
 3. A string replace Table with "ReplaceFrom" and "RepalceTo" fields. (default with the following form:
+
 ReplaceFrom, RepalceTo
+
 "features/ores/distribution.yml", "features/geological/deposits/distribution_hydraxia.yml"
+
 "technical_crap/", ""
-"- BASE", "- BASE_HYDRAXIA"
+
+"BASE", "BASE_HYDRAXIA"
+
 )
-Read the CSV and if applicable sort RelativePathA first so that higher priority folders (the folder names of relative folders that should be checked first), are checked first, followed alphabetically.
+
+Read the CSV and if applicable, sort RelativePathA first so that higher priority folders (the folder names of relative folders that should be checked first), are checked first, followed alphabetically.
 
 For each file in the ordered list:
-If the Status column says "FILE MISSING", copy the file from it's full path (RootA+RelativePathA+FileName) to the equivalent path in folder B (RootB + RelativePathA + FileName).
+
+If the Status column says "FILE MISSING", copy the file from its full path (RootA+RelativePathA+FileName) to the equivalent path in folder B (RootB + RelativePathA + FileName).  Replacement must be case sensitive.
 
 After copying, modify the content of the file so that any content of the file that matches any entry in the "ReplaceFrom" entry of the string replace table is replaced with the corresponding "ReplaceTo" field.
 
 Exit the script early if 10 files are copied.
-
-Now update 

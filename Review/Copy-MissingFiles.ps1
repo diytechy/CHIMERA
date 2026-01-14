@@ -14,9 +14,9 @@ $sorted = $data | Sort-Object {
 $copied = 0
 foreach ($row in $sorted) {
     if ($row.Status -eq "FILE MISSING") {
-        $source = Join-Path $row.RootA (Join-Path $row.RelativePathA $row.FileName)
-        $destDir = Join-Path $row.RootB $row.RelativePathA
-        $dest = Join-Path $destDir $row.FileName
+        $source = Join-Path ${$row.RootA} (Join-Path ${$row.RelativePathA} ${$row.FileName})
+        $destDir = Join-Path ${$row.RootB} ${$row.RelativePathA}
+        $dest = Join-Path $destDir ${$row.FileName}
         
         if (-not (Test-Path $destDir)) {
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null

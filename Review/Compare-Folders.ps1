@@ -1,6 +1,7 @@
 param(
     [string]$FolderA = "C:\Projects\Hydraxia2",
-    [string]$FolderB = "C:\Projects\ORIGEN2"
+    [string]$FolderB = "C:\Projects\ORIGEN2",
+	[string]$CompareOut = "hydraxia_vs_origen2.csv"
 )
 
 $filesA = Get-ChildItem -Path $FolderA -File -Recurse | Select-Object Name, FullName, @{N='Hash';E={(Get-FileHash $_.FullName -Algorithm MD5).Hash}}
@@ -25,7 +26,7 @@ $results = foreach ($fileGroup in $groupA) {
                 RootA = $FolderA
                 RelativePathA = $relDirA
                 Status = "MULTIPLE"
-                RootB = ""
+                RootB = $FolderB
                 RelativePathB = ""
             }
         } elseif (-not $matchesB) {
@@ -34,7 +35,7 @@ $results = foreach ($fileGroup in $groupA) {
                 RootA = $FolderA
                 RelativePathA = $relDirA
                 Status = "FILE MISSING"
-                RootB = ""
+                RootB = $FolderB
                 RelativePathB = ""
             }
         } else {
@@ -62,5 +63,5 @@ $results = foreach ($fileGroup in $groupA) {
 }
 
 $results | Format-Table -AutoSize
-$results | Export-Csv -Path "FolderComparison.csv" -NoTypeInformation
+$results | Export-Csv -Path "$CompareOut" -NoTypeInformation
 Write-Host "`nResults exported to FolderComparison.csv"

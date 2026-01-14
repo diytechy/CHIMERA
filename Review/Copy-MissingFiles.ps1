@@ -28,9 +28,10 @@ $data = Import-Csv -Path $CsvPath | ForEach-Object {
 }
 
 $sorted = $data | Sort-Object Priority, RelativePathA
-
+$MissingFiles = $sorted | Where-Object { $_.Status -eq "FILE MISSING" }
+$TotalMissing = $MissingFiles.Count
 $copied = 0
-foreach ($row in $sorted) {
+foreach ($row in $MissingFiles) {
     if ($row.Status -eq "FILE MISSING") {
         $source = Join-Path $row.RootA (Join-Path $row.RelativePathA $row.FileName)
         $destDir = Join-Path $row.RootB $row.RelativePathA
@@ -58,4 +59,4 @@ foreach ($row in $sorted) {
     }
 }
 
-Write-Host "`nTotal files copied: $copied"
+Write-Host "`nTotal files copied: $copied of $TotalMissing"

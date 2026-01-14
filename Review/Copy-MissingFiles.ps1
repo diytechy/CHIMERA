@@ -2,7 +2,7 @@ param(
     [string]$CsvPath = ".\hydraxia_vs_origen2.csv",
     [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution")
 )
-
+$copyLim = 8
 $data = Import-Csv -Path $CsvPath | ForEach-Object {
     $topFolder = ($_.RelativePathA -split '\\')[0]
     $priority = $PriorityFolders.IndexOf($topFolder)
@@ -26,8 +26,8 @@ foreach ($row in $sorted) {
         Write-Host "Copied: $($row.FileName) -> $($row.RelativePathA)"
         
         $copied++
-        if ($copied -ge 50) {
-            Write-Host "`nReached 10 files copied. Exiting."
+        if ($copied -ge $copyLim) {
+            Write-Host "`nReached $copyLim files copied. Exiting."
             break
         }
     }

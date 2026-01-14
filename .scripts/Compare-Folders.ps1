@@ -22,19 +22,19 @@ $results = foreach ($fileGroup in $groupA) {
         if ($fileGroup.Count -gt 1 -or ($matchesB -and $matchesB.Count -gt 1)) {
             [PSCustomObject]@{
                 FileName = $fileName
-                FullPathA = $fileA.FullName
+                RootA = $FolderA
                 RelativePathA = $relDirA
                 Status = "MULTIPLE"
-                FullPathB = ""
+                RootB = ""
                 RelativePathB = ""
             }
         } elseif (-not $matchesB) {
             [PSCustomObject]@{
                 FileName = $fileName
-                FullPathA = $fileA.FullName
+                RootA = $FolderA
                 RelativePathA = $relDirA
                 Status = "FILE MISSING"
-                FullPathB = ""
+                RootB = ""
                 RelativePathB = ""
             }
         } else {
@@ -51,10 +51,10 @@ $results = foreach ($fileGroup in $groupA) {
             
             [PSCustomObject]@{
                 FileName = $fileName
-                FullPathA = $fileA.FullName
+                RootA = $FolderA
                 RelativePathA = $relDirA
                 Status = $status
-                FullPathB = $fileB.FullName
+                RootB = $FolderB
                 RelativePathB = $relDirB
             }
         }

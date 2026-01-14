@@ -46,13 +46,19 @@ In the rearth preset, there are some special biomes that are distributed as a pa
 
 Make a script (preferably powershell) can compare two folders (Folder A (Source) and Folder B (Destination)).  For each common folder between those folders, compare all content including files in subfolders and determine the following:
  1. The file name that is being checked
- 2. The relative path from root of Folder A to the file in question.  Ex: If the file is "Folder B\Houses\Birds\FileK.abc", the relative path would be "Houses\Birds"
- 2. The state of the file when compared to the destination:
+ 2. The fRootA complete folder path to Folder A
+ 3. The relative path from root of Folder A to the file in question.  Ex: If the file is "Folder B\Houses\Birds\FileK.abc", the relative path would be "Houses\Birds"
+ 4. The state of the file when compared to the destination:
   - MULTIPLE: The file exists more than once in Folder A or more than once in Folder B, so a comparison cannot be performed reliably.
   - EXACT MATCH: Both path and file match in Folder B
   - FILE MOVED: Content matches, but the subfolder location in Folder B is different.
   - FILE DIFFERENT: File name exists in Folder B, but the content does not match
   - FILE MISSING: The file name does not exist in Folder B.
-3. The relative path from Folder B to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
+ 5. The RootB complete folder path to Folder B if the file in question did exist in the Folder B subfolder (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
+ 6. The relative path from Folder B to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)
 
 If the Folder A path is not provided, assume it is "C:\Projects\Hydraxia2", if the folder B path is not provided, assume it is "C:\Projects\ORIGEN2"
+
+Make a script (Preferably powershell) that reads in a CSV and copies the listed files if the conditions are right:
+
+If the Status column says "FILE MISSING", copy the file from it's FullPathA definition to 

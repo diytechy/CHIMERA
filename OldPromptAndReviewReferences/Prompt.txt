@@ -40,3 +40,21 @@ In the rearth preset, there are some special biomes that are distributed as a pa
         - << biome-distribution/stages/special/border_biomes.yml:stages
 		
 3. Verify all the biomes that occur in rearth also occur in origen2
+
+
+
+
+Make a list off all file differences (or a script that can create a list) between C:\Projects\Hydraxia2 and C:\Projects\ORIGEN2 noting the projects often contain the similar files but in different directories.
+Only check duplicates or moves between the root folders:
+Compare the following folders between the two projects:
+- biome-distribution
+- biomes
+- features
+- palettes
+- structures
+
+The differences should be listed as a csv with the following column details, header names can be derived from these descriptions:
+ 1. The file name that is being checked
+ 2. The state of the file when compared to ORIGEN2 (EXACT MATCH {Both path and file match} / FILE MOVED {File name matches exactly, content matches, and in corresponding root folder of ORIGEN2, but the subfolder locations differ} / FILE DIFFERENT {File name exists in the same folder from root, but the content does not match} / FILE MISSING {File does not exist in ORIGEN2})
+3. The relative path from root of the folder to the file in question.
+3. The relative path from compare root (ORIGEN2) to the file in question if it did exist (EXACT MATCH / FILE MOVED / FILE DIFFERENT)

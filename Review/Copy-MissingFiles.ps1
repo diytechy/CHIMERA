@@ -2,7 +2,7 @@ param(
     [string]$CsvPath = ".\hydraxia_vs_origen2.csv",
     [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution")
 )
-$copyLim = 16
+$copyLim = 32
 $data = Import-Csv -Path $CsvPath | ForEach-Object {
     $topFolder = ($_.RelativePathA -split '\\')[0]
     $priority = $PriorityFolders.IndexOf($topFolder)

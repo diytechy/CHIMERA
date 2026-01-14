@@ -124,15 +124,15 @@ stages:
         - tropical-vast-forest: *tropicalWarm
         - tropical-vast-forest: *tropicalHot
       vast-forest-coast:
-        - polar-island-coast: *iceCap
-        - polar-island-coast: *tundra
-        - polar-island-coast: *borealSnowy
-        - island-coast: *borealCold
-        - island-coast: *borealWarm
-        - island-coast: *borealHot
-        - island-coast: *temperateCold
-        - island-coast: *temperateWarm
-        - island-coast: *temperateHot
-        - tropical-island-coast: *tropicalCold
-        - tropical-island-coast: *tropicalWarm
-        - tropical-island-coast: *tropicalHot
+        - polar-vast-forest-coast: *iceCap
+        - polar-vast-forest-coast: *tundra
+        - polar-vast-forest-coast: *borealSnowy
+        - boreal-vast-forest-coast: *borealCold
+        - boreal-vast-forest-coast: *borealWarm
+        - boreal-vast-forest-coast: *borealHot
+        - temperate-vast-forest-coast: *temperateCold
+        - temperate-vast-forest-coast: *temperateWarm
+        - temperate-vast-forest-coast: *temperateHot
+        - tropical-vast-forest-coast: *tropicalCold
+        - tropical-vast-forest-coast: *tropicalWarm
+        - tropical-vast-forest-coast: *tropicalHot

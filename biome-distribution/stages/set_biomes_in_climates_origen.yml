@@ -657,3 +657,14 @@ stages:
 
       volcano-coast:
         - BLACK_SAND_BEACH: 1
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: vast-forest-coast
+    default-to:
+      - mushroom: 1
+    to:
+      polar-vast-forest-coast:
+        - mushroom-coast: 1
+      tropical-vast-forest-coast:
+        - mushroom-coast: 1

@@ -3,20 +3,20 @@ param(
     [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution")
 )
 
-$data = Import-Csv -Path $CsvPath
-
-$sorted = $data | Sort-Object {
+$data = Import-Csv -Path $CsvPath | ForEach-Object {
     $topFolder = ($_.RelativePathA -split '\\')[0]
     $priority = $PriorityFolders.IndexOf($topFolder)
-    if ($priority -ge 0) { $priority } else { 999 }
-}, RelativePathA
+    $_ | Add-Member -NotePropertyName Priority -NotePropertyValue $(if ($priority -ge 0) { $priority } else { 999 }) -PassThru
+}
+
+$sorted = $data | Sort-Object Priority, RelativePathA
 
 $copied = 0
 foreach ($row in $sorted) {
     if ($row.Status -eq "FILE MISSING") {
-        $source = Join-Path ${$row.RootA} (Join-Path ${$row.RelativePathA} ${$row.FileName})
-        $destDir = Join-Path ${$row.RootB} ${$row.RelativePathA}
-        $dest = Join-Path $destDir ${$row.FileName}
+        $source = Join-Path $row.RootA (Join-Path $row.RelativePathA $row.FileName)
+        $destDir = Join-Path $row.RootB $row.RelativePathA
+        $dest = Join-Path $destDir $row.FileName
         
         if (-not (Test-Path $destDir)) {
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null

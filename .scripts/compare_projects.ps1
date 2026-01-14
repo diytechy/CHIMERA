@@ -90,6 +90,18 @@ foreach($cat in $Categories){
         continue
     }
 
+    # Pre-index target files by name for faster lookups
+    $tgtFilesByName = @{}
+    if (Test-Path $tgtCatRoot){
+        $allTgt = Get-ChildItem -Path $tgtCatRoot -Recurse -File -ErrorAction SilentlyContinue
+        foreach($tf in $allTgt){
+            if (-not $tgtFilesByName.ContainsKey($tf.Name)){
+                $tgtFilesByName[$tf.Name] = @()
+            }
+            $tgtFilesByName[$tf.Name] += $tf
+        }
+    }
+
     foreach($f in $srcFiles){
         $fileName = $f.Name
         # relative path from category root
@@ -99,39 +111,50 @@ foreach($cat in $Categories){
         $expectedTarget = Join-Path $tgtCatRoot $srcRel
         $state = 'FILE MISSING'
         $targetPaths = @()
+        $srcHash = Get-FileHashHex $f.FullName
+        $targetHashes = @()
 
         if (Test-Path $expectedTarget){
             # exact path exists - compare hash
-            $srcHash = Get-FileHashHex $f.FullName
             $tgtHash = Get-FileHashHex $expectedTarget
+            $targetRel = (Get-Item $expectedTarget).FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+            $targetPaths += $targetRel
             if($srcHash -and $tgtHash -and $srcHash -eq $tgtHash){
                 $state = 'EXACT MATCH'
-                $targetPaths = @((Get-Item $expectedTarget).FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar))
+                $targetHashes += $tgtHash
             }else{
                 $state = 'FILE DIFFERENT'
-                $targetPaths = @((Get-Item $expectedTarget).FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar))
+                if ($tgtHash) { $targetHashes += $tgtHash }
             }
         } else {
-            # look for any files with same name under target category
-            if (Test-Path $tgtCatRoot){
-                $matching = Get-ChildItem -Path $tgtCatRoot -Recurse -File -Filter $fileName -ErrorAction SilentlyContinue
-                if ($matching){
-                    # compute hashes and see if any match
-                    $srcHash = Get-FileHashHex $f.FullName
-                    $foundMatch = $false
-                    foreach($m in $matching){
+            # look for any files with same name under target category using pre-index
+            if ($tgtFilesByName.ContainsKey($fileName)){
+                $candidates = $tgtFilesByName[$fileName]
+                $foundSameContent = $false
+                foreach($m in $candidates){
+                    $mRel = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                    $mHash = Get-FileHashHex $m.FullName
+                    if ($mHash){ $targetHashes += $mHash }
+                    # include all candidate paths for FILE DIFFERENT; for FILE MOVED we will narrow to matching ones
+                    $targetPaths += $mRel
+                    if ($srcHash -and $mHash -and $srcHash -eq $mHash){
+                        $foundSameContent = $true
+                    }
+                }
+                if ($foundSameContent){
+                    $state = 'FILE MOVED'
+                    # Keep only the matching paths with same hash to avoid confusion
+                    $matchingPaths = @()
+                    foreach($m in $candidates){
                         $mRel = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
-                        $targetPaths += $mRel
                         $mHash = Get-FileHashHex $m.FullName
                         if ($srcHash -and $mHash -and $srcHash -eq $mHash){
-                            $foundMatch = $true
+                            $matchingPaths += $mRel
                         }
                     }
-                    if ($foundMatch){
-                        $state = 'FILE MOVED'
-                    }else{
-                        $state = 'FILE DIFFERENT'
-                    }
+                    if ($matchingPaths.Count -gt 0){ $targetPaths = $matchingPaths }
+                }else{
+                    $state = 'FILE DIFFERENT'
                 }
             }
         }
@@ -142,6 +165,8 @@ foreach($cat in $Categories){
             State = $state
             SourceRelativePath = $srcRel
             TargetRelativePath = if($targetPaths.Count -gt 0){ ($targetPaths -join ';') } else { '' }
+            SourceHash = if($srcHash){ $srcHash } else { '' }
+            TargetHashes = if($targetHashes.Count -gt 0){ ($targetHashes -join ';') } else { '' }
         }
         $results += $result
     }

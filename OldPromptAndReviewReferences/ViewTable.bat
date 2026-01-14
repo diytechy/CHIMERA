@@ -1,0 +1,1 @@
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Csv hydraxia_vs_origen2.csv |Out-GridView -Wait"

@@ -22,15 +22,19 @@ $results = foreach ($fileGroup in $groupA) {
         if ($fileGroup.Count -gt 1 -or ($matchesB -and $matchesB.Count -gt 1)) {
             [PSCustomObject]@{
                 FileName = $fileName
+                FullPathA = $fileA.FullName
                 RelativePathA = $relDirA
                 Status = "MULTIPLE"
+                FullPathB = ""
                 RelativePathB = ""
             }
         } elseif (-not $matchesB) {
             [PSCustomObject]@{
                 FileName = $fileName
+                FullPathA = $fileA.FullName
                 RelativePathA = $relDirA
                 Status = "FILE MISSING"
+                FullPathB = ""
                 RelativePathB = ""
             }
         } else {
@@ -40,19 +44,17 @@ $results = foreach ($fileGroup in $groupA) {
             if ([string]::IsNullOrEmpty($relDirB)) { $relDirB = "." }
             
             if ($fileA.Hash -eq $fileB.Hash) {
-                if ($relDirA -eq $relDirB) {
-                    $status = "EXACT MATCH"
-                } else {
-                    $status = "FILE MOVED"
-                }
+                $status = if ($relDirA -eq $relDirB) { "EXACT MATCH" } else { "FILE MOVED" }
             } else {
                 $status = "FILE DIFFERENT"
             }
             
             [PSCustomObject]@{
                 FileName = $fileName
+                FullPathA = $fileA.FullName
                 RelativePathA = $relDirA
                 Status = $status
+                FullPathB = $fileB.FullName
                 RelativePathB = $relDirB
             }
         }

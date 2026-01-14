@@ -5,6 +5,13 @@ param(
         "features/ores/distribution.yml" = "features/geological/deposits/distribution_hydraxia.yml"
         "technical_crap/" = ""
         "BASE" = "BASE_HYDRAXIA"
+		"ORES_COAL" = "HYDRAXIA_ORES_COAL"
+		"ORES_DIAMOND" = "HYDRAXIA_ORES_DIAMOND"
+		"ORES_EMERALD" = "HYDRAXIA_ORES_EMERALD"
+		"ORES_GEODE" = "HYDRAXIA_ORES_GEODE"
+		"ORES_GOLD" = "HYDRAXIA_ORES_GOLD"
+		"ORES_MOUNTAINS" = "HYDRAXIA_ORES_MOUNTAINS"
+		"ORES_REDSTONE" = "HYDRAXIA_ORES_REDSTONE"
     }
 )
 $copyLim = 10

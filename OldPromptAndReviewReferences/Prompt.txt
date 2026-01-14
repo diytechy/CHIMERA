@@ -65,10 +65,19 @@ Make a script (Preferably powershell) that reads in a CSV (formatted from the pr
 Inputs:
 1. Path to CSV (default to .\hydraxia_vs_origen2.csv)
 2. String array listing the priority folder labels to go through first.  (default to ["structures","features","biomes","biome-distribution")
-
+3. A string replace Table with "ReplaceFrom" and "RepalceTo" fields. (default with the following form:
+ReplaceFrom, RepalceTo
+"features/ores/distribution.yml", "features/geological/deposits/distribution_hydraxia.yml"
+"technical_crap/", ""
+"- BASE", "- BASE_HYDRAXIA"
+)
 Read the CSV and if applicable sort RelativePathA first so that higher priority folders (the folder names of relative folders that should be checked first), are checked first, followed alphabetically.
 
 For each file in the ordered list:
 If the Status column says "FILE MISSING", copy the file from it's full path (RootA+RelativePathA+FileName) to the equivalent path in folder B (RootB + RelativePathA + FileName).
 
+After copying, modify the content of the file so that any content of the file that matches any entry in the "ReplaceFrom" entry of the string replace table is replaced with the corresponding "ReplaceTo" field.
+
 Exit the script early if 10 files are copied.
+
+Now update 

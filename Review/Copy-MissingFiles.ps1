@@ -1,6 +1,6 @@
 param(
     [string]$CsvPath = ".\hydraxia_vs_origen2.csv",
-    [string[]]$PriorityFolders = @("structures", "features", "biomes", "biome-distribution"),
+    [string[]]$PriorityFolders = @("structures", "features", "biomes\equations","biomes", "biome-distribution"),
     [hashtable]$ReplaceTable = @{
         "features/ores/distribution.yml" = "features/geological/deposits/distribution_hydraxia.yml"
         "technical_crap/" = ""
@@ -16,9 +16,15 @@ param(
 )
 $copyLim = 10
 $data = Import-Csv -Path $CsvPath | ForEach-Object {
-    $topFolder = ($_.RelativePathA -split '\\')[0]
-    $priority = $PriorityFolders.IndexOf($topFolder)
-    $_ | Add-Member -NotePropertyName Priority -NotePropertyValue $(if ($priority -ge 0) { $priority } else { 999 }) -PassThru
+    $relPath = $_.RelativePathA
+    $priority = 999
+    for ($i = 0; $i -lt $PriorityFolders.Count; $i++) {
+        if ($relPath.StartsWith($PriorityFolders[$i])) {
+            $priority = $i
+            break
+        }
+    }
+    $_ | Add-Member -NotePropertyName Priority -NotePropertyValue $priority -PassThru
 }
 
 $sorted = $data | Sort-Object Priority, RelativePathA

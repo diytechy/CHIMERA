@@ -14,7 +14,7 @@ param(
 		"ORES_REDSTONE" = "HYDRAXIA_ORES_REDSTONE"
     }
 )
-$copyLim = 10
+$copyLim = 20
 $data = Import-Csv -Path $CsvPath | ForEach-Object {
     $relPath = $_.RelativePathA
     $priority = 999

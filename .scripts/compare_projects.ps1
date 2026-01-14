@@ -50,8 +50,22 @@ function Ensure-DirPathHasTrailingSlash([string]$p){
     return $p
 }
 
-$SourceRoot = Ensure-DirPathHasTrailingSlash((Resolve-Path -Path $SourceRoot -ErrorAction SilentlyContinue)?.Path ?? $SourceRoot)
-$TargetRoot = Ensure-DirPathHasTrailingSlash((Resolve-Path -Path $TargetRoot -ErrorAction SilentlyContinue)?.Path ?? $TargetRoot)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+# If OutputCsv not explicitly set, default to the Review folder adjacent to the script's parent (e.g., ../Review/hydraxia_vs_origen2.csv)
+if (-not $PSBoundParameters.ContainsKey('OutputCsv')) {
+    $defaultOutput = Join-Path (Join-Path $ScriptDir '..\Review') 'hydraxia_vs_origen2.csv'
+    $OutputCsv = (Resolve-Path -Path $defaultOutput -ErrorAction SilentlyContinue)?.Path ?? [System.IO.Path]::GetFullPath($defaultOutput)
+}
+# Ensure output directory exists
+$OutputDir = Split-Path -Parent $OutputCsv
+if ($OutputDir -and -not (Test-Path $OutputDir)) {
+    New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+}
+
+# Resolve source/target roots to absolute paths (handles relative paths when script run from ./scripts)
+$SourceRoot = Ensure-DirPathHasTrailingSlash((Resolve-Path -Path $SourceRoot -ErrorAction SilentlyContinue)?.Path ?? (Resolve-Path -Path (Join-Path $ScriptDir $SourceRoot) -ErrorAction SilentlyContinue)?.Path ?? $SourceRoot)
+$TargetRoot = Ensure-DirPathHasTrailingSlash((Resolve-Path -Path $TargetRoot -ErrorAction SilentlyContinue)?.Path ?? (Resolve-Path -Path (Join-Path $ScriptDir $TargetRoot) -ErrorAction SilentlyContinue)?.Path ?? $TargetRoot)
 
 if (-not (Test-Path $SourceRoot)){
     Write-Error "Source root not found: $SourceRoot"
@@ -104,11 +118,14 @@ foreach($cat in $Categories){
 
     foreach($f in $srcFiles){
         $fileName = $f.Name
-        # relative path from category root
-        $srcRel = $f.FullName.Substring($srcCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+        # relative file path from category root (includes filename)
+        $srcRelFile = $f.FullName.Substring($srcCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+        # relative directory path (exclude filename). If file is at category root, this becomes empty string.
+        $srcRelDir = (Split-Path -Parent $srcRelFile)
+        if (-not $srcRelDir) { $srcRelDir = '' }
 
-        # Exact path check in target
-        $expectedTarget = Join-Path $tgtCatRoot $srcRel
+        # Exact path check in target (use file path)
+        $expectedTarget = Join-Path $tgtCatRoot $srcRelFile
         $state = 'FILE MISSING'
         $targetPaths = @()
         $srcHash = Get-FileHashHex $f.FullName
@@ -117,8 +134,10 @@ foreach($cat in $Categories){
         if (Test-Path $expectedTarget){
             # exact path exists - compare hash
             $tgtHash = Get-FileHashHex $expectedTarget
-            $targetRel = (Get-Item $expectedTarget).FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
-            $targetPaths += $targetRel
+            $targetRelFile = (Get-Item $expectedTarget).FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+            $targetRelDir = (Split-Path -Parent $targetRelFile)
+            if (-not $targetRelDir) { $targetRelDir = '' }
+            if ($targetRelDir -notin $targetPaths) { $targetPaths += $targetRelDir }
             if($srcHash -and $tgtHash -and $srcHash -eq $tgtHash){
                 $state = 'EXACT MATCH'
                 $targetHashes += $tgtHash
@@ -132,24 +151,28 @@ foreach($cat in $Categories){
                 $candidates = $tgtFilesByName[$fileName]
                 $foundSameContent = $false
                 foreach($m in $candidates){
-                    $mRel = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                    $mRelFile = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                    $mRelDir = (Split-Path -Parent $mRelFile)
+                    if (-not $mRelDir) { $mRelDir = '' }
                     $mHash = Get-FileHashHex $m.FullName
                     if ($mHash){ $targetHashes += $mHash }
-                    # include all candidate paths for FILE DIFFERENT; for FILE MOVED we will narrow to matching ones
-                    $targetPaths += $mRel
+                    # include directory path (exclude filename)
+                    if ($mRelDir -notin $targetPaths) { $targetPaths += $mRelDir }
                     if ($srcHash -and $mHash -and $srcHash -eq $mHash){
                         $foundSameContent = $true
                     }
                 }
                 if ($foundSameContent){
                     $state = 'FILE MOVED'
-                    # Keep only the matching paths with same hash to avoid confusion
+                    # Keep only the matching paths with same hash to avoid confusion (directories)
                     $matchingPaths = @()
                     foreach($m in $candidates){
-                        $mRel = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                        $mRelFile = $m.FullName.Substring($tgtCatRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                        $mRelDir = (Split-Path -Parent $mRelFile)
+                        if (-not $mRelDir) { $mRelDir = '' }
                         $mHash = Get-FileHashHex $m.FullName
                         if ($srcHash -and $mHash -and $srcHash -eq $mHash){
-                            $matchingPaths += $mRel
+                            if ($mRelDir -notin $matchingPaths){ $matchingPaths += $mRelDir }
                         }
                     }
                     if ($matchingPaths.Count -gt 0){ $targetPaths = $matchingPaths }
@@ -163,7 +186,7 @@ foreach($cat in $Categories){
             Category = $cat
             FileName = $fileName
             State = $state
-            SourceRelativePath = $srcRel
+            SourceRelativePath = $srcRelDir
             TargetRelativePath = if($targetPaths.Count -gt 0){ ($targetPaths -join ';') } else { '' }
             SourceHash = if($srcHash){ $srcHash } else { '' }
             TargetHashes = if($targetHashes.Count -gt 0){ ($targetHashes -join ';') } else { '' }

@@ -26,7 +26,7 @@ foreach ($row in $sorted) {
         Write-Host "Copied: $($row.FileName) -> $($row.RelativePathA)"
         
         $copied++
-        if ($copied -ge 10) {
+        if ($copied -ge 50) {
             Write-Host "`nReached 10 files copied. Exiting."
             break
         }

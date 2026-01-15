@@ -103,3 +103,50 @@ If the Status column says "FILE MISSING", copy the file from its full path (Root
 After copying, modify the content of the file so that any content of the file that matches any entry in the "ReplaceFrom" entry of the string replace table is replaced with the corresponding "ReplaceTo" field.
 
 Exit the script early if 10 files are copied.
+
+Create a new script or add functionality to "calculate_biome_percentages.py" which combines all the samplers that are used each of the files into a single large "samplers" structure along with their variables resolved so that no files are being referenced.
+
+The top level expression will be a simple expression which I can further modify to evaluate the resolved samplers.  This is what I would expect the top of the output to be:
+"
+type: EXPRESSION
+expression: y
+samplers:
+"
+Followed by all the samplers and their resolved constants / external samplers / ect so that the file contains all the expressions without any references to another file, an example of one of the samplers would be:
+"
+
+  continents: &continents
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        max(
+          -sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset,
+          spawnIsland(x, z)
+        ),
+        // Set continentalness to spotContinentalFactor in center of spots, 0 on spot edges,
+        // and decrease quadratically moving further outwards
+        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2))
+    variables:
+      globalScale: 1
+      scale: 2
+      offset: 0.1
+      spread: 1
+      spotContinentalFactor: 0.3
+    samplers:
+      spawnIsland:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 150
+        warp:
+          type: FBM
+          octaves: 2
+          sampler:
+            type: TRANSLATE
+            x: 5000
+            z: -5000
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.004
+        sampler:
+"

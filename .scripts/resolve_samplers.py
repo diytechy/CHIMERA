@@ -20,10 +20,158 @@ ensure_modules(["yaml", "re"])
 import yaml
 import re
 import sys
-import copy
+import ast
+import operator
+import math
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Set, Tuple
+from typing import Dict, Any, Optional, List, Set, Tuple, Union
 from collections import OrderedDict
+
+
+# =============================================================================
+# Safe Mathematical Expression Evaluator
+# =============================================================================
+
+class ExpressionEvaluator:
+    """
+    Safely evaluates simple mathematical expressions like "1 / 1000" or "1-2*(150/1500)".
+
+    Only supports:
+    - Numbers (int, float)
+    - Basic operators: +, -, *, /, ^, **
+    - Parentheses
+    - Unary minus
+
+    Does NOT evaluate expressions containing:
+    - Variables (x, y, z, etc.)
+    - Function calls (sin, cos, etc.)
+    - Multi-line expressions
+    """
+
+    # Allowed operators
+    OPERATORS = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.Pow: operator.pow,
+        ast.USub: operator.neg,
+        ast.UAdd: operator.pos,
+    }
+
+    @classmethod
+    def is_evaluable_expression(cls, text: str) -> bool:
+        """
+        Check if a string looks like a simple mathematical expression that can be evaluated.
+
+        Returns False for:
+        - Multi-line strings (runtime expressions)
+        - Strings containing letters (variables/functions)
+        - Empty strings
+        - Pure numbers (already evaluated)
+        """
+        if not text or not isinstance(text, str):
+            return False
+
+        # Skip multi-line expressions (these are runtime expressions)
+        if '\n' in text:
+            return False
+
+        text = text.strip()
+
+        # Skip empty strings
+        if not text:
+            return False
+
+        # Check if it's already a pure number
+        try:
+            float(text)
+            return False  # Already a number, no need to evaluate
+        except ValueError:
+            pass
+
+        # Must contain at least one operator to be an expression
+        if not any(op in text for op in ['+', '-', '*', '/', '^']):
+            return False
+
+        # Check for variable names or function calls (letters)
+        # Allow 'e' and 'E' for scientific notation like 1e-5
+        # Pattern: letters that aren't part of scientific notation
+        cleaned = re.sub(r'\d+[eE][+-]?\d+', '', text)  # Remove scientific notation
+        if re.search(r'[a-zA-Z_]', cleaned):
+            return False
+
+        return True
+
+    @classmethod
+    def evaluate(cls, text: str) -> Tuple[Optional[Union[int, float]], bool]:
+        """
+        Safely evaluate a mathematical expression.
+
+        Returns (result, success) tuple.
+        If evaluation fails or is not safe, returns (None, False).
+        """
+        if not cls.is_evaluable_expression(text):
+            return None, False
+
+        try:
+            # Replace ^ with ** for Python evaluation
+            expr = text.replace('^', '**')
+
+            # Parse the expression into an AST
+            tree = ast.parse(expr, mode='eval')
+
+            # Evaluate the AST safely
+            result = cls._eval_node(tree.body)
+
+            # Round to avoid floating point artifacts (e.g., 0.0010000000000000002)
+            if isinstance(result, float):
+                # Round to 10 significant digits
+                if result != 0:
+                    magnitude = math.floor(math.log10(abs(result)))
+                    result = round(result, 10 - int(magnitude) - 1)
+                # Convert to int if it's a whole number
+                if result == int(result):
+                    result = int(result)
+
+            return result, True
+
+        except Exception:
+            return None, False
+
+    @classmethod
+    def _eval_node(cls, node: ast.AST) -> Union[int, float]:
+        """Recursively evaluate an AST node."""
+        # Handle numeric constants (works in all Python 3.x versions)
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float)):
+                return node.value
+            raise ValueError(f"Unsupported constant type: {type(node.value)}")
+
+        # Python 3.7 compatibility: ast.Num was deprecated in 3.8, removed in 3.14
+        if hasattr(ast, 'Num') and isinstance(node, ast.Num):
+            return node.n
+
+        if isinstance(node, ast.BinOp):
+            left = cls._eval_node(node.left)
+            right = cls._eval_node(node.right)
+            op_func = cls.OPERATORS.get(type(node.op))
+            if op_func is None:
+                raise ValueError(f"Unsupported operator: {type(node.op)}")
+            return op_func(left, right)
+
+        elif isinstance(node, ast.UnaryOp):
+            operand = cls._eval_node(node.operand)
+            op_func = cls.OPERATORS.get(type(node.op))
+            if op_func is None:
+                raise ValueError(f"Unsupported unary operator: {type(node.op)}")
+            return op_func(operand)
+
+        elif isinstance(node, ast.Expression):
+            return cls._eval_node(node.body)
+
+        else:
+            raise ValueError(f"Unsupported AST node type: {type(node)}")
 
 
 class SamplerResolver:
@@ -32,11 +180,16 @@ class SamplerResolver:
     1. Loading YAML files with anchors/aliases
     2. Resolving $file.yml:key.path references
     3. Resolving ${file.yml:key} inline variable references
-    4. Merging all samplers into a single structure
+    4. Evaluating constant mathematical expressions (e.g., "1 / 1000" -> 0.001)
+    5. Merging all samplers into a single structure
     """
 
-    def __init__(self, base_dir: Path = Path(".")):
+    # Keys that should NOT have their values evaluated (runtime expressions)
+    EXPRESSION_KEYS = {'expression'}
+
+    def __init__(self, base_dir: Path = Path("."), should_evaluate_constants: bool = True):
         self.base_dir = base_dir
+        self.should_evaluate_constants = should_evaluate_constants
         # Cache of loaded YAML files (raw, with anchors resolved by PyYAML)
         self.file_cache: Dict[str, Dict] = {}
         # Cache of resolved values to avoid infinite recursion
@@ -51,6 +204,8 @@ class SamplerResolver:
         self.errors: List[str] = []
         # Warnings encountered
         self.warnings: List[str] = []
+        # Count of evaluated expressions
+        self.evaluated_count: int = 0
 
     def load_yaml_file(self, file_path: Path) -> Optional[Dict]:
         """
@@ -246,6 +401,45 @@ class SamplerResolver:
         else:
             return value
 
+    def evaluate_constants(self, value: Any, parent_key: str = "", depth: int = 0) -> Any:
+        """
+        Recursively evaluate constant mathematical expressions in the data structure.
+
+        Converts strings like "1 / 1000" to 0.001.
+
+        Skips evaluation for:
+        - Multi-line strings (runtime expressions)
+        - Values under 'expression' keys (runtime expressions)
+        - Strings containing variable names (x, y, z, etc.)
+        """
+        if depth > 100:
+            return value
+
+        if isinstance(value, str):
+            # Skip if this is under an 'expression' key (runtime expression)
+            if parent_key in self.EXPRESSION_KEYS:
+                return value
+
+            # Try to evaluate as a mathematical expression
+            result, success = ExpressionEvaluator.evaluate(value)
+            if success:
+                self.evaluated_count += 1
+                return result
+
+            return value
+
+        elif isinstance(value, dict):
+            result = {}
+            for key, val in value.items():
+                result[key] = self.evaluate_constants(val, parent_key=key, depth=depth + 1)
+            return result
+
+        elif isinstance(value, list):
+            return [self.evaluate_constants(item, parent_key=parent_key, depth=depth + 1) for item in value]
+
+        else:
+            return value
+
     def process_sampler_file(self, file_path: Path) -> Dict[str, Any]:
         """
         Process a single sampler file and extract all samplers.
@@ -416,6 +610,11 @@ def main():
         action='store_true',
         help='Enable verbose output'
     )
+    parser.add_argument(
+        '--no-eval',
+        action='store_true',
+        help='Disable evaluation of constant expressions (keep as strings)'
+    )
 
     args = parser.parse_args()
 
@@ -424,7 +623,8 @@ def main():
     print("=" * 70, file=sys.stderr)
 
     # Initialize resolver
-    resolver = SamplerResolver(base_dir=Path(args.base_dir))
+    should_evaluate = not args.no_eval
+    resolver = SamplerResolver(base_dir=Path(args.base_dir), should_evaluate_constants=should_evaluate)
 
     # Collect and resolve everything
     print("\nCollecting samplers...", file=sys.stderr)
@@ -441,6 +641,12 @@ def main():
     }
     if resolver.all_functions:
         output['functions'] = resolver.all_functions
+
+    # Evaluate constant expressions (e.g., "1 / 1000" -> 0.001)
+    if should_evaluate:
+        print("\nEvaluating constant expressions...", file=sys.stderr)
+        output = resolver.evaluate_constants(output)
+        print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
 
     # Generate YAML
     yaml_output = resolver.generate_yaml_output(output)

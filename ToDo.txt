@@ -20,3 +20,32 @@ Need to shift biome generation location on top of salt?  Is salt set?  Need to v
 Need to fuzz temperature, elevation, precipitation.
 
 Add lakes?
+
+Fix execution time?  Too many filters running on top of eachother?  Anyway to reduce?
+
+Can distribution of ocean to land change to be ocean / coast / inter-land / land?
+	The risk here is some "coast" in the middle of the ocean, but that should be low risk?
+	Alternatively, it could be
+
+Reduce overall map height?  Tie some map heights only to rearth biomes?
+
+No trees in the standard tree sinkhole?
+
+Increase all volcanos / other spot height relative other land?
+
+Remove spot mesas?  They seem sort of strange?
+
+Could elevation be used to gather elevation?  Then every biome could be placed as a cellulare distribution function?
+
+Woah, red leaves are possible? ==>
+	4392,1119, seed?
+	  scale: 1.0
+	  seed: -8943827756363090865
+	  
+	  Need to update red palm tree region  (Check SAKURA_STREAMS?)
+
+Large regions:
+	Vast Forest
+	Mesa
+	Mountainous
+	

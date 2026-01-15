@@ -24,46 +24,48 @@ biomes:
           type: EXPRESSION
           expression: continents(x, z)
         biomes:
-          ocean: 1
-          land: 1
+          ocean: 49
+          coast: 1
+          coast_wide: 3
+          land: 47
       stages:
         
-        #Add coastlines to major land continents.
-        - << biome-distribution/stages/add_coast.yml:stages
-        
-        #Add spots to drop large POIs like volcanos / mesas
-        #Input: ocean / land
-        #Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
-        - << biome-distribution/stages/add_spots.yml:stages
-        
-        #Segment temperature regions for respective canyon valleys / sinkholes
-        - << biome-distribution/stages/special/build_canyon_regions_1.yml:stages
-        
-        #Further segment into subzones so canyons are not everywhere.
-        - << biome-distribution/stages/special/build_canyon_regions_2.yml:stages
-        
-        #Now actually distribute the canyons
-        - << biome-distribution/stages/special/build_canyon_regions_3.yml:stages
-        
-        #Input: land
-        #Output: sink hole zones
-        - << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
-        
-        #Replace outer boundary zones to prevent sink-hole / canyon valley generation back to land.
-        - << biome-distribution/stages/special/return_boundary_to_land.yml:stages
-        
-        #*************************************
-        #Should sinkholes / canyons be placed after rivers?...
-        #*************************************
-        
-        #Output: land / vast-forest / island / ocean / island-coast
-        - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
+        ##Add coastlines to major land continents.
+        #- << biome-distribution/stages/add_coast.yml:stages
+        #
+        ##Add spots to drop large POIs like volcanos / mesas
+        ##Input: ocean / land
+        ##Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
+        #- << biome-distribution/stages/add_spots.yml:stages
+        #
+        ##Segment temperature regions for respective canyon valleys / sinkholes
+        #- << biome-distribution/stages/special/build_canyon_regions_1.yml:stages
+        #
+        ##Further segment into subzones so canyons are not everywhere.
+        #- << biome-distribution/stages/special/build_canyon_regions_2.yml:stages
+        #
+        ##Now actually distribute the canyons
+        #- << biome-distribution/stages/special/build_canyon_regions_3.yml:stages
+        #
+        ##Input: land
+        ##Output: sink hole zones
+        #- << biome-distribution/stages/special/build_sinkhole_regions.yml:stages
+        #
+        ##Replace outer boundary zones to prevent sink-hole / canyon valley generation back to land.
+        #- << biome-distribution/stages/special/return_boundary_to_land.yml:stages
+        #
+        ##*************************************
+        ##Should sinkholes / canyons be placed after rivers?...
+        ##*************************************
+        #
+        ##Output: land / vast-forest / island / ocean / island-coast
+        #- << biome-distribution/stages/Distribute_Major_Regions.yml:stages
         
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far
         #Resolvable biomes
         # - << biome-distribution/stages/PopulateTestBiomes.yml:stages
-        # - << biome-distribution/stages/PopulateTestStage.yml:stages
+        - << biome-distribution/stages/PopulateTestStage.yml:stages
         #*************************************
         
         ##Build out climate regions

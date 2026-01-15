@@ -1,0 +1,28 @@
+Timing test:
+
+Iterative coastline construction:
+2026-01-14 18:10:39,668 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loading config pack "EXPLORE_TEST:EXPLORE_TEST"
+2026-01-14 18:11:11,140 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loaded config pack "EXPLORE_TEST:EXPLORE_TEST" v2.0.1 by Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy in 54742.4542ms.
+2026-01-14 18:11:23,611 [JavaFX Application Thr] INFO  com.dfsek.terra.biometool.BiomeToolView          - Terra platform initialized successfully
+32 to load
+12 s to prime render
+
+Through continental construction:
+2026-01-14 18:14:50,149 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loading config pack "EXPLORE_TEST:EXPLORE_TEST"
+2026-01-14 18:15:08,656 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loaded config pack "EXPLORE_TEST:EXPLORE_TEST" v2.0.1 by Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy in 32799.7023ms.
+2026-01-14 18:15:17,076 [JavaFX Application Thr] INFO  com.dfsek.terra.biometool.BiomeToolView          - Terra platform initialized successfully
+18 to load.
+9 s to prime render
+
+
+Note distributing transitions through continental construction is much much faster, need to see how this can be utalized for other distributions.
+
+With original continental function:
+2026-01-14 18:24:02,619 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loading config pack "EXPLORE_TEST:EXPLORE_TEST"
+2026-01-14 18:24:31,671 [JavaFX Application Thr] INFO  com.dfsek.terra.config.pack.ConfigPackImpl       - Loaded config pack "EXPLORE_TEST:EXPLORE_TEST" v2.0.1 by Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy in 51163.5083ms.
+2026-01-14 18:24:43,303 [JavaFX Application Thr] INFO  com.dfsek.terra.biometool.BiomeToolView          - Terra platform initialized successfully
+
+29 s to load
+12 s to prime render
+
+Roughly the same as more convoluted 

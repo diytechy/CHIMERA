@@ -1,65 +1,92 @@
-Base name,Vanilla ID,Dimension,Value
-The Void,the_void,Other,0
-Plains,plains,Overworld,1
-Sunflower Plains,sunflower_plains,Overworld,2
-Snowy Plains,snowy_plains,Overworld,3
-Ice Spikes,ice_spikes,Overworld,4
-Desert,desert,Overworld,5
-Swamp,swamp,Overworld,6
-Mangrove Swamp,mangrove_swamp,Overworld,7
-Forest,forest,Overworld,8
-Flower Forest,flower_forest,Overworld,9
-Birch Forest,birch_forest,Overworld,10
-Dark Forest,dark_forest,Overworld,11
-Old Growth Birch Forest,old_growth_birch_forest,Overworld,12
-Old Growth Pine Taiga,old_growth_pine_taiga,Overworld,13
-Old Growth Spruce Taiga,old_growth_spruce_taiga,Overworld,14
-Taiga,taiga,Overworld,15
-Snowy Taiga,snowy_taiga,Overworld,16
-Savanna,savanna,Overworld,17
-Savanna Plateau,savanna_plateau,Overworld,18
-Windswept Hills,windswept_hills,Overworld,19
-Windswept Gravelly Hills,windswept_gravelly_hills,Overworld,20
-Windswept Forest,windswept_forest,Overworld,21
-Windswept Savanna,windswept_savanna,Overworld,22
-Jungle,jungle,Overworld,23
-Sparse Jungle,sparse_jungle,Overworld,24
-Bamboo Jungle,bamboo_jungle,Overworld,25
-Badlands,badlands,Overworld,26
-Eroded Badlands,eroded_badlands,Overworld,27
-Wooded Badlands,wooded_badlands,Overworld,28
-Meadow,meadow,Overworld,29
-Cherry Grove,cherry_grove,Overworld,30
-Grove,grove,Overworld,31
-Snowy Slopes,snowy_slopes,Overworld,32
-Frozen Peaks,frozen_peaks,Overworld,33
-Jagged Peaks,jagged_peaks,Overworld,34
-Stony Peaks,stony_peaks,Overworld,35
-River,river,Overworld,36
-Frozen River,frozen_river,Overworld,37
-Beach,beach,Overworld,38
-Snowy Beach,snowy_beach,Overworld,39
-Stony Shore,stony_shore,Overworld,40
-Warm Ocean,warm_ocean,Overworld,41
-Lukewarm Ocean,lukewarm_ocean,Overworld,42
-Deep Lukewarm Ocean,deep_lukewarm_ocean,Overworld,43
-Ocean,ocean,Overworld,44
-Deep Ocean,deep_ocean,Overworld,45
-Cold Ocean,cold_ocean,Overworld,46
-Deep Cold Ocean,deep_cold_ocean,Overworld,47
-Frozen Ocean,frozen_ocean,Overworld,48
-Deep Frozen Ocean,deep_frozen_ocean,Overworld,49
-Mushroom Fields,mushroom_fields,Overworld,50
-Dripstone Caves,dripstone_caves,Overworld,51
-Lush Caves,lush_caves,Overworld,52
-Deep Dark,deep_dark,Overworld,53
-Nether Wastes,nether_wastes,Nether,54
-Warped Forest,warped_forest,Nether,55
-Crimson Forest,crimson_forest,Nether,56
-Soul Sand Valley,soul_sand_valley,Nether,57
-Basalt Deltas,basalt_deltas,Nether,58
-The End,the_end,End,59
-End Highlands,end_highlands,End,60
-End Midlands,end_midlands,End,61
-Small End Islands,small_end_islands,End,62
-End Barrens,end_barrens,End,63
+Base Name,Vanilla ID,ID
+Ocean,BIOME_OCEAN,0
+Plains,BIOME_PLAINS,1
+Desert,BIOME_DESERT,2
+Windswept Hills,BIOME_WINDSWEPT_HILLS,3
+Forest,BIOME_FOREST,4
+Taiga,BIOME_TAIGA,5
+Swamp,BIOME_SWAMP,6
+River,BIOME_RIVER,7
+Nether Wastes,BIOME_NETHER_WASTES,8
+The End,BIOME_THE_END,9
+Frozen Ocean,BIOME_FROZEN_OCEAN,10
+Frozen River,BIOME_FROZEN_RIVER,11
+Snowy Plains,BIOME_SNOWY_PLAINS,12
+Snowy Mountains,BIOME_SNOWY_MOUNTAINS,13
+Mushroom Fields,BIOME_MUSHROOM_FIELDS,14
+Mushroom Field Shore,BIOME_MUSHROOM_FIELD_SHORE,15
+Beach,BIOME_BEACH,16
+Desert Hills,BIOME_DESERT_HILLS,17
+Wooded Hills,BIOME_WOODED_HILLS,18
+Taiga Hills,BIOME_TAIGA_HILLS,19
+Mountain Edge,BIOME_MOUNTAIN_EDGE,20
+Jungle,BIOME_JUNGLE,21
+Jungle Hills,BIOME_JUNGLE_HILLS,22
+Jungle Edge,BIOME_JUNGLE_EDGE,23
+Deep Ocean,BIOME_DEEP_OCEAN,24
+Stone Shore,BIOME_STONE_SHORE,25
+Snowy Beach,BIOME_SNOWY_BEACH,26
+Birch Forest,BIOME_BIRCH_FOREST,27
+Birch Forest Hills,BIOME_BIRCH_FOREST_HILLS,28
+Dark Forest,BIOME_DARK_FOREST,29
+Snowy Taiga,BIOME_SNOWY_TAIGA,30
+Snowy Taiga Hills,BIOME_SNOWY_TAIGA_HILLS,31
+Giant Tree Taiga,BIOME_OLD_GROWTH_PINE_TAIGA,32
+Giant Tree Taiga Hills,BIOME_GIANT_TREE_TAIGA_HILLS,33
+Wooded Mountains,BIOME_WOODED_MOUNTAINS,34
+Savanna,BIOME_SAVANNA,35
+Savanna Plateau,BIOME_SAVANNA_PLATEAU,36
+Badlands,BIOME_BADLANDS,37
+Wooded Badlands Plateau,BIOME_WOODED_BADLANDS_PLATEAU,38
+Badlands Plateau,BIOME_BADLANDS_PLATEAU,39
+Small End Islands,BIOME_SMALL_END_ISLANDS,40
+End Midlands,BIOME_END_MIDLANDS,41
+End Highlands,BIOME_END_HIGHLANDS,42
+End Barrens,BIOME_END_BARRENS,43
+Warm Ocean,BIOME_WARM_OCEAN,44
+Lukewarm Ocean,BIOME_LUKEWARM_OCEAN,45
+Cold Ocean,BIOME_COLD_OCEAN,46
+Deep Warm Ocean,BIOME_DEEP_WARM_OCEAN,47
+Deep Lukewarm Ocean,BIOME_DEEP_LUKEWARM_OCEAN,48
+Deep Cold Ocean,BIOME_DEEP_COLD_OCEAN,49
+Deep Frozen Ocean,BIOME_DEEP_FROZEN_OCEAN,50
+The Void,BIOME_THE_VOID,127
+Sunflower Plains,BIOME_SUNFLOWER_PLAINS,129
+Desert Lakes,BIOME_DESERT_LAKES,130
+Gravelly Mountains,BIOME_WINDSWEPT_GRAVELLY_HILLS,131
+Flower Forest,BIOME_FLOWER_FOREST,132
+Taiga Mountains,BIOME_TAIGA_MOUNTAINS,133
+Swamp Hills,BIOME_SWAMP_HILLS,134
+Ice Spikes,BIOME_ICE_SPIKES,140
+Modified Jungle,BIOME_MODIFIED_JUNGLE,149
+Modified Jungle Edge,BIOME_MODIFIED_JUNGLE_EDGE,151
+Tall Birch Forest,BIOME_OLD_GROWTH_BIRCH_FOREST,155
+Tall Birch Hills,BIOME_BIRCH_FOREST_HILLS,156
+Dark Forest Hills,BIOME_DARK_FOREST_HILLS,157
+Snowy Taiga Mountains,BIOME_SNOWY_TAIGA_MOUNTAINS,158
+Giant Spruce Taiga,BIOME_OLD_GROWTH_SPRUCE_TAIGA,160
+Giant Spruce Taiga Hills,BIOME_GIANT_SPRUCE_TAIGA_HILLS,161
+Gravelly Mountains+,BIOME_MODIFIED_GRAVELLY_MOUNTAINS,162
+Shattered Savanna,BIOME_SHATTERED_SAVANNA,163
+Shattered Savanna Plateau,BIOME_SHATTERED_SAVANNA_PLATEAU,164
+Eroded Badlands,BIOME_ERODED_BADLANDS,165
+Modified Wooded Badlands Plateau,BIOME_MODIFIED_WOODED_BADLANDS_PLATEAU,166
+Modified Badlands Plateau,BIOME_MODIFIED_BADLANDS_PLATEAU,167
+Bamboo Jungle,BIOME_BAMBOO_JUNGLE,168
+Bamboo Jungle Hills,BIOME_BAMBOO_JUNGLE_HILLS,169
+Soul Sand Valley,BIOME_SOUL_SAND_VALLEY,170
+Crimson Forest,BIOME_CRIMSON_FOREST,171
+Warped Forest,BIOME_WARPED_FOREST,172
+Basalt Deltas,BIOME_BASALT_DELTAS,173
+Dripstone Caves,BIOME_DRIPSTONE_CAVES,174
+Lush Caves,BIOME_LUSH_CAVES,175
+Pale Garden,BIOME_PALE_GARDEN,245
+Cherry grove,BIOME_CHERRY_GROVE,246
+Mangrove swamp,BIOME_MANGROVE_SWAMP,247
+Deep Dark,BIOME_DEEP_DARK,248
+Frozen Peaks,BIOME_FROZEN_PEAKS,249
+Grove,BIOME_GROVE,250
+Jagged Peaks,BIOME_JAGGED_PEAKS,251
+Meadow,BIOME_MEADOW,252
+Snowy Slopes,BIOME_SNOWY_SLOPES,253
+Stony Peaks,BIOME_STONY_PEAKS,254

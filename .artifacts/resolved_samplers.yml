@@ -1,6 +1,42 @@
 type: EXPRESSION
-expression: y
+#expression: biome_place2(x,z)
+#expression: round((elevation(x,z)*10))/10
+expression: continents(x,z)
+
+
+
+
 samplers:
+  biome_place: &biome_place
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60 
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300 
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          return: CellValue
+          frequency: 0.005
+          jitter: 1.2
+          distance: Hybrid
+          salt: 7777.0
+  biome_place2: *biome_place
+          
   continents:
     dimensions: 2
     type: EXPRESSION

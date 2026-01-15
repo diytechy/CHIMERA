@@ -23,7 +23,7 @@ samplers:
       spawnIsland:
         dimensions: 2
         type: DOMAIN_WARP
-        amplitude: 7.5
+        amplitude: 150
         warp:
           type: FBM
           octaves: 2
@@ -33,7 +33,7 @@ samplers:
             z: -5000
             sampler:
               type: OPEN_SIMPLEX_2
-              frequency: 0.08
+              frequency: 0.004
         sampler:
           type: EXPRESSION_NORMALIZER
           expression: |
@@ -126,10 +126,10 @@ samplers:
       spotDistance:
         dimensions: 2
         type: DOMAIN_WARP
-        amplitude: 0.35
+        amplitude: 7
         warp:
           type: OPEN_SIMPLEX_2
-          frequency: 0.3
+          frequency: 0.015
         sampler:
           type: EXPRESSION
           expression: (noise(x, z)+1)*spread
@@ -315,7 +315,7 @@ samplers:
           spawnIsland:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 7.5
+            amplitude: 150
             warp:
               type: FBM
               octaves: 2
@@ -325,7 +325,7 @@ samplers:
                 z: -5000
                 sampler:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.08
+                  frequency: 0.004
             sampler:
               type: EXPRESSION_NORMALIZER
               expression: |
@@ -418,10 +418,10 @@ samplers:
           spotDistance:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 0.35
+            amplitude: 7
             warp:
               type: OPEN_SIMPLEX_2
-              frequency: 0.3
+              frequency: 0.015
             sampler:
               type: EXPRESSION
               expression: (noise(x, z)+1)*spread
@@ -608,7 +608,7 @@ samplers:
                 spawnIsland:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 7.5
+                  amplitude: 150
                   warp:
                     type: FBM
                     octaves: 2
@@ -618,7 +618,7 @@ samplers:
                       z: -5000
                       sampler:
                         type: OPEN_SIMPLEX_2
-                        frequency: 0.08
+                        frequency: 0.004
                   sampler:
                     type: EXPRESSION_NORMALIZER
                     expression: |
@@ -711,10 +711,10 @@ samplers:
                 spotDistance:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 0.35
+                  amplitude: 7
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.3
+                    frequency: 0.015
                   sampler:
                     type: EXPRESSION
                     expression: (noise(x, z)+1)*spread
@@ -1099,7 +1099,7 @@ samplers:
               expression: ((-in+1)/2)^2
               sampler:
                 type: PSEUDOEROSION
-                erosion-frequency: 0.2
+                erosion-frequency: 0.01
                 lacunarity: 1.5
                 branch-strength: 1
                 octaves: 3
@@ -1324,7 +1324,7 @@ samplers:
                   expression: ((-in+1)/2)^2
                   sampler:
                     type: PSEUDOEROSION
-                    erosion-frequency: 0.2
+                    erosion-frequency: 0.01
                     lacunarity: 1.5
                     branch-strength: 1
                     octaves: 3
@@ -1469,7 +1469,7 @@ samplers:
           spawnIsland:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 7.5
+            amplitude: 150
             warp:
               type: FBM
               octaves: 2
@@ -1479,7 +1479,7 @@ samplers:
                 z: -5000
                 sampler:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.08
+                  frequency: 0.004
             sampler:
               type: EXPRESSION_NORMALIZER
               expression: |
@@ -1572,10 +1572,10 @@ samplers:
           spotDistance:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 0.35
+            amplitude: 7
             warp:
               type: OPEN_SIMPLEX_2
-              frequency: 0.3
+              frequency: 0.015
             sampler:
               type: EXPRESSION
               expression: (noise(x, z)+1)*spread
@@ -1723,7 +1723,7 @@ samplers:
       spawnIsland:
         dimensions: 2
         type: DOMAIN_WARP
-        amplitude: 7.5
+        amplitude: 150
         warp:
           type: FBM
           octaves: 2
@@ -1733,7 +1733,7 @@ samplers:
             z: -5000
             sampler:
               type: OPEN_SIMPLEX_2
-              frequency: 0.08
+              frequency: 0.004
         sampler:
           type: EXPRESSION_NORMALIZER
           expression: |
@@ -1933,10 +1933,10 @@ samplers:
                 z: 10000
                 sampler:
                   type: DOMAIN_WARP
-                  amplitude: 0.15
+                  amplitude: 3
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 2.0
+                    frequency: 0.1
                   sampler:
                     type: OPEN_SIMPLEX_2
           erosionStrength:
@@ -2181,7 +2181,7 @@ samplers:
                         expression: ((-in+1)/2)^2
                         sampler:
                           type: PSEUDOEROSION
-                          erosion-frequency: 0.2
+                          erosion-frequency: 0.01
                           lacunarity: 1.5
                           branch-strength: 1
                           octaves: 3
@@ -2326,7 +2326,7 @@ samplers:
                 spawnIsland:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 7.5
+                  amplitude: 150
                   warp:
                     type: FBM
                     octaves: 2
@@ -2336,7 +2336,7 @@ samplers:
                       z: -5000
                       sampler:
                         type: OPEN_SIMPLEX_2
-                        frequency: 0.08
+                        frequency: 0.004
                   sampler:
                     type: EXPRESSION_NORMALIZER
                     expression: |
@@ -2429,10 +2429,10 @@ samplers:
                 spotDistance:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 0.35
+                  amplitude: 7
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.3
+                    frequency: 0.015
                   sampler:
                     type: EXPRESSION
                     expression: (noise(x, z)+1)*spread
@@ -2580,7 +2580,7 @@ samplers:
             spawnIsland:
               dimensions: 2
               type: DOMAIN_WARP
-              amplitude: 7.5
+              amplitude: 150
               warp:
                 type: FBM
                 octaves: 2
@@ -2590,7 +2590,7 @@ samplers:
                   z: -5000
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.08
+                    frequency: 0.004
               sampler:
                 type: EXPRESSION_NORMALIZER
                 expression: |
@@ -2790,10 +2790,10 @@ samplers:
                       z: 10000
                       sampler:
                         type: DOMAIN_WARP
-                        amplitude: 0.15
+                        amplitude: 3
                         warp:
                           type: OPEN_SIMPLEX_2
-                          frequency: 2.0
+                          frequency: 0.1
                         sampler:
                           type: OPEN_SIMPLEX_2
                 erosionStrength:
@@ -2806,28 +2806,28 @@ samplers:
                       type: OPEN_SIMPLEX_2
                       frequency: 0.001
                       salt: 2175.0
-        amplitude: 0.0125
+        amplitude: 0.25
         warp:
           type: WHITE_NOISE
           salt: 2394.0
       terraceScale:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 0.04
+        frequency: 0.002
         salt: 1926.0
       terraceDepth:
         dimensions: 2
         type: PROBABILITY
         sampler:
           type: OPEN_SIMPLEX_2
-          frequency: 0.02
+          frequency: 0.001
           salt: 5812.0
       terraceOffset:
         dimensions: 2
         type: FBM
         sampler:
           type: OPEN_SIMPLEX_2
-          frequency: 0.02
+          frequency: 0.001
           salt: 8512.0
       detail:
         dimensions: 2
@@ -2836,7 +2836,7 @@ samplers:
         lacunarity: 2
         sampler:
           type: OPEN_SIMPLEX_2
-          frequency: 0.16
+          frequency: 0.008
           salt: 5912.0
     functions:
       terrace:
@@ -3287,7 +3287,7 @@ samplers:
                   expression: ((-in+1)/2)^2
                   sampler:
                     type: PSEUDOEROSION
-                    erosion-frequency: 0.2
+                    erosion-frequency: 0.01
                     lacunarity: 1.5
                     branch-strength: 1
                     octaves: 3
@@ -3331,7 +3331,7 @@ samplers:
           spawnIsland:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 7.5
+            amplitude: 150
             warp:
               type: FBM
               octaves: 2
@@ -3341,7 +3341,7 @@ samplers:
                 z: -5000
                 sampler:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.08
+                  frequency: 0.004
             sampler:
               type: EXPRESSION_NORMALIZER
               expression: |
@@ -3434,10 +3434,10 @@ samplers:
           spotDistance:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 0.35
+            amplitude: 7
             warp:
               type: OPEN_SIMPLEX_2
-              frequency: 0.3
+              frequency: 0.015
             sampler:
               type: EXPRESSION
               expression: (noise(x, z)+1)*spread
@@ -3726,7 +3726,7 @@ samplers:
           spawnIsland:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 7.5
+            amplitude: 150
             warp:
               type: FBM
               octaves: 2
@@ -3736,7 +3736,7 @@ samplers:
                 z: -5000
                 sampler:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.08
+                  frequency: 0.004
             sampler:
               type: EXPRESSION_NORMALIZER
               expression: |
@@ -3829,10 +3829,10 @@ samplers:
           spotDistance:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 0.35
+            amplitude: 7
             warp:
               type: OPEN_SIMPLEX_2
-              frequency: 0.3
+              frequency: 0.015
             sampler:
               type: EXPRESSION
               expression: (noise(x, z)+1)*spread
@@ -3984,10 +3984,10 @@ samplers:
     z: 10000
     sampler:
       type: DOMAIN_WARP
-      amplitude: 0.15
+      amplitude: 3
       warp:
         type: OPEN_SIMPLEX_2
-        frequency: 2.0
+        frequency: 0.1
       sampler:
         type: OPEN_SIMPLEX_2
   riverDistance:
@@ -4013,10 +4013,10 @@ samplers:
         z: 10000
         sampler:
           type: DOMAIN_WARP
-          amplitude: 0.15
+          amplitude: 3
           warp:
             type: OPEN_SIMPLEX_2
-            frequency: 2.0
+            frequency: 0.1
           sampler:
             type: OPEN_SIMPLEX_2
   riverTerrainErosion:
@@ -4129,10 +4129,10 @@ samplers:
             z: 10000
             sampler:
               type: DOMAIN_WARP
-              amplitude: 0.15
+              amplitude: 3
               warp:
                 type: OPEN_SIMPLEX_2
-                frequency: 2.0
+                frequency: 0.1
               sampler:
                 type: OPEN_SIMPLEX_2
       erosionStrength:
@@ -4239,7 +4239,7 @@ samplers:
       width:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 1.0
+        frequency: 0.05
       riverBiomeMap:
         dimensions: 3
         type: EXPRESSION
@@ -4286,10 +4286,10 @@ samplers:
                 z: 10000
                 sampler:
                   type: DOMAIN_WARP
-                  amplitude: 0.15
+                  amplitude: 3
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 2.0
+                    frequency: 0.1
                   sampler:
                     type: OPEN_SIMPLEX_2
           riverKerneled:
@@ -4327,10 +4327,10 @@ samplers:
                   z: 10000
                   sampler:
                     type: DOMAIN_WARP
-                    amplitude: 0.15
+                    amplitude: 3
                     warp:
                       type: OPEN_SIMPLEX_2
-                      frequency: 2.0
+                      frequency: 0.1
                     sampler:
                       type: OPEN_SIMPLEX_2
   riverBiomeMap2:
@@ -4427,7 +4427,7 @@ samplers:
       width:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 1.0
+        frequency: 0.05
       riverBiomeMap:
         dimensions: 3
         type: EXPRESSION
@@ -4474,10 +4474,10 @@ samplers:
                 z: 10000
                 sampler:
                   type: DOMAIN_WARP
-                  amplitude: 0.15
+                  amplitude: 3
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 2.0
+                    frequency: 0.1
                   sampler:
                     type: OPEN_SIMPLEX_2
           riverKerneled:
@@ -4515,10 +4515,10 @@ samplers:
                   z: 10000
                   sampler:
                     type: DOMAIN_WARP
-                    amplitude: 0.15
+                    amplitude: 3
                     warp:
                       type: OPEN_SIMPLEX_2
-                      frequency: 2.0
+                      frequency: 0.1
                     sampler:
                       type: OPEN_SIMPLEX_2
   simplex2:
@@ -4527,21 +4527,21 @@ samplers:
     octaves: 4
     sampler:
       type: OPEN_SIMPLEX_2
-      frequency: 0.15
+      frequency: 0.0075
   simplex3:
     dimensions: 3
     type: FBM
     octaves: 4
     sampler:
       type: OPEN_SIMPLEX_2
-      frequency: 0.15
+      frequency: 0.0075
   simplex:
     dimensions: 2
     type: FBM
     octaves: 4
     sampler:
       type: OPEN_SIMPLEX_2
-      frequency: 0.15
+      frequency: 0.0075
   positiveWhiteNoise:
     dimensions: 2
     type: POSITIVE_WHITE_NOISE
@@ -4551,7 +4551,7 @@ samplers:
   spawnIsland:
     dimensions: 2
     type: DOMAIN_WARP
-    amplitude: 7.5
+    amplitude: 150
     warp:
       type: FBM
       octaves: 2
@@ -4561,7 +4561,7 @@ samplers:
         z: -5000
         sampler:
           type: OPEN_SIMPLEX_2
-          frequency: 0.08
+          frequency: 0.004
     sampler:
       type: EXPRESSION_NORMALIZER
       expression: |
@@ -4654,10 +4654,10 @@ samplers:
   spotDistance:
     dimensions: 2
     type: DOMAIN_WARP
-    amplitude: 0.35
+    amplitude: 7
     warp:
       type: OPEN_SIMPLEX_2
-      frequency: 0.3
+      frequency: 0.015
     sampler:
       type: EXPRESSION
       expression: (noise(x, z)+1)*spread
@@ -5020,7 +5020,7 @@ samplers:
                         expression: ((-in+1)/2)^2
                         sampler:
                           type: PSEUDOEROSION
-                          erosion-frequency: 0.2
+                          erosion-frequency: 0.01
                           lacunarity: 1.5
                           branch-strength: 1
                           octaves: 3
@@ -5165,7 +5165,7 @@ samplers:
                 spawnIsland:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 7.5
+                  amplitude: 150
                   warp:
                     type: FBM
                     octaves: 2
@@ -5175,7 +5175,7 @@ samplers:
                       z: -5000
                       sampler:
                         type: OPEN_SIMPLEX_2
-                        frequency: 0.08
+                        frequency: 0.004
                   sampler:
                     type: EXPRESSION_NORMALIZER
                     expression: |
@@ -5268,10 +5268,10 @@ samplers:
                 spotDistance:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 0.35
+                  amplitude: 7
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.3
+                    frequency: 0.015
                   sampler:
                     type: EXPRESSION
                     expression: (noise(x, z)+1)*spread
@@ -5419,7 +5419,7 @@ samplers:
             spawnIsland:
               dimensions: 2
               type: DOMAIN_WARP
-              amplitude: 7.5
+              amplitude: 150
               warp:
                 type: FBM
                 octaves: 2
@@ -5429,7 +5429,7 @@ samplers:
                   z: -5000
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.08
+                    frequency: 0.004
               sampler:
                 type: EXPRESSION_NORMALIZER
                 expression: |
@@ -5629,10 +5629,10 @@ samplers:
                       z: 10000
                       sampler:
                         type: DOMAIN_WARP
-                        amplitude: 0.15
+                        amplitude: 3
                         warp:
                           type: OPEN_SIMPLEX_2
-                          frequency: 2.0
+                          frequency: 0.1
                         sampler:
                           type: OPEN_SIMPLEX_2
                 erosionStrength:
@@ -5648,10 +5648,10 @@ samplers:
   largeSpotDistance:
     dimensions: 2
     type: DOMAIN_WARP
-    amplitude: 0.35
+    amplitude: 7
     warp:
       type: OPEN_SIMPLEX_2
-      frequency: 0.2
+      frequency: 0.01
     sampler:
       type: EXPRESSION
       expression: (noise(x, z)+1)*spread
@@ -6014,7 +6014,7 @@ samplers:
                         expression: ((-in+1)/2)^2
                         sampler:
                           type: PSEUDOEROSION
-                          erosion-frequency: 0.2
+                          erosion-frequency: 0.01
                           lacunarity: 1.5
                           branch-strength: 1
                           octaves: 3
@@ -6159,7 +6159,7 @@ samplers:
                 spawnIsland:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 7.5
+                  amplitude: 150
                   warp:
                     type: FBM
                     octaves: 2
@@ -6169,7 +6169,7 @@ samplers:
                       z: -5000
                       sampler:
                         type: OPEN_SIMPLEX_2
-                        frequency: 0.08
+                        frequency: 0.004
                   sampler:
                     type: EXPRESSION_NORMALIZER
                     expression: |
@@ -6262,10 +6262,10 @@ samplers:
                 spotDistance:
                   dimensions: 2
                   type: DOMAIN_WARP
-                  amplitude: 0.35
+                  amplitude: 7
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.3
+                    frequency: 0.015
                   sampler:
                     type: EXPRESSION
                     expression: (noise(x, z)+1)*spread
@@ -6413,7 +6413,7 @@ samplers:
             spawnIsland:
               dimensions: 2
               type: DOMAIN_WARP
-              amplitude: 7.5
+              amplitude: 150
               warp:
                 type: FBM
                 octaves: 2
@@ -6423,7 +6423,7 @@ samplers:
                   z: -5000
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    frequency: 0.08
+                    frequency: 0.004
               sampler:
                 type: EXPRESSION_NORMALIZER
                 expression: |
@@ -6623,10 +6623,10 @@ samplers:
                       z: 10000
                       sampler:
                         type: DOMAIN_WARP
-                        amplitude: 0.15
+                        amplitude: 3
                         warp:
                           type: OPEN_SIMPLEX_2
-                          frequency: 2.0
+                          frequency: 0.1
                         sampler:
                           type: OPEN_SIMPLEX_2
                 erosionStrength:
@@ -7001,10 +7001,10 @@ samplers:
       spotDistance:
         dimensions: 2
         type: DOMAIN_WARP
-        amplitude: 0.35
+        amplitude: 7
         warp:
           type: OPEN_SIMPLEX_2
-          frequency: 0.3
+          frequency: 0.015
         sampler:
           type: EXPRESSION
           expression: (noise(x, z)+1)*spread
@@ -7056,7 +7056,7 @@ samplers:
         octaves: 3
         sampler:
           type: OPEN_SIMPLEX_2
-          frequency: 0.66
+          frequency: 0.033
   rawTemperature:
     dimensions: 2
     type: EXPRESSION
@@ -7361,7 +7361,7 @@ samplers:
                       expression: ((-in+1)/2)^2
                       sampler:
                         type: PSEUDOEROSION
-                        erosion-frequency: 0.2
+                        erosion-frequency: 0.01
                         lacunarity: 1.5
                         branch-strength: 1
                         octaves: 3
@@ -7506,7 +7506,7 @@ samplers:
               spawnIsland:
                 dimensions: 2
                 type: DOMAIN_WARP
-                amplitude: 7.5
+                amplitude: 150
                 warp:
                   type: FBM
                   octaves: 2
@@ -7516,7 +7516,7 @@ samplers:
                     z: -5000
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      frequency: 0.08
+                      frequency: 0.004
                 sampler:
                   type: EXPRESSION_NORMALIZER
                   expression: |
@@ -7609,10 +7609,10 @@ samplers:
               spotDistance:
                 dimensions: 2
                 type: DOMAIN_WARP
-                amplitude: 0.35
+                amplitude: 7
                 warp:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.3
+                  frequency: 0.015
                 sampler:
                   type: EXPRESSION
                   expression: (noise(x, z)+1)*spread
@@ -7760,7 +7760,7 @@ samplers:
           spawnIsland:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 7.5
+            amplitude: 150
             warp:
               type: FBM
               octaves: 2
@@ -7770,7 +7770,7 @@ samplers:
                 z: -5000
                 sampler:
                   type: OPEN_SIMPLEX_2
-                  frequency: 0.08
+                  frequency: 0.004
             sampler:
               type: EXPRESSION_NORMALIZER
               expression: |
@@ -7970,10 +7970,10 @@ samplers:
                     z: 10000
                     sampler:
                       type: DOMAIN_WARP
-                      amplitude: 0.15
+                      amplitude: 3
                       warp:
                         type: OPEN_SIMPLEX_2
-                        frequency: 2.0
+                        frequency: 0.1
                       sampler:
                         type: OPEN_SIMPLEX_2
               erosionStrength:
@@ -8017,10 +8017,10 @@ samplers:
     z: -10000
     sampler:
       type: DOMAIN_WARP
-      amplitude: 0.15
+      amplitude: 3
       warp:
         type: OPEN_SIMPLEX_2
-        frequency: 2.0
+        frequency: 0.1
       sampler:
         type: OPEN_SIMPLEX_2
         salt: 4357.0
@@ -8047,10 +8047,10 @@ samplers:
         z: -10000
         sampler:
           type: DOMAIN_WARP
-          amplitude: 0.15
+          amplitude: 3
           warp:
             type: OPEN_SIMPLEX_2
-            frequency: 2.0
+            frequency: 0.1
           sampler:
             type: OPEN_SIMPLEX_2
             salt: 4357.0
@@ -8164,10 +8164,10 @@ samplers:
             z: -10000
             sampler:
               type: DOMAIN_WARP
-              amplitude: 0.15
+              amplitude: 3
               warp:
                 type: OPEN_SIMPLEX_2
-                frequency: 2.0
+                frequency: 0.1
               sampler:
                 type: OPEN_SIMPLEX_2
                 salt: 4357.0
@@ -8275,7 +8275,7 @@ samplers:
       width:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 1.0
+        frequency: 0.05
         salt: 5346.0
       trenchBiomeMap:
         dimensions: 3
@@ -8323,10 +8323,10 @@ samplers:
                 z: -10000
                 sampler:
                   type: DOMAIN_WARP
-                  amplitude: 0.15
+                  amplitude: 3
                   warp:
                     type: OPEN_SIMPLEX_2
-                    frequency: 2.0
+                    frequency: 0.1
                   sampler:
                     type: OPEN_SIMPLEX_2
                     salt: 4357.0
@@ -8365,10 +8365,10 @@ samplers:
                   z: -10000
                   sampler:
                     type: DOMAIN_WARP
-                    amplitude: 0.15
+                    amplitude: 3
                     warp:
                       type: OPEN_SIMPLEX_2
-                      frequency: 2.0
+                      frequency: 0.1
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 4357.0

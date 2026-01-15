@@ -26,7 +26,7 @@ ensure_modules(["yaml", "re"])
 # - Frequency values are MULTIPLIED by this factor (higher = more detail visible)
 # - Amplitude values are DIVIDED by this factor (keeps proportions balanced)
 # Set to 1.0 for no scaling (original values)
-DEFAULT_RENDER_SCALE = 20.0
+DEFAULT_RENDER_SCALE = 1.0
 
 import yaml
 import re

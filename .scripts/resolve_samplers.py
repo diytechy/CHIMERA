@@ -17,6 +17,17 @@ Output format:
 from ensure_module import ensure_modules
 ensure_modules(["yaml", "re"])
 
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+# Default render scale factor for noise visualization/preview
+# - Frequency values are MULTIPLIED by this factor (higher = more detail visible)
+# - Amplitude values are DIVIDED by this factor (keeps proportions balanced)
+# Set to 1.0 for no scaling (original values)
+DEFAULT_RENDER_SCALE = 20.0
+
 import yaml
 import re
 import sys
@@ -191,9 +202,17 @@ class SamplerResolver:
     # Keys whose values should be converted to float (for proper type interpretation)
     FLOAT_KEYS = {'salt'}
 
-    def __init__(self, base_dir: Path = Path("."), should_evaluate_constants: bool = True):
+    # Keys whose values should be MULTIPLIED by render scale
+    FREQUENCY_KEYS = {'frequency', 'erosion-frequency'}
+
+    # Keys whose values should be DIVIDED by render scale
+    AMPLITUDE_KEYS = {'amplitude'}
+
+    def __init__(self, base_dir: Path = Path("."), should_evaluate_constants: bool = True,
+                 render_scale: float = 1.0):
         self.base_dir = base_dir
         self.should_evaluate_constants = should_evaluate_constants
+        self.render_scale = render_scale
         # Cache of loaded YAML files (raw, with anchors resolved by PyYAML)
         self.file_cache: Dict[str, Dict] = {}
         # Cache of resolved values to avoid infinite recursion
@@ -449,6 +468,15 @@ class SamplerResolver:
             # This handles cases like salt: 0694 which YAML parses as int 694
             if parent_key in self.FLOAT_KEYS:
                 return float(value)
+
+            # Apply render scale to frequency values (multiply)
+            if parent_key in self.FREQUENCY_KEYS and self.render_scale != 1.0:
+                return value * self.render_scale
+
+            # Apply render scale to amplitude values (divide)
+            if parent_key in self.AMPLITUDE_KEYS and self.render_scale != 1.0:
+                return value / self.render_scale
+
             return value
 
         elif isinstance(value, dict):
@@ -638,16 +666,30 @@ def main():
         action='store_true',
         help='Disable evaluation of constant expressions (keep as strings)'
     )
+    parser.add_argument(
+        '-s', '--render-scale',
+        type=float,
+        default=DEFAULT_RENDER_SCALE,
+        help=f'Render scale factor: frequencies are multiplied, amplitudes are divided (default: {DEFAULT_RENDER_SCALE})'
+    )
 
     args = parser.parse_args()
 
     print("=" * 70, file=sys.stderr)
     print("Terra Sampler Resolver", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
+    print(f"Render scale: {args.render_scale}x", file=sys.stderr)
+    if args.render_scale != 1.0:
+        print(f"  - Frequencies will be multiplied by {args.render_scale}", file=sys.stderr)
+        print(f"  - Amplitudes will be divided by {args.render_scale}", file=sys.stderr)
 
     # Initialize resolver
     should_evaluate = not args.no_eval
-    resolver = SamplerResolver(base_dir=Path(args.base_dir), should_evaluate_constants=should_evaluate)
+    resolver = SamplerResolver(
+        base_dir=Path(args.base_dir),
+        should_evaluate_constants=should_evaluate,
+        render_scale=args.render_scale
+    )
 
     # Collect and resolve everything
     print("\nCollecting samplers...", file=sys.stderr)

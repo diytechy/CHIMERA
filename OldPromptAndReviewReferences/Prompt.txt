@@ -199,3 +199,20 @@ Configuration: Noise Config
 		In entry "sampler"
 		With type "OPEN_SIMPLEX_2"
 		In entry "salt"
+
+                Configuration: Noise Config
+	Message: Data provided is not a boolean. Data is type: Double
+	Path: samplers.spotBaseElevation...salt-lookup
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "spotBaseElevation"
+		In entry "."
+		With type "CELLULAR"
+		In entry "salt-lookup"
+
+The "salt-lookup" entry should still be boolean (true / false), and not converted to floats.
+
+Global view is typically -5000 to 5000 blocks, but noise tool only allows about 0 - 400
+
+Add a global render scaler near the top of the python tool for configurability with a default value of 20 that takes all frequency values and multiplies them by this render scaler, and takes all amplitudes and divides it by this render scaler.

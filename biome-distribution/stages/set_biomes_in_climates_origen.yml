@@ -25,10 +25,9 @@ stages:
             type: CELLULAR
             return: CellValue
             frequency: 1 /  (${customization.yml:biomeSpread.cellDistance} * ${customization.yml:variation-scale})
-            salt: 2001
+            salt: 7777
             jitter: 1.2
             distance: Hybrid
-            salt: 7777
     default-from: ice-cap-flat
     default-to:
       - ICE_SPIKES: 1

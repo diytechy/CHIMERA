@@ -150,3 +150,27 @@ Followed by all the samplers and their resolved constants / external samplers / 
               frequency: 0.004
         sampler:
 "
+
+
+New error on output:
+
+Configuration: Noise Config
+	Message: Data provided is not a double. Data is type: String
+	Path: samplers.continents...samplers.spotDistance...sampler.samplers.noise...jitter
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "continents"
+		In entry "."
+		With type "EXPRESSION"
+		In entry "samplers"
+		In entry "spotDistance"
+		In entry "."
+		With type "DOMAIN_WARP"
+		In entry "sampler"
+		With type "EXPRESSION"
+		In entry "samplers"
+		In entry "noise"
+		In entry "."
+		With type "CELLULAR"
+		In entry "jitter"

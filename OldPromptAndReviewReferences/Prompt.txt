@@ -176,3 +176,26 @@ Configuration: Noise Config
 		In entry "frequency"
 
 Update this script to evaluate noise configuration constants as well.  For example, frequency should not be shown as "1 / 1000", but should be evaluated to "0.001" before the output is saved.
+
+Configuration: Noise Config
+	Message: Data provided is not a long. Data is type: String
+	Path: samplers.rawElevation...samplers.noise...sampler.samplers.mountainMask...sampler.salt
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "rawElevation"
+		In entry "."
+		With type "EXPRESSION"
+		In entry "samplers"
+		In entry "noise"
+		In entry "."
+		With type "TRANSLATE"
+		In entry "sampler"
+		With type "EXPRESSION"
+		In entry "samplers"
+		In entry "mountainMask"
+		In entry "."
+		With type "PROBABILITY"
+		In entry "sampler"
+		With type "OPEN_SIMPLEX_2"
+		In entry "salt"

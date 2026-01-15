@@ -155,7 +155,7 @@ samplers:
               dimensions: 2
               type: CELLULAR
               frequency: 0.0006666666667
-              salt: 3
+              salt: 3.0
               jitter: 0.8
               distance: Euclidean
       spotRadius:
@@ -257,7 +257,7 @@ samplers:
               dimensions: 2
               type: CELLULAR
               frequency: 0.0006666666667
-              salt: 3
+              salt: 3.0
               jitter: 0.8
               return: CellValue
       sampler:
@@ -272,7 +272,7 @@ samplers:
           octaves: 3
           sampler:
             type: OPEN_SIMPLEX_2
-            salt: 1
+            salt: 1.0
             frequency: 0.0002
   continentBorder:
     dimensions: 2
@@ -447,7 +447,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   distance: Euclidean
           spotRadius:
@@ -549,7 +549,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   return: CellValue
           sampler:
@@ -564,7 +564,7 @@ samplers:
               octaves: 3
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 1
+                salt: 1.0
                 frequency: 0.0002
       continentsEdge:
         dimensions: 2
@@ -740,7 +740,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         distance: Euclidean
                 spotRadius:
@@ -842,7 +842,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         return: CellValue
                 sampler:
@@ -857,7 +857,7 @@ samplers:
                     octaves: 3
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      salt: 1
+                      salt: 1.0
                       frequency: 0.0002
   rawFlatness:
     dimensions: 2
@@ -1091,7 +1091,7 @@ samplers:
               type: PROBABILITY
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 0694
+                salt: 694.0
                 frequency: 0.0006666666667
             mountains:
               dimensions: 2
@@ -1316,7 +1316,7 @@ samplers:
                   type: PROBABILITY
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    salt: 0694
+                    salt: 694.0
                     frequency: 0.0006666666667
                 mountains:
                   dimensions: 2
@@ -1601,7 +1601,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   distance: Euclidean
           spotRadius:
@@ -1703,7 +1703,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   return: CellValue
           sampler:
@@ -1718,7 +1718,7 @@ samplers:
               octaves: 3
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 1
+                salt: 1.0
                 frequency: 0.0002
       spawnIsland:
         dimensions: 2
@@ -1948,7 +1948,7 @@ samplers:
               sampler:
                 type: OPEN_SIMPLEX_2
                 frequency: 0.001
-                salt: 2175
+                salt: 2175.0
   elevationDetailed:
     dimensions: 2
     type: EXPRESSION
@@ -2173,7 +2173,7 @@ samplers:
                         type: PROBABILITY
                         sampler:
                           type: OPEN_SIMPLEX_2
-                          salt: 0694
+                          salt: 694.0
                           frequency: 0.0006666666667
                       mountains:
                         dimensions: 2
@@ -2458,7 +2458,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         distance: Euclidean
                 spotRadius:
@@ -2560,7 +2560,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         return: CellValue
                 sampler:
@@ -2575,7 +2575,7 @@ samplers:
                     octaves: 3
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      salt: 1
+                      salt: 1.0
                       frequency: 0.0002
             spawnIsland:
               dimensions: 2
@@ -2805,30 +2805,30 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       frequency: 0.001
-                      salt: 2175
+                      salt: 2175.0
         amplitude: 0.25
         warp:
           type: WHITE_NOISE
-          salt: 2394
+          salt: 2394.0
       terraceScale:
         dimensions: 2
         type: OPEN_SIMPLEX_2
         frequency: 0.002
-        salt: 1926
+        salt: 1926.0
       terraceDepth:
         dimensions: 2
         type: PROBABILITY
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.001
-          salt: 5812
+          salt: 5812.0
       terraceOffset:
         dimensions: 2
         type: FBM
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.001
-          salt: 8512
+          salt: 8512.0
       detail:
         dimensions: 2
         type: FBM
@@ -2837,7 +2837,7 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.008
-          salt: 5912
+          salt: 5912.0
     functions:
       terrace:
         arguments:
@@ -3279,7 +3279,7 @@ samplers:
                   type: PROBABILITY
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    salt: 0694
+                    salt: 694.0
                     frequency: 0.0006666666667
                 mountains:
                   dimensions: 2
@@ -3463,7 +3463,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   distance: Euclidean
           spotRadius:
@@ -3565,7 +3565,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   return: CellValue
           sampler:
@@ -3580,7 +3580,7 @@ samplers:
               octaves: 3
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 1
+                salt: 1.0
                 frequency: 0.0002
   rawPrecipitation:
     dimensions: 2
@@ -3602,7 +3602,7 @@ samplers:
           octaves: 2
           sampler:
             type: OPEN_SIMPLEX_2
-            salt: 4
+            salt: 4.0
             frequency: 0.0001333333333
   precipitation:
     dimensions: 2
@@ -3702,7 +3702,7 @@ samplers:
               octaves: 2
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 4
+                salt: 4.0
                 frequency: 0.0001333333333
       continents:
         dimensions: 2
@@ -3858,7 +3858,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   distance: Euclidean
           spotRadius:
@@ -3960,7 +3960,7 @@ samplers:
                   dimensions: 2
                   type: CELLULAR
                   frequency: 0.0006666666667
-                  salt: 3
+                  salt: 3.0
                   jitter: 0.8
                   return: CellValue
           sampler:
@@ -3975,7 +3975,7 @@ samplers:
               octaves: 3
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 1
+                salt: 1.0
                 frequency: 0.0002
   riverNoise:
     dimensions: 2
@@ -4144,7 +4144,7 @@ samplers:
           sampler:
             type: OPEN_SIMPLEX_2
             frequency: 0.001
-            salt: 2175
+            salt: 2175.0
   riverBiomeMap:
     dimensions: 2
     type: EXPRESSION
@@ -4683,7 +4683,7 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0006666666667
-          salt: 3
+          salt: 3.0
           jitter: 0.8
           distance: Euclidean
   spotSizePercent:
@@ -4693,7 +4693,7 @@ samplers:
       dimensions: 2
       type: CELLULAR
       frequency: 0.0006666666667
-      salt: 3
+      salt: 3.0
       jitter: 0.8
       return: CellValue
   spotRadius:
@@ -4795,21 +4795,21 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0006666666667
-          salt: 3
+          salt: 3.0
           jitter: 0.8
           return: CellValue
   spotAngle:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0006666666667
-    salt: 3
+    salt: 3.0
     jitter: 0.8
     return: Angle
   spotBaseElevation:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0006666666667
-    salt: 3
+    salt: 3.0
     jitter: 0.8
     return: NoiseLookup
     salt-lookup: false
@@ -5012,7 +5012,7 @@ samplers:
                         type: PROBABILITY
                         sampler:
                           type: OPEN_SIMPLEX_2
-                          salt: 0694
+                          salt: 694.0
                           frequency: 0.0006666666667
                       mountains:
                         dimensions: 2
@@ -5297,7 +5297,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         distance: Euclidean
                 spotRadius:
@@ -5399,7 +5399,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         return: CellValue
                 sampler:
@@ -5414,7 +5414,7 @@ samplers:
                     octaves: 3
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      salt: 1
+                      salt: 1.0
                       frequency: 0.0002
             spawnIsland:
               dimensions: 2
@@ -5644,7 +5644,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       frequency: 0.001
-                      salt: 2175
+                      salt: 2175.0
   largeSpotDistance:
     dimensions: 2
     type: DOMAIN_WARP
@@ -5677,7 +5677,7 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0002409638554
-          salt: 1236
+          salt: 1236.0
           jitter: 0.2771084337
           distance: Euclidean
   largeSpotSizePercent:
@@ -5687,7 +5687,7 @@ samplers:
       dimensions: 2
       type: CELLULAR
       frequency: 0.0002409638554
-      salt: 1236
+      salt: 1236.0
       jitter: 0.2771084337
       return: CellValue
   largeSpotRadius:
@@ -5789,21 +5789,21 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0002409638554
-          salt: 1236
+          salt: 1236.0
           jitter: 0.2771084337
           return: CellValue
   largeSpotAngle:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0002409638554
-    salt: 1236
+    salt: 1236.0
     jitter: 0.2771084337
     return: Angle
   largeSpotBaseElevation:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0002409638554
-    salt: 1236
+    salt: 1236.0
     jitter: 0.2771084337
     return: NoiseLookup
     salt-lookup: false
@@ -6006,7 +6006,7 @@ samplers:
                         type: PROBABILITY
                         sampler:
                           type: OPEN_SIMPLEX_2
-                          salt: 0694
+                          salt: 694.0
                           frequency: 0.0006666666667
                       mountains:
                         dimensions: 2
@@ -6291,7 +6291,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         distance: Euclidean
                 spotRadius:
@@ -6393,7 +6393,7 @@ samplers:
                         dimensions: 2
                         type: CELLULAR
                         frequency: 0.0006666666667
-                        salt: 3
+                        salt: 3.0
                         jitter: 0.8
                         return: CellValue
                 sampler:
@@ -6408,7 +6408,7 @@ samplers:
                     octaves: 3
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      salt: 1
+                      salt: 1.0
                       frequency: 0.0002
             spawnIsland:
               dimensions: 2
@@ -6638,12 +6638,12 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       frequency: 0.001
-                      salt: 2175
+                      salt: 2175.0
   spotEdgeRadiusPercent:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0006666666667
-    salt: 3
+    salt: 3.0
     jitter: 0.8
     return: NoiseLookup
     lookup:
@@ -6653,7 +6653,7 @@ samplers:
         noise:
           dimensions: 2
           type: POSITIVE_WHITE_NOISE
-          salt: 5812
+          salt: 5812.0
       functions:
         quinticEaseInOut:
           arguments:
@@ -6755,7 +6755,7 @@ samplers:
         dimensions: 2
         type: CELLULAR
         frequency: 0.0006666666667
-        salt: 3
+        salt: 3.0
         jitter: 0.8
         return: NoiseLookup
         lookup:
@@ -6765,7 +6765,7 @@ samplers:
             noise:
               dimensions: 2
               type: POSITIVE_WHITE_NOISE
-              salt: 5812
+              salt: 5812.0
           functions:
             quinticEaseInOut:
               arguments:
@@ -6775,12 +6775,12 @@ samplers:
     dimensions: 2
     type: CELLULAR
     frequency: 0.0006666666667
-    salt: 3
+    salt: 3.0
     jitter: 0.8
     return: NoiseLookup
     lookup:
       type: WHITE_NOISE
-      salt: 4128
+      salt: 4128.0
   volcanoCenterDepth:
     dimensions: 2
     type: EXPRESSION
@@ -6880,7 +6880,7 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0006666666667
-          salt: 3
+          salt: 3.0
           jitter: 0.8
           return: CellValue
   prismaticCenterDepth:
@@ -6982,7 +6982,7 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0006666666667
-          salt: 3
+          salt: 3.0
           jitter: 0.8
           return: CellValue
   volcanoErosion:
@@ -7030,14 +7030,14 @@ samplers:
               dimensions: 2
               type: CELLULAR
               frequency: 0.0006666666667
-              salt: 3
+              salt: 3.0
               jitter: 0.8
               distance: Euclidean
       spotAngle:
         dimensions: 2
         type: CELLULAR
         frequency: 0.0006666666667
-        salt: 3
+        salt: 3.0
         jitter: 0.8
         return: Angle
       spotSizePercent:
@@ -7047,7 +7047,7 @@ samplers:
           dimensions: 2
           type: CELLULAR
           frequency: 0.0006666666667
-          salt: 3
+          salt: 3.0
           jitter: 0.8
           return: CellValue
       noise:
@@ -7078,7 +7078,7 @@ samplers:
           octaves: 2
           sampler:
             type: OPEN_SIMPLEX_2
-            salt: 3
+            salt: 3.0
             frequency: 0.0002
   temperature:
     dimensions: 2
@@ -7353,7 +7353,7 @@ samplers:
                       type: PROBABILITY
                       sampler:
                         type: OPEN_SIMPLEX_2
-                        salt: 0694
+                        salt: 694.0
                         frequency: 0.0006666666667
                     mountains:
                       dimensions: 2
@@ -7638,7 +7638,7 @@ samplers:
                       dimensions: 2
                       type: CELLULAR
                       frequency: 0.0006666666667
-                      salt: 3
+                      salt: 3.0
                       jitter: 0.8
                       distance: Euclidean
               spotRadius:
@@ -7740,7 +7740,7 @@ samplers:
                       dimensions: 2
                       type: CELLULAR
                       frequency: 0.0006666666667
-                      salt: 3
+                      salt: 3.0
                       jitter: 0.8
                       return: CellValue
               sampler:
@@ -7755,7 +7755,7 @@ samplers:
                   octaves: 3
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    salt: 1
+                    salt: 1.0
                     frequency: 0.0002
           spawnIsland:
             dimensions: 2
@@ -7985,7 +7985,7 @@ samplers:
                   sampler:
                     type: OPEN_SIMPLEX_2
                     frequency: 0.001
-                    salt: 2175
+                    salt: 2175.0
       rawTemperature:
         dimensions: 2
         type: EXPRESSION
@@ -8008,7 +8008,7 @@ samplers:
               octaves: 2
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 3
+                salt: 3.0
                 frequency: 0.0002
   trenchNoise:
     dimensions: 2
@@ -8023,7 +8023,7 @@ samplers:
         frequency: 0.1
       sampler:
         type: OPEN_SIMPLEX_2
-        salt: 4357
+        salt: 4357.0
   trenchDistance:
     dimensions: 2
     type: EXPRESSION
@@ -8053,7 +8053,7 @@ samplers:
             frequency: 0.1
           sampler:
             type: OPEN_SIMPLEX_2
-            salt: 4357
+            salt: 4357.0
   trenchTerrainErosion:
     dimensions: 2
     type: EXPRESSION
@@ -8170,7 +8170,7 @@ samplers:
                 frequency: 0.1
               sampler:
                 type: OPEN_SIMPLEX_2
-                salt: 4357
+                salt: 4357.0
       erosionStrength:
         dimensions: 2
         type: PROBABILITY
@@ -8180,7 +8180,7 @@ samplers:
           sampler:
             type: OPEN_SIMPLEX_2
             frequency: 0.001
-            salt: 7634
+            salt: 7634.0
   trenchBiomeMap:
     dimensions: 2
     type: EXPRESSION
@@ -8276,7 +8276,7 @@ samplers:
         dimensions: 2
         type: OPEN_SIMPLEX_2
         frequency: 0.05
-        salt: 5346
+        salt: 5346.0
       trenchBiomeMap:
         dimensions: 3
         type: EXPRESSION
@@ -8329,7 +8329,7 @@ samplers:
                     frequency: 0.1
                   sampler:
                     type: OPEN_SIMPLEX_2
-                    salt: 4357
+                    salt: 4357.0
           trenchKerneled:
             dimensions: 3
             type: KERNEL
@@ -8371,7 +8371,7 @@ samplers:
                       frequency: 0.1
                     sampler:
                       type: OPEN_SIMPLEX_2
-                      salt: 4357
+                      salt: 4357.0
 functions:
   clamp:
     arguments:

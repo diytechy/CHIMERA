@@ -181,11 +181,15 @@ class SamplerResolver:
     2. Resolving $file.yml:key.path references
     3. Resolving ${file.yml:key} inline variable references
     4. Evaluating constant mathematical expressions (e.g., "1 / 1000" -> 0.001)
-    5. Merging all samplers into a single structure
+    5. Converting salt values to floats (e.g., 694 -> 694.0)
+    6. Merging all samplers into a single structure
     """
 
     # Keys that should NOT have their values evaluated (runtime expressions)
     EXPRESSION_KEYS = {'expression'}
+
+    # Keys whose values should be converted to float (for proper type interpretation)
+    FLOAT_KEYS = {'salt'}
 
     def __init__(self, base_dir: Path = Path("."), should_evaluate_constants: bool = True):
         self.base_dir = base_dir
@@ -406,6 +410,7 @@ class SamplerResolver:
         Recursively evaluate constant mathematical expressions in the data structure.
 
         Converts strings like "1 / 1000" to 0.001.
+        Converts salt values to floats (e.g., 694 -> 694.0) for proper type interpretation.
 
         Skips evaluation for:
         - Multi-line strings (runtime expressions)
@@ -420,12 +425,30 @@ class SamplerResolver:
             if parent_key in self.EXPRESSION_KEYS:
                 return value
 
+            # For salt keys, try to convert string numbers to float
+            # This handles cases like "0694" which YAML keeps as a string
+            if parent_key in self.FLOAT_KEYS:
+                try:
+                    return float(value)
+                except ValueError:
+                    pass  # Not a number, keep as string
+
             # Try to evaluate as a mathematical expression
             result, success = ExpressionEvaluator.evaluate(value)
             if success:
                 self.evaluated_count += 1
+                # If this is a salt key, ensure it's a float
+                if parent_key in self.FLOAT_KEYS:
+                    return float(result)
                 return result
 
+            return value
+
+        elif isinstance(value, (int, float)):
+            # Convert salt values to float to ensure proper type interpretation
+            # This handles cases like salt: 0694 which YAML parses as int 694
+            if parent_key in self.FLOAT_KEYS:
+                return float(value)
             return value
 
         elif isinstance(value, dict):

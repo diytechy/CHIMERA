@@ -1,5 +1,7 @@
 samplers:
-  spawnIsland:
+  # Spawn island sampler - creates a guaranteed landmass at spawn point
+  # Uses DISTANCE sampler + DOMAIN_WARP for organic island shape
+  spawnIsland: &spawnIsland
     dimensions: 2
     type: DOMAIN_WARP
     amplitude: 150
@@ -32,4 +34,11 @@ samplers:
             x: $customization.yml:spawn-island-origin-x
             z: $customization.yml:spawn-island-origin-z
           normalize: true
-          radius: $customization.yml:spawn-island-radius-outer 
+          radius: $customization.yml:spawn-island-radius-outer
+
+  # Cached version of spawnIsland sampler
+  # Referenced by both continents and elevation - caching prevents double calculation
+  spawnIslandCached:
+    dimensions: 2
+    type: CACHE
+    sampler: *spawnIsland

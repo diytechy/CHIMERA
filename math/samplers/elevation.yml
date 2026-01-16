@@ -137,10 +137,30 @@ samplers:
     samplers:
       rawElevation: *rawElevation
       flatness: *flatness
-      continents: $math/samplers/continents.yml:samplers.continents
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      continents: $math/samplers/continents.yml:samplers.continentsCached  # Use cached version
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIslandCached  # Use cached version
       riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
-  
+
+  # Cached version of elevation sampler
+  # Elevation is one of the most frequently accessed samplers (48+ times per point).
+  # Caching eliminates redundant calculations of:
+  #   - rawElevation (hills + mountains + mountainMask)
+  #   - flatness
+  #   - continents modulation
+  #   - spawnIsland modulation
+  #   - riverTerrainErosion modulation
+  elevationCached: &elevationCached
+    dimensions: 2
+    type: CACHE
+    sampler: *elevation
+
+  # Cached version of flatness sampler
+  # Used by elevation and elevation stage - caching prevents double calculation
+  flatnessCached: &flatnessCached
+    dimensions: 2
+    type: CACHE
+    sampler: *flatness
+
   elevationDetailed:
     dimensions: 2
     type: EXPRESSION
@@ -225,7 +245,7 @@ samplers:
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
-  oceanElevation:
+  oceanElevation: &oceanElevation
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -238,4 +258,10 @@ samplers:
       factorContinental: $customization.yml:elevation-factor-continental
     samplers:
       rawElevation: *rawElevation
-      continents: $math/samplers/continents.yml:samplers.continents
+      continents: $math/samplers/continents.yml:samplers.continentsCached  # Use cached version
+
+  # Cached version of oceanElevation sampler
+  oceanElevationCached:
+    dimensions: 2
+    type: CACHE
+    sampler: *oceanElevation

@@ -1,4 +1,10 @@
 samplers:
+  # Raw continents sampler - computes continental boundaries using RIDGED noise
+  # This is computationally expensive due to:
+  #   - 3-octave RIDGED noise (frequency 1/5000)
+  #   - spawnIsland DISTANCE sampler
+  #   - spotDistance/spotRadius CELLULAR noise
+  # Use continentsCached for external references to avoid redundant calculations.
   continents: &continents
     dimensions: 2
     type: EXPRESSION
@@ -18,7 +24,7 @@ samplers:
       spread: $customization.yml:continental-spread
       spotContinentalFactor: 0.3
     samplers:
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIslandCached  # Use cached version
       spotDistance: $math/samplers/spots.yml:samplers.spotDistance
       spotRadius: $math/samplers/spots.yml:samplers.spotRadius
       sampler:
@@ -35,7 +41,21 @@ samplers:
             type: OPEN_SIMPLEX_2
             salt: 1
             frequency: 1 / 5000
-  
+
+  # Cached version of continents sampler
+  # Uses Terra's CACHE sampler type (Caffeine-based, 256 entries per thread)
+  # This eliminates redundant calculations when multiple samplers (temperature,
+  # precipitation, elevation) query the same coordinate.
+  #
+  # IMPORTANT: This is an experimental Terra feature. The cache is:
+  #   - Thread-local (each generation thread has its own cache)
+  #   - LRU eviction with max 256 entries
+  #   - Keyed by (x, z, seed) for 2D samplers
+  continentsCached: &continentsCached
+    dimensions: 2
+    type: CACHE
+    sampler: *continents
+
   continentBorder:
     dimensions: 2
     type: EXPRESSION
@@ -55,7 +75,7 @@ samplers:
           - upper
         expression: x >= lower && x <= upper
     samplers:
-      continents: *continents
+      continents: *continentsCached  # Use cached version
       continentsEdge:
         dimensions: 2
         type: KERNEL
@@ -67,4 +87,4 @@ samplers:
           expression: continents(x*width, z*width) > 0
           variables: *continentBorderVariables
           samplers:
-            continents: *continents
+            continents: *continentsCached  # Use cached version

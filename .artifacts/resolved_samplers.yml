@@ -1,12 +1,29 @@
 type: EXPRESSION
 #expression: biome_place2(x,z)
-#expression: round((elevation(x,z)*10))/10
-expression: continents(x,z)
+#expression: round((elevation(x,z)*10))/10 #24 s
+#expression: round(continents(x,z)) #7 s
+#expression: round(temperature(x,z))  #~30 s
+#expression: round(elevation(x,z))
+#expression: x+(y*.0001)^2+z
+#expression: cell_test(x,z)
+#expression: cell_test(x,z)
+#expression: precipitation(x,z) #8 s
+expression: cell_test2(x,z)
 
 
 
 
 samplers:
+  cell_test: &cell_test
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.005
+    return: NoiseLookup   
+    jitter: 1.2
+    distance: EuclideanSq #Dflt: EuclideanSq
+    #salt: 7777.0
+    #NoiseSampler: continents
+    NoiseSampler: OPEN_SIMPLEX_2
   biome_place: &biome_place
     dimensions: 2
     type: DOMAIN_WARP
@@ -3640,7 +3657,7 @@ samplers:
             type: OPEN_SIMPLEX_2
             salt: 4.0
             frequency: 0.0001333333333
-  precipitation:
+  precipitation: &precipitation
     dimensions: 2
     type: EXPRESSION
     expression: lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))
@@ -4013,6 +4030,12 @@ samplers:
                 type: OPEN_SIMPLEX_2
                 salt: 1.0
                 frequency: 0.0002
+  cell_test2:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 100
+    warp: *cell_test
+    sampler: *precipitation
   riverNoise:
     dimensions: 2
     type: TRANSLATE

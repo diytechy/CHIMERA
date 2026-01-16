@@ -1,7 +1,7 @@
 param(
     [string]$FolderA = "C:\Projects\Hydraxia2",
     [string]$FolderB = "C:\Projects\ORIGEN2",
-	[string]$CompareOut = "hydraxia_vs_origen2.csv"
+	[string]$CompareOut = "Review\hydraxia_vs_origen2.csv"
 )
 
 $filesA = Get-ChildItem -Path $FolderA -File -Recurse | Select-Object Name, FullName, @{N='Hash';E={(Get-FileHash $_.FullName -Algorithm MD5).Hash}}
@@ -18,9 +18,25 @@ $results = foreach ($fileGroup in $groupA) {
         $relDirA = Split-Path $relPathA -Parent
         if ([string]::IsNullOrEmpty($relDirA)) { $relDirA = "." }
         
-        $matchesB = $groupB | Where-Object Name -eq $fileName
+        $parentDirA = ($relDirA -split '\\')[0]
+        $duplicatesInParentA = $fileGroup.Group | Where-Object { 
+            $rel = $_.FullName.Substring($FolderA.Length + 1)
+            $dir = Split-Path $rel -Parent
+            if ([string]::IsNullOrEmpty($dir)) { $dir = "." }
+            ($dir -split '\\')[0] -eq $parentDirA
+        }
         
-        if ($fileGroup.Count -gt 1 -or ($matchesB -and $matchesB.Count -gt 1)) {
+        $matchesB = $groupB | Where-Object Name -eq $fileName
+        $matchesInParentB = if ($matchesB) {
+            $matchesB.Group | Where-Object {
+                $rel = $_.FullName.Substring($FolderB.Length + 1)
+                $dir = Split-Path $rel -Parent
+                if ([string]::IsNullOrEmpty($dir)) { $dir = "." }
+                ($dir -split '\\')[0] -eq $parentDirA
+            }
+        } else { $null }
+        
+        if ($duplicatesInParentA.Count -gt 1) {
             [PSCustomObject]@{
                 FileName = $fileName
                 RootA = $FolderA
@@ -29,7 +45,16 @@ $results = foreach ($fileGroup in $groupA) {
                 RootB = $FolderB
                 RelativePathB = ""
             }
-        } elseif (-not $matchesB) {
+        } elseif ($matchesInParentB -and $matchesInParentB.Count -gt 1) {
+            [PSCustomObject]@{
+                FileName = $fileName
+                RootA = $FolderA
+                RelativePathA = $relDirA
+                Status = "MULTIPLE"
+                RootB = $FolderB
+                RelativePathB = ""
+            }
+        } elseif (-not $matchesInParentB) {
             [PSCustomObject]@{
                 FileName = $fileName
                 RootA = $FolderA
@@ -39,7 +64,7 @@ $results = foreach ($fileGroup in $groupA) {
                 RelativePathB = ""
             }
         } else {
-            $fileB = $matchesB.Group[0]
+            $fileB = $matchesInParentB[0]
             $relPathB = $fileB.FullName.Substring($FolderB.Length + 1)
             $relDirB = Split-Path $relPathB -Parent
             if ([string]::IsNullOrEmpty($relDirB)) { $relDirB = "." }
@@ -64,4 +89,4 @@ $results = foreach ($fileGroup in $groupA) {
 
 $results | Format-Table -AutoSize
 $results | Export-Csv -Path "$CompareOut" -NoTypeInformation
-Write-Host "`nResults exported to FolderComparison.csv"
+Write-Host "`nResults exported to $CompareOut"

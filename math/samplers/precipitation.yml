@@ -22,7 +22,7 @@ samplers:
             salt: 4
             frequency: 1 / 7500
   
-  precipitation: &precipitation
+  precipitation:
     dimensions: 2
     type: EXPRESSION
     expression: lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))
@@ -32,10 +32,4 @@ samplers:
       landThreshold: $customization.yml:precipitation-land-threshold
     samplers:
       rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation
-      continents: $math/samplers/continents.yml:samplers.continentsCached  # Use cached version
-
-  # Cached version of precipitation sampler
-  precipitationCached:
-    dimensions: 2
-    type: CACHE
-    sampler: *precipitation
+      continents: $math/samplers/continents.yml:samplers.continents

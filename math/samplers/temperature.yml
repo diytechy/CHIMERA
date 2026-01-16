@@ -23,7 +23,7 @@ samplers:
             salt: 3
             frequency: 1 / 5000
 
-  temperature: &temperature
+  temperature:
     dimensions: 2
     type: EXPRESSION
     expression: rawTemperature(x, z) - lerp(elevation(x, z), lapseStart, 0, 1, lapseRate)
@@ -32,11 +32,5 @@ samplers:
       lapseRate: $customization.yml:temperature-altitude-lapse-rate
       lapseStart: $customization.yml:temperature-altitude-lapse-start
     samplers:
-      elevation: $math/samplers/elevation.yml:samplers.elevationCached  # Use cached version
+      elevation: $math/samplers/elevation.yml:samplers.elevation
       rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature
-
-  # Cached version of temperature sampler
-  temperatureCached:
-    dimensions: 2
-    type: CACHE
-    sampler: *temperature

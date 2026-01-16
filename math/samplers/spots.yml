@@ -83,7 +83,7 @@ samplers:
       type: EXPRESSION
       expression: elevation(x, z)
       samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevationCached  # Use cached version
+        elevation: $math/samplers/elevation.yml:samplers.elevation
 
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
@@ -129,7 +129,7 @@ samplers:
       type: EXPRESSION
       expression: elevation(x, z)
       samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevationCached  # Use cached version
+        elevation: $math/samplers/elevation.yml:samplers.elevation
   # ---
   # Volcano Samplers
   # ---

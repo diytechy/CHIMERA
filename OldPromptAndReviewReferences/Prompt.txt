@@ -270,3 +270,12 @@ I will first evaluate in the NoiseTool, but to do this I need some fixes in
   
   1. Retain the first few lines of the file (.artifacts\resolved_samplers.yml) with the expressions / commented expressions so they can be used easily for evaluation.  Only replace the section "samplers" and below with the resolved sampler list.
   2. Make sure to retain aliases / references to samplers.  You removed this before when resolving constants and rules for some of the datatype, but this was unnecessary and to evaluate the cache type I'm quite sure it will need to reference a single existing cache type sampler for each dependent sampler to rely on.
+
+  ######################################################################
+
+  The cached version took significantly longer to render, I assume there is some       
+  limitation in the implementation that is slowing it down.  Please proceed to phase   
+  3, ideally as a script that could be run which would take in the continent,spawn     
+  island,  temperature, precipitation, and elevation samplers, ect  and create
+  combined samplers for use in respective locations, like "spawn-island-continent" ,   
+  "spawn-island-continent-elevation", "spawn-island-continent-elevation-temperature", and "combined climate", and shuffle the "set biomes in climate" yml files to use the respective distribution from the combined climate sampler, as that will now be overloaded with multiple dimensions in a single parameter.

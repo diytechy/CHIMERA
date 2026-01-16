@@ -722,33 +722,97 @@ def generate_climate_biome_mapping() -> Dict[Tuple[int, int, int], str]:
     return biome_map
 
 
-def generate_temperature_only_mapping(parent_biome: str, prefix_map: Dict[int, str]) -> List[Tuple[str, int]]:
+# =============================================================================
+# Biome Dimensional Mappings
+# =============================================================================
+# Different biome types use different climate dimensions:
+# - land: T × P × E (full 288 combinations)
+# - mesa, crater-lake, extinct-volcano: T × P (72 combinations)
+# - shallow-ocean, ocean: T × E (48 combinations)
+# - island-shallow-ocean, coast: T only (12 combinations)
+# =============================================================================
+
+# Temperature × Precipitation mapping for mesa/crater-lake/extinct-volcano
+# Maps (tempIdx, precipIdx) to biome prefix
+def get_tp_biome_prefix(t: int, p: int) -> str:
     """
-    Generate a temperature-only weighted list (collapses P×E dimensions).
+    Get biome prefix for Temperature × Precipitation biomes.
 
-    Args:
-        parent_biome: The parent biome being distributed (e.g., 'mesa', 'crater-lake')
-        prefix_map: Maps temperature index (0-11) to the climate prefix for that zone
+    Precipitation indices:
+      0=desert(4), 1=desert-border(1), 2=semi-arid(1), 3=mid(1), 4=mildly-wet(2), 5=very-wet(3)
 
-    Returns:
-        List of (biome_name, weight) tuples for the 288-entry weighted list
+    For dry conditions (p=0,1,2), desert variants are used.
+    For wet conditions (p=3,4,5), climate-based variants are used.
     """
-    entries = []
+    # Temperature zone groupings
+    is_polar = t in [0, 1]  # ice-cap, tundra
+    is_boreal = t in [2, 3, 4, 5]  # boreal zones
+    is_temperate = t in [6, 7, 8]  # temperate zones
+    is_tropical = t in [9, 10, 11]  # tropical zones
 
-    for t in range(12):
-        prefix = prefix_map[t]
-        biome_name = f"{prefix}-{parent_biome}"
+    # Precipitation: dry (desert/steppe) vs normal
+    is_desert = p in [0, 1]  # desert, desert-border
+    is_semi_arid = p == 2  # semi-arid
 
-        for p in range(6):
-            for e in range(4):
-                # Weight is based on temp only (P and E weights still apply to maintain index alignment)
-                weight = TEMPERATURE_WEIGHTS[t] * PRECIPITATION_WEIGHTS[p] * ELEVATION_WEIGHTS[e]
-                entries.append((biome_name, weight))
+    if is_polar:
+        if is_desert or is_semi_arid:
+            return 'cold-desert'
+        return 'polar'
+    elif is_boreal:
+        if is_desert or is_semi_arid:
+            return 'cold-desert'
+        return 'boreal'
+    elif is_temperate:
+        if is_desert:
+            return 'desert'
+        elif is_semi_arid:
+            return 'temperate'  # semi-arid temperate still uses temperate prefix
+        return 'temperate'
+    else:  # tropical
+        if is_desert or is_semi_arid:
+            return 'desert'
+        return 'tropical'
 
-    return entries
+
+# Temperature × Elevation mapping for ocean biomes
+# Maps (tempIdx, elevIdx) to biome prefix and suffix
+def get_te_ocean_biome(t: int, e: int, base: str) -> str:
+    """
+    Get biome name for Temperature × Elevation ocean biomes.
+
+    Elevation indices for ocean:
+      0=shallow, 1=shallow-midlands, 2=normal, 3=deep
+    """
+    # Temperature prefix
+    if t in [0, 1]:  # polar
+        temp_prefix = 'polar'
+    elif t in [2, 3, 4, 5]:  # boreal
+        temp_prefix = 'boreal'
+    elif t in [6, 7, 8]:  # temperate
+        temp_prefix = 'temperate'
+    else:  # tropical
+        temp_prefix = 'hot'
+
+    # Elevation suffix for ocean
+    if base == 'shallow-ocean':
+        if e in [0, 1]:
+            return f"{temp_prefix}-shallow-ocean" if e == 0 else f"{temp_prefix}-shallow-ocean-midlands"
+        elif e == 2:
+            return f"{temp_prefix}-ocean"
+        else:
+            return f"{temp_prefix}-deep-ocean"
+    elif base == 'ocean':
+        if e in [0, 1]:
+            return f"{temp_prefix}-ocean"
+        else:
+            return f"{temp_prefix}-deep-ocean"
+    elif base == 'deep-ocean':
+        return f"{temp_prefix}-deep-ocean"
+
+    return f"{temp_prefix}-{base}"
 
 
-# Temperature zone to climate prefix mappings for special biomes
+# Temperature-only mapping
 TEMPERATURE_PREFIX_MAP = {
     0: 'polar',      # ice-cap
     1: 'polar',      # tundra
@@ -759,26 +823,73 @@ TEMPERATURE_PREFIX_MAP = {
     6: 'temperate',  # temperate-cold
     7: 'temperate',  # temperate-warm
     8: 'temperate',  # temperate-hot
-    9: 'hot',        # tropical-savanna-wet (hot for these special biomes)
+    9: 'hot',        # tropical-savanna-wet
     10: 'hot',       # tropical-monsoon
     11: 'hot',       # tropical-rainforest
 }
 
-# Special biomes that need temperature-only distribution
-SPECIAL_BIOMES = [
-    'mesa',
-    'crater-lake',
-    'extinct-volcano',
-    'coast',
-    'ocean',
-    'shallow-ocean',
-    'deep-ocean',
-    'island',
-    'island-coast',
-    'vast-forest',
-    'vast-forest-coast',
-    'mushroom',
-    'mushroom-coast',
+
+def generate_tp_mapping(parent_biome: str) -> List[Tuple[str, int]]:
+    """
+    Generate T×P weighted list for mesa/crater-lake/extinct-volcano.
+    Returns 288 entries to match combinedClimate index alignment.
+    """
+    entries = []
+
+    for t in range(12):
+        for p in range(6):
+            prefix = get_tp_biome_prefix(t, p)
+            biome_name = f"{prefix}-{parent_biome}"
+
+            for e in range(4):
+                weight = TEMPERATURE_WEIGHTS[t] * PRECIPITATION_WEIGHTS[p] * ELEVATION_WEIGHTS[e]
+                entries.append((biome_name, weight))
+
+    return entries
+
+
+def generate_te_mapping(parent_biome: str) -> List[Tuple[str, int]]:
+    """
+    Generate T×E weighted list for ocean biomes.
+    Returns 288 entries to match combinedClimate index alignment.
+    """
+    entries = []
+
+    for t in range(12):
+        for p in range(6):
+            for e in range(4):
+                biome_name = get_te_ocean_biome(t, e, parent_biome)
+                weight = TEMPERATURE_WEIGHTS[t] * PRECIPITATION_WEIGHTS[p] * ELEVATION_WEIGHTS[e]
+                entries.append((biome_name, weight))
+
+    return entries
+
+
+def generate_t_only_mapping(parent_biome: str) -> List[Tuple[str, int]]:
+    """
+    Generate temperature-only weighted list.
+    Returns 288 entries to match combinedClimate index alignment.
+    """
+    entries = []
+
+    for t in range(12):
+        prefix = TEMPERATURE_PREFIX_MAP[t]
+        biome_name = f"{prefix}-{parent_biome}"
+
+        for p in range(6):
+            for e in range(4):
+                weight = TEMPERATURE_WEIGHTS[t] * PRECIPITATION_WEIGHTS[p] * ELEVATION_WEIGHTS[e]
+                entries.append((biome_name, weight))
+
+    return entries
+
+
+# Biome type categorization
+TP_BIOMES = ['mesa', 'crater-lake', 'extinct-volcano']  # Temperature × Precipitation
+TE_BIOMES = ['shallow-ocean', 'ocean', 'deep-ocean']  # Temperature × Elevation
+T_ONLY_BIOMES = [  # Temperature only
+    'coast', 'island', 'island-coast', 'island-shallow-ocean',
+    'vast-forest', 'vast-forest-coast', 'mushroom', 'mushroom-coast',
 ]
 
 
@@ -793,10 +904,11 @@ def generate_combined_stage_yml() -> str:
 # This single stage replaces the three separate temperature, precipitation, and
 # elevation stages. The combinedClimate sampler computes all factors in one pass.
 #
-# Includes distributions for:
-# - land (full T×P×E mapping to 72 unique biomes)
-# - Special biomes (temperature-only mapping): mesa, crater-lake, extinct-volcano,
-#   coast, ocean, shallow-ocean, deep-ocean, island, vast-forest, mushroom, etc.
+# Dimensional mappings:
+# - land: T × P × E (full 288 combinations → 72 unique biomes)
+# - mesa, crater-lake, extinct-volcano: T × P (desert-mesa, cold-desert-mesa, etc.)
+# - shallow-ocean, ocean, deep-ocean: T × E (temperate-shallow-ocean-midlands, etc.)
+# - coast, island, vast-forest, mushroom: T only
 #
 # Usage: Replace temperature/precipitation/elevation stages with:
 #   - << biome-distribution/stages/climate/combined_climate.yml:stages
@@ -819,12 +931,29 @@ stages:
                 weight = TEMPERATURE_WEIGHTS[t] * PRECIPITATION_WEIGHTS[p] * ELEVATION_WEIGHTS[e]
                 content += f"      - {biome}: {weight}\n"
 
-    # Add special biome distributions (temperature-only)
     content += "\n    to:\n"
 
-    for special_biome in SPECIAL_BIOMES:
-        content += f"      {special_biome}:\n"
-        entries = generate_temperature_only_mapping(special_biome, TEMPERATURE_PREFIX_MAP)
+    # T×P biomes (mesa, crater-lake, extinct-volcano)
+    content += "      # --- T×P biomes (temperature × precipitation) ---\n"
+    for biome in TP_BIOMES:
+        content += f"      {biome}:\n"
+        entries = generate_tp_mapping(biome)
+        for biome_name, weight in entries:
+            content += f"        - {biome_name}: {weight}\n"
+
+    # T×E biomes (ocean types)
+    content += "\n      # --- T×E biomes (temperature × elevation) ---\n"
+    for biome in TE_BIOMES:
+        content += f"      {biome}:\n"
+        entries = generate_te_mapping(biome)
+        for biome_name, weight in entries:
+            content += f"        - {biome_name}: {weight}\n"
+
+    # T-only biomes
+    content += "\n      # --- T-only biomes (temperature only) ---\n"
+    for biome in T_ONLY_BIOMES:
+        content += f"      {biome}:\n"
+        entries = generate_t_only_mapping(biome)
         for biome_name, weight in entries:
             content += f"        - {biome_name}: {weight}\n"
 

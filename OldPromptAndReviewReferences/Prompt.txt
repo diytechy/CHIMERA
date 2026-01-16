@@ -312,3 +312,24 @@ This line should have been automatically constructed by looking at the continent
 combined_climate.yml.
 
 The main thing to note is if any of the core climate files is changed (spawnIsland / spots / continents / elevation / temperature / precipitation), rerunning generate_combined_climate.py should recheck for interdependent / repetitive calculations, reform expressions, and produce final mathematically simplified expressions.
+
+#######################################################################33
+
+The generated content appears correct, but I cannot test it until ocean distributions and others are resolved as well.  For example, these parents exist in "", but are not getting populated by "":
+
+desert-crater-lake
+desert-extinct-volcano
+desert-mesa
+temperate-shallow-ocean
+
+Like "land" these are respectively distributed from "crater-lake",       - "extinct-volcano", "live-volcano", "ocean", and "mesa".  These also should have simplified expressions like land, and could have a more simplified distribution, but likely could be distributed using the same "combinedClimate" distributor, just in different weights according to their more simplified expression.
+
+I will make a separate implementation to cover coasts.
+
+##############################################################
+
+Perhaps creating new sampler combinations is inevitable.  I still do not see propagating to "desert-mesa", which is a combination of temperature and precipitation, and I do not see "temperate-shallow-ocean-midlands", which is a combination of temperature and elevation.
+
+The file "set_biomes_in_climates_origin.yml" should contain all the placeholder biomes that can have a simplified expression.  So I would expect "biome-distribution\stages\climate\combined_climate.yml" to include "ice-cap-flat", "ice-cap-highlands", "tundra", "island-polar-shallow-ocean", "tropical-monsoon", and many others.
+
+Bottom: Add burning fields after everything else is fixed?

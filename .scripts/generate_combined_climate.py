@@ -2,26 +2,19 @@
 """
 generate_combined_climate.py
 
-Generates combined climate samplers that compute multiple dependent values in a single pass,
-eliminating redundant calculations in the biome distribution pipeline.
+Generates combined climate samplers by ANALYZING source sampler files and
+automatically deriving optimized expressions that eliminate redundant calculations.
 
-This script reads source sampler files and builds OPTIMIZED combined samplers that:
-1. PRESERVE variable references ($customization.yml:...) for maintainability
-2. MATHEMATICALLY SIMPLIFY expressions to eliminate redundant calculations
-3. COMBINE shared dependencies into single-evaluation expressions
+This script:
+1. READS source sampler files (continents, spawnIsland, elevation, temperature, precipitation, spots)
+2. ANALYZES dependency graphs to find shared/reused calculations
+3. DERIVES combined expressions that compute shared values once
+4. GENERATES optimized combined_climate.yml with mathematically simplified expressions
 
-Key differences from SamplerResolver:
-- Does NOT resolve $customization.yml references (keeps them as-is)
-- Does NOT simply inline samplers (would create bloat)
-- DOES mathematically combine expressions where possible
-- DOES eliminate duplicate sampler evaluations
-
-Encoding scheme:
-- Temperature: 12 zones (0-11)
-- Precipitation: 6 levels (0-5)
-- Elevation: 4 variants (0-3)
-- Climate Index = (tempIndex * 24) + (precipIndex * 4) + elevIndex
-- Total combinations: 288
+When any source file changes, re-running this script will:
+- Re-analyze dependencies
+- Re-derive expressions
+- Re-generate optimized output
 
 Output:
 - math/samplers/combined_climate.yml - Optimized combined sampler definitions
@@ -35,58 +28,85 @@ import sys
 import re
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional, Set
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+from dataclasses import dataclass, field
 
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-# Temperature zones (12 total, ordered cold to hot)
-TEMPERATURE_ZONES = [
-    'ice-cap', 'tundra', 'boreal-snowy', 'boreal-cold', 'boreal-warm', 'boreal-hot',
-    'temperate-cold', 'temperate-warm', 'temperate-hot',
-    'tropical-savanna-wet', 'tropical-monsoon', 'tropical-rainforest',
-]
-
-# Temperature weights from the original distribution
 TEMPERATURE_WEIGHTS = [1, 1, 1, 1, 1, 1, 1, 3, 2, 1, 1, 4]
-
-# Precipitation levels (6 total, ordered dry to wet)
-PRECIPITATION_LEVELS = ['desert', 'desert-border', 'semi-arid', 'mid', 'mildly-wet', 'very-wet']
-
-# Precipitation weights from the original distribution
 PRECIPITATION_WEIGHTS = [4, 1, 1, 1, 2, 3]
-
-# Elevation variants (4 total, ordered low to high)
-ELEVATION_VARIANTS = ['flat', 'lowlands', 'midlands', 'highlands']
-
-# Elevation weights (equal distribution)
 ELEVATION_WEIGHTS = [1, 1, 1, 1]
 
+# Source sampler files to analyze
+SOURCE_FILES = {
+    'continents': 'math/samplers/continents.yml',
+    'spawnIsland': 'math/samplers/spawnIsland.yml',
+    'elevation': 'math/samplers/elevation.yml',
+    'temperature': 'math/samplers/temperature.yml',
+    'precipitation': 'math/samplers/precipitation.yml',
+    'spots': 'math/samplers/spots.yml',
+}
+
+# Key samplers to analyze for the climate pipeline
+CLIMATE_SAMPLERS = [
+    ('continents', 'continents'),
+    ('spawnIsland', 'spawnIsland'),
+    ('elevation', 'elevation'),
+    ('elevation', 'rawElevation'),
+    ('elevation', 'flatness'),
+    ('temperature', 'temperature'),
+    ('temperature', 'rawTemperature'),
+    ('precipitation', 'precipitation'),
+    ('precipitation', 'rawPrecipitation'),
+    ('spots', 'spotDistance'),
+    ('spots', 'spotRadius'),
+]
+
 
 # =============================================================================
-# YAML Loader that preserves variable references
+# Sampler Analysis Classes
 # =============================================================================
 
-class PreservingLoader:
+@dataclass
+class SamplerInfo:
+    """Information about a sampler extracted from YAML."""
+    name: str
+    file_source: str
+    sampler_type: str
+    expression: Optional[str] = None
+    variables: Dict[str, Any] = field(default_factory=dict)
+    functions: Dict[str, Any] = field(default_factory=dict)
+    nested_samplers: Dict[str, Any] = field(default_factory=dict)
+    raw_config: Dict[str, Any] = field(default_factory=dict)
+
+    # Dependencies discovered by analyzing expressions
+    sampler_dependencies: Set[str] = field(default_factory=set)
+
+
+class SamplerAnalyzer:
     """
-    Loads YAML files while preserving $customization.yml:... references as strings.
-    Does NOT resolve external references - keeps them for the output.
+    Analyzes sampler files to extract expressions, dependencies, and build
+    a dependency graph for optimization.
     """
 
     def __init__(self, base_dir: Path = Path(".")):
         self.base_dir = base_dir
-        self.file_cache: Dict[str, Any] = {}
+        self.file_cache: Dict[str, Dict] = {}
+        self.samplers: Dict[str, SamplerInfo] = {}
+        self.dependency_graph: Dict[str, Set[str]] = defaultdict(set)
+        self.reverse_deps: Dict[str, Set[str]] = defaultdict(set)
 
     def load_file(self, file_path: str) -> Optional[Dict]:
-        """Load a YAML file."""
+        """Load a YAML file, caching results."""
         if file_path in self.file_cache:
             return self.file_cache[file_path]
 
         full_path = self.base_dir / file_path
         if not full_path.exists():
-            print(f"Warning: File not found: {full_path}", file=sys.stderr)
+            print(f"  Warning: File not found: {full_path}", file=sys.stderr)
             return None
 
         try:
@@ -95,135 +115,521 @@ class PreservingLoader:
                 self.file_cache[file_path] = data
                 return data
         except Exception as e:
-            print(f"Error loading {file_path}: {e}", file=sys.stderr)
+            print(f"  Error loading {file_path}: {e}", file=sys.stderr)
             return None
 
-    def get_sampler(self, file_path: str, sampler_name: str) -> Optional[Dict]:
-        """Get a specific sampler from a file."""
-        data = self.load_file(file_path)
-        if data and 'samplers' in data and sampler_name in data['samplers']:
-            return data['samplers'][sampler_name]
-        return None
+    def extract_sampler_info(self, name: str, config: Dict, file_source: str) -> SamplerInfo:
+        """Extract information from a sampler configuration."""
+        info = SamplerInfo(
+            name=name,
+            file_source=file_source,
+            sampler_type=config.get('type', 'UNKNOWN'),
+            raw_config=config,
+        )
+
+        # Extract expression if present
+        if 'expression' in config:
+            info.expression = config['expression']
+
+        # Extract variables
+        if 'variables' in config:
+            info.variables = config['variables']
+
+        # Extract functions
+        if 'functions' in config:
+            info.functions = config['functions']
+
+        # Extract nested samplers
+        if 'samplers' in config:
+            info.nested_samplers = config['samplers']
+
+        # For nested sampler types, look deeper
+        if 'sampler' in config:
+            nested = config['sampler']
+            if isinstance(nested, dict) and 'expression' in nested:
+                info.expression = nested.get('expression')
+                info.variables.update(nested.get('variables', {}))
+
+        return info
+
+    def find_sampler_calls(self, expression: str) -> Set[str]:
+        """Find sampler function calls in an expression."""
+        if not expression:
+            return set()
+
+        # Pattern to find function calls like samplerName(x, z)
+        # Matches: word followed by ( that isn't a known math function
+        math_funcs = {'sin', 'cos', 'tan', 'abs', 'floor', 'ceil', 'round', 'sqrt',
+                      'min', 'max', 'pow', 'exp', 'log', 'if', 'lerp', 'herp',
+                      'parabolicMap', 'clamp', 'combine'}
+
+        pattern = r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\('
+        matches = re.findall(pattern, expression)
+
+        return {m for m in matches if m not in math_funcs}
+
+    def analyze_dependencies(self, info: SamplerInfo):
+        """Analyze a sampler's dependencies from its expression and nested samplers."""
+        deps = set()
+
+        # Find dependencies in expression
+        if info.expression:
+            deps.update(self.find_sampler_calls(info.expression))
+
+        # Find dependencies in nested sampler references
+        for nested_name, nested_config in info.nested_samplers.items():
+            if isinstance(nested_config, str) and nested_config.startswith('$'):
+                # External reference like $math/samplers/spots.yml:samplers.spotDistance
+                deps.add(nested_name)
+            elif isinstance(nested_config, dict):
+                # Inline sampler - analyze recursively
+                if 'expression' in nested_config:
+                    deps.update(self.find_sampler_calls(nested_config['expression']))
+
+        info.sampler_dependencies = deps
+
+    def load_all_samplers(self):
+        """Load and analyze all source sampler files."""
+        print("Analyzing source sampler files...", file=sys.stderr)
+
+        for source_name, file_path in SOURCE_FILES.items():
+            print(f"  Loading: {file_path}", file=sys.stderr)
+            data = self.load_file(file_path)
+
+            if not data or 'samplers' not in data:
+                continue
+
+            for sampler_name, config in data['samplers'].items():
+                if not isinstance(config, dict):
+                    continue
+
+                full_name = f"{source_name}.{sampler_name}"
+                info = self.extract_sampler_info(sampler_name, config, file_path)
+                self.samplers[full_name] = info
+                self.samplers[sampler_name] = info  # Also store by simple name
+
+                print(f"    Found: {sampler_name} (type: {info.sampler_type})", file=sys.stderr)
+
+    def build_dependency_graph(self):
+        """Build the dependency graph between samplers."""
+        print("\nBuilding dependency graph...", file=sys.stderr)
+
+        for name, info in self.samplers.items():
+            self.analyze_dependencies(info)
+
+            for dep in info.sampler_dependencies:
+                self.dependency_graph[name].add(dep)
+                self.reverse_deps[dep].add(name)
+
+        # Print dependency summary
+        print("\nDependency analysis:", file=sys.stderr)
+        for sampler, deps in sorted(self.dependency_graph.items()):
+            if deps and '.' not in sampler:  # Only show simple names
+                print(f"  {sampler} -> {', '.join(sorted(deps))}", file=sys.stderr)
+
+    def find_shared_dependencies(self) -> Dict[str, int]:
+        """Find samplers that are used by multiple other samplers."""
+        usage_count = defaultdict(int)
+
+        for deps in self.dependency_graph.values():
+            for dep in deps:
+                usage_count[dep] += 1
+
+        # Filter to those used more than once
+        shared = {k: v for k, v in usage_count.items() if v > 1}
+
+        if shared:
+            print("\nShared dependencies (used multiple times):", file=sys.stderr)
+            for name, count in sorted(shared.items(), key=lambda x: -x[1]):
+                print(f"  {name}: used {count} times", file=sys.stderr)
+
+        return shared
+
+    def get_sampler_expression(self, name: str) -> Tuple[Optional[str], Dict, Dict]:
+        """Get the expression, variables, and nested samplers for a sampler."""
+        info = self.samplers.get(name)
+        if not info:
+            return None, {}, {}
+
+        return info.expression, info.variables, info.nested_samplers
+
+    def get_sampler_config(self, name: str) -> Optional[Dict]:
+        """Get the raw config for a sampler."""
+        info = self.samplers.get(name)
+        return info.raw_config if info else None
 
 
 # =============================================================================
-# Combined Climate Generator - Optimized Version
+# Combined Expression Generator
 # =============================================================================
+
+class CombinedExpressionGenerator:
+    """
+    Generates combined expressions by analyzing sampler dependencies and
+    deriving optimized expressions that compute shared values once.
+    """
+
+    def __init__(self, analyzer: SamplerAnalyzer):
+        self.analyzer = analyzer
+        self.shared_deps = analyzer.find_shared_dependencies()
+
+    def derive_continent_expression(self) -> Tuple[str, Dict, Dict]:
+        """
+        Derive the continent calculation expression from continents.yml.
+        Returns (expression, variables, samplers_needed).
+        """
+        info = self.analyzer.samplers.get('continents')
+        if not info or not info.expression:
+            print("  Warning: Could not find continents expression", file=sys.stderr)
+            return self._fallback_continent_expression()
+
+        # Extract the expression - it references sampler, spawnIsland, spotDistance, spotRadius
+        expr = info.expression.strip()
+        variables = dict(info.variables)
+
+        # The continents sampler references a 'sampler' which is the continent noise
+        # We need to identify this and give it a proper name
+        samplers_needed = {}
+
+        # Look for the continent noise sampler in nested samplers
+        if 'sampler' in info.nested_samplers:
+            samplers_needed['continentNoise'] = info.nested_samplers['sampler']
+
+        # Replace 'sampler(' with 'continentNoise(' in the expression
+        expr = re.sub(r'\bsampler\s*\(', 'continentNoise(', expr)
+
+        return expr, variables, samplers_needed
+
+    def _fallback_continent_expression(self) -> Tuple[str, Dict, Dict]:
+        """Fallback if we can't parse the source."""
+        return (
+            "-continentNoise(x / scale / globalScale, z / scale / globalScale) * spread + offset",
+            {
+                'globalScale': '$customization.yml:global-scale',
+                'scale': '$customization.yml:continental-scale',
+                'offset': '$customization.yml:continental-offset',
+                'spread': '$customization.yml:continental-spread',
+            },
+            {}
+        )
+
+    def derive_elevation_expression(self) -> Tuple[str, Dict, Dict]:
+        """
+        Derive the elevation calculation from elevation.yml.
+        """
+        info = self.analyzer.samplers.get('elevation')
+        if not info or not info.expression:
+            return self._fallback_elevation_expression()
+
+        expr = info.expression.strip()
+        variables = dict(info.variables)
+
+        return expr, variables, {}
+
+    def _fallback_elevation_expression(self) -> Tuple[str, Dict, Dict]:
+        return (
+            "rawElevation(x, z) * (1-flatness(x, z)) * herp(continents(x, z), continentZero, 0, continentFull, 1)",
+            {
+                'continentZero': '$customization.yml:elevation-continental-flat-threshold',
+                'continentFull': '$customization.yml:elevation-continental-full-height-threshold',
+            },
+            {}
+        )
+
+    def derive_temperature_expression(self) -> Tuple[str, Dict, Dict]:
+        """
+        Derive the temperature calculation from temperature.yml.
+        """
+        info = self.analyzer.samplers.get('temperature')
+        if not info or not info.expression:
+            return self._fallback_temperature_expression()
+
+        expr = info.expression.strip()
+        variables = dict(info.variables)
+
+        return expr, variables, {}
+
+    def _fallback_temperature_expression(self) -> Tuple[str, Dict, Dict]:
+        return (
+            "rawTemperature(x, z) - lerp(elevation(x, z), lapseStart, 0, 1, lapseRate)",
+            {
+                'lapseRate': '$customization.yml:temperature-altitude-lapse-rate',
+                'lapseStart': '$customization.yml:temperature-altitude-lapse-start',
+            },
+            {}
+        )
+
+    def derive_precipitation_expression(self) -> Tuple[str, Dict, Dict]:
+        """
+        Derive the precipitation calculation from precipitation.yml.
+        """
+        info = self.analyzer.samplers.get('precipitation')
+        if not info or not info.expression:
+            return self._fallback_precipitation_expression()
+
+        expr = info.expression.strip()
+        variables = dict(info.variables)
+
+        return expr, variables, {}
+
+    def _fallback_precipitation_expression(self) -> Tuple[str, Dict, Dict]:
+        return (
+            "lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))",
+            {
+                'oceanThreshold': '$customization.yml:precipitation-ocean-threshold',
+                'landThreshold': '$customization.yml:precipitation-land-threshold',
+            },
+            {}
+        )
+
+    def build_combined_expression(self) -> str:
+        """
+        Build the combined expression that computes climate index in one pass.
+        This analyzes the source expressions and combines them to eliminate redundancy.
+        """
+        # Get expressions from source files
+        cont_expr, cont_vars, _ = self.derive_continent_expression()
+        elev_expr, elev_vars, _ = self.derive_elevation_expression()
+        temp_expr, temp_vars, _ = self.derive_temperature_expression()
+        precip_expr, precip_vars, _ = self.derive_precipitation_expression()
+
+        # Build combined expression with shared values computed once
+        combined = '''// ===== COMBINED CLIMATE EXPRESSION =====
+// Auto-derived from source sampler files
+
+// --- Shared: Continent value (used by elevation and precipitation) ---
+// Derived from: continents.yml
+'''
+        combined += f"c = {cont_expr};\n\n"
+
+        combined += '''// --- Elevation calculation ---
+// Derived from: elevation.yml
+'''
+        # Replace continents(x, z) with 'c' since we computed it above
+        elev_modified = re.sub(r'continents\s*\(\s*x\s*,\s*z\s*\)', 'c', elev_expr)
+        combined += f"elev = {elev_modified};\n\n"
+
+        combined += '''// --- Temperature calculation ---
+// Derived from: temperature.yml
+'''
+        # Replace elevation(x, z) with 'elev'
+        temp_modified = re.sub(r'elevation\s*\(\s*x\s*,\s*z\s*\)', 'elev', temp_expr)
+        combined += f"temp = {temp_modified};\n\n"
+
+        combined += '''// --- Precipitation calculation ---
+// Derived from: precipitation.yml
+'''
+        # Replace continents(x, z) with 'c'
+        precip_modified = re.sub(r'continents\s*\(\s*x\s*,\s*z\s*\)', 'c', precip_expr)
+        combined += f"precip = {precip_modified};\n\n"
+
+        combined += '''// --- Climate Index Encoding ---
+// Convert continuous T/P/E to discrete indices and encode
+tempIdx = floor(clamp((temp + 1) / 2, 0, 0.9999) * 12);
+precipIdx = floor(clamp((precip + 1) / 2, 0, 0.9999) * 6);
+elevIdx = floor(clamp(elev * 4, 0, 3.9999));
+
+// Final encoded value in [-1, 1] range
+(tempIdx * 24 + precipIdx * 4 + elevIdx) / 287 * 2 - 1'''
+
+        return combined
+
+    def collect_all_variables(self) -> Dict[str, Any]:
+        """Collect all variables needed from the source expressions."""
+        variables = OrderedDict()
+
+        # Continent variables
+        info = self.analyzer.samplers.get('continents')
+        if info and info.variables:
+            variables['# Continent variables (from continents.yml)'] = None
+            for k, v in info.variables.items():
+                variables[k] = v
+
+        # Elevation variables
+        info = self.analyzer.samplers.get('elevation')
+        if info and info.variables:
+            variables['# Elevation variables (from elevation.yml)'] = None
+            for k, v in info.variables.items():
+                if k not in variables:
+                    variables[k] = v
+
+        # Flatness variables
+        info = self.analyzer.samplers.get('flatness')
+        if info and info.variables:
+            for k, v in info.variables.items():
+                if k not in variables:
+                    variables[k] = v
+
+        # Temperature variables
+        info = self.analyzer.samplers.get('temperature')
+        if info and info.variables:
+            variables['# Temperature variables (from temperature.yml)'] = None
+            for k, v in info.variables.items():
+                if k not in variables:
+                    variables[k] = v
+
+        # Precipitation variables
+        info = self.analyzer.samplers.get('precipitation')
+        if info and info.variables:
+            variables['# Precipitation variables (from precipitation.yml)'] = None
+            for k, v in info.variables.items():
+                if k not in variables:
+                    variables[k] = v
+
+        return variables
+
+    def collect_needed_samplers(self) -> Dict[str, Any]:
+        """
+        Collect the base noise samplers needed (ones that can't be inlined as expressions).
+        These are the actual noise generators that must remain as samplers.
+        """
+        samplers = OrderedDict()
+
+        # We need the base noise samplers - the ones that aren't expressions themselves
+        # These are typically: continent noise, spawn island, spot distance/radius,
+        # elevation noise, flatness noise, temperature noise, precipitation noise
+
+        # Continent noise sampler
+        cont_info = self.analyzer.samplers.get('continents')
+        if cont_info and 'sampler' in cont_info.nested_samplers:
+            samplers['# Continent noise (from continents.yml)'] = None
+            samplers['continentNoise'] = cont_info.nested_samplers['sampler']
+
+        # SpawnIsland sampler
+        spawn_info = self.analyzer.samplers.get('spawnIsland')
+        if spawn_info:
+            samplers['# Spawn island (from spawnIsland.yml)'] = None
+            samplers['spawnIsland'] = spawn_info.raw_config
+
+        # Spot samplers - use references
+        samplers['# Spot samplers (from spots.yml)'] = None
+        samplers['spotDistance'] = '$math/samplers/spots.yml:samplers.spotDistance'
+        samplers['spotRadius'] = '$math/samplers/spots.yml:samplers.spotRadius'
+
+        # Raw elevation sampler - use reference to preserve the complex nested structure
+        samplers['# Raw elevation (from elevation.yml)'] = None
+        samplers['rawElevation'] = '$math/samplers/elevation.yml:samplers.rawElevation'
+
+        # Flatness sampler
+        flat_info = self.analyzer.samplers.get('flatness')
+        if flat_info:
+            samplers['# Flatness (from elevation.yml)'] = None
+            samplers['flatness'] = '$math/samplers/elevation.yml:samplers.flatness'
+
+        # River terrain erosion (from rivers.yml) - referenced by elevation
+        samplers['# River terrain erosion (from rivers.yml)'] = None
+        samplers['riverTerrainErosion'] = '$math/samplers/rivers.yml:samplers.riverTerrainErosion'
+
+        # Raw temperature sampler
+        samplers['# Temperature noise (from temperature.yml)'] = None
+        samplers['rawTemperature'] = '$math/samplers/temperature.yml:samplers.rawTemperature'
+
+        # Raw precipitation sampler
+        samplers['# Precipitation noise (from precipitation.yml)'] = None
+        samplers['rawPrecipitation'] = '$math/samplers/precipitation.yml:samplers.rawPrecipitation'
+
+        return samplers
+
+
+# =============================================================================
+# YAML Generation
+# =============================================================================
+
+def format_yaml_value(value: Any, indent: int = 0) -> str:
+    """Format a value as YAML with proper indentation."""
+    prefix = '  ' * indent
+
+    if value is None:
+        return ''
+    elif isinstance(value, str):
+        if '\n' in value:
+            lines = value.split('\n')
+            return '|\n' + '\n'.join(prefix + '  ' + line for line in lines)
+        elif value.startswith('$'):
+            return value
+        else:
+            return value
+    elif isinstance(value, bool):
+        return 'true' if value else 'false'
+    elif isinstance(value, (int, float)):
+        return str(value)
+    elif isinstance(value, list):
+        result = '\n'
+        for item in value:
+            result += f"{prefix}- {format_yaml_value(item, indent + 1)}\n"
+        return result.rstrip('\n')
+    elif isinstance(value, dict):
+        result = '\n'
+        for k, v in value.items():
+            if v is None:
+                result += f"{prefix}{k}\n"
+            else:
+                formatted = format_yaml_value(v, indent + 1)
+                if '\n' in formatted:
+                    result += f"{prefix}{k}: {formatted}\n"
+                else:
+                    result += f"{prefix}{k}: {formatted}\n"
+        return result.rstrip('\n')
+    else:
+        return str(value)
+
 
 def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
     """
-    Generate optimized combined climate sampler YAML.
-
-    This creates a mathematically simplified expression that:
-    1. Computes shared values (continents, elevation, temperature, precipitation) ONCE
-    2. Uses those values to compute the climate index
-    3. Preserves all $customization.yml references for maintainability
+    Generate the combined climate sampler YAML by analyzing source files.
     """
+    # Analyze source files
+    analyzer = SamplerAnalyzer(base_dir)
+    analyzer.load_all_samplers()
+    analyzer.build_dependency_graph()
 
-    header = '''# =============================================================================
+    # Generate combined expressions
+    generator = CombinedExpressionGenerator(analyzer)
+    combined_expr = generator.build_combined_expression()
+    variables = generator.collect_all_variables()
+    samplers = generator.collect_needed_samplers()
+
+    # Build the YAML output
+    output = '''# =============================================================================
 # Combined Climate Samplers
 # =============================================================================
 #
 # AUTO-GENERATED by generate_combined_climate.py
 # DO NOT EDIT MANUALLY - regenerate by running the script
 #
-# These samplers compute multiple climate factors in a single pass, eliminating
-# redundant calculations that occur when temperature, precipitation, and elevation
-# are computed separately.
+# This file was derived by analyzing:
+'''
+    for name, path in SOURCE_FILES.items():
+        output += f'#   - {path}\n'
+
+    output += '''#
+# The expressions below were automatically combined to eliminate redundant
+# calculations. Shared dependencies (like continents) are computed once.
 #
-# Key optimizations:
-# - Shared dependencies (continents, spawnIsland) computed ONCE
-# - All $customization.yml references preserved for maintainability
-# - Single expression computes T×P×E encoding
-#
-# Encoding scheme:
-#   climateIndex = (tempIndex * 24) + (precipIndex * 4) + elevIndex
-#   Total: 288 combinations normalized to [-1, 1]
+# Encoding: climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
 # =============================================================================
 
 samplers:
-  # ---------------------------------------------------------------------------
-  # Combined Climate Index
-  # ---------------------------------------------------------------------------
-  # Computes temperature, precipitation, and elevation in a single expression,
-  # encoding the result as a climate index for weighted list distribution.
-  # ---------------------------------------------------------------------------
-
   combinedClimate:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      // ===== SHARED DEPENDENCIES (computed once) =====
+'''
 
-      // Continent value: max of continent noise, spawn island, and spot contribution
-      continentNoise = -continentSampler(x / contScale / globalScale, z / contScale / globalScale) * contSpread + contOffset;
-      spawnIslandVal = spawnIsland(x, z);
-      spotContrib = spotContinentalFactor * max(0, 1 - (spotDistance(x, z) / spotRadius(x, z))^2);
-      c = max(max(continentNoise, spawnIslandVal), spotContrib);
+    # Add the combined expression with proper indentation
+    for line in combined_expr.split('\n'):
+        output += f'      {line}\n'
 
-      // ===== ELEVATION =====
-      // Raw elevation with flatness modulation and continental factor
-      rawElev = elevationNoise(x / elevScale / globalScale, z / elevScale / globalScale) * elevMult + elevOffset;
-      flatVal = flatnessNoise(x / flatScale / globalScale, z / flatScale / globalScale);
-      flatFactor = herp(flatVal, flatThresh, flatAmount, flatThresh + flatBlend, 0);
-      elev = rawElev * (1 - flatFactor) * herp(c, elevContZero, 0, elevContFull, 1);
+    # Add variables
+    output += '\n    variables:\n'
+    for key, value in variables.items():
+        if key.startswith('#'):
+            output += f'      {key}\n'
+        elif value is not None:
+            output += f'      {key}: {value}\n'
 
-      // ===== TEMPERATURE =====
-      // Raw temperature with altitude lapse rate
-      rawTemp = tempNoise(x / tempScale / globalScale, z / tempScale / globalScale) * tempSpread + tempOffset;
-      temp = rawTemp - lerp(elev, lapseStart, 0, 1, lapseRate);
-
-      // ===== PRECIPITATION =====
-      // Raw precipitation with continental modulation
-      rawPrecip = precipNoise(x / precipScale / globalScale, z / precipScale / globalScale) * precipSpread + precipOffset;
-      precip = lerp(c, precipOceanThresh, 1, precipLandThresh, rawPrecip);
-
-      // ===== CLIMATE INDEX ENCODING =====
-      // Convert continuous values to discrete indices
-      tempIdx = floor(clamp((temp + 1) / 2, 0, 0.9999) * 12);
-      precipIdx = floor(clamp((precip + 1) / 2, 0, 0.9999) * 6);
-      elevIdx = floor(clamp(elev * 4, 0, 3.9999));
-
-      // Encode to single value in [-1, 1] range for weighted list
-      (tempIdx * 24 + precipIdx * 4 + elevIdx) / 287 * 2 - 1
-
-    variables:
-      # Global scale
-      globalScale: $customization.yml:global-scale
-
-      # Continental variables
-      contScale: $customization.yml:continental-scale
-      contOffset: $customization.yml:continental-offset
-      contSpread: $customization.yml:continental-spread
-      spotContinentalFactor: 0.3
-
-      # Elevation variables
-      elevScale: $customization.yml:elevation-scale
-      elevMult: $customization.yml:elevation-multiplier
-      elevOffset: $customization.yml:elevation-offset
-      elevContZero: $customization.yml:elevation-continental-flat-threshold
-      elevContFull: $customization.yml:elevation-continental-full-height-threshold
-
-      # Flatness variables
-      flatScale: $customization.yml:flatness-scale
-      flatThresh: $customization.yml:flatness-percent
-      flatBlend: $customization.yml:flatness-blend
-      flatAmount: $customization.yml:flatness-factor
-
-      # Temperature variables
-      tempScale: $customization.yml:temperature-scale
-      tempOffset: (${customization.yml:temperature-max}+${customization.yml:temperature-min})/2
-      tempSpread: (${customization.yml:temperature-max}-${customization.yml:temperature-min})/2
-      lapseRate: $customization.yml:temperature-altitude-lapse-rate
-      lapseStart: $customization.yml:temperature-altitude-lapse-start
-
-      # Precipitation variables
-      precipScale: $customization.yml:precipitation-scale
-      precipOffset: (${customization.yml:precipitation-max}+${customization.yml:precipitation-min})/2
-      precipSpread: (${customization.yml:precipitation-max}-${customization.yml:precipitation-min})/2
-      precipOceanThresh: $customization.yml:precipitation-ocean-threshold
-      precipLandThresh: $customization.yml:precipitation-land-threshold
-
+    # Add functions
+    output += '''
     functions:
       "<<": $math/functions/interpolation.yml:functions
       clamp:
@@ -231,180 +637,35 @@ samplers:
         expression: max(min(x, maxVal), minVal)
 
     samplers:
-      # Continent noise (from continents.yml)
-      continentSampler:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: RIDGED
-          lacunarity: 3
-          gain: 0.35
-          octaves: 3
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 1.0
-            frequency: 1 / 5000
-
-      # Spawn island (from spawnIsland.yml)
-      spawnIsland:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 150
-        warp:
-          type: FBM
-          octaves: 2
-          sampler:
-            type: TRANSLATE
-            x: 5000
-            z: -5000
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 0.004
-        sampler:
-          type: EXPRESSION_NORMALIZER
-          expression: |
-            if(in < middleRadius/outerRadius,
-              herp(in, innerRadius/outerRadius, 1, middleRadius/outerRadius, 0),
-              parabolicMap(in, middleRadius/outerRadius, 0, 1, -1))
-          variables:
-            innerRadius: $customization.yml:spawn-island-radius-inner
-            middleRadius: $customization.yml:spawn-island-radius-middle
-            outerRadius: $customization.yml:spawn-island-radius-outer
-          functions: $math/functions/interpolation.yml:functions
-          sampler:
-            type: PROBABILITY
-            sampler:
-              type: DISTANCE
-              point:
-                x: $customization.yml:spawn-island-origin-x
-                z: $customization.yml:spawn-island-origin-z
-              normalize: true
-              radius: $customization.yml:spawn-island-radius-outer
-
-      # Spot distance (from spots.yml)
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-
-      # Spot radius (from spots.yml)
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-
-      # Elevation noise - simplified from elevation.yml rawElevation
-      elevationNoise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: EXPRESSION
-          expression: |
-            combine(
-              hills(x, z) * hillMaxElevation,
-              parabolicMap(mountainMask(x, z), mountainZero, 0, mountainFull, mountains(x, z)),
-              mountainCap)
-          variables:
-            mountainZero: 0.3
-            mountainFull: 0.6
-            hillMaxElevation: 0.3
-            mountainCap: 0.9
-          functions:
-            "<<": $math/functions/interpolation.yml:functions
-            combine:
-              arguments: [hills, mountains, mountainCap]
-              expression: hills + mountains * min(1 - hills, mountainCap)
-          samplers:
-            mountainMask:
-              dimensions: 2
-              type: PROBABILITY
-              sampler:
-                type: OPEN_SIMPLEX_2
-                salt: 694.0
-                frequency: 1 / 1500
-            mountains:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((-in+1)/2)^2
-              sampler:
-                type: PSEUDOEROSION
-                erosion-frequency: 0.01
-                lacunarity: 1.5
-                branch-strength: 1
-                octaves: 3
-                strength: 0.15
-                gain: 0.3
-                sampler:
-                  type: FBM
-                  octaves: 3
-                  sampler:
-                    type: OPEN_SIMPLEX_2
-                    frequency: 1 / 900
-            hills:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((in+1)/2)^2
-              sampler:
-                type: FBM
-                octaves: 6
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  frequency: 1 / 2000
-
-      # Flatness noise (from elevation.yml)
-      flatnessNoise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: PROBABILITY
-          sampler:
-            type: FBM
-            gain: 0.3
-            lacunarity: 2.3
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 1 / 1000
-
-      # Temperature noise (from temperature.yml)
-      tempNoise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: FBM
-          gain: 0.4
-          octaves: 2
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 3.0
-            frequency: 1 / 5000
-
-      # Precipitation noise (from precipitation.yml)
-      precipNoise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: FBM
-          octaves: 2
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 4.0
-            frequency: 1 / 7500
 '''
 
-    return header
+    # Add samplers
+    for key, value in samplers.items():
+        if key.startswith('#'):
+            output += f'      {key}\n'
+        elif isinstance(value, str):
+            output += f'      {key}: {value}\n'
+        elif isinstance(value, dict):
+            output += f'      {key}:\n'
+            output += yaml.dump(value, default_flow_style=False, indent=2, sort_keys=False)
+            # Re-indent the YAML dump
+            lines = yaml.dump(value, default_flow_style=False, indent=2, sort_keys=False).split('\n')
+            output = output.rsplit(f'      {key}:\n', 1)[0] + f'      {key}:\n'
+            for line in lines:
+                if line.strip():
+                    output += f'        {line}\n'
 
+    return output
+
+
+# =============================================================================
+# Biome Mapping (unchanged)
+# =============================================================================
 
 def generate_climate_biome_mapping() -> Dict[Tuple[int, int, int], str]:
-    """
-    Generate the mapping from (tempIdx, precipIdx, elevIdx) to biome name.
-    """
+    """Generate the mapping from (tempIdx, precipIdx, elevIdx) to biome name."""
     biome_map = {}
 
-    # Precipitation stage mappings: (temp_idx) -> [biomes for each precip level 0-5]
     precip_map = {
         0: ['ice-cap'] * 6,
         1: ['tundra'] * 6,
@@ -420,7 +681,6 @@ def generate_climate_biome_mapping() -> Dict[Tuple[int, int, int], str]:
         11: ['hot-desert', 'hot-desert', 'hot-steppe', 'tropical-savanna-dry', 'tropical-monsoon', 'tropical-rainforest'],
     }
 
-    # Elevation stage mappings: biome_base -> [flat, lowlands, midlands, highlands]
     elev_map = {
         'ice-cap': ['ice-cap-flat', 'ice-cap', 'ice-cap', 'ice-cap-highlands'],
         'tundra': ['tundra-flat', 'tundra', 'tundra', 'tundra-highlands'],
@@ -469,17 +729,8 @@ def generate_combined_stage_yml() -> str:
 # =============================================================================
 #
 # AUTO-GENERATED by generate_combined_climate.py
-# DO NOT EDIT MANUALLY - regenerate by running the script
 #
-# This stage replaces the three separate temperature, precipitation, and elevation
-# stages with a single pass that computes all climate factors together.
-#
-# Benefits:
-# - Eliminates redundant calculations of continents, elevation, etc.
-# - Single sampler evaluation instead of three separate stages
-# - Same biome distribution as the original three-stage approach
-#
-# Usage: Replace the three climate stage includes with this single include:
+# Usage: Replace temperature/precipitation/elevation stages with:
 #   - << biome-distribution/stages/climate/combined_climate.yml:stages
 # =============================================================================
 
@@ -503,74 +754,53 @@ stages:
     return content
 
 
+# =============================================================================
+# Main
+# =============================================================================
+
 def main():
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description='Generate combined climate samplers for optimized biome distribution'
-    )
+    parser = argparse.ArgumentParser(description='Generate combined climate samplers')
     parser.add_argument('-b', '--base-dir', type=str, default='.', help='Base directory')
-    parser.add_argument('--dry-run', action='store_true', help='Print without writing files')
+    parser.add_argument('--dry-run', action='store_true', help='Print without writing')
 
     args = parser.parse_args()
     base_dir = Path(args.base_dir)
 
     print("=" * 70)
-    print("Combined Climate Sampler Generator (Optimized)")
+    print("Combined Climate Sampler Generator")
     print("=" * 70)
 
     # Generate combined sampler
-    print("\nGenerating optimized combined sampler...")
+    print("\nAnalyzing and generating combined sampler...\n")
     sampler_yml = generate_combined_sampler_yml(base_dir)
 
     sampler_path = base_dir / 'math' / 'samplers' / 'combined_climate.yml'
     if args.dry_run:
         print(f"\n[DRY RUN] Would write to: {sampler_path}")
         print("-" * 40)
-        lines = sampler_yml.split('\n')
-        print('\n'.join(lines[:80]) + "\n... (truncated)")
+        print(sampler_yml[:2500] + "\n... (truncated)")
     else:
         sampler_path.parent.mkdir(parents=True, exist_ok=True)
         with open(sampler_path, 'w', encoding='utf-8') as f:
             f.write(sampler_yml)
-        print(f"  Written to: {sampler_path}")
-        print(f"  Lines: {len(sampler_yml.splitlines())}")
+        print(f"\nWritten to: {sampler_path}")
+        print(f"Lines: {len(sampler_yml.splitlines())}")
 
     # Generate combined stage
-    print("\nGenerating combined stage definition...")
+    print("\nGenerating combined stage...")
     stage_yml = generate_combined_stage_yml()
 
     stage_path = base_dir / 'biome-distribution' / 'stages' / 'climate' / 'combined_climate.yml'
     if args.dry_run:
         print(f"\n[DRY RUN] Would write to: {stage_path}")
-        print("-" * 40)
-        lines = stage_yml.split('\n')
-        print('\n'.join(lines[:50]) + "\n... (truncated)")
     else:
         stage_path.parent.mkdir(parents=True, exist_ok=True)
         with open(stage_path, 'w', encoding='utf-8') as f:
             f.write(stage_yml)
-        print(f"  Written to: {stage_path}")
-
-    # Print statistics
-    print("\n" + "=" * 70)
-    print("STATISTICS")
-    print("-" * 40)
-    print(f"Combined sampler lines: {len(sampler_yml.splitlines())}")
-    print(f"Total climate combinations: 288 (12×6×4)")
-
-    biome_map = generate_climate_biome_mapping()
-    print(f"Unique biomes: {len(set(biome_map.values()))}")
-
-    print("\n" + "=" * 70)
-    print("KEY OPTIMIZATIONS")
-    print("-" * 40)
-    print("[x] All $customization.yml references preserved")
-    print("[x] Single expression computes shared dependencies once")
-    print("[x] Continent value computed ONCE (was 33+ times)")
-    print("[x] Elevation computed ONCE (was 48+ times)")
-    print("[x] External sampler references preserved ($math/...)")
+        print(f"Written to: {stage_path}")
 
     print("\nDone!")
 

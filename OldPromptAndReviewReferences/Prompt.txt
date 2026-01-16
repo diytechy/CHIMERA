@@ -301,3 +301,14 @@ I will first evaluate in the NoiseTool, but to do this I need some fixes in
  2. It does not actually mathematically simplify the expression.  For example, "combined_climate.yml" now has 1000 extra lines (6x bigger) and has expressions evaluated multiple times for each sampler.  The sampler "combinedContinent" performs "parabolicMap(in, middleRadius/outerRadius, 0, 1,                       -1)" multiple times.  This can be mathematically simplified to prevent duplicate computations.
 
  generate_combined_climate should be updated or a new file function should be used due to the special needs it has which differentiate it from SamplerResolver.
+
+ ###############################################################
+
+Closer, but some generated content is still coming from hard-coded sources.  Ex:
+
+generate_combined_climate.py Line 159: "continentNoise = -continentSampler(x / contScale / globalScale, z / contScale / globalScale)"
+
+This line should have been automatically constructed by looking at the continent.yml sampler, seeing it's interdependencies with the other core samplers (spawnIsland / spots / continents / elevation / temperature / precipitation) deriving common / reused expressions, and deriving the corresponding expressions to finalize in 
+combined_climate.yml.
+
+The main thing to note is if any of the core climate files is changed (spawnIsland / spots / continents / elevation / temperature / precipitation), rerunning generate_combined_climate.py should recheck for interdependent / repetitive calculations, reform expressions, and produce final mathematically simplified expressions.

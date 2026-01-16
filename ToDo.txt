@@ -17,9 +17,31 @@ Integrate usage to readme.md?  Or into DESIGN.md?
 
 Need to shift biome generation location on top of salt?  Is salt set?  Need to verify no duplicates.
 
-Need to fuzz temperature, elevation, precipitation.
+Need to fuzz temperature, elevation, precipitation?  Or change overall distribution mechanism.
 
 Add lakes?
 
 To maintain shape: Frequencies should all scale together, amplitude should scale inversly.
+
+Basic noise evaluation:
+
+Temperature takes a long time to evaluate.  Is it overly complex?  Is it doing something with elevation?
+	Answer - yes, elevation is clearing impacting this.
+
+Precipitation isn't bad in terms of processing.
+	Range from -.8 to 1
+
+Q: Can I create a composite function that performs a full climate computation?  Just gets x/y, and uses continents function, and outputs a layered output from some number to some number that represents distinct zones?
+
+Like Axx - elevation
+xBx - temperature
+xxC - precipitation?
+
+Or derive more complex biome zones?  Need to evaluate current grouping?
+
+###############################################
+
+Update temperature mapping to use simplified function (rawTemperature) for distribution of sinkhole / cliff regions.  Map using a warp noise chain to get down to individual cliff locations?
+
+
 

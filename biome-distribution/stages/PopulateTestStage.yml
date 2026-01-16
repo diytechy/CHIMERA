@@ -1,4 +1,15 @@
 stages:
+  - type: REPLACE
+    sampler:
+      type: CELLULAR
+      jitter: ${customization.yml:biomeSpread.cellJitter}
+      return: CellValue
+      frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+    from: land
+    to: 
+      DRY_FIR_FIELDS: 1
+      FRIGID_WASTELANDS: 1
+
   - type: REPLACE_LIST
     sampler:
       type: CONSTANT

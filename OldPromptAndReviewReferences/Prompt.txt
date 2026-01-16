@@ -332,4 +332,28 @@ Perhaps creating new sampler combinations is inevitable.  I still do not see pro
 
 The file "set_biomes_in_climates_origin.yml" should contain all the placeholder biomes that can have a simplified expression.  So I would expect "biome-distribution\stages\climate\combined_climate.yml" to include "ice-cap-flat", "ice-cap-highlands", "tundra", "island-polar-shallow-ocean", "tropical-monsoon", and many others.
 
+#####################################################3
+To copilot or Amazon Q while Claude is on cooldown:
+
+Write a block of bat code that uses robocopy files and folders from a Source Folder to a Destination folder.
+
+Source Folder: "C:\Projects\ORIGEN2"
+Destination Folder: "C:\Projects\BiomeTool\build\libs\packs\terra-origen"
+
+Folders in root which should NOT be copied:
+
+1. Any folder that starts with "."
+2. Any folder that starts with "_"
+3. Folder "OldPromptAndReviewReferences"
+4. Folder "Review"
+
+Other than those folders in root, all other folders in root and their files should be copied recursively.
+
+From the root off the source folder, only the following files on the root path should be copied:
+
+1. "pack.yml"
+2. "meta.yml"
+3. "customization.yml"
+
+
 Bottom: Add burning fields after everything else is fixed?

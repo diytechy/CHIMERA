@@ -286,7 +286,7 @@
 "features","sugar_pine_trees.yml","FILE MISSING","trees\sugar_pine_trees.yml",""
 "features","swamp_trees.yml","FILE MISSING","trees\swamp_trees.yml",""
 "features","amethyst_cluster_strips.yml","FILE MISSING","world_features\caverns\crystalline\amethyst_cluster_strips.yml",""
-"features","ceiling_dripstone_blocks.yml","FILE DIFFERENT","world_features\caverns\dripstone\ceiling_dripstone_blocks.yml","geological\dripstone\ceiling_dripstone_blocks.yml"
+"features","CEILING_DRIPSTONE.yml","FILE DIFFERENT","world_features\caverns\dripstone\CEILING_DRIPSTONE.yml","geological\dripstone\CEILING_DRIPSTONE.yml"
 "features","dripstone_cave_pools.yml","FILE DIFFERENT","world_features\caverns\dripstone\dripstone_cave_pools.yml","geological\dripstone\dripstone_cave_pools.yml"
 "features","dripstone_columns.yml","FILE DIFFERENT","world_features\caverns\dripstone\dripstone_columns.yml","geological\dripstone\dripstone_columns.yml"
 "features","lava_floor.yml","FILE DIFFERENT","world_features\caverns\lava_floor.yml","geological\lava_floor.yml"

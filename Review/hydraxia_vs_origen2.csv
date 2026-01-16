@@ -328,7 +328,7 @@
 "lava_floor.yml","C:\Projects\Hydraxia2","features\world_features\caverns","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological"
 "underground_lava_columns.yml","C:\Projects\Hydraxia2","features\world_features\caverns","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological"
 "amethyst_cluster_strips.yml","C:\Projects\Hydraxia2","features\world_features\caverns\crystalline","EXACT MATCH","C:\Projects\ORIGEN2","features\world_features\caverns\crystalline"
-"ceiling_dripstone_blocks.yml","C:\Projects\Hydraxia2","features\world_features\caverns\dripstone","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological\dripstone"
+"CEILING_DRIPSTONE.yml","C:\Projects\Hydraxia2","features\world_features\caverns\dripstone","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological\dripstone"
 "dripstone_cave_pools.yml","C:\Projects\Hydraxia2","features\world_features\caverns\dripstone","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological\dripstone"
 "dripstone_columns.yml","C:\Projects\Hydraxia2","features\world_features\caverns\dripstone","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological\dripstone"
 "lush_cave_water_pools.yml","C:\Projects\Hydraxia2","features\world_features\caverns\lush","FILE DIFFERENT","C:\Projects\ORIGEN2","features\geological"

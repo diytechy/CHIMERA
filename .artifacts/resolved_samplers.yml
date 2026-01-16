@@ -10,11 +10,29 @@ expression: round(continents(x,z)) #4 - 7 s
 #expression: precipitation(x,z) #8 s
 #expression: round(temperature(x,z)*elevation(x,z)) 68 s
 #expression: cell_test2(x,z)
+expression: newnoise(x,z) #4 - 7 s
 
 
 
 
 samplers:
+  newnoise: &newnoise
+    dimensions: 2
+    type: FBM
+    sampler:
+      type: PERLIN
+      frequency: 0.0005
+    octaves: 5
+    lacunarity: 2
+    gain: 0.5
+    #type: PERLIN
+    #frequency: 0.0005
+    #return: NoiseLookup   
+    #jitter: 1.2
+    #distance: EuclideanSq #Dflt: EuclideanSq
+    #salt: 7777.0
+    #NoiseSampler: continents
+    NoiseSampler: OPEN_SIMPLEX_2
   cell_test: &cell_test
     dimensions: 2
     type: CELLULAR

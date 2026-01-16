@@ -1,14 +1,15 @@
 type: EXPRESSION
 #expression: biome_place2(x,z)
 #expression: round((elevation(x,z)*10))/10 #24 s
-#expression: round(continents(x,z)) #7 s
+expression: round(continents(x,z)) #4 - 7 s
 #expression: round(temperature(x,z))  #~30 s
 #expression: round(elevation(x,z))
 #expression: x+(y*.0001)^2+z
 #expression: cell_test(x,z)
 #expression: cell_test(x,z)
 #expression: precipitation(x,z) #8 s
-expression: cell_test2(x,z)
+#expression: round(temperature(x,z)*elevation(x,z)) 68 s
+#expression: cell_test2(x,z)
 
 
 

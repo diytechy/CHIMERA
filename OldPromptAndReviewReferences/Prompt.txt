@@ -286,3 +286,18 @@ I will first evaluate in the NoiseTool, but to do this I need some fixes in
   "generate_combined_climate.py" it appears to just write out a previously computed    
   combined sampler for climate.  Ideally this function would actually read the core    
   climate sampler files from math\samplers (spawnIsland / spots / continents / elevation / temperature / precipitation) and iteratively reduce / resolve the functions (while  retaining constants) until the final expressions remain to populate combined_climate.yml.
+
+  ############################################################33
+
+ Using SamplerResolver is not appropriate in this case for two reasons:
+
+ 1. It does not maintain variable links with their source files.  Ex: These variables were resolved but for the combined_climate.yml this is not necessary and prevents easy iteration in the future.  These lines should not have been removed along with many others:
+ 
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+      spread: $customization.yml:continental-spread
+
+ 2. It does not actually mathematically simplify the expression.  For example, "combined_climate.yml" now has 1000 extra lines (6x bigger) and has expressions evaluated multiple times for each sampler.  The sampler "combinedContinent" performs "parabolicMap(in, middleRadius/outerRadius, 0, 1,                       -1)" multiple times.  This can be mathematically simplified to prevent duplicate computations.
+
+ generate_combined_climate should be updated or a new file function should be used due to the special needs it has which differentiate it from SamplerResolver.

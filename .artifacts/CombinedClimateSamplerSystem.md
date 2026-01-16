@@ -125,11 +125,30 @@ stages:
 
 ## Generator Script
 
-The `generate_combined_climate.py` script:
+The `generate_combined_climate.py` script dynamically reads and resolves source sampler files:
 
-1. Reads configuration from the original stage files
-2. Generates the biome mapping for all 288 combinations
-3. Outputs both the sampler and stage YAML files
+1. **Loads source samplers** using `SamplerResolver` from `resolve_samplers.py`:
+   - `math/samplers/continents.yml`
+   - `math/samplers/spawnIsland.yml`
+   - `math/samplers/elevation.yml`
+   - `math/samplers/temperature.yml`
+   - `math/samplers/precipitation.yml`
+   - `math/samplers/spots.yml`
+
+2. **Resolves all references** recursively:
+   - File references (`$file.yml:key.path`)
+   - Inline variables (`${file.yml:key}`)
+   - YAML anchors and aliases
+
+3. **Builds combined samplers** by inlining resolved definitions:
+   - `combinedContinent`: Merges continents + spawnIsland + spot contribution
+   - `combinedClimate`: Computes T×P×E encoding with all dependencies inlined
+
+4. **Generates the biome mapping** for all 288 combinations
+
+5. **Outputs both files**:
+   - `math/samplers/combined_climate.yml` - Fully resolved sampler definitions
+   - `biome-distribution/stages/climate/combined_climate.yml` - Distribution stage
 
 Run with:
 ```bash
@@ -139,6 +158,12 @@ python .scripts/generate_combined_climate.py
 Options:
 - `--dry-run`: Print output without writing files
 - `-b, --base-dir`: Specify project base directory (default: current directory)
+
+### Benefits of Dynamic Resolution
+
+- **Maintainability**: Changes to source samplers automatically propagate when regenerating
+- **Correctness**: The combined sampler exactly matches the original sampler behavior
+- **Transparency**: The header lists all source files that were resolved
 
 ## Performance Expectations
 

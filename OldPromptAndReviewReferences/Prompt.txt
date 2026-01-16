@@ -279,3 +279,10 @@ I will first evaluate in the NoiseTool, but to do this I need some fixes in
   island,  temperature, precipitation, and elevation samplers, ect  and create
   combined samplers for use in respective locations, like "spawn-island-continent" ,   
   "spawn-island-continent-elevation", "spawn-island-continent-elevation-temperature", and "combined climate", and shuffle the "set biomes in climate" yml files to use the respective distribution from the combined climate sampler, as that will now be overloaded with multiple dimensions in a single parameter.
+
+  ######################################################
+
+  In the function "generate_combined_sampler_yml" within
+  "generate_combined_climate.py" it appears to just write out a previously computed    
+  combined sampler for climate.  Ideally this function would actually read the core    
+  climate sampler files from math\samplers (spawnIsland / spots / continents / elevation / temperature / precipitation) and iteratively reduce / resolve the functions (while  retaining constants) until the final expressions remain to populate combined_climate.yml.

@@ -24,7 +24,8 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: elevation(x,z)*64
+        expression: (simelev(x,z)+0.6)*64
+        #expression: round(simelev(x,z)+0.6)*64
         samplers:
           simelev:
             dimensions: 2
@@ -32,10 +33,19 @@ samplers:
             sampler:
               type: PERLIN
               frequency: 0.0005
-            octaves: 5
-            lacunarity: 2
+            octaves: 4
+            lacunarity: 1.9
             gain: 0.5
-            NoiseSampler: OPEN_SIMPLEX_2
+            weighted-strength: 0
+            NoiseSampler: test
+            samplers:
+              test:
+                NoiseSampler: OPEN_SIMPLEX_2S
+              #frequency:0.0001
+            #SIMPLEX
+            #OPEN_SIMPLEX_2
+            #OPEN_SIMPLEX_2S
+            #GAUSSIAN
           elevation:
             dimensions: 2
             type: EXPRESSION

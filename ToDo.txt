@@ -44,4 +44,48 @@ Or derive more complex biome zones?  Need to evaluate current grouping?
 Update temperature mapping to use simplified function (rawTemperature) for distribution of sinkhole / cliff regions.  Map using a warp noise chain to get down to individual cliff locations?
 
 
+How to get better elevation?  Want relatively flat regions near center above coast, want some hills, want some mountains.
 
+Simplex to generate initial elev at x,z points.
+Simplex to generate magnifiers at different x,z points, which will affect... how much perlin will be multiplied in different regions?  This should ensure some regions stay flatter, and other regions get more amplified, and that it is distributed?
+How can warp be used to accomplish this?
+
+############################################
+
+Related to this toolset and previous discussions, I'm trying to improve on the default terrain generation configured in this tool, as it is currently both very noisy and processor intensive.
+
+Perlin generation is working well to create more clustered mountain ranges, but I would also like to have flatter terrain rolloff near where coastlines would be, and would like smoother hills to generate alongside jagged mountains.
+
+The current rendering is at "TerrainGenExplore1.png", where pure gray (0x7F7F7F) is about where the coast line would be (about 30 y), but this could also be adjusted.
+
+The filter configuration is:
+
+samplers:
+  ZExp:  #expression: ZExp(x,y,z)
+    dimensions: 3
+    type: EXPRESSION
+    expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-50)
+    samplers:
+      ZTestExp:
+        dimensions: 2
+        type: EXPRESSION
+        expression: simelev(x,z)*50+30
+        #expression: (simelev(x,z)+0.6)*64
+        #expression: round(simelev(x,z)+0.6)*64
+        samplers:
+          simelev:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+            octaves: 3
+            lacunarity: 1.77
+            gain: 0.5
+            weighted-strength: 0
+            NoiseSampler: test
+            samplers:
+              test:
+                NoiseSampler: OPEN_SIMPLEX_2S
+
+Can you make recommendations / filer configuration changes to meet the desired affects noted above?

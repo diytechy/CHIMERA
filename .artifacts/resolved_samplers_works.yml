@@ -10,32 +10,12 @@ expression: round(continents(x,z)) #4 - 7 s
 #expression: precipitation(x,z) #8 s
 #expression: round(temperature(x,z)*elevation(x,z)) 68 s
 #expression: cell_test2(x,z)
-expression: ZExp(x,y,z)
+expression: newnoise(x,z) #4 - 7 s
 
 
 
 
 samplers:
-  ZExp:  #expression: ZExp(x,y,z)
-    dimensions: 3
-    type: EXPRESSION
-    expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-1)
-    samplers:
-      ZTestExp:
-        dimensions: 2
-        type: EXPRESSION
-        expression: newnoise(x,z)*64
-        samplers:
-          newnoise: &newnoise
-            dimensions: 2
-            type: FBM
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-            octaves: 5
-            lacunarity: 2
-            gain: 0.5
-            NoiseSampler: OPEN_SIMPLEX_2
   newnoise: &newnoise
     dimensions: 2
     type: FBM

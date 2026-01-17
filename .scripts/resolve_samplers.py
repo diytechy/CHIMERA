@@ -950,16 +950,11 @@ def main():
             resolver.all_functions = resolver.evaluate_constants(resolver.all_functions)
         print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
 
-    # Build output with anchor-aware YAML for CACHE samplers
-    print("\nBuilding anchor-aware output...", file=sys.stderr)
-
     # Count CACHE samplers for reporting
+    print("\nBuilding anchor-aware output...", file=sys.stderr)
     cache_count = sum(1 for name, config in resolver.all_samplers.items()
                      if isinstance(config, dict) and config.get('type') == 'CACHE')
     print(f"  Found {cache_count} CACHE samplers", file=sys.stderr)
-
-    # Build the samplers section with proper anchors/aliases
-    samplers_yaml = build_anchor_aware_output(resolver.all_samplers, custom_samplers)
 
     # Build functions section if present
     functions_yaml = ""
@@ -981,6 +976,14 @@ def main():
         functions_yaml = '\n' + functions_output
 
     # Combine: header + marker + resolved samplers + functions
+    #
+    # IMPORTANT: header_text already contains custom samplers (before the marker).
+    # samplers_yaml should ONLY contain the resolved samplers from math/samplers/,
+    # NOT the custom samplers again. So we pass custom_samplers=None to avoid duplication.
+    #
+    # Rebuild samplers_yaml WITHOUT custom samplers to avoid duplication
+    samplers_yaml = build_anchor_aware_output(resolver.all_samplers, custom_samplers=None)
+
     final_output = header_text
     if not header_text.rstrip().endswith('samplers:'):
         # Add samplers: key if not already in header

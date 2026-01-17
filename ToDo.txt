@@ -89,3 +89,103 @@ samplers:
                 NoiseSampler: OPEN_SIMPLEX_2S
 
 Can you make recommendations / filer configuration changes to meet the desired affects noted above?
+
+Initial feedback:
+
+    rawElevation: &rawElevation
+      dimensions: 2
+      type: EXPRESSION
+      expression: ZTestExp * multiplier + offset
+      variables:
+        globalScale: $customization.yml:global-scale
+        scale: $customization.yml:elevation-scale
+        multiplier: $customization.yml:elevation-multiplier
+        offset: $customization.yml:elevation-offset
+      samplers:
+        ZTestExp:
+          dimensions: 2
+          type: EXPRESSION
+          expression: |
+            blend(
+              continental(x, z),
+              hills(x, z),
+              mountains(x, z),
+              roughness(x, z)
+            )
+          variables:
+            baseWeight: 0.6
+            detailWeight: 0.4
+            coastThreshold: 0.4
+            coastScale: 2
+          functions:
+            blend:
+              arguments: [base, smooth, jagged, rough]
+              expression: |
+                base * baseWeight +
+                lerp(max(0, rough), 0, smooth, 1, jagged) * detailWeight *
+                coastRolloff(base)
+              functions:
+                lerp:
+                  arguments: [t, t0, v0, t1, v1]
+                  expression: v0 + (v1 - v0) * (t - t0) / (t1 - t0)
+            coastRolloff:
+              arguments: [base]
+              expression: clamp((base + coastThreshold) * coastScale, 0, 1)^2
+              functions:
+                clamp:
+                  arguments: [x, minVal, maxVal]
+                  expression: max(min(x, maxVal), minVal)
+
+          samplers:
+            # Large-scale continental/landmass shape
+            continental:
+              dimensions: 2
+              type: FBM
+              octaves: 2
+              lacunarity: 2.0
+              gain: 0.5
+              sampler:
+                type: PERLIN
+                frequency: 0.00015
+
+            # Controls smooth vs rough terrain distribution
+            roughness:
+              dimensions: 2
+              type: FBM
+              octaves: 2
+              lacunarity: 2.0
+              gain: 0.5
+              sampler:
+                type: PERLIN
+                frequency: 0.0004
+                salt: 100
+
+            # Smooth rolling hills (low octaves, gentle)
+            hills:
+              dimensions: 2
+              type: FBM
+              octaves: 2
+              lacunarity: 2.0
+              gain: 0.35
+              sampler:
+                type: PERLIN
+                frequency: 0.0008
+                salt: 200
+
+            # Jagged mountains (high octaves, more detail)
+            mountains:
+              dimensions: 2
+              type: FBM
+              octaves: 5
+              lacunarity: 2.2
+              gain: 0.55
+              sampler:
+                type: PERLIN
+                frequency: 0.0006
+                salt: 300
+
+##############################################
+
+Refactor this expression so that it aligns with the way expressions are laid out in math\samplers\elevation.yml
+
+For instance, variables cannot be instantiated and assigned within an expression section itself.  They need to be defined further below as functions and samplers to be used in an expression, and an expression does not appear to be able to run multiple instructions separated by commas.

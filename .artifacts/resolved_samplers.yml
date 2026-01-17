@@ -1,7 +1,7 @@
 type: EXPRESSION
 #expression: biome_place2(x,z)
 #expression: round((elevation(x,z)*10))/10 #24 s
-expression: round(continents(x,z)) #4 - 7 s
+#expression: round(continents(x,z)) #4 - 7 s
 #expression: round(temperature(x,z))  #~30 s
 #expression: round(elevation(x,z))
 #expression: x+(y*.0001)^2+z
@@ -10,13 +10,13 @@ expression: round(continents(x,z)) #4 - 7 s
 #expression: precipitation(x,z) #8 s
 #expression: round(temperature(x,z)*elevation(x,z)) 68 s
 #expression: cell_test2(x,z)
-expression: newnoise(x,z) #4 - 7 s
+expression: newnoise(x,z)
 
 
 
 
 samplers:
-  ZExp: #expression: ZExp(x,y,z)
+  ZExp:  #expression: ZExp(x,y,z)
     dimensions: 3
     type: EXPRESSION
     expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-1)
@@ -46,26 +46,6 @@ samplers:
     lacunarity: 2
     gain: 0.5
     NoiseSampler: OPEN_SIMPLEX_2
-  zval:
-    dimensions: 2
-    type: EXPRESSION
-    expression: newnoise(x,z)*128+64
-    samplers:
-      newnoise: &newnoise
-        dimensions: 2
-        type: FBM
-        sampler:
-          type: PERLIN
-          frequency: 0.0005
-        octaves: 5
-        lacunarity: 2
-        gain: 0.5
-        NoiseSampler: OPEN_SIMPLEX_2
-  zmap:
-    dimensions: 3
-    type: EXPRESSION
-    expression: if(y<zval),zval,-1) #4 - 7 s
-    
   cell_test: &cell_test
     dimensions: 2
     type: CELLULAR

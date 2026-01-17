@@ -48,75 +48,91 @@ samplers:
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
-    expression: noise(x / scale / globalScale, z / scale / globalScale) * multiplier + offset
+    expression: ZTestExp * multiplier + offset
     variables:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:elevation-scale
       multiplier: $customization.yml:elevation-multiplier
       offset: $customization.yml:elevation-offset
     samplers:
-      noise:
+      ZTestExp:
         dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: EXPRESSION
-          expression: |
-            combine(
-              hills(x, z) * hillMaxElevation,
-              parabolicMap(mountainMask(x, z), mountainZero, 0, mountainFull, mountains(x, z)),
-              mountainCap)
-          variables:
-            mountainZero: 0.3
-            mountainFull: 0.6
-            hillMaxElevation: 0.3
-            mountainCap: 0.9
-          functions:
-            "<<": math/functions/interpolation.yml:functions
-            combine: # Stacks scaled mountain noise on top of hill noise
-              arguments:
-                - hills
-                - mountains
-                - mountainCap
-              expression: hills + mountains * min(1 - hills, mountainCap)
+        type: EXPRESSION
+        expression: |
+          blend(
+            continental(x, z),
+            hills(x, z),
+            mountains(x, z),
+            roughness(x, z)
+          )
+        variables:
+          baseWeight: 0.6
+          detailWeight: 0.4
+          coastThreshold: 0.4
+          coastScale: 2
+        functions:
+          blend:
+            arguments: [base, smooth, jagged, rough]
+            expression: |
+              base * baseWeight +
+              lerp(max(0, rough), 0, smooth, 1, jagged) * detailWeight *
+              coastRolloff(base)
+            functions:
+              lerp:
+                arguments: [t, t0, v0, t1, v1]
+                expression: v0 + (v1 - v0) * (t - t0) / (t1 - t0)
+          coastRolloff:
+            arguments: [base]
+            expression: clamp((base + coastThreshold) * coastScale, 0, 1)^2
+            functions: 
 
-          samplers:
-            mountainMask:
-              dimensions: 2
-              type: PROBABILITY
-              sampler:
-                type: OPEN_SIMPLEX_2
-                salt: 0694
-                frequency: 1 / 1500
-            mountains:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((-in+1)/2)^2
-              sampler:
-                type: PSEUDOEROSION
-                erosion-frequency: 0.01
-                lacunarity: 1.5
-                branch-strength: 1
-                octaves: 3
-                strength: 0.15
-                gain: 0.3
-                sampler:
-                  type: FBM
-                  octaves: 3
-                  sampler:
-                    type: OPEN_SIMPLEX_2
-                    frequency: 1 / 900
-            hills:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((in+1)/2)^2
-              sampler:
-                type: FBM
-                octaves: 6
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  frequency: 1 / 2000
+        samplers:
+          # Large-scale continental/landmass shape
+          continental:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.00015
+
+          # Controls smooth vs rough terrain distribution
+          roughness:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.0004
+              salt: 100
+
+          # Smooth rolling hills (low octaves, gentle)
+          hills:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.35
+            sampler:
+              type: PERLIN
+              frequency: 0.0008
+              salt: 200
+
+          # Jagged mountains (high octaves, more detail)
+          mountains:
+            dimensions: 2
+            type: FBM
+            octaves: 5
+            lacunarity: 2.2
+            gain: 0.55
+            sampler:
+              type: PERLIN
+              frequency: 0.0006
+              salt: 300
 
   elevation: &elevation
     dimensions: 2

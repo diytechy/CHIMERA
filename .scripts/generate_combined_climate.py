@@ -385,54 +385,46 @@ class CombinedExpressionGenerator:
     def build_combined_expression(self) -> str:
         """
         Build the combined expression that computes climate index in one pass.
-        This analyzes the source expressions and combines them to eliminate redundancy.
+
+        IMPORTANT: Terra expressions cannot have variable assignments (x = ...).
+        Instead, we use a helper function that takes the three climate values
+        and encodes them. The intermediate samplers (continent, elevation, etc.)
+        are defined as nested samplers and called directly.
         """
-        # Get expressions from source files
-        cont_expr, cont_vars, _ = self.derive_continent_expression()
-        elev_expr, elev_vars, _ = self.derive_elevation_expression()
-        temp_expr, temp_vars, _ = self.derive_temperature_expression()
-        precip_expr, precip_vars, _ = self.derive_precipitation_expression()
-
-        # Build combined expression with shared values computed once
+        # The expression calls the climateIndex function with the three climate components
+        # Each component is computed by calling its respective sampler
         combined = '''// ===== COMBINED CLIMATE EXPRESSION =====
-// Auto-derived from source sampler files
+// Calls climateIndex function with temperature, precipitation, and elevation values.
+// Each value is computed from nested samplers defined below.
 
-// --- Shared: Continent value (used by elevation and precipitation) ---
-// Derived from: continents.yml
-'''
-        combined += f"c = {cont_expr};\n\n"
-
-        combined += '''// --- Elevation calculation ---
-// Derived from: elevation.yml
-'''
-        # Replace continents(x, z) with 'c' since we computed it above
-        elev_modified = re.sub(r'continents\s*\(\s*x\s*,\s*z\s*\)', 'c', elev_expr)
-        combined += f"elev = {elev_modified};\n\n"
-
-        combined += '''// --- Temperature calculation ---
-// Derived from: temperature.yml
-'''
-        # Replace elevation(x, z) with 'elev'
-        temp_modified = re.sub(r'elevation\s*\(\s*x\s*,\s*z\s*\)', 'elev', temp_expr)
-        combined += f"temp = {temp_modified};\n\n"
-
-        combined += '''// --- Precipitation calculation ---
-// Derived from: precipitation.yml
-'''
-        # Replace continents(x, z) with 'c'
-        precip_modified = re.sub(r'continents\s*\(\s*x\s*,\s*z\s*\)', 'c', precip_expr)
-        combined += f"precip = {precip_modified};\n\n"
-
-        combined += '''// --- Climate Index Encoding ---
-// Convert continuous T/P/E to discrete indices and encode
-tempIdx = floor(clamp((temp + 1) / 2, 0, 0.9999) * 12);
-precipIdx = floor(clamp((precip + 1) / 2, 0, 0.9999) * 6);
-elevIdx = floor(clamp(elev * 4, 0, 3.9999));
-
-// Final encoded value in [-1, 1] range
-(tempIdx * 24 + precipIdx * 4 + elevIdx) / 287 * 2 - 1'''
-
+climateIndex(
+  temperature(x, z),
+  precipitation(x, z),
+  elevation(x, z)
+)'''
         return combined
+
+    def build_climate_index_function(self) -> Dict[str, Any]:
+        """
+        Build the climateIndex function that encodes T/P/E into a single value.
+        """
+        return {
+            'arguments': ['t', 'p', 'e'],
+            'expression': '''// Encode temperature, precipitation, elevation into climate index
+// tempIdx: 0-11, precipIdx: 0-5, elevIdx: 0-3
+// Index = tempIdx * 24 + precipIdx * 4 + elevIdx (0-287)
+// Normalized to [-1, 1] range for Terra's weighted list
+
+(floor(clamp((t + 1) / 2, 0, 0.9999) * 12) * 24 +
+ floor(clamp((p + 1) / 2, 0, 0.9999) * 6) * 4 +
+ floor(clamp(e * 4, 0, 3.9999))) / 287 * 2 - 1''',
+            'functions': {
+                'clamp': {
+                    'arguments': ['x', 'minVal', 'maxVal'],
+                    'expression': 'max(min(x, maxVal), minVal)'
+                }
+            }
+        }
 
     def collect_all_variables(self) -> Dict[str, Any]:
         """Collect all variables needed from the source expressions."""
@@ -480,53 +472,19 @@ elevIdx = floor(clamp(elev * 4, 0, 3.9999));
 
     def collect_needed_samplers(self) -> Dict[str, Any]:
         """
-        Collect the base noise samplers needed (ones that can't be inlined as expressions).
-        These are the actual noise generators that must remain as samplers.
+        Collect the samplers needed for the combined climate expression.
+
+        The combined expression calls: temperature(x,z), precipitation(x,z), elevation(x,z)
+        These are references to the full samplers from their respective files.
         """
         samplers = OrderedDict()
 
-        # We need the base noise samplers - the ones that aren't expressions themselves
-        # These are typically: continent noise, spawn island, spot distance/radius,
-        # elevation noise, flatness noise, temperature noise, precipitation noise
-
-        # Continent noise sampler
-        cont_info = self.analyzer.samplers.get('continents')
-        if cont_info and 'sampler' in cont_info.nested_samplers:
-            samplers['# Continent noise (from continents.yml)'] = None
-            samplers['continentNoise'] = cont_info.nested_samplers['sampler']
-
-        # SpawnIsland sampler
-        spawn_info = self.analyzer.samplers.get('spawnIsland')
-        if spawn_info:
-            samplers['# Spawn island (from spawnIsland.yml)'] = None
-            samplers['spawnIsland'] = spawn_info.raw_config
-
-        # Spot samplers - use references
-        samplers['# Spot samplers (from spots.yml)'] = None
-        samplers['spotDistance'] = '$math/samplers/spots.yml:samplers.spotDistance'
-        samplers['spotRadius'] = '$math/samplers/spots.yml:samplers.spotRadius'
-
-        # Raw elevation sampler - use reference to preserve the complex nested structure
-        samplers['# Raw elevation (from elevation.yml)'] = None
-        samplers['rawElevation'] = '$math/samplers/elevation.yml:samplers.rawElevation'
-
-        # Flatness sampler
-        flat_info = self.analyzer.samplers.get('flatness')
-        if flat_info:
-            samplers['# Flatness (from elevation.yml)'] = None
-            samplers['flatness'] = '$math/samplers/elevation.yml:samplers.flatness'
-
-        # River terrain erosion (from rivers.yml) - referenced by elevation
-        samplers['# River terrain erosion (from rivers.yml)'] = None
-        samplers['riverTerrainErosion'] = '$math/samplers/rivers.yml:samplers.riverTerrainErosion'
-
-        # Raw temperature sampler
-        samplers['# Temperature noise (from temperature.yml)'] = None
-        samplers['rawTemperature'] = '$math/samplers/temperature.yml:samplers.rawTemperature'
-
-        # Raw precipitation sampler
-        samplers['# Precipitation noise (from precipitation.yml)'] = None
-        samplers['rawPrecipitation'] = '$math/samplers/precipitation.yml:samplers.rawPrecipitation'
+        # The three main climate samplers - these are the top-level references
+        # Each of these internally handles its own dependencies (continents, rawElevation, etc.)
+        samplers['# Main climate samplers'] = None
+        samplers['temperature'] = '$math/samplers/temperature.yml:samplers.temperature'
+        samplers['precipitation'] = '$math/samplers/precipitation.yml:samplers.precipitation'
+        samplers['elevation'] = '$math/samplers/elevation.yml:samplers.elevation'
 
         return samplers
 
@@ -577,6 +535,11 @@ def format_yaml_value(value: Any, indent: int = 0) -> str:
 def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
     """
     Generate the combined climate sampler YAML by analyzing source files.
+
+    The combined sampler:
+    1. Uses a simple expression that calls temperature, precipitation, elevation samplers
+    2. Passes their values to the climateIndex function for encoding
+    3. References the full climate samplers from their source files
     """
     # Analyze source files
     analyzer = SamplerAnalyzer(base_dir)
@@ -586,7 +549,7 @@ def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
     # Generate combined expressions
     generator = CombinedExpressionGenerator(analyzer)
     combined_expr = generator.build_combined_expression()
-    variables = generator.collect_all_variables()
+    climate_index_func = generator.build_climate_index_function()
     samplers = generator.collect_needed_samplers()
 
     # Build the YAML output
@@ -597,16 +560,16 @@ def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
 # AUTO-GENERATED by generate_combined_climate.py
 # DO NOT EDIT MANUALLY - regenerate by running the script
 #
-# This file was derived by analyzing:
-'''
-    for name, path in SOURCE_FILES.items():
-        output += f'#   - {path}\n'
-
-    output += '''#
-# The expressions below were automatically combined to eliminate redundant
-# calculations. Shared dependencies (like continents) are computed once.
+# This sampler computes a combined climate index from temperature, precipitation,
+# and elevation. The encoding formula is:
+#   climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
 #
-# Encoding: climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
+# Where:
+#   tempIdx:   0-11 (12 temperature zones)
+#   precipIdx: 0-5  (6 precipitation levels)
+#   elevIdx:   0-3  (4 elevation variants)
+#
+# Total combinations: 288, normalized to [-1, 1] for Terra's weighted list system.
 # =============================================================================
 
 samplers:
@@ -620,40 +583,32 @@ samplers:
     for line in combined_expr.split('\n'):
         output += f'      {line}\n'
 
-    # Add variables
-    output += '\n    variables:\n'
-    for key, value in variables.items():
-        if key.startswith('#'):
-            output += f'      {key}\n'
-        elif value is not None:
-            output += f'      {key}: {value}\n'
-
-    # Add functions
+    # Add functions section with climateIndex
     output += '''
     functions:
-      "<<": $math/functions/interpolation.yml:functions
-      clamp:
-        arguments: [x, minVal, maxVal]
-        expression: max(min(x, maxVal), minVal)
+      climateIndex:
+        arguments: [t, p, e]
+        expression: |
+'''
+    # Add the climateIndex expression with proper indentation
+    for line in climate_index_func['expression'].split('\n'):
+        output += f'          {line}\n'
+
+    # Add nested clamp function inside climateIndex
+    output += '''        functions:
+          clamp:
+            arguments: [x, minVal, maxVal]
+            expression: max(min(x, maxVal), minVal)
 
     samplers:
 '''
 
-    # Add samplers
+    # Add samplers (references to temperature, precipitation, elevation)
     for key, value in samplers.items():
         if key.startswith('#'):
             output += f'      {key}\n'
         elif isinstance(value, str):
             output += f'      {key}: {value}\n'
-        elif isinstance(value, dict):
-            output += f'      {key}:\n'
-            output += yaml.dump(value, default_flow_style=False, indent=2, sort_keys=False)
-            # Re-indent the YAML dump
-            lines = yaml.dump(value, default_flow_style=False, indent=2, sort_keys=False).split('\n')
-            output = output.rsplit(f'      {key}:\n', 1)[0] + f'      {key}:\n'
-            for line in lines:
-                if line.strip():
-                    output += f'        {line}\n'
 
     return output
 

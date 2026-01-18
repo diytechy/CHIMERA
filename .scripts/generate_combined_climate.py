@@ -386,45 +386,144 @@ class CombinedExpressionGenerator:
         """
         Build the combined expression that computes climate index in one pass.
 
-        IMPORTANT: Terra expressions cannot have variable assignments (x = ...).
-        Instead, we use a helper function that takes the three climate values
-        and encodes them. The intermediate samplers (continent, elevation, etc.)
-        are defined as nested samplers and called directly.
-        """
-        # The expression calls the climateIndex function with the three climate components
-        # Each component is computed by calling its respective sampler
-        combined = '''// ===== COMBINED CLIMATE EXPRESSION =====
-// Calls climateIndex function with temperature, precipitation, and elevation values.
-// Each value is computed from nested samplers defined below.
+        IMPORTANT: Functions cannot access parent variables directly.
+        All values must be passed as arguments to functions.
 
-climateIndex(
-  temperature(x, z),
-  precipitation(x, z),
-  elevation(x, z)
+        The main expression passes all needed variables to climateIndex,
+        which then passes them down to sub-functions.
+        """
+        return '''climateIndex(
+  rawTemperature(x, z),
+  rawPrecipitation(x, z),
+  rawElevation(x, z),
+  flatness(x, z),
+  continentNoise(x / scale / globalScale, z / scale / globalScale),
+  spawnIsland(x, z),
+  spotDistance(x, z),
+  spotRadius(x, z),
+  riverTerrainErosion(x, z),
+  scale,
+  globalScale,
+  spread,
+  offset,
+  spotContinentalFactor,
+  continentZero,
+  continentFull,
+  factorContinental,
+  factorSpawnIsland,
+  spawnIslandScale,
+  factorRiver,
+  lapseStart,
+  lapseRate,
+  oceanThreshold,
+  landThreshold
 )'''
-        return combined
 
-    def build_climate_index_function(self) -> Dict[str, Any]:
+    def build_all_functions(self) -> Dict[str, Any]:
         """
-        Build the climateIndex function that encodes T/P/E into a single value.
-        """
-        return {
-            'arguments': ['t', 'p', 'e'],
-            'expression': '''// Encode temperature, precipitation, elevation into climate index
-// tempIdx: 0-11, precipIdx: 0-5, elevIdx: 0-3
-// Index = tempIdx * 24 + precipIdx * 4 + elevIdx (0-287)
-// Normalized to [-1, 1] range for Terra's weighted list
+        Build all helper functions with all values passed as arguments.
 
-(floor(clamp((t + 1) / 2, 0, 0.9999) * 12) * 24 +
- floor(clamp((p + 1) / 2, 0, 0.9999) * 6) * 4 +
- floor(clamp(e * 4, 0, 3.9999))) / 287 * 2 - 1''',
-            'functions': {
-                'clamp': {
-                    'arguments': ['x', 'minVal', 'maxVal'],
-                    'expression': 'max(min(x, maxVal), minVal)'
-                }
-            }
+        IMPORTANT: Terra functions cannot access parent variables.
+        All needed values must be passed as arguments through the call chain.
+        """
+        functions = OrderedDict()
+
+        # climateIndex - the main entry point that receives all values as arguments
+        # and computes the final encoded climate index
+        functions['climateIndex'] = {
+            'arguments': [
+                'rawTemp',          # Raw temperature noise value
+                'rawPrecip',        # Raw precipitation noise value
+                'rawElev',          # Raw elevation noise value
+                'flat',             # Flatness value
+                'contNoise',        # Continent noise (already scaled)
+                'spawn',            # Spawn island value
+                'spotDist',         # Spot distance
+                'spotRad',          # Spot radius
+                'riverErosion',     # River terrain erosion
+                'sc',               # scale
+                'gsc',              # globalScale
+                'spr',              # spread
+                'off',              # offset
+                'spotContFactor',   # spotContinentalFactor
+                'contZero',         # continentZero
+                'contFull',         # continentFull
+                'factorCont',       # factorContinental
+                'factorSpawn',      # factorSpawnIsland
+                'spawnScale',       # spawnIslandScale
+                'factorRiv',        # factorRiver
+                'lapseStart',       # temperature lapse start
+                'lapseRate',        # temperature lapse rate
+                'oceanThr',         # oceanThreshold
+                'landThr',          # landThreshold
+            ],
+            'expression': '''encodeClimate(
+  calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
+  calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor, oceanThr, landThr),
+  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
+)'''
         }
+
+        # encodeClimate - converts T/P/E values to encoded index
+        functions['encodeClimate'] = {
+            'arguments': ['t', 'p', 'e'],
+            'expression': '''(floor(clamp((t + 1) / 2, 0, 0.9999) * 12) * 24 +
+ floor(clamp((p + 1) / 2, 0, 0.9999) * 6) * 4 +
+ floor(clamp(e * 4, 0, 3.9999))) / 287 * 2 - 1'''
+        }
+
+        # calcContinent - computes continent value from noise inputs
+        functions['calcContinent'] = {
+            'arguments': ['contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'off', 'spotContFactor'],
+            'expression': '''max(
+  max(-contNoise * spr + off, spawn),
+  spotContFactor * (1 - (spotDist / spotRad)^2)
+)'''
+        }
+
+        # calcElev - computes elevation from inputs
+        functions['calcElev'] = {
+            'arguments': [
+                'rawElev', 'flat', 'contNoise', 'spawn', 'spotDist', 'spotRad',
+                'riverErosion', 'spr', 'off', 'spotContFactor',
+                'contZero', 'contFull', 'factorCont', 'factorSpawn', 'spawnScale', 'factorRiv'
+            ],
+            'expression': '''rawElev * (1 - flat)
+* if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor), contZero, 0, contFull, 1), 1)
+* if(factorSpawn, herp(spawn, 0, spawnScale, -1, 1), 1)
+* if(factorRiv, (1 - riverErosion), 1)'''
+        }
+
+        # calcTemp - computes temperature from elevation
+        functions['calcTemp'] = {
+            'arguments': [
+                'rawTemp', 'rawElev', 'flat', 'contNoise', 'spawn', 'spotDist', 'spotRad',
+                'riverErosion', 'spr', 'off', 'spotContFactor',
+                'contZero', 'contFull', 'factorCont', 'factorSpawn', 'spawnScale', 'factorRiv',
+                'lapseStart', 'lapseRate'
+            ],
+            'expression': '''rawTemp - lerp(
+  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
+  lapseStart, 0, 1, lapseRate
+)'''
+        }
+
+        # calcPrecip - computes precipitation from continent value
+        functions['calcPrecip'] = {
+            'arguments': ['rawPrecip', 'contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'off', 'spotContFactor', 'oceanThr', 'landThr'],
+            'expression': '''lerp(
+  calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor),
+  oceanThr, 1, landThr, rawPrecip
+)'''
+        }
+
+        # clamp helper
+        functions['clamp'] = {
+            'arguments': ['x', 'minVal', 'maxVal'],
+            'expression': 'max(min(x, maxVal), minVal)'
+        }
+
+        return functions
 
     def collect_all_variables(self) -> Dict[str, Any]:
         """Collect all variables needed from the source expressions."""
@@ -472,19 +571,39 @@ climateIndex(
 
     def collect_needed_samplers(self) -> Dict[str, Any]:
         """
-        Collect the samplers needed for the combined climate expression.
+        Collect only the base noise samplers needed.
 
-        The combined expression calls: temperature(x,z), precipitation(x,z), elevation(x,z)
-        These are references to the full samplers from their respective files.
+        Since the expressions are fully expanded into functions, we only need
+        the actual noise generators - not the high-level climate samplers.
         """
         samplers = OrderedDict()
 
-        # The three main climate samplers - these are the top-level references
-        # Each of these internally handles its own dependencies (continents, rawElevation, etc.)
-        samplers['# Main climate samplers'] = None
-        samplers['temperature'] = '$math/samplers/temperature.yml:samplers.temperature'
-        samplers['precipitation'] = '$math/samplers/precipitation.yml:samplers.precipitation'
-        samplers['elevation'] = '$math/samplers/elevation.yml:samplers.elevation'
+        # Continent noise sampler (from continents.yml)
+        cont_info = self.analyzer.samplers.get('continents')
+        if cont_info and 'sampler' in cont_info.nested_samplers:
+            samplers['continentNoise'] = cont_info.nested_samplers['sampler']
+
+        # SpawnIsland sampler (from spawnIsland.yml)
+        samplers['spawnIsland'] = '$math/samplers/spawnIsland.yml:samplers.spawnIsland'
+
+        # Spot samplers (from spots.yml)
+        samplers['spotDistance'] = '$math/samplers/spots.yml:samplers.spotDistance'
+        samplers['spotRadius'] = '$math/samplers/spots.yml:samplers.spotRadius'
+
+        # Raw elevation noise (from elevation.yml)
+        samplers['rawElevation'] = '$math/samplers/elevation.yml:samplers.rawElevation'
+
+        # Flatness sampler (from elevation.yml)
+        samplers['flatness'] = '$math/samplers/elevation.yml:samplers.flatness'
+
+        # River terrain erosion (from rivers.yml)
+        samplers['riverTerrainErosion'] = '$math/samplers/rivers.yml:samplers.riverTerrainErosion'
+
+        # Raw temperature noise (from temperature.yml)
+        samplers['rawTemperature'] = '$math/samplers/temperature.yml:samplers.rawTemperature'
+
+        # Raw precipitation noise (from precipitation.yml)
+        samplers['rawPrecipitation'] = '$math/samplers/precipitation.yml:samplers.rawPrecipitation'
 
         return samplers
 
@@ -537,19 +656,20 @@ def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
     Generate the combined climate sampler YAML by analyzing source files.
 
     The combined sampler:
-    1. Uses a simple expression that calls temperature, precipitation, elevation samplers
-    2. Passes their values to the climateIndex function for encoding
-    3. References the full climate samplers from their source files
+    1. Fully expands all climate expressions into helper functions
+    2. Shared sub-expressions (continent, elev) are computed once via functions
+    3. Only references base noise samplers and external variables
     """
     # Analyze source files
     analyzer = SamplerAnalyzer(base_dir)
     analyzer.load_all_samplers()
     analyzer.build_dependency_graph()
 
-    # Generate combined expressions
+    # Generate combined expressions and functions
     generator = CombinedExpressionGenerator(analyzer)
     combined_expr = generator.build_combined_expression()
-    climate_index_func = generator.build_climate_index_function()
+    all_functions = generator.build_all_functions()
+    variables = generator.collect_all_variables()
     samplers = generator.collect_needed_samplers()
 
     # Build the YAML output
@@ -561,14 +681,12 @@ def generate_combined_sampler_yml(base_dir: Path = Path(".")) -> str:
 # DO NOT EDIT MANUALLY - regenerate by running the script
 #
 # This sampler computes a combined climate index from temperature, precipitation,
-# and elevation. The encoding formula is:
-#   climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
+# and elevation in a single pass. Shared calculations are deduplicated:
 #
-# Where:
-#   tempIdx:   0-11 (12 temperature zones)
-#   precipIdx: 0-5  (6 precipitation levels)
-#   elevIdx:   0-3  (4 elevation variants)
+#   continent(x,z) - computed once, used by elev() and precip()
+#   elev(x,z)      - computed once, used by temp()
 #
+# Encoding formula: climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
 # Total combinations: 288, normalized to [-1, 1] for Terra's weighted list system.
 # =============================================================================
 
@@ -583,32 +701,59 @@ samplers:
     for line in combined_expr.split('\n'):
         output += f'      {line}\n'
 
-    # Add functions section with climateIndex
-    output += '''
-    functions:
-      climateIndex:
-        arguments: [t, p, e]
-        expression: |
-'''
-    # Add the climateIndex expression with proper indentation
-    for line in climate_index_func['expression'].split('\n'):
-        output += f'          {line}\n'
-
-    # Add nested clamp function inside climateIndex
-    output += '''        functions:
-          clamp:
-            arguments: [x, minVal, maxVal]
-            expression: max(min(x, maxVal), minVal)
-
-    samplers:
-'''
-
-    # Add samplers (references to temperature, precipitation, elevation)
-    for key, value in samplers.items():
+    # Add variables section
+    output += '\n    variables:\n'
+    for key, value in variables.items():
         if key.startswith('#'):
             output += f'      {key}\n'
-        elif isinstance(value, str):
+        elif value is not None:
             output += f'      {key}: {value}\n'
+
+    # Add functions section with proper Terra format
+    output += '\n    functions:\n'
+    output += '      # Include interpolation functions (lerp, herp, etc.)\n'
+    output += '      "<<":\n'
+    output += '        - math/functions/interpolation.yml:functions\n\n'
+
+    for func_name, func_def in all_functions.items():
+        output += f'      {func_name}:\n'
+
+        # Format arguments as YAML list with hyphens
+        output += '        arguments:\n'
+        args = func_def['arguments']
+        if isinstance(args, list):
+            for arg in args:
+                output += f'          - {arg}\n'
+        else:
+            output += f'          - {args}\n'
+
+        # Format expression with proper indentation
+        expr = func_def['expression']
+        if '\n' in expr:
+            output += '        expression: |\n'
+            for line in expr.split('\n'):
+                output += f'          {line}\n'
+        else:
+            output += f'        expression: {expr}\n'
+
+        # Add nested function references if this function uses lerp/herp
+        if 'lerp' in expr or 'herp' in expr:
+            output += '        functions:\n'
+            output += '          "<<":\n'
+            output += '            - math/functions/interpolation.yml:functions\n'
+
+    # Add samplers section
+    output += '\n    samplers:\n'
+    for key, value in samplers.items():
+        if isinstance(value, str):
+            output += f'      {key}: {value}\n'
+        elif isinstance(value, dict):
+            # Inline the sampler definition
+            output += f'      {key}:\n'
+            lines = yaml.dump(value, default_flow_style=False, indent=2, sort_keys=False).split('\n')
+            for line in lines:
+                if line.strip():
+                    output += f'        {line}\n'
 
     return output
 

@@ -6,14 +6,12 @@
 # DO NOT EDIT MANUALLY - regenerate by running the script
 #
 # This sampler computes a combined climate index from temperature, precipitation,
-# and elevation. The encoding formula is:
-#   climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
+# and elevation in a single pass. Shared calculations are deduplicated:
 #
-# Where:
-#   tempIdx:   0-11 (12 temperature zones)
-#   precipIdx: 0-5  (6 precipitation levels)
-#   elevIdx:   0-3  (4 elevation variants)
+#   continent(x,z) - computed once, used by elev() and precip()
+#   elev(x,z)      - computed once, used by temp()
 #
+# Encoding formula: climateIndex = (tempIdx * 24) + (precipIdx * 4) + elevIdx
 # Total combinations: 288, normalized to [-1, 1] for Terra's weighted list system.
 # =============================================================================
 
@@ -22,35 +20,219 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      // ===== COMBINED CLIMATE EXPRESSION =====
-      // Calls climateIndex function with temperature, precipitation, and elevation values.
-      // Each value is computed from nested samplers defined below.
-      
       climateIndex(
-        temperature(x, z),
-        precipitation(x, z),
-        elevation(x, z)
+        rawTemperature(x, z),
+        rawPrecipitation(x, z),
+        rawElevation(x, z),
+        flatness(x, z),
+        continentNoise(x / scale / globalScale, z / scale / globalScale),
+        spawnIsland(x, z),
+        spotDistance(x, z),
+        spotRadius(x, z),
+        riverTerrainErosion(x, z),
+        scale,
+        globalScale,
+        spread,
+        offset,
+        spotContinentalFactor,
+        continentZero,
+        continentFull,
+        factorContinental,
+        factorSpawnIsland,
+        spawnIslandScale,
+        factorRiver,
+        lapseStart,
+        lapseRate,
+        oceanThreshold,
+        landThreshold
       )
 
+    variables:
+      # Continent variables (from continents.yml)
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+      spread: $customization.yml:continental-spread
+      spotContinentalFactor: 0.3
+      # Elevation variables (from elevation.yml)
+      continentZero: $customization.yml:elevation-continental-flat-threshold
+      continentFull: $customization.yml:elevation-continental-full-height-threshold
+      factorContinental: $customization.yml:elevation-factor-continental
+      factorRiver: $customization.yml:elevation-factor-rivers
+      factorSpawnIsland: $customization.yml:elevation-factor-spawn-island
+      spawnIslandScale: $customization.yml:elevation-spawn-island-scale
+      threshold: $customization.yml:flatness-percent
+      blend: $customization.yml:flatness-blend
+      factor: $customization.yml:flatness-factor
+      # Temperature variables (from temperature.yml)
+      lapseRate: $customization.yml:temperature-altitude-lapse-rate
+      lapseStart: $customization.yml:temperature-altitude-lapse-start
+      # Precipitation variables (from precipitation.yml)
+      oceanThreshold: $customization.yml:precipitation-ocean-threshold
+      landThreshold: $customization.yml:precipitation-land-threshold
+
     functions:
+      # Include interpolation functions (lerp, herp, etc.)
+      "<<":
+        - math/functions/interpolation.yml:functions
+
       climateIndex:
-        arguments: [t, p, e]
+        arguments:
+          - rawTemp
+          - rawPrecip
+          - rawElev
+          - flat
+          - contNoise
+          - spawn
+          - spotDist
+          - spotRad
+          - riverErosion
+          - sc
+          - gsc
+          - spr
+          - off
+          - spotContFactor
+          - contZero
+          - contFull
+          - factorCont
+          - factorSpawn
+          - spawnScale
+          - factorRiv
+          - lapseStart
+          - lapseRate
+          - oceanThr
+          - landThr
         expression: |
-          // Encode temperature, precipitation, elevation into climate index
-          // tempIdx: 0-11, precipIdx: 0-5, elevIdx: 0-3
-          // Index = tempIdx * 24 + precipIdx * 4 + elevIdx (0-287)
-          // Normalized to [-1, 1] range for Terra's weighted list
-          
+          encodeClimate(
+            calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
+            calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor, oceanThr, landThr),
+            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
+          )
+      encodeClimate:
+        arguments:
+          - t
+          - p
+          - e
+        expression: |
           (floor(clamp((t + 1) / 2, 0, 0.9999) * 12) * 24 +
            floor(clamp((p + 1) / 2, 0, 0.9999) * 6) * 4 +
            floor(clamp(e * 4, 0, 3.9999))) / 287 * 2 - 1
+      calcContinent:
+        arguments:
+          - contNoise
+          - spawn
+          - spotDist
+          - spotRad
+          - spr
+          - off
+          - spotContFactor
+        expression: |
+          max(
+            max(-contNoise * spr + off, spawn),
+            spotContFactor * (1 - (spotDist / spotRad)^2)
+          )
+      calcElev:
+        arguments:
+          - rawElev
+          - flat
+          - contNoise
+          - spawn
+          - spotDist
+          - spotRad
+          - riverErosion
+          - spr
+          - off
+          - spotContFactor
+          - contZero
+          - contFull
+          - factorCont
+          - factorSpawn
+          - spawnScale
+          - factorRiv
+        expression: |
+          rawElev * (1 - flat)
+          * if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor), contZero, 0, contFull, 1), 1)
+          * if(factorSpawn, herp(spawn, 0, spawnScale, -1, 1), 1)
+          * if(factorRiv, (1 - riverErosion), 1)
         functions:
-          clamp:
-            arguments: [x, minVal, maxVal]
-            expression: max(min(x, maxVal), minVal)
+          "<<":
+            - math/functions/interpolation.yml:functions
+      calcTemp:
+        arguments:
+          - rawTemp
+          - rawElev
+          - flat
+          - contNoise
+          - spawn
+          - spotDist
+          - spotRad
+          - riverErosion
+          - spr
+          - off
+          - spotContFactor
+          - contZero
+          - contFull
+          - factorCont
+          - factorSpawn
+          - spawnScale
+          - factorRiv
+          - lapseStart
+          - lapseRate
+        expression: |
+          rawTemp - lerp(
+            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
+            lapseStart, 0, 1, lapseRate
+          )
+        functions:
+          "<<":
+            - math/functions/interpolation.yml:functions
+      calcPrecip:
+        arguments:
+          - rawPrecip
+          - contNoise
+          - spawn
+          - spotDist
+          - spotRad
+          - spr
+          - off
+          - spotContFactor
+          - oceanThr
+          - landThr
+        expression: |
+          lerp(
+            calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor),
+            oceanThr, 1, landThr, rawPrecip
+          )
+        functions:
+          "<<":
+            - math/functions/interpolation.yml:functions
+      clamp:
+        arguments:
+          - x
+          - minVal
+          - maxVal
+        expression: max(min(x, maxVal), minVal)
 
     samplers:
-      # Main climate samplers
-      temperature: $math/samplers/temperature.yml:samplers.temperature
-      precipitation: $math/samplers/precipitation.yml:samplers.precipitation
-      elevation: $math/samplers/elevation.yml:samplers.elevation
+      continentNoise:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.35
+          octaves: 3
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 1
+            frequency: 1 / 5000
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
+      flatness: $math/samplers/elevation.yml:samplers.flatness
+      riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
+      rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature
+      rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation

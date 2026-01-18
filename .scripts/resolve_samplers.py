@@ -533,18 +533,32 @@ class SamplerResolver:
 
         return functions
 
-    def collect_all_samplers(self, sampler_dir: Path = Path("math/samplers")) -> Dict[str, Any]:
+    def collect_all_samplers(self, sampler_dir: Path = Path("math/samplers"), exclude: List[str] = None) -> Dict[str, Any]:
         """
         Collect and resolve all samplers from the sampler directory.
+
+        Args:
+            sampler_dir: Directory containing sampler files
+            exclude: List of filenames to exclude (e.g., ['combined_climate.yml'])
         """
+        if exclude is None:
+            exclude = []
+
         full_dir = self.base_dir / sampler_dir
         if not full_dir.exists():
             self.errors.append(f"Sampler directory not found: {full_dir}")
             return {}
 
         print(f"Processing samplers from: {full_dir}", file=sys.stderr)
+        if exclude:
+            print(f"  Excluding: {', '.join(exclude)}", file=sys.stderr)
 
         for yml_file in sorted(full_dir.glob("*.yml")):
+            # Skip excluded files
+            if yml_file.name in exclude:
+                print(f"  Skipping (excluded): {yml_file.name}", file=sys.stderr)
+                continue
+
             rel_path = yml_file.relative_to(self.base_dir)
             print(f"  Processing: {rel_path}", file=sys.stderr)
 
@@ -907,6 +921,13 @@ def main():
         default=DEFAULT_RENDER_SCALE,
         help=f'Render scale factor: frequencies are multiplied, amplitudes are divided (default: {DEFAULT_RENDER_SCALE})'
     )
+    parser.add_argument(
+        '-x', '--exclude',
+        type=str,
+        action='append',
+        default=[],
+        help='Exclude sampler file(s) by name (can be used multiple times, e.g., -x combined_climate.yml -x other.yml)'
+    )
 
     args = parser.parse_args()
 
@@ -928,7 +949,7 @@ def main():
 
     # Collect and resolve everything
     print("\nCollecting samplers...", file=sys.stderr)
-    resolver.collect_all_samplers(Path(args.sampler_dir))
+    resolver.collect_all_samplers(Path(args.sampler_dir), exclude=args.exclude)
 
     print("\nCollecting functions...", file=sys.stderr)
     resolver.collect_all_functions(Path(args.functions_dir))

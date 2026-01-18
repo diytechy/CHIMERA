@@ -94,6 +94,27 @@ terrain-ocean-depth: 100
 # 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
 # These options are primarily used in the math/samplers/continents.yml config file.
 continental-baseline-distance: 5000
+continental-large-features-allowed-threshold: .15
+continental-sub-ocean-large-features-allowed-threshold: -0.05
+
+#Affect how apart mountain ranges are allowed to generate, and the absolute filter value (from -0.5 to 0.5) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+continental-mountain-region-allowed-distance: 2000
+continental-mountain-region-allowed-threshold: .2
+
+#Affect how apart mesa ranges are allowed to generate, and the absolute filter value (from -0.5 to 0.5) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+continental-mesa-region-allowed-distance: 2000
+continental-mesa-region-allowed-threshold: .2
+
+#Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
+continental-MaxMountainPeakHeightRatio: 4
+continental-UnderwaterPeakHeightRatio: 2
+continental-MaxPeakVariability: 0.6
+
+#The hill ratio, how high / agressively sloped hilly regions are compared to the lowest possible max mountian height.
+#The applied hill ratio then is (MaxMountaiinPeakHeightRatio-MountainPeakVariance)*MaxHillElevRatio.
+continental-MaxHillElevRatio: 0.3
+
+
 continental-offset: 0.1
 # Controls the land / ocean ratio.
 # - A value of 0 results in equal land and ocean
@@ -125,6 +146,9 @@ continental-scale: 2
 # decreasing it. This does not control the ratio of land / ocean, for that
 # you should change continental-offset instead.
 # Default: 2
+# This impacts the noise scale for initial elevation distribution.
+# Increasing it may cause clamping as the tool attempts to set elevation outside
+# of expected zones.
 
 continental-coast-width: 55
 # Default: 30

@@ -45,139 +45,165 @@ samplers:
     samplers:
       rawFlatness: *rawFlatness
 
+  # Base sampler - just returns continental_landmass value
+  base: &base
+    dimensions: 2
+    type: EXPRESSION
+    expression: continental_landmass(x, z)
+    samplers:
+      continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
+
+  # Ocean valley noise for underwater features
+  OceanValley: &OceanValley
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.001
+    salt: 400
+
+  # Mountain height modifier components
+  prefiltered_mountain_elev: &prefiltered_mountain_elev
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    lacunarity: 2.0
+    gain: 0.5
+    sampler:
+      type: PERLIN
+      frequency: (1/1500)
+      salt: 500
+
+  MountainHeightModifier: &MountainHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z)
+    variables:
+      MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
+      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+    samplers:
+      mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
+      prefiltered_mountain_elev: *prefiltered_mountain_elev
+
+  RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      lerp(
+        MountainHeightModifier(x, z),
+        MountainHeightGenThreshold,
+        0,
+        0.5,
+        (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+      )
+    variables:
+      MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
+      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+    samplers:
+      MountainHeightModifier: *MountainHeightModifier
+
+  # Mesa height modifier components
+  prefiltered_mesa_elev: &prefiltered_mesa_elev
+    dimensions: 2
+    type: FBM
+    octaves: 3
+    lacunarity: 2.0
+    gain: 0.4
+    sampler:
+      type: PERLIN
+      frequency: (1/1200)
+      salt: 600
+
+  MesaHeightModifier: &MesaHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z)
+    variables:
+      MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
+      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+    samplers:
+      mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
+
+  RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      lerp(
+        MesaHeightModifier(x, z),
+        MountainHeightGenThreshold,
+        0,
+        0.5,
+        (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+      )
+    variables:
+      MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
+      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+    samplers:
+      MesaHeightModifier: *MesaHeightModifier
+
+  # Hill height modifier components
+  HillHeightModifier: &HillHeightModifier
+    dimensions: 2
+    type: FBM
+    octaves: 2
+    lacunarity: 2.0
+    gain: 0.35
+    sampler:
+      type: PERLIN
+      frequency: (1/1000)
+      salt: 700
+
+  RegionFilteredHillHeightModifier: &RegionFilteredHillHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      lerp(
+        HillHeightModifier(x, z),
+        HillHeightGenThreshold,
+        0,
+        0.5,
+        (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+      )
+    variables:
+      HillHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
+      MaxHillElev: 2.0
+    samplers:
+      HillHeightModifier: *HillHeightModifier
+
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
     expression: |
-      blend(
-        continental_landmass(x, z),
-        hills(x, z),
-        mountains(x, z),
-        roughness(x, z),
-        baseWeight,
-        mountain_reg(x,z),
-        mountian_srt,
-        mountian_full,
-        mountianDet,
-        detailWeight,
-        coastThreshold,
-        coastScale
-      ) * multiplier + offset
+      if(base(x, z) < continental-sub-ocean-large-features-allowed-threshold,
+        // Below ocean cutoff: Add ocean noise with negative offset
+        base(x, z) - lerp(
+          MountainHeightModifier(x, z),
+          continental-sub-ocean-large-features-allowed-threshold,
+          0,
+          0.5,
+          (MountainHeightModifier(x, z) - continental-sub-ocean-large-features-allowed-threshold) * OceanValley(x, z)
+        ),
+        // Above feature offset: Create mesa/hills/mountains
+        if(base(x, z) > continental-mesa-region-allowed-threshold,
+          base(x, z) + max(
+            max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+            RegionFilteredHillHeightModifier(x, z)
+          ),
+          // Else: just return base
+          base(x, z)
+        )
+      )
     variables:
-      multiplier: $customization.yml:elevation-multiplier
-      offset: $customization.yml:elevation-offset
-      # --- Terrain Blending Parameters ---
-      # baseWeight: How much the continental shape contributes to final elevation.
-      #   Higher values = terrain follows large-scale landmass shape more closely.
-      #   Range: 0-1, default 0.6
-      baseWeight: 0.6
-      # detailWeight: How much hills/mountains detail contributes to final elevation.
-      #   Higher values = more pronounced hills and mountain features.
-      #   Range: 0-1, default 0.4 (baseWeight + detailWeight typically = 1.0)
-      detailWeight: 0
-      # --- Coastal Rolloff Parameters ---
-      # These control how terrain flattens near coastlines (where continental value is low).
-      # coastThreshold: Continental value where coastal flattening begins.
-      #   Higher values = flattening extends further inland from coasts.
-      #   Typical range: 0.2-0.6, default 0.4
-      coastThreshold: 0.4
-      # coastScale: How quickly terrain transitions from flat (coast) to full height (inland).
-      #   Higher values = sharper transition, terrain rises more abruptly from coast.
-      #   Lower values = gradual slopes extending far from coastline.
-      #   Typical range: 1-4, default 2
-      coastScale: 2
-      # --- Mountian Region Parameters ---
-      # These control how / mountains are allowed to protrude on top of other filters
-      # mountian_srt: How quickly terrain transitions from flat (coast) to full height (inland).
-      #   Higher values = sharper transition, terrain rises more abruptly from coast.
-      mountian_srt: 0.2
-      # mountian_full: How quickly terrain transitions from flat (coast) to full height (inland).
-      #   Higher values = sharper transition, terrain rises more abruptly from coast.
-      #   Lower values = gradual slopes extending far from coastline.
-      #   Typical range: 1-4, default 2
-      mountian_full: 0.37
-      # mountianDet: How much mountian detail to add
-      mountianDet: 1
-    functions:
-      "<<":
-        - math/functions/interpolation.yml:functions
-      blend:
-        arguments:
-          - base
-          - hills
-          - mountains
-          - rough
-          - baseWt
-          - mountain_reg
-          - mountian_srt
-          - mountian_full
-          - mountianDet
-          - detailWt
-          - coastThr
-          - coastSc
-        expression: |
-          base * baseWt +
-          //Mountian additions (Can be negative).  
-          //If rough, blend in mountians, 
-          //but mountians themselves are blended depending on if the mountian region exists.
-          lerp(max(0, rough), 0, hills, 1, 
-          lerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, (mountains + 0.45) * mountianDet)) * detailWt *
-          //Coastal rolloff
-          max(0, min(1, (base + coastThr) * coastSc))^2
-          //Mesa additions
-          //Underwater roughness
-          //Islands
-        functions:
-          "<<":
-            - math/functions/interpolation.yml:functions
+      continental-sub-ocean-large-features-allowed-threshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
+      continental-mesa-region-allowed-threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    functions: $math/functions/interpolation.yml:functions
 
     samplers:
-      continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
-      mountain_reg: $math/samplers/continents.yml:samplers.mountain_gen_region
-      # roughness: Controls terrain texture variation across the map.
-      #   Where roughness > 0: terrain uses jagged mountains.
-      #   Where roughness < 0: terrain uses smooth hills.
-      #   Creates natural variation between rough mountainous and gentle hilly areas.
-      roughness:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.5
-        sampler:
-          type: PERLIN
-          frequency: (1/2000)
-          salt: 100
-
-      # hills: Smooth, gentle terrain features.
-      #   Low octaves (2) = rounded, rolling shapes.
-      #   Lower gain (0.35) = less dramatic height variation.
-      #   Used where roughness value is low.
-      hills:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.35
-        sampler:
-          type: PERLIN
-          frequency: (1/1000)
-          salt: 200
-
-      # mountains: Jagged, dramatic terrain features.
-      #   High octaves (5) = fine detail, sharp peaks.
-      #   Higher gain (0.55) = more dramatic height variation.
-      #   Used where roughness value is high.
-      mountains:
-        dimensions: 2
-        type: FBM
-        octaves: 5
-        lacunarity: 2.2
-        gain: 0.55
-        sampler:
-          type: PERLIN
-          frequency: (1/2000)
-          salt: 300
+      base: *base
+      MountainHeightModifier: *MountainHeightModifier
+      OceanValley: *OceanValley
+      RegionFilteredMountainHeightModifier: *RegionFilteredMountainHeightModifier
+      RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
+      RegionFilteredHillHeightModifier: *RegionFilteredHillHeightModifier
 
           
   elevation: &elevation

@@ -6,10 +6,6 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: sampler(x - 10000, z - 10000)
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
     samplers:
       sampler:
         dimensions: 2
@@ -24,6 +20,13 @@ samplers:
           sampler:
             type: PERLIN
             frequency: (1 / ${customization.yml:continental-baseline-distance})
+  mnt_and_ocean_valleys:
+    dimensions: 2
+    type: FBM
+    gain: 0.4
+    octaves: 2
+    lacunarity: 1.6
+    sampler: &continental_landmass
   mountain_gen_region: &mountain_gen_field
     dimensions: 2
     type: EXPRESSION
@@ -41,7 +44,7 @@ samplers:
         gain: 0.4
         sampler:
           type: PERLIN
-          frequency: (1/2000)
+          frequency: (1 / ${customization.yml:continental-mountian-region-allowed-distance})
           salt: 100
   mesa_gen_region: &mesa_gen_field
     dimensions: 2
@@ -60,9 +63,8 @@ samplers:
         gain: 0.4
         sampler:
           type: PERLIN
-          frequency: (1/2000)
-          salt: 200
-            
+          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+          salt: 200       
   continents: &continents
     dimensions: 2
     type: EXPRESSION

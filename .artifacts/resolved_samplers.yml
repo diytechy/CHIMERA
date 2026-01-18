@@ -26,6 +26,7 @@ samplers:
         type: EXPRESSION
         expression: (test(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
+        # --- INSERT COPIES OF MATCHING SAMPLERS HERE ---
         samplers:
           rawElevation:
             dimensions: 2

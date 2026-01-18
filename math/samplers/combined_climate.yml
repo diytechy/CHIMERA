@@ -90,7 +90,7 @@ samplers:
           - sc
           - gsc
           - spr
-          - off
+          - offs
           - spotContFactor
           - contZero
           - contFull
@@ -104,9 +104,9 @@ samplers:
           - landThr
         expression: |
           encodeClimate(
-            calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
-            calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor, oceanThr, landThr),
-            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
+            calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
+            calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor, oceanThr, landThr),
+            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
           )
       encodeClimate:
         arguments:
@@ -124,11 +124,11 @@ samplers:
           - spotDist
           - spotRad
           - spr
-          - off
+          - offs
           - spotContFactor
         expression: |
           max(
-            max(-contNoise * spr + off, spawn),
+            max(-contNoise * spr + offs, spawn),
             spotContFactor * (1 - (spotDist / spotRad)^2)
           )
       calcElev:
@@ -141,7 +141,7 @@ samplers:
           - spotRad
           - riverErosion
           - spr
-          - off
+          - offs
           - spotContFactor
           - contZero
           - contFull
@@ -151,7 +151,7 @@ samplers:
           - factorRiv
         expression: |
           rawElev * (1 - flat)
-          * if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor), contZero, 0, contFull, 1), 1)
+          * if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor), contZero, 0, contFull, 1), 1)
           * if(factorSpawn, herp(spawn, 0, spawnScale, -1, 1), 1)
           * if(factorRiv, (1 - riverErosion), 1)
         functions:
@@ -168,7 +168,7 @@ samplers:
           - spotRad
           - riverErosion
           - spr
-          - off
+          - offs
           - spotContFactor
           - contZero
           - contFull
@@ -180,7 +180,7 @@ samplers:
           - lapseRate
         expression: |
           rawTemp - lerp(
-            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
+            calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
             lapseStart, 0, 1, lapseRate
           )
         functions:
@@ -194,13 +194,13 @@ samplers:
           - spotDist
           - spotRad
           - spr
-          - off
+          - offs
           - spotContFactor
           - oceanThr
           - landThr
         expression: |
           lerp(
-            calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor),
+            calcContinent(contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor),
             oceanThr, 1, landThr, rawPrecip
           )
         functions:

@@ -430,6 +430,8 @@ class CombinedExpressionGenerator:
 
         # climateIndex - the main entry point that receives all values as arguments
         # and computes the final encoded climate index
+        # NOTE: Avoid YAML reserved words as argument names:
+        #   off/on/yes/no/true/false are parsed as booleans!
         functions['climateIndex'] = {
             'arguments': [
                 'rawTemp',          # Raw temperature noise value
@@ -444,7 +446,7 @@ class CombinedExpressionGenerator:
                 'sc',               # scale
                 'gsc',              # globalScale
                 'spr',              # spread
-                'off',              # offset
+                'offs',             # offset (renamed from 'off' - YAML reserved word!)
                 'spotContFactor',   # spotContinentalFactor
                 'contZero',         # continentZero
                 'contFull',         # continentFull
@@ -458,9 +460,9 @@ class CombinedExpressionGenerator:
                 'landThr',          # landThreshold
             ],
             'expression': '''encodeClimate(
-  calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
-  calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor, oceanThr, landThr),
-  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
+  calcTemp(rawTemp, rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv, lapseStart, lapseRate),
+  calcPrecip(rawPrecip, contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor, oceanThr, landThr),
+  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv)
 )'''
         }
 
@@ -474,9 +476,9 @@ class CombinedExpressionGenerator:
 
         # calcContinent - computes continent value from noise inputs
         functions['calcContinent'] = {
-            'arguments': ['contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'off', 'spotContFactor'],
+            'arguments': ['contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'offs', 'spotContFactor'],
             'expression': '''max(
-  max(-contNoise * spr + off, spawn),
+  max(-contNoise * spr + offs, spawn),
   spotContFactor * (1 - (spotDist / spotRad)^2)
 )'''
         }
@@ -485,11 +487,11 @@ class CombinedExpressionGenerator:
         functions['calcElev'] = {
             'arguments': [
                 'rawElev', 'flat', 'contNoise', 'spawn', 'spotDist', 'spotRad',
-                'riverErosion', 'spr', 'off', 'spotContFactor',
+                'riverErosion', 'spr', 'offs', 'spotContFactor',
                 'contZero', 'contFull', 'factorCont', 'factorSpawn', 'spawnScale', 'factorRiv'
             ],
             'expression': '''rawElev * (1 - flat)
-* if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor), contZero, 0, contFull, 1), 1)
+* if(factorCont, herp(calcContinent(contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor), contZero, 0, contFull, 1), 1)
 * if(factorSpawn, herp(spawn, 0, spawnScale, -1, 1), 1)
 * if(factorRiv, (1 - riverErosion), 1)'''
         }
@@ -498,21 +500,21 @@ class CombinedExpressionGenerator:
         functions['calcTemp'] = {
             'arguments': [
                 'rawTemp', 'rawElev', 'flat', 'contNoise', 'spawn', 'spotDist', 'spotRad',
-                'riverErosion', 'spr', 'off', 'spotContFactor',
+                'riverErosion', 'spr', 'offs', 'spotContFactor',
                 'contZero', 'contFull', 'factorCont', 'factorSpawn', 'spawnScale', 'factorRiv',
                 'lapseStart', 'lapseRate'
             ],
             'expression': '''rawTemp - lerp(
-  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, off, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
+  calcElev(rawElev, flat, contNoise, spawn, spotDist, spotRad, riverErosion, spr, offs, spotContFactor, contZero, contFull, factorCont, factorSpawn, spawnScale, factorRiv),
   lapseStart, 0, 1, lapseRate
 )'''
         }
 
         # calcPrecip - computes precipitation from continent value
         functions['calcPrecip'] = {
-            'arguments': ['rawPrecip', 'contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'off', 'spotContFactor', 'oceanThr', 'landThr'],
+            'arguments': ['rawPrecip', 'contNoise', 'spawn', 'spotDist', 'spotRad', 'spr', 'offs', 'spotContFactor', 'oceanThr', 'landThr'],
             'expression': '''lerp(
-  calcContinent(contNoise, spawn, spotDist, spotRad, spr, off, spotContFactor),
+  calcContinent(contNoise, spawn, spotDist, spotRad, spr, offs, spotContFactor),
   oceanThr, 1, landThr, rawPrecip
 )'''
         }

@@ -91,6 +91,7 @@ samplers:
 Can you make recommendations / filer configuration changes to meet the desired affects noted above?
 
 Initial feedback:
+
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
@@ -113,7 +114,7 @@ Initial feedback:
       coastThreshold: 0.4
       coastScale: 2
     functions:
-	  lerp: $math/functions/interpolation.yml:functions
+      "<<": $math/functions/interpolation.yml:functions
       blend:
         arguments:
           - base
@@ -128,7 +129,8 @@ Initial feedback:
           base * baseWt +
           lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
           max(0, min(1, (base + coastThr) * coastSc))^2
-        functions: $math/functions/interpolation.yml:functions
+        functions:
+          "<<": $math/functions/interpolation.yml:functions
 
     samplers:
       continental:
@@ -174,6 +176,7 @@ Initial feedback:
           frequency: 0.0006
           salt: 300
 
+
 ##############################################
 
 Refactor this expression so that it aligns with the way expressions are laid out in math\samplers\elevation.yml
@@ -206,6 +209,43 @@ Returning to the elevation expression you provided before, there still seem to b
 
 Please provide an updated expression for elevation, I will add it to the elevation. yml sampler, and see if the BiomeTool is able to load it.
 ################################################
+
+BiomeTool is working but the NoiseTool is still having issues loading the latest resolved_samplers.yml text.  Can you add an option to "resolve_sampler.py" to omit the combined_climate.yml sampler file?  I will then rebuild the resolved samplers excluding the combined climate using your updates to see if NoiseTool can load the file when combined_climate related samplers are excluded.
+
+#################################################3
+
+Yes when I run "python .scripts/resolve_samplers.py -x combined_climate.yml" I am able to load the content from "resolved_samplers.yml" into the NoiseTool and do not get any errors.  (resolved_samplers_works_with_exc.yml)
+
+If I run resolve_samplers.py without any exclusions and load the content (resolved_samplers.yml) into the NoiseTool it produces the following error:
+
+Configuration: Noise Config
+	Message: Unexpected exception thrown during type loading: class java.lang.Boolean cannot be cast to class java.lang.String (java.lang.Boolean and java.lang.String are in module java.base of loader 'bootstrap')
+	Path: samplers.combinedClimate...functions.climateIndex.arguments[12]
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "combinedClimate"
+		In entry "."
+		With type "EXPRESSION"
+		In entry "functions"
+		In entry "climateIndex"
+		In entry "arguments"
+		At index 12
+
+Can you look at the difference between the two files and see if there is a structure parity change in the new content coming from 
+
+##############################################
+
+I have enabled biome-distribution/stages/climate/combined_climate.yml:stages in this project pack, which is generated from generate_combined_climate.py, but I am getting an error in the BiomeTool when loading the pack with this updated configuration:
+
+Configuration: pack.yml
+        Message: Unexpected exception thrown during type loading: class java.lang.Boolean cannot be cast to class java.lang.String (java.lang.Boolean and java.lang.String are in module java.base of loader 'bootstrap')
+        Path: biomes.provider.pipeline.stages[2].sampler.functions.climateIndex.arguments[12]
+        Full Path:
+
+Can you investigate if there still seem to be format disparities between climate/combined_climate.yml which is producing this error and the three individual climate stages that are NOT producing an error (climate/elevation.yml,climate/temperature.yml, and climate/precipitation.yml) and see if this needs to be resolved in generate_combined_climate.py
+
+#################################################
 
 Goal: Deep dive to understand why NoiseTool is returning errors when trying to read content from the most recently updated "resolved_samplers.yml".
 

@@ -74,7 +74,7 @@ samplers:
       # detailWeight: How much hills/mountains detail contributes to final elevation.
       #   Higher values = more pronounced hills and mountain features.
       #   Range: 0-1, default 0.4 (baseWeight + detailWeight typically = 1.0)
-      detailWeight: 0.4
+      detailWeight: 0
       # --- Coastal Rolloff Parameters ---
       # These control how terrain flattens near coastlines (where continental value is low).
       # coastThreshold: Continental value where coastal flattening begins.
@@ -96,11 +96,8 @@ samplers:
       #   Lower values = gradual slopes extending far from coastline.
       #   Typical range: 1-4, default 2
       mountian_full: 0.37
-      # mountianDet: How quickly terrain transitions from flat (coast) to full height (inland).
-      #   Higher values = sharper transition, terrain rises more abruptly from coast.
-      #   Lower values = gradual slopes extending far from coastline.
-      #   Typical range: 1-4, default 2
-      mountianDet: 2
+      # mountianDet: How much mountian detail to add
+      mountianDet: 1
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
@@ -124,7 +121,7 @@ samplers:
           //If rough, blend in mountians, 
           //but mountians themselves are blended depending on if the mountian region exists.
           lerp(max(0, rough), 0, hills, 1, 
-          lerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt *
+          lerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, (mountains + 0.45) * mountianDet)) * detailWt *
           //Coastal rolloff
           max(0, min(1, (base + coastThr) * coastSc))^2
           //Mesa additions

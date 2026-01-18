@@ -2843,7 +2843,7 @@ samplers:
       coastScale: 2
       mountian_srt: 0.2
       mountian_full: 0.37
-      mountianDet: 2
+      mountianDet: 0
     functions:
       lerp:
         arguments:
@@ -2930,7 +2930,7 @@ samplers:
         - coastSc
         expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but mountians\
           \ themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills, 1, \nlerp(max(0,\
-          \ min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt *\n//Coastal rolloff\n\
+          \ min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt *\n//Coastal rolloff\n\
           max(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n//Islands\n"
         functions:
           lerp:
@@ -3192,7 +3192,7 @@ samplers:
           coastScale: 2
           mountian_srt: 0.2
           mountian_full: 0.37
-          mountianDet: 2
+          mountianDet: 0
         functions:
           lerp:
             arguments:
@@ -3279,7 +3279,7 @@ samplers:
             - coastSc
             expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
               \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
-              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt\
+              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt\
               \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
               //Islands\n"
             functions:
@@ -4174,7 +4174,7 @@ samplers:
                 coastScale: 2
                 mountian_srt: 0.2
                 mountian_full: 0.37
-                mountianDet: 2
+                mountianDet: 0
               functions:
                 lerp:
                   arguments:
@@ -4261,7 +4261,7 @@ samplers:
                   - coastSc
                   expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
                     //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
                     \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
                     \ roughness\n//Islands\n"
                   functions:
@@ -5405,7 +5405,7 @@ samplers:
           coastScale: 2
           mountian_srt: 0.2
           mountian_full: 0.37
-          mountianDet: 2
+          mountianDet: 0
         functions:
           lerp:
             arguments:
@@ -5492,7 +5492,7 @@ samplers:
             - coastSc
             expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
               \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
-              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt\
+              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt\
               \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
               //Islands\n"
             functions:
@@ -7263,7 +7263,7 @@ samplers:
                 coastScale: 2
                 mountian_srt: 0.2
                 mountian_full: 0.37
-                mountianDet: 2
+                mountianDet: 0
               functions:
                 lerp:
                   arguments:
@@ -7350,7 +7350,7 @@ samplers:
                   - coastSc
                   expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
                     //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
                     \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
                     \ roughness\n//Islands\n"
                   functions:
@@ -8382,7 +8382,7 @@ samplers:
                 coastScale: 2
                 mountian_srt: 0.2
                 mountian_full: 0.37
-                mountianDet: 2
+                mountianDet: 0
               functions:
                 lerp:
                   arguments:
@@ -8469,7 +8469,7 @@ samplers:
                   - coastSc
                   expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
                     //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
                     \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
                     \ roughness\n//Islands\n"
                   functions:
@@ -9854,7 +9854,7 @@ samplers:
               coastScale: 2
               mountian_srt: 0.2
               mountian_full: 0.37
-              mountianDet: 2
+              mountianDet: 0
             functions:
               lerp:
                 arguments:
@@ -9941,7 +9941,7 @@ samplers:
                 - coastSc
                 expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
                   //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0,\
-                  \ hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                  \ hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
                   \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
                   \ roughness\n//Islands\n"
                 functions:

@@ -4,13 +4,51 @@ samplers:
   #   Used as base terrain and for coastal rolloff calculation.
   continental_landmass: &continental_landmass
     dimensions: 2
-    type: FBM
-    octaves: 2
-    lacunarity: 2.0
-    gain: 0.5
-    sampler:
-      type: PERLIN
-      frequency: (1 / (5000))
+    type: EXPRESSION
+    expression: sampler(x / globalScale, z / globalScale) * scale + offset
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          gain: 0.7
+          octaves: 2
+          lacunarity: 1.6
+          sampler:
+            type: PERLIN
+            frequency: (1 / 5000)
+  mountain_gen_region: &mountain_gen_field
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x / globalScale, z / globalScale) * scale + offset
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 3000
+        z: 3000
+        sampler:
+          dimensions: 2
+          type: FBM
+          octaves: 2
+          lacunarity: 2.0
+          gain: 0.5
+          sampler:
+            type: PERLIN
+            frequency: (1/2000)
+            salt: 100
+            
   continents: &continents
     dimensions: 2
     type: EXPRESSION

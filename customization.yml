@@ -3,7 +3,7 @@ biomeSpread:
   # Increase to make biomes bigger
   cellDistance: 200
   
-  # Basic size of large region features (vast forests / mesas)
+  # Basic size of large region features (vast forests / mesas / mountian ranges)
   # Increase to make regions larger.
   regionDistance: 900
   
@@ -93,7 +93,7 @@ terrain-ocean-depth: 100
 # that describes if the position is land / coastal / ocean. A continental value of
 # 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
 # These options are primarily used in the math/samplers/continents.yml config file.
-
+continental-baseline-distance: 5000
 continental-offset: 0.1
 # Controls the land / ocean ratio.
 # - A value of 0 results in equal land and ocean

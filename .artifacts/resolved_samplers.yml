@@ -19,14 +19,17 @@ samplers:
   ZExp:  #expression: ZExp(x,y,z)
     dimensions: 3
     type: EXPRESSION
-    expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-1)
+    #expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-100)
+    expression: ZTestExp(x,z)
     samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (test(x,z)+0.6)*64
+        expression: (continents(x,z))*100
+        #expression: (continents(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
-        #continental_landmass
+        #continental_landmass - New landmass distribution
+        #roughness - Areas where mountian regions will be 
         # test (Basic noise evaluation)
         # simelev (Original exploration of elevation-like noise)
         # rawElevation (Derived elevation function)
@@ -61,6 +64,16 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          roughness:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+              salt: 100.0
           continental_landmass:
             dimensions: 2
             type: FBM
@@ -1778,13 +1791,50 @@ samplers:
 # --- RESOLVED SAMPLERS BELOW ---
   continental_landmass:
     dimensions: 2
-    type: FBM
-    octaves: 2
-    lacunarity: 2.0
-    gain: 0.5
-    sampler:
-      type: PERLIN
-      frequency: 0.0002
+    type: EXPRESSION
+    expression: sampler(x / globalScale, z / globalScale) * scale + offset
+    variables:
+      globalScale: 1
+      scale: 2
+      offset: 0.1
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          gain: 0.7
+          octaves: 2
+          lacunarity: 1.6
+          sampler:
+            type: PERLIN
+            frequency: 0.0002
+  mountain_gen_region:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x / globalScale, z / globalScale) * scale + offset
+    variables:
+      globalScale: 1
+      scale: 2
+      offset: 0.1
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 3000
+        z: 3000
+        sampler:
+          dimensions: 2
+          type: FBM
+          octaves: 2
+          lacunarity: 2.0
+          gain: 0.5
+          sampler:
+            type: PERLIN
+            frequency: 0.0005
+            salt: 100.0
   continents:
     dimensions: 2
     type: EXPRESSION
@@ -2776,6 +2826,10 @@ samplers:
         mountains(x, z),
         roughness(x, z),
         baseWeight,
+        mountain_reg(x,z),
+        mountian_srt,
+        mountian_full,
+        mountianDet,
         detailWeight,
         coastThreshold,
         coastScale
@@ -2787,6 +2841,9 @@ samplers:
       detailWeight: 0.4
       coastThreshold: 0.4
       coastScale: 2
+      mountian_srt: 0.2
+      mountian_full: 0.37
+      mountianDet: 2
     functions:
       lerp:
         arguments:
@@ -2860,17 +2917,21 @@ samplers:
       blend:
         arguments:
         - base
-        - smooth
-        - jagged
+        - hills
+        - mountains
         - rough
         - baseWt
+        - mountain_reg
+        - mountian_srt
+        - mountian_full
+        - mountianDet
         - detailWt
         - coastThr
         - coastSc
-        expression: |
-          base * baseWt +
-          lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-          max(0, min(1, (base + coastThr) * coastSc))^2
+        expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but mountians\
+          \ themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills, 1, \nlerp(max(0,\
+          \ min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt *\n//Coastal rolloff\n\
+          max(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n//Islands\n"
         functions:
           lerp:
             arguments:
@@ -2944,13 +3005,50 @@ samplers:
     samplers:
       continental_landmass:
         dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.5
-        sampler:
-          type: PERLIN
-          frequency: 0.0002
+        type: EXPRESSION
+        expression: sampler(x / globalScale, z / globalScale) * scale + offset
+        variables:
+          globalScale: 1
+          scale: 2
+          offset: 0.1
+        samplers:
+          sampler:
+            dimensions: 2
+            type: TRANSLATE
+            x: 10000
+            z: 10000
+            sampler:
+              type: FBM
+              gain: 0.7
+              octaves: 2
+              lacunarity: 1.6
+              sampler:
+                type: PERLIN
+                frequency: 0.0002
+      mountain_reg:
+        dimensions: 2
+        type: EXPRESSION
+        expression: sampler(x / globalScale, z / globalScale) * scale + offset
+        variables:
+          globalScale: 1
+          scale: 2
+          offset: 0.1
+        samplers:
+          sampler:
+            dimensions: 2
+            type: TRANSLATE
+            x: 3000
+            z: 3000
+            sampler:
+              dimensions: 2
+              type: FBM
+              octaves: 2
+              lacunarity: 2.0
+              gain: 0.5
+              sampler:
+                type: PERLIN
+                frequency: 0.0005
+                salt: 100.0
       roughness:
         dimensions: 2
         type: FBM
@@ -2959,7 +3057,7 @@ samplers:
         gain: 0.5
         sampler:
           type: PERLIN
-          frequency: 0.0004
+          frequency: 0.0005
           salt: 100.0
       hills:
         dimensions: 2
@@ -2969,7 +3067,7 @@ samplers:
         gain: 0.35
         sampler:
           type: PERLIN
-          frequency: 0.0008
+          frequency: 0.001
           salt: 200.0
       mountains:
         dimensions: 2
@@ -2979,7 +3077,7 @@ samplers:
         gain: 0.55
         sampler:
           type: PERLIN
-          frequency: 0.0006
+          frequency: 0.0005
           salt: 300.0
   elevation:
     dimensions: 2
@@ -3077,6 +3175,10 @@ samplers:
             mountains(x, z),
             roughness(x, z),
             baseWeight,
+            mountain_reg(x,z),
+            mountian_srt,
+            mountian_full,
+            mountianDet,
             detailWeight,
             coastThreshold,
             coastScale
@@ -3088,6 +3190,9 @@ samplers:
           detailWeight: 0.4
           coastThreshold: 0.4
           coastScale: 2
+          mountian_srt: 0.2
+          mountian_full: 0.37
+          mountianDet: 2
         functions:
           lerp:
             arguments:
@@ -3161,17 +3266,22 @@ samplers:
           blend:
             arguments:
             - base
-            - smooth
-            - jagged
+            - hills
+            - mountains
             - rough
             - baseWt
+            - mountain_reg
+            - mountian_srt
+            - mountian_full
+            - mountianDet
             - detailWt
             - coastThr
             - coastSc
-            expression: |
-              base * baseWt +
-              lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-              max(0, min(1, (base + coastThr) * coastSc))^2
+            expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
+              \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
+              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt\
+              \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
+              //Islands\n"
             functions:
               lerp:
                 arguments:
@@ -3245,13 +3355,50 @@ samplers:
         samplers:
           continental_landmass:
             dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0002
+            type: EXPRESSION
+            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 10000
+                z: 10000
+                sampler:
+                  type: FBM
+                  gain: 0.7
+                  octaves: 2
+                  lacunarity: 1.6
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0002
+          mountain_reg:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 3000
+                z: 3000
+                sampler:
+                  dimensions: 2
+                  type: FBM
+                  octaves: 2
+                  lacunarity: 2.0
+                  gain: 0.5
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0005
+                    salt: 100.0
           roughness:
             dimensions: 2
             type: FBM
@@ -3260,7 +3407,7 @@ samplers:
             gain: 0.5
             sampler:
               type: PERLIN
-              frequency: 0.0004
+              frequency: 0.0005
               salt: 100.0
           hills:
             dimensions: 2
@@ -3270,7 +3417,7 @@ samplers:
             gain: 0.35
             sampler:
               type: PERLIN
-              frequency: 0.0008
+              frequency: 0.001
               salt: 200.0
           mountains:
             dimensions: 2
@@ -3280,7 +3427,7 @@ samplers:
             gain: 0.55
             sampler:
               type: PERLIN
-              frequency: 0.0006
+              frequency: 0.0005
               salt: 300.0
       flatness:
         dimensions: 2
@@ -4010,6 +4157,10 @@ samplers:
                   mountains(x, z),
                   roughness(x, z),
                   baseWeight,
+                  mountain_reg(x,z),
+                  mountian_srt,
+                  mountian_full,
+                  mountianDet,
                   detailWeight,
                   coastThreshold,
                   coastScale
@@ -4021,6 +4172,9 @@ samplers:
                 detailWeight: 0.4
                 coastThreshold: 0.4
                 coastScale: 2
+                mountian_srt: 0.2
+                mountian_full: 0.37
+                mountianDet: 2
               functions:
                 lerp:
                   arguments:
@@ -4094,17 +4248,22 @@ samplers:
                 blend:
                   arguments:
                   - base
-                  - smooth
-                  - jagged
+                  - hills
+                  - mountains
                   - rough
                   - baseWt
+                  - mountain_reg
+                  - mountian_srt
+                  - mountian_full
+                  - mountianDet
                   - detailWt
                   - coastThr
                   - coastSc
-                  expression: |
-                    base * baseWt +
-                    lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-                    max(0, min(1, (base + coastThr) * coastSc))^2
+                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
+                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
+                    \ roughness\n//Islands\n"
                   functions:
                     lerp:
                       arguments:
@@ -4178,13 +4337,50 @@ samplers:
               samplers:
                 continental_landmass:
                   dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0002
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 10000
+                      z: 10000
+                      sampler:
+                        type: FBM
+                        gain: 0.7
+                        octaves: 2
+                        lacunarity: 1.6
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0002
+                mountain_reg:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 3000
+                      z: 3000
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.5
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
                 roughness:
                   dimensions: 2
                   type: FBM
@@ -4193,7 +4389,7 @@ samplers:
                   gain: 0.5
                   sampler:
                     type: PERLIN
-                    frequency: 0.0004
+                    frequency: 0.0005
                     salt: 100.0
                 hills:
                   dimensions: 2
@@ -4203,7 +4399,7 @@ samplers:
                   gain: 0.35
                   sampler:
                     type: PERLIN
-                    frequency: 0.0008
+                    frequency: 0.001
                     salt: 200.0
                 mountains:
                   dimensions: 2
@@ -4213,7 +4409,7 @@ samplers:
                   gain: 0.55
                   sampler:
                     type: PERLIN
-                    frequency: 0.0006
+                    frequency: 0.0005
                     salt: 300.0
             flatness:
               dimensions: 2
@@ -5192,6 +5388,10 @@ samplers:
             mountains(x, z),
             roughness(x, z),
             baseWeight,
+            mountain_reg(x,z),
+            mountian_srt,
+            mountian_full,
+            mountianDet,
             detailWeight,
             coastThreshold,
             coastScale
@@ -5203,6 +5403,9 @@ samplers:
           detailWeight: 0.4
           coastThreshold: 0.4
           coastScale: 2
+          mountian_srt: 0.2
+          mountian_full: 0.37
+          mountianDet: 2
         functions:
           lerp:
             arguments:
@@ -5276,17 +5479,22 @@ samplers:
           blend:
             arguments:
             - base
-            - smooth
-            - jagged
+            - hills
+            - mountains
             - rough
             - baseWt
+            - mountain_reg
+            - mountian_srt
+            - mountian_full
+            - mountianDet
             - detailWt
             - coastThr
             - coastSc
-            expression: |
-              base * baseWt +
-              lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-              max(0, min(1, (base + coastThr) * coastSc))^2
+            expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
+              \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
+              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt\
+              \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
+              //Islands\n"
             functions:
               lerp:
                 arguments:
@@ -5360,13 +5568,50 @@ samplers:
         samplers:
           continental_landmass:
             dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0002
+            type: EXPRESSION
+            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 10000
+                z: 10000
+                sampler:
+                  type: FBM
+                  gain: 0.7
+                  octaves: 2
+                  lacunarity: 1.6
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0002
+          mountain_reg:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 3000
+                z: 3000
+                sampler:
+                  dimensions: 2
+                  type: FBM
+                  octaves: 2
+                  lacunarity: 2.0
+                  gain: 0.5
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0005
+                    salt: 100.0
           roughness:
             dimensions: 2
             type: FBM
@@ -5375,7 +5620,7 @@ samplers:
             gain: 0.5
             sampler:
               type: PERLIN
-              frequency: 0.0004
+              frequency: 0.0005
               salt: 100.0
           hills:
             dimensions: 2
@@ -5385,7 +5630,7 @@ samplers:
             gain: 0.35
             sampler:
               type: PERLIN
-              frequency: 0.0008
+              frequency: 0.001
               salt: 200.0
           mountains:
             dimensions: 2
@@ -5395,7 +5640,7 @@ samplers:
             gain: 0.55
             sampler:
               type: PERLIN
-              frequency: 0.0006
+              frequency: 0.0005
               salt: 300.0
       continents:
         dimensions: 2
@@ -7001,6 +7246,10 @@ samplers:
                   mountains(x, z),
                   roughness(x, z),
                   baseWeight,
+                  mountain_reg(x,z),
+                  mountian_srt,
+                  mountian_full,
+                  mountianDet,
                   detailWeight,
                   coastThreshold,
                   coastScale
@@ -7012,6 +7261,9 @@ samplers:
                 detailWeight: 0.4
                 coastThreshold: 0.4
                 coastScale: 2
+                mountian_srt: 0.2
+                mountian_full: 0.37
+                mountianDet: 2
               functions:
                 lerp:
                   arguments:
@@ -7085,17 +7337,22 @@ samplers:
                 blend:
                   arguments:
                   - base
-                  - smooth
-                  - jagged
+                  - hills
+                  - mountains
                   - rough
                   - baseWt
+                  - mountain_reg
+                  - mountian_srt
+                  - mountian_full
+                  - mountianDet
                   - detailWt
                   - coastThr
                   - coastSc
-                  expression: |
-                    base * baseWt +
-                    lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-                    max(0, min(1, (base + coastThr) * coastSc))^2
+                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
+                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
+                    \ roughness\n//Islands\n"
                   functions:
                     lerp:
                       arguments:
@@ -7169,13 +7426,50 @@ samplers:
               samplers:
                 continental_landmass:
                   dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0002
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 10000
+                      z: 10000
+                      sampler:
+                        type: FBM
+                        gain: 0.7
+                        octaves: 2
+                        lacunarity: 1.6
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0002
+                mountain_reg:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 3000
+                      z: 3000
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.5
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
                 roughness:
                   dimensions: 2
                   type: FBM
@@ -7184,7 +7478,7 @@ samplers:
                   gain: 0.5
                   sampler:
                     type: PERLIN
-                    frequency: 0.0004
+                    frequency: 0.0005
                     salt: 100.0
                 hills:
                   dimensions: 2
@@ -7194,7 +7488,7 @@ samplers:
                   gain: 0.35
                   sampler:
                     type: PERLIN
-                    frequency: 0.0008
+                    frequency: 0.001
                     salt: 200.0
                 mountains:
                   dimensions: 2
@@ -7204,7 +7498,7 @@ samplers:
                   gain: 0.55
                   sampler:
                     type: PERLIN
-                    frequency: 0.0006
+                    frequency: 0.0005
                     salt: 300.0
             flatness:
               dimensions: 2
@@ -8071,6 +8365,10 @@ samplers:
                   mountains(x, z),
                   roughness(x, z),
                   baseWeight,
+                  mountain_reg(x,z),
+                  mountian_srt,
+                  mountian_full,
+                  mountianDet,
                   detailWeight,
                   coastThreshold,
                   coastScale
@@ -8082,6 +8380,9 @@ samplers:
                 detailWeight: 0.4
                 coastThreshold: 0.4
                 coastScale: 2
+                mountian_srt: 0.2
+                mountian_full: 0.37
+                mountianDet: 2
               functions:
                 lerp:
                   arguments:
@@ -8155,17 +8456,22 @@ samplers:
                 blend:
                   arguments:
                   - base
-                  - smooth
-                  - jagged
+                  - hills
+                  - mountains
                   - rough
                   - baseWt
+                  - mountain_reg
+                  - mountian_srt
+                  - mountian_full
+                  - mountianDet
                   - detailWt
                   - coastThr
                   - coastSc
-                  expression: |
-                    base * baseWt +
-                    lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-                    max(0, min(1, (base + coastThr) * coastSc))^2
+                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
+                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
+                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
+                    \ roughness\n//Islands\n"
                   functions:
                     lerp:
                       arguments:
@@ -8239,13 +8545,50 @@ samplers:
               samplers:
                 continental_landmass:
                   dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0002
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 10000
+                      z: 10000
+                      sampler:
+                        type: FBM
+                        gain: 0.7
+                        octaves: 2
+                        lacunarity: 1.6
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0002
+                mountain_reg:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  variables:
+                    globalScale: 1
+                    scale: 2
+                    offset: 0.1
+                  samplers:
+                    sampler:
+                      dimensions: 2
+                      type: TRANSLATE
+                      x: 3000
+                      z: 3000
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.5
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
                 roughness:
                   dimensions: 2
                   type: FBM
@@ -8254,7 +8597,7 @@ samplers:
                   gain: 0.5
                   sampler:
                     type: PERLIN
-                    frequency: 0.0004
+                    frequency: 0.0005
                     salt: 100.0
                 hills:
                   dimensions: 2
@@ -8264,7 +8607,7 @@ samplers:
                   gain: 0.35
                   sampler:
                     type: PERLIN
-                    frequency: 0.0008
+                    frequency: 0.001
                     salt: 200.0
                 mountains:
                   dimensions: 2
@@ -8274,7 +8617,7 @@ samplers:
                   gain: 0.55
                   sampler:
                     type: PERLIN
-                    frequency: 0.0006
+                    frequency: 0.0005
                     salt: 300.0
             flatness:
               dimensions: 2
@@ -9494,6 +9837,10 @@ samplers:
                 mountains(x, z),
                 roughness(x, z),
                 baseWeight,
+                mountain_reg(x,z),
+                mountian_srt,
+                mountian_full,
+                mountianDet,
                 detailWeight,
                 coastThreshold,
                 coastScale
@@ -9505,6 +9852,9 @@ samplers:
               detailWeight: 0.4
               coastThreshold: 0.4
               coastScale: 2
+              mountian_srt: 0.2
+              mountian_full: 0.37
+              mountianDet: 2
             functions:
               lerp:
                 arguments:
@@ -9578,17 +9928,22 @@ samplers:
               blend:
                 arguments:
                 - base
-                - smooth
-                - jagged
+                - hills
+                - mountains
                 - rough
                 - baseWt
+                - mountain_reg
+                - mountian_srt
+                - mountian_full
+                - mountianDet
                 - detailWt
                 - coastThr
                 - coastSc
-                expression: |
-                  base * baseWt +
-                  lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
-                  max(0, min(1, (base + coastThr) * coastSc))^2
+                expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
+                  //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0,\
+                  \ hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet)\
+                  \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
+                  \ roughness\n//Islands\n"
                 functions:
                   lerp:
                     arguments:
@@ -9662,13 +10017,50 @@ samplers:
             samplers:
               continental_landmass:
                 dimensions: 2
-                type: FBM
-                octaves: 2
-                lacunarity: 2.0
-                gain: 0.5
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0002
+                type: EXPRESSION
+                expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: TRANSLATE
+                    x: 10000
+                    z: 10000
+                    sampler:
+                      type: FBM
+                      gain: 0.7
+                      octaves: 2
+                      lacunarity: 1.6
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0002
+              mountain_reg:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: TRANSLATE
+                    x: 3000
+                    z: 3000
+                    sampler:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 2
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0005
+                        salt: 100.0
               roughness:
                 dimensions: 2
                 type: FBM
@@ -9677,7 +10069,7 @@ samplers:
                 gain: 0.5
                 sampler:
                   type: PERLIN
-                  frequency: 0.0004
+                  frequency: 0.0005
                   salt: 100.0
               hills:
                 dimensions: 2
@@ -9687,7 +10079,7 @@ samplers:
                 gain: 0.35
                 sampler:
                   type: PERLIN
-                  frequency: 0.0008
+                  frequency: 0.001
                   salt: 200.0
               mountains:
                 dimensions: 2
@@ -9697,7 +10089,7 @@ samplers:
                 gain: 0.55
                 sampler:
                   type: PERLIN
-                  frequency: 0.0006
+                  frequency: 0.0005
                   salt: 300.0
           flatness:
             dimensions: 2

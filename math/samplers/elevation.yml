@@ -55,6 +55,10 @@ samplers:
         mountains(x, z),
         roughness(x, z),
         baseWeight,
+        mountain_reg(x,z),
+        mountian_srt,
+        mountian_full,
+        mountianDet,
         detailWeight,
         coastThreshold,
         coastScale
@@ -82,29 +86,57 @@ samplers:
       #   Lower values = gradual slopes extending far from coastline.
       #   Typical range: 1-4, default 2
       coastScale: 2
+      # --- Mountian Region Parameters ---
+      # These control how / mountains are allowed to protrude on top of other filters
+      # mountian_srt: How quickly terrain transitions from flat (coast) to full height (inland).
+      #   Higher values = sharper transition, terrain rises more abruptly from coast.
+      mountian_srt: 0.2
+      # mountian_full: How quickly terrain transitions from flat (coast) to full height (inland).
+      #   Higher values = sharper transition, terrain rises more abruptly from coast.
+      #   Lower values = gradual slopes extending far from coastline.
+      #   Typical range: 1-4, default 2
+      mountian_full: 0.37
+      # mountianDet: How quickly terrain transitions from flat (coast) to full height (inland).
+      #   Higher values = sharper transition, terrain rises more abruptly from coast.
+      #   Lower values = gradual slopes extending far from coastline.
+      #   Typical range: 1-4, default 2
+      mountianDet: 2
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
       blend:
         arguments:
           - base
-          - smooth
-          - jagged
+          - hills
+          - mountains
           - rough
           - baseWt
+          - mountain_reg
+          - mountian_srt
+          - mountian_full
+          - mountianDet
           - detailWt
           - coastThr
           - coastSc
         expression: |
           base * baseWt +
-          lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
+          //Mountian additions (Can be negative).  
+          //If rough, blend in mountians, 
+          //but mountians themselves are blended depending on if the mountian region exists.
+          lerp(max(0, rough), 0, hills, 1, 
+          lerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains) * mountianDet) * detailWt *
+          //Coastal rolloff
           max(0, min(1, (base + coastThr) * coastSc))^2
+          //Mesa additions
+          //Underwater roughness
+          //Islands
         functions:
           "<<":
             - math/functions/interpolation.yml:functions
 
     samplers:
       continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
+      mountain_reg: $math/samplers/continents.yml:samplers.mountain_gen_region
       # roughness: Controls terrain texture variation across the map.
       #   Where roughness > 0: terrain uses jagged mountains.
       #   Where roughness < 0: terrain uses smooth hills.
@@ -117,7 +149,7 @@ samplers:
         gain: 0.5
         sampler:
           type: PERLIN
-          frequency: 0.0004
+          frequency: (1/2000)
           salt: 100
 
       # hills: Smooth, gentle terrain features.
@@ -132,7 +164,7 @@ samplers:
         gain: 0.35
         sampler:
           type: PERLIN
-          frequency: 0.0008
+          frequency: (1/1000)
           salt: 200
 
       # mountains: Jagged, dramatic terrain features.
@@ -147,7 +179,7 @@ samplers:
         gain: 0.55
         sampler:
           type: PERLIN
-          frequency: 0.0006
+          frequency: (1/2000)
           salt: 300
 
           

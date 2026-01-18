@@ -357,3 +357,260 @@ From the root off the source folder, only the following files on the root path s
 
 
 Bottom: Add burning fields after everything else is fixed?
+
+###########################################################
+
+Take all the BiomeIDs listed in .artifacts\BiomeTable.csv that is a surface source, is a land type, and whose BiomeID does not contain river, and return that list of BiomeIDs
+
+###############################################
+
+Update temperature mapping to use simplified function (rawTemperature) for distribution of sinkhole / cliff regions.  Map using a warp noise chain to get down to individual cliff locations?
+
+
+How to get better elevation?  Want relatively flat regions near center above coast, want some hills, want some mountains.
+
+Simplex to generate initial elev at x,z points.
+Simplex to generate magnifiers at different x,z points, which will affect... how much perlin will be multiplied in different regions?  This should ensure some regions stay flatter, and other regions get more amplified, and that it is distributed?
+How can warp be used to accomplish this?
+
+############################################
+
+Related to this toolset and previous discussions, I'm trying to improve on the default terrain generation configured in this tool, as it is currently both very noisy and processor intensive.
+
+Perlin generation is working well to create more clustered mountain ranges, but I would also like to have flatter terrain rolloff near where coastlines would be, and would like smoother hills to generate alongside jagged mountains.
+
+The current rendering is at "TerrainGenExplore1.png", where pure gray (0x7F7F7F) is about where the coast line would be (about 30 y), but this could also be adjusted.
+
+The filter configuration is:
+
+samplers:
+  ZExp:  #expression: ZExp(x,y,z)
+    dimensions: 3
+    type: EXPRESSION
+    expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-50)
+    samplers:
+      ZTestExp:
+        dimensions: 2
+        type: EXPRESSION
+        expression: simelev(x,z)*50+30
+        #expression: (simelev(x,z)+0.6)*64
+        #expression: round(simelev(x,z)+0.6)*64
+        samplers:
+          simelev:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+            octaves: 3
+            lacunarity: 1.77
+            gain: 0.5
+            weighted-strength: 0
+            NoiseSampler: test
+            samplers:
+              test:
+                NoiseSampler: OPEN_SIMPLEX_2S
+
+Can you make recommendations / filer configuration changes to meet the desired affects noted above?
+
+Initial feedback:
+
+  rawElevation: &rawElevation
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      blend(
+        continental(x, z),
+        hills(x, z),
+        mountains(x, z),
+        roughness(x, z),
+        baseWeight,
+        detailWeight,
+        coastThreshold,
+        coastScale
+      ) * multiplier + offset
+    variables:
+      multiplier: $customization.yml:elevation-multiplier
+      offset: $customization.yml:elevation-offset
+      baseWeight: 0.6
+      detailWeight: 0.4
+      coastThreshold: 0.4
+      coastScale: 2
+    functions:
+      "<<": $math/functions/interpolation.yml:functions
+      blend:
+        arguments:
+          - base
+          - smooth
+          - jagged
+          - rough
+          - baseWt
+          - detailWt
+          - coastThr
+          - coastSc
+        expression: |
+          base * baseWt +
+          lerp(max(0, rough), 0, smooth, 1, jagged) * detailWt *
+          max(0, min(1, (base + coastThr) * coastSc))^2
+        functions:
+          "<<": $math/functions/interpolation.yml:functions
+
+    samplers:
+      continental:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.5
+        sampler:
+          type: PERLIN
+          frequency: 0.00015
+
+      roughness:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.5
+        sampler:
+          type: PERLIN
+          frequency: 0.0004
+          salt: 100
+
+      hills:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.35
+        sampler:
+          type: PERLIN
+          frequency: 0.0008
+          salt: 200
+
+      mountains:
+        dimensions: 2
+        type: FBM
+        octaves: 5
+        lacunarity: 2.2
+        gain: 0.55
+        sampler:
+          type: PERLIN
+          frequency: 0.0006
+          salt: 300
+
+
+##############################################
+
+Refactor this expression so that it aligns with the way expressions are laid out in math\samplers\elevation.yml
+
+For instance, variables cannot be instantiated and assigned within an expression section itself.  They need to be defined further below as functions and samplers to be used in an expression, and an expression does not appear to be able to run multiple instructions separated by commas.
+
+#############################################
+
+The sampler "ZExp" only exists in "resolved_samplers.yml", but when I run "resolve_samplers.py" it creates new copies of "ZExp" below the comment "# --- RESOLVED SAMPLERS BELOW ---"
+
+Is "resolve_samplers.py" processing it's own output "resolved_samplers.yml" and generating duplicates?  This would not be expected behavior.
+
+################################################
+
+It appears that "generate_combined_climate.py" creates the same invalid structure    
+  that you just fixed before, following a pattern like math\samplers\elevation.yml,    
+  where variables cannot be instantiated and assigned within an expression section     
+  itself.  They need to be defined further below as functions and samplers to be used  
+  in an expression, and an expression does not appear to be able to run multiple       
+  instructions separated by commas.
+
+
+##############################################
+
+Returning to the elevation expression you provided before, there still seem to be some format issues here.  A few notes:
+
+* Functions can be referenced from other files.  In your latest returned elevation expression, you defined the function herp, but it could have just pointed to "$math/functions/interpolation.yml:functions".
+* As far as I can tell functions CANNOT directly resolve variables, only arguments.  You have various expressions and functions that reference parent variables but I think that is causing errors in Terra, at least for functions this appears to be the case.  All inputs into a function must be a defined argument from what I have seen.
+* I do not know if it matters, but your arguments come in a list style using brackets separated by commas, but all other terra functions define arguments separated by new lines and hyphens.
+
+Please provide an updated expression for elevation, I will add it to the elevation. yml sampler, and see if the BiomeTool is able to load it.
+################################################
+
+BiomeTool is working but the NoiseTool is still having issues loading the latest resolved_samplers.yml text.  Can you add an option to "resolve_sampler.py" to omit the combined_climate.yml sampler file?  I will then rebuild the resolved samplers excluding the combined climate using your updates to see if NoiseTool can load the file when combined_climate related samplers are excluded.
+
+#################################################3
+
+Yes when I run "python .scripts/resolve_samplers.py -x combined_climate.yml" I am able to load the content from "resolved_samplers.yml" into the NoiseTool and do not get any errors.  (resolved_samplers_works_with_exc.yml)
+
+If I run resolve_samplers.py without any exclusions and load the content (resolved_samplers.yml) into the NoiseTool it produces the following error:
+
+Configuration: Noise Config
+	Message: Unexpected exception thrown during type loading: class java.lang.Boolean cannot be cast to class java.lang.String (java.lang.Boolean and java.lang.String are in module java.base of loader 'bootstrap')
+	Path: samplers.combinedClimate...functions.climateIndex.arguments[12]
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "combinedClimate"
+		In entry "."
+		With type "EXPRESSION"
+		In entry "functions"
+		In entry "climateIndex"
+		In entry "arguments"
+		At index 12
+
+Can you look at the difference between the two files and see if there is a structure parity change in the new content coming from 
+
+##############################################
+
+I have enabled biome-distribution/stages/climate/combined_climate.yml:stages in this project pack, which is generated from generate_combined_climate.py, but I am getting an error in the BiomeTool when loading the pack with this updated configuration:
+
+Configuration: pack.yml
+        Message: Unexpected exception thrown during type loading: class java.lang.Boolean cannot be cast to class java.lang.String (java.lang.Boolean and java.lang.String are in module java.base of loader 'bootstrap')
+        Path: biomes.provider.pipeline.stages[2].sampler.functions.climateIndex.arguments[12]
+        Full Path:
+
+Can you investigate if there still seem to be format disparities between climate/combined_climate.yml which is producing this error and the three individual climate stages that are NOT producing an error (climate/elevation.yml,climate/temperature.yml, and climate/precipitation.yml) and see if this needs to be resolved in generate_combined_climate.py
+
+####################################################3
+
+Now I have a new error when running the BiomeTool:
+
+Configuration: pack.yml
+        Message: Unexpected exception thrown during type loading: Failed to parse expression.
+        Path: biomes.provider.pipeline.stages[2].sampler
+        Full Path:
+                From configuration "pack.yml"
+                In entry "biomes"
+                From configuration "biome-distribution\presets\ExploreTest.yml"
+                With type "EXTRUSION"
+                In entry "provider"
+                With type "PIPELINE"
+                In entry "pipeline.stages"
+                At index 2
+                From configuration "biome-distribution\stages\climate\combined_climate.yml"
+                With type "REPLACE_LIST"
+                In entry "sampler"
+                From configuration "math\samplers\combined_climate.yml"
+
+
+#############################################################
+
+Please write a python function that reads ".artifacts/resolved_samplers.yml", and for the "samplers" section right below the comment "--- INSERT COPIES OF MATCHING SAMPLERS HERE ---", go through each child of that single "samplers" section, find the first matching child of any samplers section below the comment "--- RESOLVED SAMPLERS BELOW ---", and copy it's contents into the initial found child.  If no match is found, do not change the child object.  For example, I would expect at least "rawElevation", "elevation", and "precipitation" beneath the comment "--- INSERT COPIES OF MATCHING SAMPLERS HERE ---" to have content copied and matching to the same samplers below the comment "--- RESOLVED SAMPLERS BELOW ---".  Care should be taken to ensure the right indentation for any copied content, as it might exist at a different level in the tree.
+
+
+
+
+#################################################
+
+Goal: Deep dive to understand why NoiseTool is returning errors when trying to read content from the most recently updated "resolved_samplers.yml".
+
+First: Claude needs to be able to interact with the NoiseTool in a more automated way to inject Terra filter definitions and read back the corresponding log and picture, to do that I would propose the following updates to the NoiseTool source code:
+
+Update NoiseTool (C:\Projects\NoiseTool) with the following:
+
+1. Changes the open menu so if File->Open is clicked on a windows device, opens the Standard File Dialog so quick links and navigation buttons are visible.
+2. Add an option / shortcut toggle key that forces it to reload the last opened file a 5 seconds after that last render completed or errored and attempt to rerender if the file content has changed .
+3. Give clear feedback (maybe on the bottom of the window) indicating that auto-render is enabled.
+4. When auto-rerender is turned on: After the render completes or if the render hits an error, the log window will save it's output to a file, prepended by the date and time.
+5. When auto-rerender is turned on: After the render completes, save the render to a file (File-> Save render as) as a picture with the same date-time prepender as the log file.
+
+In this way after the NoiseTool has this functionality, I can enable auto-rerendering, and claude can write to the file it is reading, and check the feedback in the logs to understand where the formatting error in the "resolved_samplers.yml" might be coming from.
+
+Note the actual Terra configured noise definition pipeline has more capabilities than the noise tool, the ultimate goal is to make sure 

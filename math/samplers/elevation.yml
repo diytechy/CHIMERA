@@ -62,9 +62,25 @@ samplers:
     variables:
       multiplier: $customization.yml:elevation-multiplier
       offset: $customization.yml:elevation-offset
+      # --- Terrain Blending Parameters ---
+      # baseWeight: How much the continental shape contributes to final elevation.
+      #   Higher values = terrain follows large-scale landmass shape more closely.
+      #   Range: 0-1, default 0.6
       baseWeight: 0.6
+      # detailWeight: How much hills/mountains detail contributes to final elevation.
+      #   Higher values = more pronounced hills and mountain features.
+      #   Range: 0-1, default 0.4 (baseWeight + detailWeight typically = 1.0)
       detailWeight: 0.4
+      # --- Coastal Rolloff Parameters ---
+      # These control how terrain flattens near coastlines (where continental value is low).
+      # coastThreshold: Continental value where coastal flattening begins.
+      #   Higher values = flattening extends further inland from coasts.
+      #   Typical range: 0.2-0.6, default 0.4
       coastThreshold: 0.4
+      # coastScale: How quickly terrain transitions from flat (coast) to full height (inland).
+      #   Higher values = sharper transition, terrain rises more abruptly from coast.
+      #   Lower values = gradual slopes extending far from coastline.
+      #   Typical range: 1-4, default 2
       coastScale: 2
     functions:
       "<<":
@@ -88,6 +104,9 @@ samplers:
             - math/functions/interpolation.yml:functions
 
     samplers:
+      # continental: Large-scale landmass shape.
+      #   Low frequency = very large features (continents, major landmasses).
+      #   Used as base terrain and for coastal rolloff calculation.
       continental:
         dimensions: 2
         type: FBM
@@ -98,6 +117,10 @@ samplers:
           type: PERLIN
           frequency: 0.00015
 
+      # roughness: Controls terrain texture variation across the map.
+      #   Where roughness > 0: terrain uses jagged mountains.
+      #   Where roughness < 0: terrain uses smooth hills.
+      #   Creates natural variation between rough mountainous and gentle hilly areas.
       roughness:
         dimensions: 2
         type: FBM
@@ -109,6 +132,10 @@ samplers:
           frequency: 0.0004
           salt: 100
 
+      # hills: Smooth, gentle terrain features.
+      #   Low octaves (2) = rounded, rolling shapes.
+      #   Lower gain (0.35) = less dramatic height variation.
+      #   Used where roughness value is low.
       hills:
         dimensions: 2
         type: FBM
@@ -120,6 +147,10 @@ samplers:
           frequency: 0.0008
           salt: 200
 
+      # mountains: Jagged, dramatic terrain features.
+      #   High octaves (5) = fine detail, sharp peaks.
+      #   Higher gain (0.55) = more dramatic height variation.
+      #   Used where roughness value is high.
       mountains:
         dimensions: 2
         type: FBM

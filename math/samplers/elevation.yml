@@ -50,7 +50,7 @@ samplers:
     type: EXPRESSION
     expression: |
       blend(
-        continental(x, z),
+        continental_landmass(x, z),
         hills(x, z),
         mountains(x, z),
         roughness(x, z),
@@ -104,19 +104,7 @@ samplers:
             - math/functions/interpolation.yml:functions
 
     samplers:
-      # continental: Large-scale landmass shape.
-      #   Low frequency = very large features (continents, major landmasses).
-      #   Used as base terrain and for coastal rolloff calculation.
-      continental:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.5
-        sampler:
-          type: PERLIN
-          frequency: 0.00015
-
+      continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
       # roughness: Controls terrain texture variation across the map.
       #   Where roughness > 0: terrain uses jagged mountains.
       #   Where roughness < 0: terrain uses smooth hills.

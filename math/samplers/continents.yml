@@ -1,4 +1,16 @@
 samplers:
+  # continental_landmass: Large-scale landmass shape.
+  #   Low frequency = very large features (continents, major landmasses).
+  #   Used as base terrain and for coastal rolloff calculation.
+  continental_landmass: &continental_landmass
+    dimensions: 2
+    type: FBM
+    octaves: 2
+    lacunarity: 2.0
+    gain: 0.5
+    sampler:
+      type: PERLIN
+      frequency: (1 / (5000))
   continents: &continents
     dimensions: 2
     type: EXPRESSION

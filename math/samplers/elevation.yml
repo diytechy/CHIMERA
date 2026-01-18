@@ -75,7 +75,7 @@ samplers:
   MountainHeightModifier: &MountainHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z)
+    expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
@@ -99,6 +99,7 @@ samplers:
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
       MountainHeightModifier: *MountainHeightModifier
+    functions: $math/functions/interpolation.yml:functions
 
   # Mesa height modifier components
   prefiltered_mesa_elev: &prefiltered_mesa_elev
@@ -115,7 +116,7 @@ samplers:
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z)
+    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
@@ -139,6 +140,7 @@ samplers:
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
       MesaHeightModifier: *MesaHeightModifier
+    functions: $math/functions/interpolation.yml:functions
 
   # Hill height modifier components
   HillHeightModifier: &HillHeightModifier
@@ -168,6 +170,7 @@ samplers:
       MaxHillElev: 2.0
     samplers:
       HillHeightModifier: *HillHeightModifier
+    functions: $math/functions/interpolation.yml:functions
 
   rawElevation: &rawElevation
     dimensions: 2

@@ -24,7 +24,7 @@ samplers:
     dimensions: 2
     type: FBM
     gain: 0.4
-    octaves: 2
+    octaves: 3
     lacunarity: 1.6
     sampler: &continental_landmass
   mountain_gen_region: &mountain_gen_field
@@ -44,7 +44,7 @@ samplers:
         gain: 0.4
         sampler:
           type: PERLIN
-          frequency: (1 / ${customization.yml:continental-mountian-region-allowed-distance})
+          frequency: (1 / ${customization.yml:continental-mountain-region-allowed-distance})
           salt: 100
   mesa_gen_region: &mesa_gen_field
     dimensions: 2

@@ -16,6 +16,21 @@ samplers:
           salt: 697.0
           #frequency: 1/300
           frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+  PeakHeightMultiplierAtPosition:
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: $customization.yml:continental-MaxPeakVariability
+    samplers:
+      max_elev_prob: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          #frequency: 1/300
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
   # continental_landmass: Large-scale landmass shape.
   #   Low frequency = very large features (continents, major landmasses).
   #   Used as base terrain and for coastal rolloff calculation.

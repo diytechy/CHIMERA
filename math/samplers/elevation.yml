@@ -57,8 +57,8 @@ samplers:
   OceanValley: &OceanValley
     dimensions: 2
     type: OPEN_SIMPLEX_2
-    frequency: 0.001
-    salt: 400
+    frequency: (1 / ${customization.yml:continental-large-features-height-flux-dist})
+    salt: 407
 
   # Mountain height modifier components
   prefiltered_mountain_elev: &prefiltered_mountain_elev
@@ -90,13 +90,14 @@ samplers:
           threshold(x,z),
           0.0,
           0.5,
-          (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+          (MountainHeightModifier(x, z) - threshold(x,z)) * PeakElevAtPos(x,z) * MaxPeakElev
         ),
       0)
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
+      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       prefiltered_mountain_elev: *prefiltered_mountain_elev
       MountainHeightModifier: *MountainHeightModifier
@@ -136,13 +137,14 @@ samplers:
           threshold(x,z),
           0.0,
           0.5,
-          (MesaHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+          (MesaHeightModifier(x, z) - threshold(x,z)) * PeakElevAtPos(x,z) * MaxPeakElev
         ),
       0)
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
-      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
     samplers:
+      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier
@@ -190,7 +192,7 @@ samplers:
           continentalSubOceanLargeFeaturesAllowedThreshold,
           0,
           0.5,
-          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
         ),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
@@ -204,6 +206,7 @@ samplers:
       )
     variables:
       continentalSubOceanLargeFeaturesAllowedThreshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
+      MaxUnderwaterMulti: $customization.yml:continental-UnderwaterPeakHeightRatio
     functions: $math/functions/interpolation.yml:functions
 
     samplers:

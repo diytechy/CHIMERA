@@ -94,6 +94,7 @@ continental-baseline-distance: 5000
 continental-large-features-allowed-threshold: .15
 continental-large-feature-allowed-threshold-variance: 0.05
 continental-sub-ocean-large-features-allowed-threshold: -0.05
+continental-large-features-height-flux-dist: 1000
 
 #Affects the variance of what elevation mountians / mesas start to protrude at:
 
@@ -108,6 +109,8 @@ continental-mesa-region-allowed-distance: 2000
 continental-mesa-region-allowed-threshold: .05
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
+
+continental-MaxMesaPeakHeightRatio: 1.8 #Keep less than mountian peak height ratio.
 continental-MaxMountainPeakHeightRatio: 4
 continental-UnderwaterPeakHeightRatio: 2
 continental-MaxPeakVariability: 0.6

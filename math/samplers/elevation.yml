@@ -180,13 +180,13 @@ samplers:
 
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
         if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (MesaHeightModifier(x,z)/2 +
-            ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+          (prefiltered_mesa_elev(x,z)/2 +
+            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
           //Else return the transition down to floor height
           if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
             0)
         ),

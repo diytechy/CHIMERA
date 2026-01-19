@@ -697,37 +697,26 @@ samplers:
             expression: |
               abs(
                 min(
-                  if(base(x,z) < -threshold(x,z),
+                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                     lerp(
-                      base(x, z) < -threshold(x,z),
+                      abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
                   0),
-                  max(
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  )
-                ) * PeakElevAtPos(x,z) * MaxPeakElev
-              )
+                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                    lerp(
+                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      0.0,
+                      0.0,
+                      0.5-MountainHeightGenThreshold,
+                      (mnt_and_ocean_valleys(x, z) )
+                    ),
+                  0)
+                )
+              ) * PeakElevAtPos(x,z) * MaxPeakElev
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -955,20 +944,20 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (MesaHeightModifier(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                  (prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1.0e-06
+              MesaFlattopTransitionRate: 0.01
               MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
@@ -1690,15 +1679,9 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+              if(base(x, z) < -threshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - lerp(
-                  MountainHeightModifier(x, z),
-                  continentalSubOceanLargeFeaturesAllowedThreshold,
-                  0,
-                  0.5,
-                  (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                ),
+                base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
@@ -1783,6 +1766,21 @@ samplers:
                     - x
                     expression: x^2
             samplers:
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.07
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -1880,37 +1878,26 @@ samplers:
                 expression: |
                   abs(
                     min(
-                      if(base(x,z) < -threshold(x,z),
+                      if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                         lerp(
-                          base(x, z) < -threshold(x,z),
+                          abs(base(x, z)) - threshold(x,z),
                           0.0,
                           0.0,
-                          base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                          abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                           (mnt_and_ocean_valleys(x, z) )
                         ),
                       0),
-                      max(
-                        if(base(x,z) > threshold(x,z),
-                          lerp(
-                            base(x, z) - threshold(x,z),
-                            0.0,
-                            0.0,
-                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0),
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                          lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                            0.0,
-                            0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0)
-                      )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
-                  )
+                      if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                        lerp(
+                          mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                          0.0,
+                          0.0,
+                          0.5-MountainHeightGenThreshold,
+                          (mnt_and_ocean_valleys(x, z) )
+                        ),
+                      0)
+                    )
+                  ) * PeakElevAtPos(x,z) * MaxPeakElev
                 variables:
                   MountainHeightGenThreshold: 0.07
                   MaxPeakElev: 4
@@ -2138,20 +2125,20 @@ samplers:
 
                     // If above the transition threshold and the wall transition delta, need to transition to flat top.
                     if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (MesaHeightModifier(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                      (prefiltered_mesa_elev(x,z)/2 +
+                        ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                       //Else return the transition down to floor height
                       if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                        (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                         0)
                     ),
                     0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 1.0e-06
+                  MesaFlattopTransitionRate: 0.01
                   MesaRegionActiveThresh: 0.1
                 samplers:
                   mesa_gen_region:
@@ -2719,15 +2706,9 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: |
-                  if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                  if(base(x, z) < -threshold(x,z),
                     // Below ocean cutoff: Add ocean noise with negative offset
-                    base(x, z) - lerp(
-                      MountainHeightModifier(x, z),
-                      continentalSubOceanLargeFeaturesAllowedThreshold,
-                      0,
-                      0.5,
-                      (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                    ),
+                    base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                     // Above feature offset: Create mesa/hills/mountains
                     if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                       base(x, z) + max(
@@ -2812,6 +2793,21 @@ samplers:
                         - x
                         expression: x^2
                 samplers:
+                  threshold:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                    variables:
+                      nominal_value: 0.07
+                      variance: 0.03
+                    samplers:
+                      applied_threshold_variance:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -2909,37 +2905,26 @@ samplers:
                     expression: |
                       abs(
                         min(
-                          if(base(x,z) < -threshold(x,z),
+                          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                             lerp(
-                              base(x, z) < -threshold(x,z),
+                              abs(base(x, z)) - threshold(x,z),
                               0.0,
                               0.0,
-                              base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                               (mnt_and_ocean_valleys(x, z) )
                             ),
                           0),
-                          max(
-                            if(base(x,z) > threshold(x,z),
-                              lerp(
-                                base(x, z) - threshold(x,z),
-                                0.0,
-                                0.0,
-                                base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                                (mnt_and_ocean_valleys(x, z) )
-                              ),
-                            0),
-                            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                              lerp(
-                                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                                0.0,
-                                0.0,
-                                0.5-MountainHeightGenThreshold,
-                                (mnt_and_ocean_valleys(x, z) )
-                              ),
-                            0)
-                          )
-                        ) * PeakElevAtPos(x,z) * MaxPeakElev
-                      )
+                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                            lerp(
+                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                              0.0,
+                              0.0,
+                              0.5-MountainHeightGenThreshold,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0)
+                        )
+                      ) * PeakElevAtPos(x,z) * MaxPeakElev
                     variables:
                       MountainHeightGenThreshold: 0.07
                       MaxPeakElev: 4
@@ -3167,20 +3152,20 @@ samplers:
 
                         // If above the transition threshold and the wall transition delta, need to transition to flat top.
                         if(MesaUpwardDistFromTransPnt(x,z)>0,
-                          (MesaHeightModifier(x,z)/2 +
-                            ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                          (prefiltered_mesa_elev(x,z)/2 +
+                            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                           //Else return the transition down to floor height
                           if(MesaDownwardDistFromTransPnt(x,z)>0,
-                            (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                             0)
                         ),
                         0)
                     variables:
                       MesaFlattopTransitionDelta: 0.01
-                      MesaFlattopTransitionRate: 1.0e-06
+                      MesaFlattopTransitionRate: 0.01
                       MesaRegionActiveThresh: 0.1
                     samplers:
                       mesa_gen_region:
@@ -5707,37 +5692,26 @@ samplers:
     expression: |
       abs(
         min(
-          if(base(x,z) < -threshold(x,z),
+          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
             lerp(
-              base(x, z) < -threshold(x,z),
+              abs(base(x, z)) - threshold(x,z),
               0.0,
               0.0,
-              base(x, z) + threshold(x,z) - MountianTransitionHeight,
+              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
               (mnt_and_ocean_valleys(x, z) )
             ),
           0),
-          max(
-            if(base(x,z) > threshold(x,z),
-              lerp(
-                base(x, z) - threshold(x,z),
-                0.0,
-                0.0,
-                base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0),
-            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-              lerp(
-                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                0.0,
-                0.0,
-                0.5-MountainHeightGenThreshold,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0)
-          )
-        ) * PeakElevAtPos(x,z) * MaxPeakElev
-      )
+          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+            lerp(
+              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              0.0,
+              0.0,
+              0.5-MountainHeightGenThreshold,
+              (mnt_and_ocean_valleys(x, z) )
+            ),
+          0)
+        )
+      ) * PeakElevAtPos(x,z) * MaxPeakElev
     variables:
       MountainHeightGenThreshold: 0.07
       MaxPeakElev: 4
@@ -6353,20 +6327,20 @@ samplers:
 
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
         if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (MesaHeightModifier(x,z)/2 +
-            ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+          (prefiltered_mesa_elev(x,z)/2 +
+            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
           //Else return the transition down to floor height
           if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
             0)
         ),
         0)
     variables:
       MesaFlattopTransitionDelta: 0.01
-      MesaFlattopTransitionRate: 1.0e-06
+      MesaFlattopTransitionRate: 0.01
       MesaRegionActiveThresh: 0.1
     samplers:
       mesa_gen_region:
@@ -6858,15 +6832,9 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+      if(base(x, z) < -threshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - lerp(
-          MountainHeightModifier(x, z),
-          continentalSubOceanLargeFeaturesAllowedThreshold,
-          0,
-          0.5,
-          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-        ),
+        base(x, z) - RegionFilteredMountainHeightModifier(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
@@ -6951,6 +6919,21 @@ samplers:
             - x
             expression: x^2
     samplers:
+      threshold:
+        dimensions: 2
+        type: EXPRESSION
+        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+        variables:
+          nominal_value: 0.07
+          variance: 0.03
+        samplers:
+          applied_threshold_variance:
+            dimensions: 2
+            type: PROBABILITY
+            sampler:
+              type: OPEN_SIMPLEX_2
+              salt: 697.0
+              frequency: 0.0003333333333
       base:
         dimensions: 2
         type: EXPRESSION
@@ -7048,37 +7031,26 @@ samplers:
         expression: |
           abs(
             min(
-              if(base(x,z) < -threshold(x,z),
+              if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                 lerp(
-                  base(x, z) < -threshold(x,z),
+                  abs(base(x, z)) - threshold(x,z),
                   0.0,
                   0.0,
-                  base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                  abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                   (mnt_and_ocean_valleys(x, z) )
                 ),
               0),
-              max(
-                if(base(x,z) > threshold(x,z),
-                  lerp(
-                    base(x, z) - threshold(x,z),
-                    0.0,
-                    0.0,
-                    base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                    (mnt_and_ocean_valleys(x, z) )
-                  ),
-                0),
-                if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                  lerp(
-                    mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                    0.0,
-                    0.0,
-                    0.5-MountainHeightGenThreshold,
-                    (mnt_and_ocean_valleys(x, z) )
-                  ),
-                0)
-              )
-            ) * PeakElevAtPos(x,z) * MaxPeakElev
-          )
+              if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                lerp(
+                  mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                  0.0,
+                  0.0,
+                  0.5-MountainHeightGenThreshold,
+                  (mnt_and_ocean_valleys(x, z) )
+                ),
+              0)
+            )
+          ) * PeakElevAtPos(x,z) * MaxPeakElev
         variables:
           MountainHeightGenThreshold: 0.07
           MaxPeakElev: 4
@@ -7306,20 +7278,20 @@ samplers:
 
             // If above the transition threshold and the wall transition delta, need to transition to flat top.
             if(MesaUpwardDistFromTransPnt(x,z)>0,
-              (MesaHeightModifier(x,z)/2 +
-                ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+              (prefiltered_mesa_elev(x,z)/2 +
+                ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                 (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
               //Else return the transition down to floor height
               if(MesaDownwardDistFromTransPnt(x,z)>0,
-                (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                 (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                 0)
             ),
             0)
         variables:
           MesaFlattopTransitionDelta: 0.01
-          MesaFlattopTransitionRate: 1.0e-06
+          MesaFlattopTransitionRate: 0.01
           MesaRegionActiveThresh: 0.1
         samplers:
           mesa_gen_region:
@@ -7887,15 +7859,9 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+          if(base(x, z) < -threshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - lerp(
-              MountainHeightModifier(x, z),
-              continentalSubOceanLargeFeaturesAllowedThreshold,
-              0,
-              0.5,
-              (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-            ),
+            base(x, z) - RegionFilteredMountainHeightModifier(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
@@ -7980,6 +7946,21 @@ samplers:
                 - x
                 expression: x^2
         samplers:
+          threshold:
+            dimensions: 2
+            type: EXPRESSION
+            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+            variables:
+              nominal_value: 0.07
+              variance: 0.03
+            samplers:
+              applied_threshold_variance:
+                dimensions: 2
+                type: PROBABILITY
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  salt: 697.0
+                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -8077,37 +8058,26 @@ samplers:
             expression: |
               abs(
                 min(
-                  if(base(x,z) < -threshold(x,z),
+                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                     lerp(
-                      base(x, z) < -threshold(x,z),
+                      abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
                   0),
-                  max(
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  )
-                ) * PeakElevAtPos(x,z) * MaxPeakElev
-              )
+                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                    lerp(
+                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      0.0,
+                      0.0,
+                      0.5-MountainHeightGenThreshold,
+                      (mnt_and_ocean_valleys(x, z) )
+                    ),
+                  0)
+                )
+              ) * PeakElevAtPos(x,z) * MaxPeakElev
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -8335,20 +8305,20 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (MesaHeightModifier(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                  (prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1.0e-06
+              MesaFlattopTransitionRate: 0.01
               MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
@@ -9548,15 +9518,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                if(base(x, z) < -threshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - lerp(
-                    MountainHeightModifier(x, z),
-                    continentalSubOceanLargeFeaturesAllowedThreshold,
-                    0,
-                    0.5,
-                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                  ),
+                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -9641,6 +9605,21 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                threshold:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                  variables:
+                    nominal_value: 0.07
+                    variance: 0.03
+                  samplers:
+                    applied_threshold_variance:
+                      dimensions: 2
+                      type: PROBABILITY
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        salt: 697.0
+                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -9738,37 +9717,26 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        if(base(x,z) < -threshold(x,z),
+                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                           lerp(
-                            base(x, z) < -threshold(x,z),
+                            abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
                         0),
-                        max(
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        )
-                      ) * PeakElevAtPos(x,z) * MaxPeakElev
-                    )
+                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                          lerp(
+                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            0.0,
+                            0.0,
+                            0.5-MountainHeightGenThreshold,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0)
+                      )
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -9996,20 +9964,20 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (MesaHeightModifier(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                        (prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1.0e-06
+                    MesaFlattopTransitionRate: 0.01
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -11458,15 +11426,9 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+          if(base(x, z) < -threshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - lerp(
-              MountainHeightModifier(x, z),
-              continentalSubOceanLargeFeaturesAllowedThreshold,
-              0,
-              0.5,
-              (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-            ),
+            base(x, z) - RegionFilteredMountainHeightModifier(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
@@ -11551,6 +11513,21 @@ samplers:
                 - x
                 expression: x^2
         samplers:
+          threshold:
+            dimensions: 2
+            type: EXPRESSION
+            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+            variables:
+              nominal_value: 0.07
+              variance: 0.03
+            samplers:
+              applied_threshold_variance:
+                dimensions: 2
+                type: PROBABILITY
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  salt: 697.0
+                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -11648,37 +11625,26 @@ samplers:
             expression: |
               abs(
                 min(
-                  if(base(x,z) < -threshold(x,z),
+                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                     lerp(
-                      base(x, z) < -threshold(x,z),
+                      abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
                   0),
-                  max(
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  )
-                ) * PeakElevAtPos(x,z) * MaxPeakElev
-              )
+                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                    lerp(
+                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      0.0,
+                      0.0,
+                      0.5-MountainHeightGenThreshold,
+                      (mnt_and_ocean_valleys(x, z) )
+                    ),
+                  0)
+                )
+              ) * PeakElevAtPos(x,z) * MaxPeakElev
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -11906,20 +11872,20 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (MesaHeightModifier(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                  (prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1.0e-06
+              MesaFlattopTransitionRate: 0.01
               MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
@@ -13995,15 +13961,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                if(base(x, z) < -threshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - lerp(
-                    MountainHeightModifier(x, z),
-                    continentalSubOceanLargeFeaturesAllowedThreshold,
-                    0,
-                    0.5,
-                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                  ),
+                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -14088,6 +14048,21 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                threshold:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                  variables:
+                    nominal_value: 0.07
+                    variance: 0.03
+                  samplers:
+                    applied_threshold_variance:
+                      dimensions: 2
+                      type: PROBABILITY
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        salt: 697.0
+                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -14185,37 +14160,26 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        if(base(x,z) < -threshold(x,z),
+                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                           lerp(
-                            base(x, z) < -threshold(x,z),
+                            abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
                         0),
-                        max(
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        )
-                      ) * PeakElevAtPos(x,z) * MaxPeakElev
-                    )
+                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                          lerp(
+                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            0.0,
+                            0.0,
+                            0.5-MountainHeightGenThreshold,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0)
+                      )
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -14443,20 +14407,20 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (MesaHeightModifier(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                        (prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1.0e-06
+                    MesaFlattopTransitionRate: 0.01
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -15793,15 +15757,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                if(base(x, z) < -threshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - lerp(
-                    MountainHeightModifier(x, z),
-                    continentalSubOceanLargeFeaturesAllowedThreshold,
-                    0,
-                    0.5,
-                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                  ),
+                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -15886,6 +15844,21 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                threshold:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                  variables:
+                    nominal_value: 0.07
+                    variance: 0.03
+                  samplers:
+                    applied_threshold_variance:
+                      dimensions: 2
+                      type: PROBABILITY
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        salt: 697.0
+                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -15983,37 +15956,26 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        if(base(x,z) < -threshold(x,z),
+                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                           lerp(
-                            base(x, z) < -threshold(x,z),
+                            abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
                         0),
-                        max(
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        )
-                      ) * PeakElevAtPos(x,z) * MaxPeakElev
-                    )
+                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                          lerp(
+                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            0.0,
+                            0.0,
+                            0.5-MountainHeightGenThreshold,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0)
+                      )
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -16241,20 +16203,20 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (MesaHeightModifier(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                        (prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1.0e-06
+                    MesaFlattopTransitionRate: 0.01
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -17944,15 +17906,9 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+              if(base(x, z) < -threshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - lerp(
-                  MountainHeightModifier(x, z),
-                  continentalSubOceanLargeFeaturesAllowedThreshold,
-                  0,
-                  0.5,
-                  (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-                ),
+                base(x, z) - RegionFilteredMountainHeightModifier(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
@@ -18037,6 +17993,21 @@ samplers:
                     - x
                     expression: x^2
             samplers:
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.07
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -18134,37 +18105,26 @@ samplers:
                 expression: |
                   abs(
                     min(
-                      if(base(x,z) < -threshold(x,z),
+                      if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
                         lerp(
-                          base(x, z) < -threshold(x,z),
+                          abs(base(x, z)) - threshold(x,z),
                           0.0,
                           0.0,
-                          base(x, z) + threshold(x,z) - MountianTransitionHeight,
+                          abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
                           (mnt_and_ocean_valleys(x, z) )
                         ),
                       0),
-                      max(
-                        if(base(x,z) > threshold(x,z),
-                          lerp(
-                            base(x, z) - threshold(x,z),
-                            0.0,
-                            0.0,
-                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0),
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                          lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                            0.0,
-                            0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0)
-                      )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
-                  )
+                      if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                        lerp(
+                          mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                          0.0,
+                          0.0,
+                          0.5-MountainHeightGenThreshold,
+                          (mnt_and_ocean_valleys(x, z) )
+                        ),
+                      0)
+                    )
+                  ) * PeakElevAtPos(x,z) * MaxPeakElev
                 variables:
                   MountainHeightGenThreshold: 0.07
                   MaxPeakElev: 4
@@ -18392,20 +18352,20 @@ samplers:
 
                     // If above the transition threshold and the wall transition delta, need to transition to flat top.
                     if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (MesaHeightModifier(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                      (prefiltered_mesa_elev(x,z)/2 +
+                        ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                       //Else return the transition down to floor height
                       if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+                        (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                         0)
                     ),
                     0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 1.0e-06
+                  MesaFlattopTransitionRate: 0.01
                   MesaRegionActiveThresh: 0.1
                 samplers:
                   mesa_gen_region:

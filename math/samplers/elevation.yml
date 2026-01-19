@@ -147,18 +147,23 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      lerp(
-        MesaHeightModifier(x, z),
-        MountainHeightGenThreshold,
-        0,
-        0.5,
-        (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-      )
+      if(abs(mesa_gen_region(x,z)) > threshold(x,z),
+        lerp(
+          MesaHeightModifier(x, z),
+          threshold(x,z),
+          0.0,
+          0.5,
+          (MesaHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+        ),
+      0)
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
+      mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier
+      threshold: *continental-large-features-allowed-threshold-with-variance
     functions: $math/functions/interpolation.yml:functions
 
   # Hill height modifier components

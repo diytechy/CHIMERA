@@ -9,13 +9,23 @@ expression: round(continents(x,z)) #4 - 7 s
 #expression: cell_test(x,z)
 #expression: precipitation(x,z) #8 s
 #expression: round(temperature(x,z)*elevation(x,z)) 68 s
-#expression: test(x,z)
+#expression: ceil(bah(x,z)*2)
 expression: ZExp(x,y,z)
 
 
 
 
 samplers:
+  bah:
+    dimensions: 2
+    type: FBM
+    octaves: 2
+    lacunarity: 2.0
+    gain: 0.4
+    sampler:
+      type: PERLIN
+      frequency: 0.0005
+      salt: 200  
   test:
     dimensions: 2
     type: PROBABILITY
@@ -32,14 +42,14 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (MountainHeightModifier(x,z))*100
+        expression: (PeakHeightMultiplierAtPosition(x,z))*100
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
         # MesaHeightModifier - Region filtered mesa region.
         # RegionFilteredMesaHeightModifier - Actual applied mesa height when in region.
         # MesaHeightModifier
-        # 
+        # PeakHeightMultiplierAtPosition
         # HillHeightModifier:
         # RegionFilteredHillHeightModifier:
         # MesaHeightModifier
@@ -82,6 +92,20 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          PeakHeightMultiplierAtPosition:
+            dimensions: 2
+            type: EXPRESSION
+            expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+            variables:
+              VarianceRatio: 0.6
+            samplers:
+              max_elev_prob:
+                dimensions: 2
+                type: PROBABILITY
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  salt: 697.0
+                  frequency: 0.001
           HillHeightModifier:
             dimensions: 2
             type: FBM
@@ -2307,7 +2331,7 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           salt: 697.0
-          frequency: 0.003333333333
+          frequency: 0.001
   PeakHeightMultiplierAtPosition:
     dimensions: 2
     type: EXPRESSION
@@ -2321,7 +2345,7 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           salt: 697.0
-          frequency: 0.003333333333
+          frequency: 0.001
   continental_landmass:
     dimensions: 2
     type: EXPRESSION
@@ -3485,7 +3509,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.003333333333
+              frequency: 0.001
       mountain_gen_region:
         dimensions: 2
         type: EXPRESSION
@@ -3563,7 +3587,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.003333333333
+              frequency: 0.001
     functions:
       lerp:
         arguments:
@@ -3717,7 +3741,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.003333333333
+              frequency: 0.001
   RegionFilteredMesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
@@ -3725,13 +3749,13 @@ samplers:
       \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
       \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
       \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n   \
-      \ (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n    \n    //Else\
+      \ (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n    \n    //Else\
       \ return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
       \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
       0)\n"
     variables:
       MesaFlattopTransitionDelta: 0.01
-      MesaFlattopTransitionRate: 0.01
+      MesaFlattopTransitionRate: 1.0e-06
       MesaRegionActiveThresh: 0.1
     samplers:
       mesa_gen_region:
@@ -3836,7 +3860,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
     functions:
       lerp:
         arguments:
@@ -3945,7 +3969,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.003333333333
+              frequency: 0.001
       HillHeightModifier:
         dimensions: 2
         type: FBM
@@ -4199,7 +4223,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.003333333333
+              frequency: 0.001
       RegionFilteredMountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
@@ -4230,7 +4254,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
           mountain_gen_region:
             dimensions: 2
             type: EXPRESSION
@@ -4308,7 +4332,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
         functions:
           lerp:
             arguments:
@@ -4386,13 +4410,13 @@ samplers:
           \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
           \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
           \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-          \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n    \n\
-          \    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+          \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n   \
+          \ \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
           \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
           0)\n"
         variables:
           MesaFlattopTransitionDelta: 0.01
-          MesaFlattopTransitionRate: 0.01
+          MesaFlattopTransitionRate: 1.0e-06
           MesaRegionActiveThresh: 0.1
         samplers:
           mesa_gen_region:
@@ -4498,7 +4522,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
         functions:
           lerp:
             arguments:
@@ -4597,7 +4621,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
           HillHeightModifier:
             dimensions: 2
             type: FBM
@@ -4937,7 +4961,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -4968,7 +4992,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
               mountain_gen_region:
                 dimensions: 2
                 type: EXPRESSION
@@ -5046,7 +5070,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
             functions:
               lerp:
                 arguments:
@@ -5124,13 +5148,13 @@ samplers:
               \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
               \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
               \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n \
-              \   \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
+              \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
               \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
               \    ),\n0)\n"
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 0.01
+              MesaFlattopTransitionRate: 1.0e-06
               MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
@@ -5236,7 +5260,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.003333333333
+                          frequency: 0.001
             functions:
               lerp:
                 arguments:
@@ -5335,7 +5359,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
               HillHeightModifier:
                 dimensions: 2
                 type: FBM
@@ -6307,7 +6331,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.003333333333
+                        frequency: 0.001
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -6338,7 +6362,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -6416,7 +6440,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -6494,13 +6518,13 @@ samplers:
                     \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
                     \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
                     \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
                     \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
                     \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
                     \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
+                    MesaFlattopTransitionRate: 1.0e-06
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -6606,7 +6630,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.003333333333
+                                frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -6705,7 +6729,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -7926,7 +7950,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.003333333333
+                  frequency: 0.001
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -7957,7 +7981,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
               mountain_gen_region:
                 dimensions: 2
                 type: EXPRESSION
@@ -8035,7 +8059,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
             functions:
               lerp:
                 arguments:
@@ -8113,13 +8137,13 @@ samplers:
               \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
               \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
               \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n \
-              \   \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
+              \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
               \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
               \    ),\n0)\n"
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 0.01
+              MesaFlattopTransitionRate: 1.0e-06
               MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
@@ -8225,7 +8249,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.003333333333
+                          frequency: 0.001
             functions:
               lerp:
                 arguments:
@@ -8324,7 +8348,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
               HillHeightModifier:
                 dimensions: 2
                 type: FBM
@@ -10172,7 +10196,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.003333333333
+                        frequency: 0.001
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -10203,7 +10227,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -10281,7 +10305,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -10359,13 +10383,13 @@ samplers:
                     \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
                     \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
                     \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
                     \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
                     \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
                     \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
+                    MesaFlattopTransitionRate: 1.0e-06
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -10471,7 +10495,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.003333333333
+                                frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -10570,7 +10594,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -11679,7 +11703,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.003333333333
+                        frequency: 0.001
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -11710,7 +11734,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -11788,7 +11812,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -11866,13 +11890,13 @@ samplers:
                     \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
                     \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
                     \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
                     \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
                     \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
                     \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
+                    MesaFlattopTransitionRate: 1.0e-06
                     MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
@@ -11978,7 +12002,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.003333333333
+                                frequency: 0.001
                   functions:
                     lerp:
                       arguments:
@@ -12077,7 +12101,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.003333333333
+                            frequency: 0.001
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -13539,7 +13563,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.003333333333
+                      frequency: 0.001
               RegionFilteredMountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -13570,7 +13594,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.003333333333
+                          frequency: 0.001
                   mountain_gen_region:
                     dimensions: 2
                     type: EXPRESSION
@@ -13648,7 +13672,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.003333333333
+                          frequency: 0.001
                 functions:
                   lerp:
                     arguments:
@@ -13726,13 +13750,13 @@ samplers:
                   \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
                   \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
                   \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                  \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                  \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),\n\
                   \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
                   \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
                   \    ),\n0)\n"
                 variables:
                   MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 0.01
+                  MesaFlattopTransitionRate: 1.0e-06
                   MesaRegionActiveThresh: 0.1
                 samplers:
                   mesa_gen_region:
@@ -13838,7 +13862,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.003333333333
+                              frequency: 0.001
                 functions:
                   lerp:
                     arguments:
@@ -13937,7 +13961,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.003333333333
+                          frequency: 0.001
                   HillHeightModifier:
                     dimensions: 2
                     type: FBM

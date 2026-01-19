@@ -120,7 +120,7 @@ samplers:
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
+    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps) - base(x,z)
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -128,7 +128,7 @@ samplers:
       base: *base
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
-      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
+      PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
@@ -142,7 +142,7 @@ samplers:
         if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),
           (MesaHeightModifier(x,z)/2 + 
           (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),
+          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),
           
           //Else return the transition up the wall of the mesa
           (MesaHeightModifier(x,z)/2 -

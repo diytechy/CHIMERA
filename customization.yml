@@ -98,7 +98,7 @@ continental-large-features-height-flux-dist: 1000
 
 #Affects the variance of what elevation mountians / mesas start to protrude at:
 
-continental-large-features-threshold-variance-distance: 300
+continental-large-features-threshold-variance-distance: 1000
 
 #Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mountain-region-allowed-distance: 2000
@@ -108,7 +108,7 @@ continental-mountain-region-allowed-threshold: .07
 continental-mesa-region-allowed-distance: 2000
 continental-mesa-region-allowed-threshold: .1
 continental-mesa-flattop-trans-delta: 0.01 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
-continental-mesa-flattop-trans-rate: 0.01 #how quickly do mesa walls go vertical, ratiometric before map is scaled.
+continental-mesa-flattop-trans-rate: 0.000001 #how quickly do mesa walls go vertical, ratiometric before map is scaled.
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
 

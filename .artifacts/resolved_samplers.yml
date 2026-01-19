@@ -9,13 +9,20 @@ expression: round(continents(x,z)) #4 - 7 s
 #expression: cell_test(x,z)
 #expression: precipitation(x,z) #8 s
 #expression: round(temperature(x,z)*elevation(x,z)) 68 s
-#expression: cell_test2(x,z)
-expression: ZExp(x,y,z)
+expression: test(x,z)
+#expression: ZExp(x,y,z)
 
 
 
 
 samplers:
+  test:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      type: OPEN_SIMPLEX_2
+      salt: 694.0
+      frequency: 0.0006666666667
   ZExp:  #expression: ZExp(x,y,z)
     dimensions: 3
     type: EXPRESSION
@@ -25,7 +32,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (continents(x,z))*100
+        expression: (MountainHeightModifier(x,z))*100
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -3024,6 +3031,21 @@ samplers:
                       type: OPEN_SIMPLEX_2
                       salt: 1.0
                       frequency: 0.0002
+  continental-large-features-allowed-threshold-with-variance:
+    dimensions: 2
+    type: EXPRESSION
+    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+    variables:
+      nominal_value: 0.15
+      variance: 0.05
+    samplers:
+      applied_threshold_variance:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: 0.003333333333
   rawFlatness:
     dimensions: 2
     type: EXPRESSION
@@ -3189,9 +3211,6 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-    variables:
-      MountainHeightGenThreshold: 0.2
-      MaxPeakElev: 4
     samplers:
       mountain_gen_region:
         dimensions: 2
@@ -3226,24 +3245,52 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      lerp(
-        MountainHeightModifier(x, z),
-        MountainHeightGenThreshold,
-        0,
-        0.5,
-        (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-      )
+      if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+        lerp(
+          MountainHeightModifier(x, z),
+          threshold(x,z),
+          0.0,
+          0.5,
+          (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+        ),
+      0)
     variables:
       MountainHeightGenThreshold: 0.2
       MaxPeakElev: 4
     samplers:
+      mountain_gen_region:
+        dimensions: 2
+        type: EXPRESSION
+        expression: sampler(x - 3000, z - 3000)
+        variables:
+          globalScale: 1
+          scale: 2
+          offset: 0.1
+        samplers:
+          sampler:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.4
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+              salt: 100.0
+      prefiltered_mountain_elev:
+        dimensions: 2
+        type: FBM
+        octaves: 4
+        lacunarity: 2.0
+        gain: 0.5
+        sampler:
+          type: PERLIN
+          frequency: 0.0006666666667
+          salt: 500.0
       MountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
         expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-        variables:
-          MountainHeightGenThreshold: 0.2
-          MaxPeakElev: 4
         samplers:
           mountain_gen_region:
             dimensions: 2
@@ -3274,6 +3321,21 @@ samplers:
               type: PERLIN
               frequency: 0.0006666666667
               salt: 500.0
+      threshold:
+        dimensions: 2
+        type: EXPRESSION
+        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+        variables:
+          nominal_value: 0.15
+          variance: 0.05
+        samplers:
+          applied_threshold_variance:
+            dimensions: 2
+            type: PROBABILITY
+            sampler:
+              type: OPEN_SIMPLEX_2
+              salt: 697.0
+              frequency: 0.003333333333
     functions:
       lerp:
         arguments:
@@ -3357,12 +3419,12 @@ samplers:
   MesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+    expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
     variables:
       MountainHeightGenThreshold: 0.2
       MaxPeakElev: 4
     samplers:
-      mesa_gen_region:
+      MesaGenRegion:
         dimensions: 2
         type: EXPRESSION
         expression: sampler(x - 6000, z - 6000)
@@ -3409,12 +3471,12 @@ samplers:
       MesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+        expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
         variables:
           MountainHeightGenThreshold: 0.2
           MaxPeakElev: 4
         samplers:
-          mesa_gen_region:
+          MesaGenRegion:
             dimensions: 2
             type: EXPRESSION
             expression: sampler(x - 6000, z - 6000)
@@ -3742,9 +3804,6 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-        variables:
-          MountainHeightGenThreshold: 0.2
-          MaxPeakElev: 4
         samplers:
           mountain_gen_region:
             dimensions: 2
@@ -3784,24 +3843,52 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          lerp(
-            MountainHeightModifier(x, z),
-            MountainHeightGenThreshold,
-            0,
-            0.5,
-            (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-          )
+          if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+            lerp(
+              MountainHeightModifier(x, z),
+              threshold(x,z),
+              0.0,
+              0.5,
+              (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+            ),
+          0)
         variables:
           MountainHeightGenThreshold: 0.2
           MaxPeakElev: 4
         samplers:
+          mountain_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 3000, z - 3000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 100.0
+          prefiltered_mountain_elev:
+            dimensions: 2
+            type: FBM
+            octaves: 4
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 500.0
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
             expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-            variables:
-              MountainHeightGenThreshold: 0.2
-              MaxPeakElev: 4
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -3832,6 +3919,21 @@ samplers:
                   type: PERLIN
                   frequency: 0.0006666666667
                   salt: 500.0
+          threshold:
+            dimensions: 2
+            type: EXPRESSION
+            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+            variables:
+              nominal_value: 0.15
+              variance: 0.05
+            samplers:
+              applied_threshold_variance:
+                dimensions: 2
+                type: PROBABILITY
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  salt: 697.0
+                  frequency: 0.003333333333
         functions:
           lerp:
             arguments:
@@ -3920,12 +4022,12 @@ samplers:
           MesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+            expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
             variables:
               MountainHeightGenThreshold: 0.2
               MaxPeakElev: 4
             samplers:
-              mesa_gen_region:
+              MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
                 expression: sampler(x - 6000, z - 6000)
@@ -4329,9 +4431,6 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-            variables:
-              MountainHeightGenThreshold: 0.2
-              MaxPeakElev: 4
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -4371,24 +4470,52 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              lerp(
-                MountainHeightModifier(x, z),
-                MountainHeightGenThreshold,
-                0,
-                0.5,
-                (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-              )
+              if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                lerp(
+                  MountainHeightModifier(x, z),
+                  threshold(x,z),
+                  0.0,
+                  0.5,
+                  (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                ),
+              0)
             variables:
               MountainHeightGenThreshold: 0.2
               MaxPeakElev: 4
             samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
                 expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                variables:
-                  MountainHeightGenThreshold: 0.2
-                  MaxPeakElev: 4
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -4419,6 +4546,21 @@ samplers:
                       type: PERLIN
                       frequency: 0.0006666666667
                       salt: 500.0
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.15
+                  variance: 0.05
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.003333333333
             functions:
               lerp:
                 arguments:
@@ -4507,12 +4649,12 @@ samplers:
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                 variables:
                   MountainHeightGenThreshold: 0.2
                   MaxPeakElev: 4
                 samplers:
-                  mesa_gen_region:
+                  MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
                     expression: sampler(x - 6000, z - 6000)
@@ -5548,9 +5690,6 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                  variables:
-                    MountainHeightGenThreshold: 0.2
-                    MaxPeakElev: 4
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -5590,24 +5729,52 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: |
-                    lerp(
-                      MountainHeightModifier(x, z),
-                      MountainHeightGenThreshold,
-                      0,
-                      0.5,
-                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-                    )
+                    if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                      lerp(
+                        MountainHeightModifier(x, z),
+                        threshold(x,z),
+                        0.0,
+                        0.5,
+                        (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                      ),
+                    0)
                   variables:
                     MountainHeightGenThreshold: 0.2
                     MaxPeakElev: 4
                   samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                      variables:
-                        MountainHeightGenThreshold: 0.2
-                        MaxPeakElev: 4
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -5638,6 +5805,21 @@ samplers:
                             type: PERLIN
                             frequency: 0.0006666666667
                             salt: 500.0
+                    threshold:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                      variables:
+                        nominal_value: 0.15
+                        variance: 0.05
+                      samplers:
+                        applied_threshold_variance:
+                          dimensions: 2
+                          type: PROBABILITY
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            salt: 697.0
+                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -5726,12 +5908,12 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                       variables:
                         MountainHeightGenThreshold: 0.2
                         MaxPeakElev: 4
                       samplers:
-                        mesa_gen_region:
+                        MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
                           expression: sampler(x - 6000, z - 6000)
@@ -7016,9 +7198,6 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-            variables:
-              MountainHeightGenThreshold: 0.2
-              MaxPeakElev: 4
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -7058,24 +7237,52 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              lerp(
-                MountainHeightModifier(x, z),
-                MountainHeightGenThreshold,
-                0,
-                0.5,
-                (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-              )
+              if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                lerp(
+                  MountainHeightModifier(x, z),
+                  threshold(x,z),
+                  0.0,
+                  0.5,
+                  (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                ),
+              0)
             variables:
               MountainHeightGenThreshold: 0.2
               MaxPeakElev: 4
             samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
                 expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                variables:
-                  MountainHeightGenThreshold: 0.2
-                  MaxPeakElev: 4
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -7106,6 +7313,21 @@ samplers:
                       type: PERLIN
                       frequency: 0.0006666666667
                       salt: 500.0
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.15
+                  variance: 0.05
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.003333333333
             functions:
               lerp:
                 arguments:
@@ -7194,12 +7416,12 @@ samplers:
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                 variables:
                   MountainHeightGenThreshold: 0.2
                   MaxPeakElev: 4
                 samplers:
-                  mesa_gen_region:
+                  MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
                     expression: sampler(x - 6000, z - 6000)
@@ -9111,9 +9333,6 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                  variables:
-                    MountainHeightGenThreshold: 0.2
-                    MaxPeakElev: 4
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -9153,24 +9372,52 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: |
-                    lerp(
-                      MountainHeightModifier(x, z),
-                      MountainHeightGenThreshold,
-                      0,
-                      0.5,
-                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-                    )
+                    if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                      lerp(
+                        MountainHeightModifier(x, z),
+                        threshold(x,z),
+                        0.0,
+                        0.5,
+                        (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                      ),
+                    0)
                   variables:
                     MountainHeightGenThreshold: 0.2
                     MaxPeakElev: 4
                   samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                      variables:
-                        MountainHeightGenThreshold: 0.2
-                        MaxPeakElev: 4
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -9201,6 +9448,21 @@ samplers:
                             type: PERLIN
                             frequency: 0.0006666666667
                             salt: 500.0
+                    threshold:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                      variables:
+                        nominal_value: 0.15
+                        variance: 0.05
+                      samplers:
+                        applied_threshold_variance:
+                          dimensions: 2
+                          type: PROBABILITY
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            salt: 697.0
+                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -9289,12 +9551,12 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                       variables:
                         MountainHeightGenThreshold: 0.2
                         MaxPeakElev: 4
                       samplers:
-                        mesa_gen_region:
+                        MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
                           expression: sampler(x - 6000, z - 6000)
@@ -10467,9 +10729,6 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                  variables:
-                    MountainHeightGenThreshold: 0.2
-                    MaxPeakElev: 4
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -10509,24 +10768,52 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: |
-                    lerp(
-                      MountainHeightModifier(x, z),
-                      MountainHeightGenThreshold,
-                      0,
-                      0.5,
-                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-                    )
+                    if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                      lerp(
+                        MountainHeightModifier(x, z),
+                        threshold(x,z),
+                        0.0,
+                        0.5,
+                        (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                      ),
+                    0)
                   variables:
                     MountainHeightGenThreshold: 0.2
                     MaxPeakElev: 4
                   samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                      variables:
-                        MountainHeightGenThreshold: 0.2
-                        MaxPeakElev: 4
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -10557,6 +10844,21 @@ samplers:
                             type: PERLIN
                             frequency: 0.0006666666667
                             salt: 500.0
+                    threshold:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                      variables:
+                        nominal_value: 0.15
+                        variance: 0.05
+                      samplers:
+                        applied_threshold_variance:
+                          dimensions: 2
+                          type: PROBABILITY
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            salt: 697.0
+                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -10645,12 +10947,12 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                       variables:
                         MountainHeightGenThreshold: 0.2
                         MaxPeakElev: 4
                       samplers:
-                        mesa_gen_region:
+                        MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
                           expression: sampler(x - 6000, z - 6000)
@@ -12176,9 +12478,6 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                variables:
-                  MountainHeightGenThreshold: 0.2
-                  MaxPeakElev: 4
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -12218,24 +12517,52 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: |
-                  lerp(
-                    MountainHeightModifier(x, z),
-                    MountainHeightGenThreshold,
-                    0,
-                    0.5,
-                    (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-                  )
+                  if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+                    lerp(
+                      MountainHeightModifier(x, z),
+                      threshold(x,z),
+                      0.0,
+                      0.5,
+                      (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+                    ),
+                  0)
                 variables:
                   MountainHeightGenThreshold: 0.2
                   MaxPeakElev: 4
                 samplers:
+                  mountain_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 3000, z - 3000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
+                  prefiltered_mountain_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 4
+                    lacunarity: 2.0
+                    gain: 0.5
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 500.0
                   MountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
                     expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-                    variables:
-                      MountainHeightGenThreshold: 0.2
-                      MaxPeakElev: 4
                     samplers:
                       mountain_gen_region:
                         dimensions: 2
@@ -12266,6 +12593,21 @@ samplers:
                           type: PERLIN
                           frequency: 0.0006666666667
                           salt: 500.0
+                  threshold:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                    variables:
+                      nominal_value: 0.15
+                      variance: 0.05
+                    samplers:
+                      applied_threshold_variance:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.003333333333
                 functions:
                   lerp:
                     arguments:
@@ -12354,12 +12696,12 @@ samplers:
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                    expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
                     variables:
                       MountainHeightGenThreshold: 0.2
                       MaxPeakElev: 4
                     samplers:
-                      mesa_gen_region:
+                      MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
                         expression: sampler(x - 6000, z - 6000)

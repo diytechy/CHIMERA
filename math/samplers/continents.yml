@@ -27,7 +27,7 @@ samplers:
     octaves: 3
     lacunarity: 1.6
     sampler: *continental_landmass
-  mountain_gen_region: &mountain_gen_field
+  mountain_gen_region: &mountain_gen_region
     dimensions: 2
     type: EXPRESSION
     expression: sampler(x - 3000, z - 3000)
@@ -46,7 +46,7 @@ samplers:
           type: PERLIN
           frequency: (1 / ${customization.yml:continental-mountain-region-allowed-distance})
           salt: 100
-  mesa_gen_region: &mesa_gen_field
+  mesa_gen_region: &mesa_gen_region
     dimensions: 2
     type: EXPRESSION
     expression: sampler(x - 6000, z - 6000)

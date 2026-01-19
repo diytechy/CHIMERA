@@ -10,6 +10,23 @@ variables: &variables
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
 
 samplers:
+  #Determines the variance
+  continental-large-features-allowed-threshold-with-variance: &continental-large-features-allowed-threshold-with-variance
+    dimensions: 2
+    type: EXPRESSION
+    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+    variables:
+      nominal_value: $customization.yml:continental-large-features-allowed-threshold
+      variance: $customization.yml:continental-large-feature-allowed-threshold-variance
+    samplers:
+      applied_threshold_variance: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: 1/300
+          #frequency: (1 / {$customization.yml:continental-large-features-threshold-variance-distance})
   rawFlatness: &rawFlatness
     dimensions: 2
     type: EXPRESSION
@@ -76,9 +93,6 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
-    variables:
-      MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
-      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       prefiltered_mountain_elev: *prefiltered_mountain_elev
@@ -87,18 +101,23 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      lerp(
-        MountainHeightModifier(x, z),
-        MountainHeightGenThreshold,
-        0,
-        0.5,
-        (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
-      )
+      if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+        lerp(
+          MountainHeightModifier(x, z),
+          threshold(x,z),
+          0.0,
+          0.5,
+          (MountainHeightModifier(x, z) - threshold(x,z)) * MaxPeakElev
+        ),
+      0)
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
+      mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
+      prefiltered_mountain_elev: *prefiltered_mountain_elev
       MountainHeightModifier: *MountainHeightModifier
+      threshold: *continental-large-features-allowed-threshold-with-variance
     functions: $math/functions/interpolation.yml:functions
 
   # Mesa height modifier components
@@ -116,12 +135,12 @@ samplers:
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+    expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
     samplers:
-      mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
+      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier

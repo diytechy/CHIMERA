@@ -26,6 +26,11 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: (continents(x,z))*100
+        # OceanValley (May be depricated, originally for underwater valleys)
+        # MountainHeightModifier - Modifier intended for mountians
+        # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
+        # MesaHeightModifier - Region filtered mesa region.
+        # RegionFilteredMesaHeightModifier - Actual applied mesa height when in region.
         #expression: (continents(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
         #continental_landmass - New landmass distribution
@@ -35,6 +40,7 @@ samplers:
         # rawElevation (Derived elevation function)
         # elevation (Derived elevation function)
         # continents (Derived continental function)
+        # mnt_and_ocean_valleys (Currently not intended to be used)
         # --- INSERT COPIES OF MATCHING SAMPLERS HERE ---
         samplers:
           test:
@@ -64,6 +70,353 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          mnt_and_ocean_valleys:
+            dimensions: 2
+            type: FBM
+            gain: 0.4
+            octaves: 3
+            lacunarity: 1.6
+            sampler:
+              dimensions: 2
+              type: EXPRESSION
+              expression: sampler(x - 10000, z - 10000)
+              samplers:
+                sampler:
+                  dimensions: 2
+                  type: TRANSLATE
+                  x: 10000
+                  z: 10000
+                  sampler:
+                    type: FBM
+                    gain: 0.7
+                    octaves: 2
+                    lacunarity: 1.6
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0002
+          OceanValley:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 0.001
+            salt: 400.0
+          MountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
+          RegionFilteredMountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              lerp(
+                MountainHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              MountainHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mountain_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 3000, z - 3000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
+                  prefiltered_mountain_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 4
+                    lacunarity: 2.0
+                    gain: 0.5
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 500.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
+          MesaHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mesa_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+              prefiltered_mesa_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0008333333333
+                  salt: 600.0
+          RegionFilteredMesaHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              lerp(
+                MesaHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              MesaHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mesa_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 6000, z - 6000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 200.0
+                  prefiltered_mesa_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0008333333333
+                      salt: 600.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
           roughness:
             dimensions: 2
             type: FBM
@@ -1732,71 +2085,11 @@ samplers:
                     type: OPEN_SIMPLEX_2
                     salt: 1.0
                     frequency: 0.0002
-  newnoise: &newnoise
-    dimensions: 2
-    type: FBM
-    sampler:
-      type: PERLIN
-      frequency: 0.0005
-    octaves: 5
-    lacunarity: 2
-    gain: 0.5
-    #type: PERLIN
-    #frequency: 0.0005
-    #return: NoiseLookup   
-    #jitter: 1.2
-    #distance: EuclideanSq #Dflt: EuclideanSq
-    #salt: 7777.0
-    #NoiseSampler: continents
-    NoiseSampler: OPEN_SIMPLEX_2
-  cell_test: &cell_test
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.005
-    return: NoiseLookup   
-    jitter: 1.2
-    distance: EuclideanSq #Dflt: EuclideanSq
-    #salt: 7777.0
-    #NoiseSampler: continents
-    NoiseSampler: OPEN_SIMPLEX_2
-  biome_place: &biome_place
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 20
-    warp:
-      type: SIMPLEX
-      frequency: 0.02
-    sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 60 
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.003
-      sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 300 
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.0001
-        sampler:
-          type: CELLULAR
-          return: CellValue
-          frequency: 0.005
-          jitter: 1.2
-          distance: Hybrid
-          salt: 7777.0
-  biome_place2: *biome_place
 # --- RESOLVED SAMPLERS BELOW ---
   continental_landmass:
     dimensions: 2
     type: EXPRESSION
-    expression: sampler(x / globalScale, z / globalScale) * scale + offset
-    variables:
-      globalScale: 1
-      scale: 2
-      offset: 0.1
+    expression: sampler(x - 10000, z - 10000)
     samplers:
       sampler:
         dimensions: 2
@@ -1811,10 +2104,34 @@ samplers:
           sampler:
             type: PERLIN
             frequency: 0.0002
+  mnt_and_ocean_valleys:
+    dimensions: 2
+    type: FBM
+    gain: 0.4
+    octaves: 3
+    lacunarity: 1.6
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: sampler(x - 10000, z - 10000)
+      samplers:
+        sampler:
+          dimensions: 2
+          type: TRANSLATE
+          x: 10000
+          z: 10000
+          sampler:
+            type: FBM
+            gain: 0.7
+            octaves: 2
+            lacunarity: 1.6
+            sampler:
+              type: PERLIN
+              frequency: 0.0002
   mountain_gen_region:
     dimensions: 2
     type: EXPRESSION
-    expression: sampler(x / globalScale, z / globalScale) * scale + offset
+    expression: sampler(x - 3000, z - 3000)
     variables:
       globalScale: 1
       scale: 2
@@ -1822,19 +2139,33 @@ samplers:
     samplers:
       sampler:
         dimensions: 2
-        type: TRANSLATE
-        x: 3000
-        z: 3000
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
         sampler:
-          dimensions: 2
-          type: FBM
-          octaves: 2
-          lacunarity: 2.0
-          gain: 0.5
-          sampler:
-            type: PERLIN
-            frequency: 0.0005
-            salt: 100.0
+          type: PERLIN
+          frequency: 0.0005
+          salt: 100.0
+  mesa_gen_region:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 6000, z - 6000)
+    variables:
+      globalScale: 1
+      scale: 2
+      offset: 0.1
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: 0.0005
+          salt: 200.0
   continents:
     dimensions: 2
     type: EXPRESSION
@@ -2816,34 +3147,133 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   frequency: 0.001
-  rawElevation:
+  base:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continental_landmass(x, z)
+    samplers:
+      continental_landmass:
+        dimensions: 2
+        type: EXPRESSION
+        expression: sampler(x - 10000, z - 10000)
+        samplers:
+          sampler:
+            dimensions: 2
+            type: TRANSLATE
+            x: 10000
+            z: 10000
+            sampler:
+              type: FBM
+              gain: 0.7
+              octaves: 2
+              lacunarity: 1.6
+              sampler:
+                type: PERLIN
+                frequency: 0.0002
+  OceanValley:
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.001
+    salt: 400.0
+  prefiltered_mountain_elev:
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    lacunarity: 2.0
+    gain: 0.5
+    sampler:
+      type: PERLIN
+      frequency: 0.0006666666667
+      salt: 500.0
+  MountainHeightModifier:
+    dimensions: 2
+    type: EXPRESSION
+    expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+    variables:
+      MountainHeightGenThreshold: 0.2
+      MaxPeakElev: 4
+    samplers:
+      mountain_gen_region:
+        dimensions: 2
+        type: EXPRESSION
+        expression: sampler(x - 3000, z - 3000)
+        variables:
+          globalScale: 1
+          scale: 2
+          offset: 0.1
+        samplers:
+          sampler:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.4
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+              salt: 100.0
+      prefiltered_mountain_elev:
+        dimensions: 2
+        type: FBM
+        octaves: 4
+        lacunarity: 2.0
+        gain: 0.5
+        sampler:
+          type: PERLIN
+          frequency: 0.0006666666667
+          salt: 500.0
+  RegionFilteredMountainHeightModifier:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      blend(
-        continental_landmass(x, z),
-        hills(x, z),
-        mountains(x, z),
-        roughness(x, z),
-        baseWeight,
-        mountain_reg(x,z),
-        mountian_srt,
-        mountian_full,
-        mountianDet,
-        detailWeight,
-        coastThreshold,
-        coastScale
-      ) * multiplier + offset
+      lerp(
+        MountainHeightModifier(x, z),
+        MountainHeightGenThreshold,
+        0,
+        0.5,
+        (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+      )
     variables:
-      multiplier: 1
-      offset: 0
-      baseWeight: 0.6
-      detailWeight: 0.4
-      coastThreshold: 0.4
-      coastScale: 2
-      mountian_srt: 0.2
-      mountian_full: 0.37
-      mountianDet: 0
+      MountainHeightGenThreshold: 0.2
+      MaxPeakElev: 4
+    samplers:
+      MountainHeightModifier:
+        dimensions: 2
+        type: EXPRESSION
+        expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+        variables:
+          MountainHeightGenThreshold: 0.2
+          MaxPeakElev: 4
+        samplers:
+          mountain_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 3000, z - 3000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 100.0
+          prefiltered_mountain_elev:
+            dimensions: 2
+            type: FBM
+            octaves: 4
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 500.0
     functions:
       lerp:
         arguments:
@@ -2914,24 +3344,494 @@ samplers:
             arguments:
             - x
             expression: x^2
-      blend:
+  prefiltered_mesa_elev:
+    dimensions: 2
+    type: FBM
+    octaves: 3
+    lacunarity: 2.0
+    gain: 0.4
+    sampler:
+      type: PERLIN
+      frequency: 0.0008333333333
+      salt: 600.0
+  MesaHeightModifier:
+    dimensions: 2
+    type: EXPRESSION
+    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+    variables:
+      MountainHeightGenThreshold: 0.2
+      MaxPeakElev: 4
+    samplers:
+      mesa_gen_region:
+        dimensions: 2
+        type: EXPRESSION
+        expression: sampler(x - 6000, z - 6000)
+        variables:
+          globalScale: 1
+          scale: 2
+          offset: 0.1
+        samplers:
+          sampler:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.4
+            sampler:
+              type: PERLIN
+              frequency: 0.0005
+              salt: 200.0
+      prefiltered_mesa_elev:
+        dimensions: 2
+        type: FBM
+        octaves: 3
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: 0.0008333333333
+          salt: 600.0
+  RegionFilteredMesaHeightModifier:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      lerp(
+        MesaHeightModifier(x, z),
+        MountainHeightGenThreshold,
+        0,
+        0.5,
+        (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+      )
+    variables:
+      MountainHeightGenThreshold: 0.2
+      MaxPeakElev: 4
+    samplers:
+      MesaHeightModifier:
+        dimensions: 2
+        type: EXPRESSION
+        expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+        variables:
+          MountainHeightGenThreshold: 0.2
+          MaxPeakElev: 4
+        samplers:
+          mesa_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 6000, z - 6000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 200.0
+          prefiltered_mesa_elev:
+            dimensions: 2
+            type: FBM
+            octaves: 3
+            lacunarity: 2.0
+            gain: 0.4
+            sampler:
+              type: PERLIN
+              frequency: 0.0008333333333
+              salt: 600.0
+    functions:
+      lerp:
         arguments:
-        - base
-        - hills
-        - mountains
-        - rough
-        - baseWt
-        - mountain_reg
-        - mountian_srt
-        - mountian_full
-        - mountianDet
-        - detailWt
-        - coastThr
-        - coastSc
-        expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but mountians\
-          \ themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills, 1, \nlerp(max(0,\
-          \ min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt *\n//Coastal rolloff\n\
-          max(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n//Islands\n"
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  HillHeightModifier:
+    dimensions: 2
+    type: FBM
+    octaves: 2
+    lacunarity: 2.0
+    gain: 0.35
+    sampler:
+      type: PERLIN
+      frequency: 0.001
+      salt: 700.0
+  RegionFilteredHillHeightModifier:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      lerp(
+        HillHeightModifier(x, z),
+        HillHeightGenThreshold,
+        0,
+        0.5,
+        (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+      )
+    variables:
+      HillHeightGenThreshold: 0.2
+      MaxHillElev: 2.0
+    samplers:
+      HillHeightModifier:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.35
+        sampler:
+          type: PERLIN
+          frequency: 0.001
+          salt: 700.0
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  rawElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+        // Below ocean cutoff: Add ocean noise with negative offset
+        base(x, z) - lerp(
+          MountainHeightModifier(x, z),
+          continentalSubOceanLargeFeaturesAllowedThreshold,
+          0,
+          0.5,
+          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+        ),
+        // Above feature offset: Create mesa/hills/mountains
+        if(base(x, z) > continentalMesaRegionAllowedThreshold,
+          base(x, z) + max(
+            max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+            RegionFilteredHillHeightModifier(x, z)
+          ),
+          // Else: just return base
+          base(x, z)
+        )
+      )
+    variables:
+      continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+      continentalMesaRegionAllowedThreshold: 0.2
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    samplers:
+      base:
+        dimensions: 2
+        type: EXPRESSION
+        expression: continental_landmass(x, z)
+        samplers:
+          continental_landmass:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 10000, z - 10000)
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 10000
+                z: 10000
+                sampler:
+                  type: FBM
+                  gain: 0.7
+                  octaves: 2
+                  lacunarity: 1.6
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0002
+      MountainHeightModifier:
+        dimensions: 2
+        type: EXPRESSION
+        expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+        variables:
+          MountainHeightGenThreshold: 0.2
+          MaxPeakElev: 4
+        samplers:
+          mountain_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 3000, z - 3000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 100.0
+          prefiltered_mountain_elev:
+            dimensions: 2
+            type: FBM
+            octaves: 4
+            lacunarity: 2.0
+            gain: 0.5
+            sampler:
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 500.0
+      OceanValley:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.001
+        salt: 400.0
+      RegionFilteredMountainHeightModifier:
+        dimensions: 2
+        type: EXPRESSION
+        expression: |
+          lerp(
+            MountainHeightModifier(x, z),
+            MountainHeightGenThreshold,
+            0,
+            0.5,
+            (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+          )
+        variables:
+          MountainHeightGenThreshold: 0.2
+          MaxPeakElev: 4
+        samplers:
+          MountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
         functions:
           lerp:
             arguments:
@@ -3002,83 +3902,223 @@ samplers:
                 arguments:
                 - x
                 expression: x^2
-    samplers:
-      continental_landmass:
+      RegionFilteredMesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: sampler(x / globalScale, z / globalScale) * scale + offset
+        expression: |
+          lerp(
+            MesaHeightModifier(x, z),
+            MountainHeightGenThreshold,
+            0,
+            0.5,
+            (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+          )
         variables:
-          globalScale: 1
-          scale: 2
-          offset: 0.1
+          MountainHeightGenThreshold: 0.2
+          MaxPeakElev: 4
         samplers:
-          sampler:
+          MesaHeightModifier:
             dimensions: 2
-            type: TRANSLATE
-            x: 10000
-            z: 10000
-            sampler:
-              type: FBM
-              gain: 0.7
-              octaves: 2
-              lacunarity: 1.6
-              sampler:
-                type: PERLIN
-                frequency: 0.0002
-      mountain_reg:
+            type: EXPRESSION
+            expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mesa_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+              prefiltered_mesa_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0008333333333
+                  salt: 600.0
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+          lerp3:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            - ct
+            - c
+            expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+          herp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              hermite:
+                arguments:
+                - x
+                expression: 3*x^2-2*x^3
+          parabolicMap:
+            arguments:
+            - t
+            - bt
+            - b
+            - at
+            - a
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              interpolation:
+                arguments:
+                - x
+                expression: x^2
+      RegionFilteredHillHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: sampler(x / globalScale, z / globalScale) * scale + offset
+        expression: |
+          lerp(
+            HillHeightModifier(x, z),
+            HillHeightGenThreshold,
+            0,
+            0.5,
+            (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+          )
         variables:
-          globalScale: 1
-          scale: 2
-          offset: 0.1
+          HillHeightGenThreshold: 0.2
+          MaxHillElev: 2.0
         samplers:
-          sampler:
+          HillHeightModifier:
             dimensions: 2
-            type: TRANSLATE
-            x: 3000
-            z: 3000
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.35
             sampler:
-              dimensions: 2
-              type: FBM
-              octaves: 2
-              lacunarity: 2.0
-              gain: 0.5
-              sampler:
-                type: PERLIN
-                frequency: 0.0005
-                salt: 100.0
-      roughness:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.5
-        sampler:
-          type: PERLIN
-          frequency: 0.0005
-          salt: 100.0
-      hills:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.35
-        sampler:
-          type: PERLIN
-          frequency: 0.001
-          salt: 200.0
-      mountains:
-        dimensions: 2
-        type: FBM
-        octaves: 5
-        lacunarity: 2.2
-        gain: 0.55
-        sampler:
-          type: PERLIN
-          frequency: 0.0005
-          salt: 300.0
+              type: PERLIN
+              frequency: 0.001
+              salt: 700.0
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+          lerp3:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            - ct
+            - c
+            expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+          herp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              hermite:
+                arguments:
+                - x
+                expression: 3*x^2-2*x^3
+          parabolicMap:
+            arguments:
+            - t
+            - bt
+            - b
+            - at
+            - a
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              interpolation:
+                arguments:
+                - x
+                expression: x^2
   elevation:
     dimensions: 2
     type: EXPRESSION
@@ -3169,30 +4209,28 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          blend(
-            continental_landmass(x, z),
-            hills(x, z),
-            mountains(x, z),
-            roughness(x, z),
-            baseWeight,
-            mountain_reg(x,z),
-            mountian_srt,
-            mountian_full,
-            mountianDet,
-            detailWeight,
-            coastThreshold,
-            coastScale
-          ) * multiplier + offset
+          if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+            // Below ocean cutoff: Add ocean noise with negative offset
+            base(x, z) - lerp(
+              MountainHeightModifier(x, z),
+              continentalSubOceanLargeFeaturesAllowedThreshold,
+              0,
+              0.5,
+              (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+            ),
+            // Above feature offset: Create mesa/hills/mountains
+            if(base(x, z) > continentalMesaRegionAllowedThreshold,
+              base(x, z) + max(
+                max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                RegionFilteredHillHeightModifier(x, z)
+              ),
+              // Else: just return base
+              base(x, z)
+            )
+          )
         variables:
-          multiplier: 1
-          offset: 0
-          baseWeight: 0.6
-          detailWeight: 0.4
-          coastThreshold: 0.4
-          coastScale: 2
-          mountian_srt: 0.2
-          mountian_full: 0.37
-          mountianDet: 0
+          continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+          continentalMesaRegionAllowedThreshold: 0.2
         functions:
           lerp:
             arguments:
@@ -3263,25 +4301,124 @@ samplers:
                 arguments:
                 - x
                 expression: x^2
-          blend:
-            arguments:
-            - base
-            - hills
-            - mountains
-            - rough
-            - baseWt
-            - mountain_reg
-            - mountian_srt
-            - mountian_full
-            - mountianDet
-            - detailWt
-            - coastThr
-            - coastSc
-            expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
-              \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
-              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt\
-              \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
-              //Islands\n"
+        samplers:
+          base:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continental_landmass(x, z)
+            samplers:
+              continental_landmass:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 10000, z - 10000)
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: TRANSLATE
+                    x: 10000
+                    z: 10000
+                    sampler:
+                      type: FBM
+                      gain: 0.7
+                      octaves: 2
+                      lacunarity: 1.6
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0002
+          MountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
+          OceanValley:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 0.001
+            salt: 400.0
+          RegionFilteredMountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              lerp(
+                MountainHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              MountainHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mountain_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 3000, z - 3000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
+                  prefiltered_mountain_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 4
+                    lacunarity: 2.0
+                    gain: 0.5
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 500.0
             functions:
               lerp:
                 arguments:
@@ -3352,83 +4489,223 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
-        samplers:
-          continental_landmass:
+          RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            expression: |
+              lerp(
+                MesaHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
             variables:
-              globalScale: 1
-              scale: 2
-              offset: 0.1
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
             samplers:
-              sampler:
+              MesaHeightModifier:
                 dimensions: 2
-                type: TRANSLATE
-                x: 10000
-                z: 10000
-                sampler:
-                  type: FBM
-                  gain: 0.7
-                  octaves: 2
-                  lacunarity: 1.6
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0002
-          mountain_reg:
+                type: EXPRESSION
+                expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mesa_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 6000, z - 6000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 200.0
+                  prefiltered_mesa_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0008333333333
+                      salt: 600.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
+          RegionFilteredHillHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            expression: |
+              lerp(
+                HillHeightModifier(x, z),
+                HillHeightGenThreshold,
+                0,
+                0.5,
+                (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+              )
             variables:
-              globalScale: 1
-              scale: 2
-              offset: 0.1
+              HillHeightGenThreshold: 0.2
+              MaxHillElev: 2.0
             samplers:
-              sampler:
+              HillHeightModifier:
                 dimensions: 2
-                type: TRANSLATE
-                x: 3000
-                z: 3000
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.35
                 sampler:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 100.0
-          roughness:
-            dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-              salt: 100.0
-          hills:
-            dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.35
-            sampler:
-              type: PERLIN
-              frequency: 0.001
-              salt: 200.0
-          mountains:
-            dimensions: 2
-            type: FBM
-            octaves: 5
-            lacunarity: 2.2
-            gain: 0.55
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-              salt: 300.0
+                  type: PERLIN
+                  frequency: 0.001
+                  salt: 700.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
       flatness:
         dimensions: 2
         type: EXPRESSION
@@ -4151,30 +5428,28 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                blend(
-                  continental_landmass(x, z),
-                  hills(x, z),
-                  mountains(x, z),
-                  roughness(x, z),
-                  baseWeight,
-                  mountain_reg(x,z),
-                  mountian_srt,
-                  mountian_full,
-                  mountianDet,
-                  detailWeight,
-                  coastThreshold,
-                  coastScale
-                ) * multiplier + offset
+                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                  // Below ocean cutoff: Add ocean noise with negative offset
+                  base(x, z) - lerp(
+                    MountainHeightModifier(x, z),
+                    continentalSubOceanLargeFeaturesAllowedThreshold,
+                    0,
+                    0.5,
+                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+                  ),
+                  // Above feature offset: Create mesa/hills/mountains
+                  if(base(x, z) > continentalMesaRegionAllowedThreshold,
+                    base(x, z) + max(
+                      max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                      RegionFilteredHillHeightModifier(x, z)
+                    ),
+                    // Else: just return base
+                    base(x, z)
+                  )
+                )
               variables:
-                multiplier: 1
-                offset: 0
-                baseWeight: 0.6
-                detailWeight: 0.4
-                coastThreshold: 0.4
-                coastScale: 2
-                mountian_srt: 0.2
-                mountian_full: 0.37
-                mountianDet: 0
+                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+                continentalMesaRegionAllowedThreshold: 0.2
               functions:
                 lerp:
                   arguments:
@@ -4245,25 +5520,124 @@ samplers:
                       arguments:
                       - x
                       expression: x^2
-                blend:
-                  arguments:
-                  - base
-                  - hills
-                  - mountains
-                  - rough
-                  - baseWt
-                  - mountain_reg
-                  - mountian_srt
-                  - mountian_full
-                  - mountianDet
-                  - detailWt
-                  - coastThr
-                  - coastSc
-                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
-                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
-                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
-                    \ roughness\n//Islands\n"
+              samplers:
+                base:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: continental_landmass(x, z)
+                  samplers:
+                    continental_landmass:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 10000, z - 10000)
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: TRANSLATE
+                          x: 10000
+                          z: 10000
+                          sampler:
+                            type: FBM
+                            gain: 0.7
+                            octaves: 2
+                            lacunarity: 1.6
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0002
+                MountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
+                OceanValley:
+                  dimensions: 2
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.001
+                  salt: 400.0
+                RegionFilteredMountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: |
+                    lerp(
+                      MountainHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    MountainHeightModifier:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mountain_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 3000, z - 3000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 100.0
+                        prefiltered_mountain_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 4
+                          lacunarity: 2.0
+                          gain: 0.5
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 500.0
                   functions:
                     lerp:
                       arguments:
@@ -4334,83 +5708,223 @@ samplers:
                           arguments:
                           - x
                           expression: x^2
-              samplers:
-                continental_landmass:
+                RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      MesaHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
                   samplers:
-                    sampler:
+                    MesaHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
-                mountain_reg:
+                      type: EXPRESSION
+                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mesa_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 6000, z - 6000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 200.0
+                        prefiltered_mesa_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0008333333333
+                            salt: 600.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
+                RegionFilteredHillHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      HillHeightModifier(x, z),
+                      HillHeightGenThreshold,
+                      0,
+                      0.5,
+                      (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    HillHeightGenThreshold: 0.2
+                    MaxHillElev: 2.0
                   samplers:
-                    sampler:
+                    HillHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 3000
-                      z: 3000
+                      type: FBM
+                      octaves: 2
+                      lacunarity: 2.0
+                      gain: 0.35
                       sampler:
-                        dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.5
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 100.0
-                roughness:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 100.0
-                hills:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.35
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.001
-                    salt: 200.0
-                mountains:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 5
-                  lacunarity: 2.2
-                  gain: 0.55
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 300.0
+                        type: PERLIN
+                        frequency: 0.001
+                        salt: 700.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
             flatness:
               dimensions: 2
               type: EXPRESSION
@@ -5382,30 +6896,28 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          blend(
-            continental_landmass(x, z),
-            hills(x, z),
-            mountains(x, z),
-            roughness(x, z),
-            baseWeight,
-            mountain_reg(x,z),
-            mountian_srt,
-            mountian_full,
-            mountianDet,
-            detailWeight,
-            coastThreshold,
-            coastScale
-          ) * multiplier + offset
+          if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+            // Below ocean cutoff: Add ocean noise with negative offset
+            base(x, z) - lerp(
+              MountainHeightModifier(x, z),
+              continentalSubOceanLargeFeaturesAllowedThreshold,
+              0,
+              0.5,
+              (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+            ),
+            // Above feature offset: Create mesa/hills/mountains
+            if(base(x, z) > continentalMesaRegionAllowedThreshold,
+              base(x, z) + max(
+                max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                RegionFilteredHillHeightModifier(x, z)
+              ),
+              // Else: just return base
+              base(x, z)
+            )
+          )
         variables:
-          multiplier: 1
-          offset: 0
-          baseWeight: 0.6
-          detailWeight: 0.4
-          coastThreshold: 0.4
-          coastScale: 2
-          mountian_srt: 0.2
-          mountian_full: 0.37
-          mountianDet: 0
+          continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+          continentalMesaRegionAllowedThreshold: 0.2
         functions:
           lerp:
             arguments:
@@ -5476,25 +6988,124 @@ samplers:
                 arguments:
                 - x
                 expression: x^2
-          blend:
-            arguments:
-            - base
-            - hills
-            - mountains
-            - rough
-            - baseWt
-            - mountain_reg
-            - mountian_srt
-            - mountian_full
-            - mountianDet
-            - detailWt
-            - coastThr
-            - coastSc
-            expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n//but\
-              \ mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0, hills,\
-              \ 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet)) * detailWt\
-              \ *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater roughness\n\
-              //Islands\n"
+        samplers:
+          base:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continental_landmass(x, z)
+            samplers:
+              continental_landmass:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 10000, z - 10000)
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: TRANSLATE
+                    x: 10000
+                    z: 10000
+                    sampler:
+                      type: FBM
+                      gain: 0.7
+                      octaves: 2
+                      lacunarity: 1.6
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0002
+          MountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              mountain_gen_region:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 3000, z - 3000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 100.0
+              prefiltered_mountain_elev:
+                dimensions: 2
+                type: FBM
+                octaves: 4
+                lacunarity: 2.0
+                gain: 0.5
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 500.0
+          OceanValley:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 0.001
+            salt: 400.0
+          RegionFilteredMountainHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              lerp(
+                MountainHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
+            variables:
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
+            samplers:
+              MountainHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mountain_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 3000, z - 3000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
+                  prefiltered_mountain_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 4
+                    lacunarity: 2.0
+                    gain: 0.5
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 500.0
             functions:
               lerp:
                 arguments:
@@ -5565,83 +7176,223 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
-        samplers:
-          continental_landmass:
+          RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            expression: |
+              lerp(
+                MesaHeightModifier(x, z),
+                MountainHeightGenThreshold,
+                0,
+                0.5,
+                (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+              )
             variables:
-              globalScale: 1
-              scale: 2
-              offset: 0.1
+              MountainHeightGenThreshold: 0.2
+              MaxPeakElev: 4
             samplers:
-              sampler:
+              MesaHeightModifier:
                 dimensions: 2
-                type: TRANSLATE
-                x: 10000
-                z: 10000
-                sampler:
-                  type: FBM
-                  gain: 0.7
-                  octaves: 2
-                  lacunarity: 1.6
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0002
-          mountain_reg:
+                type: EXPRESSION
+                expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mesa_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 6000, z - 6000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 200.0
+                  prefiltered_mesa_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0008333333333
+                      salt: 600.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
+          RegionFilteredHillHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: sampler(x / globalScale, z / globalScale) * scale + offset
+            expression: |
+              lerp(
+                HillHeightModifier(x, z),
+                HillHeightGenThreshold,
+                0,
+                0.5,
+                (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+              )
             variables:
-              globalScale: 1
-              scale: 2
-              offset: 0.1
+              HillHeightGenThreshold: 0.2
+              MaxHillElev: 2.0
             samplers:
-              sampler:
+              HillHeightModifier:
                 dimensions: 2
-                type: TRANSLATE
-                x: 3000
-                z: 3000
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.35
                 sampler:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 100.0
-          roughness:
-            dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-              salt: 100.0
-          hills:
-            dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.35
-            sampler:
-              type: PERLIN
-              frequency: 0.001
-              salt: 200.0
-          mountains:
-            dimensions: 2
-            type: FBM
-            octaves: 5
-            lacunarity: 2.2
-            gain: 0.55
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-              salt: 300.0
+                  type: PERLIN
+                  frequency: 0.001
+                  salt: 700.0
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+              lerp3:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                - ct
+                - c
+                expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+              herp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  hermite:
+                    arguments:
+                    - x
+                    expression: 3*x^2-2*x^3
+              parabolicMap:
+                arguments:
+                - t
+                - bt
+                - b
+                - at
+                - a
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                    if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                  )
+                functions:
+                  interpolation:
+                    arguments:
+                    - x
+                    expression: x^2
       continents:
         dimensions: 2
         type: EXPRESSION
@@ -7240,30 +8991,28 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                blend(
-                  continental_landmass(x, z),
-                  hills(x, z),
-                  mountains(x, z),
-                  roughness(x, z),
-                  baseWeight,
-                  mountain_reg(x,z),
-                  mountian_srt,
-                  mountian_full,
-                  mountianDet,
-                  detailWeight,
-                  coastThreshold,
-                  coastScale
-                ) * multiplier + offset
+                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                  // Below ocean cutoff: Add ocean noise with negative offset
+                  base(x, z) - lerp(
+                    MountainHeightModifier(x, z),
+                    continentalSubOceanLargeFeaturesAllowedThreshold,
+                    0,
+                    0.5,
+                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+                  ),
+                  // Above feature offset: Create mesa/hills/mountains
+                  if(base(x, z) > continentalMesaRegionAllowedThreshold,
+                    base(x, z) + max(
+                      max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                      RegionFilteredHillHeightModifier(x, z)
+                    ),
+                    // Else: just return base
+                    base(x, z)
+                  )
+                )
               variables:
-                multiplier: 1
-                offset: 0
-                baseWeight: 0.6
-                detailWeight: 0.4
-                coastThreshold: 0.4
-                coastScale: 2
-                mountian_srt: 0.2
-                mountian_full: 0.37
-                mountianDet: 0
+                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+                continentalMesaRegionAllowedThreshold: 0.2
               functions:
                 lerp:
                   arguments:
@@ -7334,25 +9083,124 @@ samplers:
                       arguments:
                       - x
                       expression: x^2
-                blend:
-                  arguments:
-                  - base
-                  - hills
-                  - mountains
-                  - rough
-                  - baseWt
-                  - mountain_reg
-                  - mountian_srt
-                  - mountian_full
-                  - mountianDet
-                  - detailWt
-                  - coastThr
-                  - coastSc
-                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
-                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
-                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
-                    \ roughness\n//Islands\n"
+              samplers:
+                base:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: continental_landmass(x, z)
+                  samplers:
+                    continental_landmass:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 10000, z - 10000)
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: TRANSLATE
+                          x: 10000
+                          z: 10000
+                          sampler:
+                            type: FBM
+                            gain: 0.7
+                            octaves: 2
+                            lacunarity: 1.6
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0002
+                MountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
+                OceanValley:
+                  dimensions: 2
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.001
+                  salt: 400.0
+                RegionFilteredMountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: |
+                    lerp(
+                      MountainHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    MountainHeightModifier:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mountain_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 3000, z - 3000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 100.0
+                        prefiltered_mountain_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 4
+                          lacunarity: 2.0
+                          gain: 0.5
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 500.0
                   functions:
                     lerp:
                       arguments:
@@ -7423,83 +9271,223 @@ samplers:
                           arguments:
                           - x
                           expression: x^2
-              samplers:
-                continental_landmass:
+                RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      MesaHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
                   samplers:
-                    sampler:
+                    MesaHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
-                mountain_reg:
+                      type: EXPRESSION
+                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mesa_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 6000, z - 6000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 200.0
+                        prefiltered_mesa_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0008333333333
+                            salt: 600.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
+                RegionFilteredHillHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      HillHeightModifier(x, z),
+                      HillHeightGenThreshold,
+                      0,
+                      0.5,
+                      (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    HillHeightGenThreshold: 0.2
+                    MaxHillElev: 2.0
                   samplers:
-                    sampler:
+                    HillHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 3000
-                      z: 3000
+                      type: FBM
+                      octaves: 2
+                      lacunarity: 2.0
+                      gain: 0.35
                       sampler:
-                        dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.5
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 100.0
-                roughness:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 100.0
-                hills:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.35
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.001
-                    salt: 200.0
-                mountains:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 5
-                  lacunarity: 2.2
-                  gain: 0.55
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 300.0
+                        type: PERLIN
+                        frequency: 0.001
+                        salt: 700.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
             flatness:
               dimensions: 2
               type: EXPRESSION
@@ -8359,30 +10347,28 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                blend(
-                  continental_landmass(x, z),
-                  hills(x, z),
-                  mountains(x, z),
-                  roughness(x, z),
-                  baseWeight,
-                  mountain_reg(x,z),
-                  mountian_srt,
-                  mountian_full,
-                  mountianDet,
-                  detailWeight,
-                  coastThreshold,
-                  coastScale
-                ) * multiplier + offset
+                if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                  // Below ocean cutoff: Add ocean noise with negative offset
+                  base(x, z) - lerp(
+                    MountainHeightModifier(x, z),
+                    continentalSubOceanLargeFeaturesAllowedThreshold,
+                    0,
+                    0.5,
+                    (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+                  ),
+                  // Above feature offset: Create mesa/hills/mountains
+                  if(base(x, z) > continentalMesaRegionAllowedThreshold,
+                    base(x, z) + max(
+                      max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                      RegionFilteredHillHeightModifier(x, z)
+                    ),
+                    // Else: just return base
+                    base(x, z)
+                  )
+                )
               variables:
-                multiplier: 1
-                offset: 0
-                baseWeight: 0.6
-                detailWeight: 0.4
-                coastThreshold: 0.4
-                coastScale: 2
-                mountian_srt: 0.2
-                mountian_full: 0.37
-                mountianDet: 0
+                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+                continentalMesaRegionAllowedThreshold: 0.2
               functions:
                 lerp:
                   arguments:
@@ -8453,25 +10439,124 @@ samplers:
                       arguments:
                       - x
                       expression: x^2
-                blend:
-                  arguments:
-                  - base
-                  - hills
-                  - mountains
-                  - rough
-                  - baseWt
-                  - mountain_reg
-                  - mountian_srt
-                  - mountian_full
-                  - mountianDet
-                  - detailWt
-                  - coastThr
-                  - coastSc
-                  expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
-                    //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough),\
-                    \ 0, hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
-                    \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
-                    \ roughness\n//Islands\n"
+              samplers:
+                base:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: continental_landmass(x, z)
+                  samplers:
+                    continental_landmass:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 10000, z - 10000)
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: TRANSLATE
+                          x: 10000
+                          z: 10000
+                          sampler:
+                            type: FBM
+                            gain: 0.7
+                            octaves: 2
+                            lacunarity: 1.6
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0002
+                MountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    mountain_gen_region:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: sampler(x - 3000, z - 3000)
+                      variables:
+                        globalScale: 1
+                        scale: 2
+                        offset: 0.1
+                      samplers:
+                        sampler:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 2
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0005
+                            salt: 100.0
+                    prefiltered_mountain_elev:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 4
+                      lacunarity: 2.0
+                      gain: 0.5
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 500.0
+                OceanValley:
+                  dimensions: 2
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.001
+                  salt: 400.0
+                RegionFilteredMountainHeightModifier:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: |
+                    lerp(
+                      MountainHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
+                  variables:
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
+                  samplers:
+                    MountainHeightModifier:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mountain_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 3000, z - 3000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 100.0
+                        prefiltered_mountain_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 4
+                          lacunarity: 2.0
+                          gain: 0.5
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 500.0
                   functions:
                     lerp:
                       arguments:
@@ -8542,83 +10627,223 @@ samplers:
                           arguments:
                           - x
                           expression: x^2
-              samplers:
-                continental_landmass:
+                RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      MesaHeightModifier(x, z),
+                      MountainHeightGenThreshold,
+                      0,
+                      0.5,
+                      (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    MountainHeightGenThreshold: 0.2
+                    MaxPeakElev: 4
                   samplers:
-                    sampler:
+                    MesaHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
-                mountain_reg:
+                      type: EXPRESSION
+                      expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                      variables:
+                        MountainHeightGenThreshold: 0.2
+                        MaxPeakElev: 4
+                      samplers:
+                        mesa_gen_region:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 6000, z - 6000)
+                          variables:
+                            globalScale: 1
+                            scale: 2
+                            offset: 0.1
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 2
+                              lacunarity: 2.0
+                              gain: 0.4
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0005
+                                salt: 200.0
+                        prefiltered_mesa_elev:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.4
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0008333333333
+                            salt: 600.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
+                RegionFilteredHillHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                  expression: |
+                    lerp(
+                      HillHeightModifier(x, z),
+                      HillHeightGenThreshold,
+                      0,
+                      0.5,
+                      (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+                    )
                   variables:
-                    globalScale: 1
-                    scale: 2
-                    offset: 0.1
+                    HillHeightGenThreshold: 0.2
+                    MaxHillElev: 2.0
                   samplers:
-                    sampler:
+                    HillHeightModifier:
                       dimensions: 2
-                      type: TRANSLATE
-                      x: 3000
-                      z: 3000
+                      type: FBM
+                      octaves: 2
+                      lacunarity: 2.0
+                      gain: 0.35
                       sampler:
-                        dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.5
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 100.0
-                roughness:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.5
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 100.0
-                hills:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 2
-                  lacunarity: 2.0
-                  gain: 0.35
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.001
-                    salt: 200.0
-                mountains:
-                  dimensions: 2
-                  type: FBM
-                  octaves: 5
-                  lacunarity: 2.2
-                  gain: 0.55
-                  sampler:
-                    type: PERLIN
-                    frequency: 0.0005
-                    salt: 300.0
+                        type: PERLIN
+                        frequency: 0.001
+                        salt: 700.0
+                  functions:
+                    lerp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                          if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                        )
+                    lerp3:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      - ct
+                      - c
+                      expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                      functions:
+                        lerp:
+                          arguments:
+                          - t
+                          - at
+                          - a
+                          - bt
+                          - b
+                          expression: |
+                            if(at<bt,
+                              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                            )
+                    herp:
+                      arguments:
+                      - t
+                      - at
+                      - a
+                      - bt
+                      - b
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        hermite:
+                          arguments:
+                          - x
+                          expression: 3*x^2-2*x^3
+                    parabolicMap:
+                      arguments:
+                      - t
+                      - bt
+                      - b
+                      - at
+                      - a
+                      expression: |
+                        if(at<bt,
+                          if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                          if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                        )
+                      functions:
+                        interpolation:
+                          arguments:
+                          - x
+                          expression: x^2
             flatness:
               dimensions: 2
               type: EXPRESSION
@@ -9831,30 +12056,28 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              blend(
-                continental_landmass(x, z),
-                hills(x, z),
-                mountains(x, z),
-                roughness(x, z),
-                baseWeight,
-                mountain_reg(x,z),
-                mountian_srt,
-                mountian_full,
-                mountianDet,
-                detailWeight,
-                coastThreshold,
-                coastScale
-              ) * multiplier + offset
+              if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+                // Below ocean cutoff: Add ocean noise with negative offset
+                base(x, z) - lerp(
+                  MountainHeightModifier(x, z),
+                  continentalSubOceanLargeFeaturesAllowedThreshold,
+                  0,
+                  0.5,
+                  (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
+                ),
+                // Above feature offset: Create mesa/hills/mountains
+                if(base(x, z) > continentalMesaRegionAllowedThreshold,
+                  base(x, z) + max(
+                    max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
+                    RegionFilteredHillHeightModifier(x, z)
+                  ),
+                  // Else: just return base
+                  base(x, z)
+                )
+              )
             variables:
-              multiplier: 1
-              offset: 0
-              baseWeight: 0.6
-              detailWeight: 0.4
-              coastThreshold: 0.4
-              coastScale: 2
-              mountian_srt: 0.2
-              mountian_full: 0.37
-              mountianDet: 0
+              continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
+              continentalMesaRegionAllowedThreshold: 0.2
             functions:
               lerp:
                 arguments:
@@ -9925,25 +12148,124 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
-              blend:
-                arguments:
-                - base
-                - hills
-                - mountains
-                - rough
-                - baseWt
-                - mountain_reg
-                - mountian_srt
-                - mountian_full
-                - mountianDet
-                - detailWt
-                - coastThr
-                - coastSc
-                expression: "base * baseWt +\n//Mountian additions (Can be negative).  \n//If rough, blend in mountians, \n\
-                  //but mountians themselves are blended depending on if the mountian region exists.\nlerp(max(0, rough), 0,\
-                  \ hills, 1, \nlerp(max(0, min(mountain_reg,base)), mountian_srt, hills, mountian_full, mountains * mountianDet))\
-                  \ * detailWt *\n//Coastal rolloff\nmax(0, min(1, (base + coastThr) * coastSc))^2\n//Mesa additions\n//Underwater\
-                  \ roughness\n//Islands\n"
+            samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              MountainHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  mountain_gen_region:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 3000, z - 3000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 100.0
+                  prefiltered_mountain_elev:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 4
+                    lacunarity: 2.0
+                    gain: 0.5
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 500.0
+              OceanValley:
+                dimensions: 2
+                type: OPEN_SIMPLEX_2
+                frequency: 0.001
+                salt: 400.0
+              RegionFilteredMountainHeightModifier:
+                dimensions: 2
+                type: EXPRESSION
+                expression: |
+                  lerp(
+                    MountainHeightModifier(x, z),
+                    MountainHeightGenThreshold,
+                    0,
+                    0.5,
+                    (MountainHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                  )
+                variables:
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
+                samplers:
+                  MountainHeightModifier:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+                    variables:
+                      MountainHeightGenThreshold: 0.2
+                      MaxPeakElev: 4
+                    samplers:
+                      mountain_gen_region:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 3000, z - 3000)
+                        variables:
+                          globalScale: 1
+                          scale: 2
+                          offset: 0.1
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 2
+                            lacunarity: 2.0
+                            gain: 0.4
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0005
+                              salt: 100.0
+                      prefiltered_mountain_elev:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 4
+                        lacunarity: 2.0
+                        gain: 0.5
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0006666666667
+                          salt: 500.0
                 functions:
                   lerp:
                     arguments:
@@ -10014,83 +12336,223 @@ samplers:
                         arguments:
                         - x
                         expression: x^2
-            samplers:
-              continental_landmass:
+              RegionFilteredMesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                expression: |
+                  lerp(
+                    MesaHeightModifier(x, z),
+                    MountainHeightGenThreshold,
+                    0,
+                    0.5,
+                    (MesaHeightModifier(x, z) - MountainHeightGenThreshold) * MaxPeakElev
+                  )
                 variables:
-                  globalScale: 1
-                  scale: 2
-                  offset: 0.1
+                  MountainHeightGenThreshold: 0.2
+                  MaxPeakElev: 4
                 samplers:
-                  sampler:
+                  MesaHeightModifier:
                     dimensions: 2
-                    type: TRANSLATE
-                    x: 10000
-                    z: 10000
-                    sampler:
-                      type: FBM
-                      gain: 0.7
-                      octaves: 2
-                      lacunarity: 1.6
-                      sampler:
-                        type: PERLIN
-                        frequency: 0.0002
-              mountain_reg:
+                    type: EXPRESSION
+                    expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
+                    variables:
+                      MountainHeightGenThreshold: 0.2
+                      MaxPeakElev: 4
+                    samplers:
+                      mesa_gen_region:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 6000, z - 6000)
+                        variables:
+                          globalScale: 1
+                          scale: 2
+                          offset: 0.1
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 2
+                            lacunarity: 2.0
+                            gain: 0.4
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0005
+                              salt: 200.0
+                      prefiltered_mesa_elev:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0008333333333
+                          salt: 600.0
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+                  lerp3:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    - ct
+                    - c
+                    expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                    functions:
+                      lerp:
+                        arguments:
+                        - t
+                        - at
+                        - a
+                        - bt
+                        - b
+                        expression: |
+                          if(at<bt,
+                            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                          )
+                  herp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                        if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                      )
+                    functions:
+                      hermite:
+                        arguments:
+                        - x
+                        expression: 3*x^2-2*x^3
+                  parabolicMap:
+                    arguments:
+                    - t
+                    - bt
+                    - b
+                    - at
+                    - a
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                        if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                      )
+                    functions:
+                      interpolation:
+                        arguments:
+                        - x
+                        expression: x^2
+              RegionFilteredHillHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: sampler(x / globalScale, z / globalScale) * scale + offset
+                expression: |
+                  lerp(
+                    HillHeightModifier(x, z),
+                    HillHeightGenThreshold,
+                    0,
+                    0.5,
+                    (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+                  )
                 variables:
-                  globalScale: 1
-                  scale: 2
-                  offset: 0.1
+                  HillHeightGenThreshold: 0.2
+                  MaxHillElev: 2.0
                 samplers:
-                  sampler:
+                  HillHeightModifier:
                     dimensions: 2
-                    type: TRANSLATE
-                    x: 3000
-                    z: 3000
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.35
                     sampler:
-                      dimensions: 2
-                      type: FBM
-                      octaves: 2
-                      lacunarity: 2.0
-                      gain: 0.5
-                      sampler:
-                        type: PERLIN
-                        frequency: 0.0005
-                        salt: 100.0
-              roughness:
-                dimensions: 2
-                type: FBM
-                octaves: 2
-                lacunarity: 2.0
-                gain: 0.5
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0005
-                  salt: 100.0
-              hills:
-                dimensions: 2
-                type: FBM
-                octaves: 2
-                lacunarity: 2.0
-                gain: 0.35
-                sampler:
-                  type: PERLIN
-                  frequency: 0.001
-                  salt: 200.0
-              mountains:
-                dimensions: 2
-                type: FBM
-                octaves: 5
-                lacunarity: 2.2
-                gain: 0.55
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0005
-                  salt: 300.0
+                      type: PERLIN
+                      frequency: 0.001
+                      salt: 700.0
+                functions:
+                  lerp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                      )
+                  lerp3:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    - ct
+                    - c
+                    expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+                    functions:
+                      lerp:
+                        arguments:
+                        - t
+                        - at
+                        - a
+                        - bt
+                        - b
+                        expression: |
+                          if(at<bt,
+                            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                          )
+                  herp:
+                    arguments:
+                    - t
+                    - at
+                    - a
+                    - bt
+                    - b
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                        if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+                      )
+                    functions:
+                      hermite:
+                        arguments:
+                        - x
+                        expression: 3*x^2-2*x^3
+                  parabolicMap:
+                    arguments:
+                    - t
+                    - bt
+                    - b
+                    - at
+                    - a
+                    expression: |
+                      if(at<bt,
+                        if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                        if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+                      )
+                    functions:
+                      interpolation:
+                        arguments:
+                        - x
+                        expression: x^2
           flatness:
             dimensions: 2
             type: EXPRESSION

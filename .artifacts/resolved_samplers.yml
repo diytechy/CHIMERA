@@ -42,7 +42,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (base_shifted_prefiltered_mesa_elev(x,z))*100
+        expression: (RegionFilteredMountainHeightModifier(x,z))*100
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -225,7 +225,7 @@ samplers:
             type: EXPRESSION
             expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -290,7 +290,7 @@ samplers:
             type: EXPRESSION
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -476,7 +476,7 @@ samplers:
             type: FBM
             octaves: 2
             lacunarity: 2.0
-            gain: 0.3
+            gain: 0.1
             sampler:
               type: PERLIN
               frequency: 0.006666666667
@@ -500,7 +500,7 @@ samplers:
             type: FBM
             octaves: 2
             lacunarity: 2.0
-            gain: 0.3
+            gain: 0.1
             sampler:
               type: PERLIN
               frequency: 0.006666666667
@@ -510,7 +510,7 @@ samplers:
             type: EXPRESSION
             expression: |
               lerp(
-                HillHeightModifier(x, z),
+                base(x, z),
                 threshold(x,z),
                 0,
                 0.5,
@@ -519,6 +519,29 @@ samplers:
             variables:
               MaxHillElev: 0.1
             samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -539,7 +562,7 @@ samplers:
                 type: FBM
                 octaves: 2
                 lacunarity: 2.0
-                gain: 0.3
+                gain: 0.1
                 sampler:
                   type: PERLIN
                   frequency: 0.006666666667
@@ -703,7 +726,7 @@ samplers:
                       0.0,
                       0.0,
                       abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0),
                   if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -712,11 +735,11 @@ samplers:
                       0.0,
                       0.0,
                       0.5-MountainHeightGenThreshold,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0)
                 )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+              ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -944,21 +967,21 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 0.01
-              MesaRegionActiveThresh: 0.1
+              MesaFlattopTransitionRate: 1
+              MesaRegionActiveThresh: 0.25
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -979,33 +1002,11 @@ samplers:
                       type: PERLIN
                       frequency: 0.0005
                       salt: 200.0
-              prefiltered_mesa_elev:
+              base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
-                  if(base(x,z)>threshold(x,z),
-                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                    0
-                  )
-                variables:
-                  MaxNMesSteps: 3
-                  MaxPeakElev: 1.8
+                expression: prefiltered_mesa_elev(x,z) - base(x,z)
                 samplers:
-                  threshold:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                    variables:
-                      nominal_value: 0.07
-                      variance: 0.03
-                    samplers:
-                      applied_threshold_variance:
-                        dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -1029,45 +1030,95 @@ samplers:
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
-                  MesaGenRegion:
+                  prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: sampler(x - 6000, z - 6000)
+                    expression: |
+                      if(base(x,z)>threshold(x,z),
+                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        0
+                      )
                     variables:
-                      globalScale: 1
-                      scale: 2
-                      offset: 0.1
+                      MaxNMesSteps: 3
+                      MaxPeakElev: 1.8
                     samplers:
-                      sampler:
+                      threshold:
                         dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.4
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 200.0
-                  PeakHeightMultiplierAtPosition:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                    variables:
-                      VarianceRatio: 0.3
-                    samplers:
-                      max_elev_prob:
+                        type: EXPRESSION
+                        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                        variables:
+                          nominal_value: 0.07
+                          variance: 0.03
+                        samplers:
+                          applied_threshold_variance:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
+                      base:
                         dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
+                        type: EXPRESSION
+                        expression: continental_landmass(x, z)
+                        samplers:
+                          continental_landmass:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 10000, z - 10000)
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: TRANSLATE
+                                x: 10000
+                                z: 10000
+                                sampler:
+                                  type: FBM
+                                  gain: 0.7
+                                  octaves: 2
+                                  lacunarity: 1.6
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0002
+                      MesaGenRegion:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 6000, z - 6000)
+                        variables:
+                          globalScale: 1
+                          scale: 2
+                          offset: 0.1
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 2
+                            lacunarity: 2.0
+                            gain: 0.4
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0005
+                              salt: 200.0
+                      PeakHeightMultiplierAtPosition:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                        variables:
+                          VarianceRatio: 0.3
+                        samplers:
+                          max_elev_prob:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                 samplers:
                   base:
                     dimensions: 2
@@ -1131,7 +1182,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -1196,7 +1247,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -1331,7 +1382,7 @@ samplers:
             type: EXPRESSION
             expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
             samplers:
               base:
                 dimensions: 2
@@ -1679,9 +1730,9 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < -threshold(x,z),
+              if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
@@ -1693,8 +1744,7 @@ samplers:
                 )
               )
             variables:
-              continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-              MaxUnderwaterMulti: 2
+              MaxUnderwaterMulti: 0.4
             functions:
               lerp:
                 arguments:
@@ -1766,21 +1816,6 @@ samplers:
                     - x
                     expression: x^2
             samplers:
-              threshold:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                variables:
-                  nominal_value: 0.07
-                  variance: 0.03
-                samplers:
-                  applied_threshold_variance:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -1884,7 +1919,7 @@ samplers:
                           0.0,
                           0.0,
                           abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                          (mnt_and_ocean_valleys(x, z) )
+                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                         ),
                       0),
                       if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -1893,11 +1928,11 @@ samplers:
                           0.0,
                           0.0,
                           0.5-MountainHeightGenThreshold,
-                          (mnt_and_ocean_valleys(x, z) )
+                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                         ),
                       0)
                     )
-                  ) * PeakElevAtPos(x,z) * MaxPeakElev
+                  ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                 variables:
                   MountainHeightGenThreshold: 0.07
                   MaxPeakElev: 4
@@ -2125,21 +2160,21 @@ samplers:
 
                     // If above the transition threshold and the wall transition delta, need to transition to flat top.
                     if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (prefiltered_mesa_elev(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                      (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                       //Else return the transition down to floor height
                       if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                        (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                         0)
                     ),
                     0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 0.01
-                  MesaRegionActiveThresh: 0.1
+                  MesaFlattopTransitionRate: 1
+                  MesaRegionActiveThresh: 0.25
                 samplers:
                   mesa_gen_region:
                     dimensions: 2
@@ -2160,33 +2195,11 @@ samplers:
                           type: PERLIN
                           frequency: 0.0005
                           salt: 200.0
-                  prefiltered_mesa_elev:
+                  base_shifted_prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: |
-                      if(base(x,z)>threshold(x,z),
-                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                        0
-                      )
-                    variables:
-                      MaxNMesSteps: 3
-                      MaxPeakElev: 1.8
+                    expression: prefiltered_mesa_elev(x,z) - base(x,z)
                     samplers:
-                      threshold:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                        variables:
-                          nominal_value: 0.07
-                          variance: 0.03
-                        samplers:
-                          applied_threshold_variance:
-                            dimensions: 2
-                            type: PROBABILITY
-                            sampler:
-                              type: OPEN_SIMPLEX_2
-                              salt: 697.0
-                              frequency: 0.0003333333333
                       base:
                         dimensions: 2
                         type: EXPRESSION
@@ -2210,45 +2223,95 @@ samplers:
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
-                      MesaGenRegion:
+                      prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: sampler(x - 6000, z - 6000)
+                        expression: |
+                          if(base(x,z)>threshold(x,z),
+                            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                            0
+                          )
                         variables:
-                          globalScale: 1
-                          scale: 2
-                          offset: 0.1
+                          MaxNMesSteps: 3
+                          MaxPeakElev: 1.8
                         samplers:
-                          sampler:
+                          threshold:
                             dimensions: 2
-                            type: FBM
-                            octaves: 2
-                            lacunarity: 2.0
-                            gain: 0.4
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0005
-                              salt: 200.0
-                      PeakHeightMultiplierAtPosition:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                        variables:
-                          VarianceRatio: 0.3
-                        samplers:
-                          max_elev_prob:
+                            type: EXPRESSION
+                            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                            variables:
+                              nominal_value: 0.07
+                              variance: 0.03
+                            samplers:
+                              applied_threshold_variance:
+                                dimensions: 2
+                                type: PROBABILITY
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  salt: 697.0
+                                  frequency: 0.0003333333333
+                          base:
                             dimensions: 2
-                            type: PROBABILITY
-                            sampler:
-                              type: OPEN_SIMPLEX_2
-                              salt: 697.0
-                              frequency: 0.0003333333333
+                            type: EXPRESSION
+                            expression: continental_landmass(x, z)
+                            samplers:
+                              continental_landmass:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: sampler(x - 10000, z - 10000)
+                                samplers:
+                                  sampler:
+                                    dimensions: 2
+                                    type: TRANSLATE
+                                    x: 10000
+                                    z: 10000
+                                    sampler:
+                                      type: FBM
+                                      gain: 0.7
+                                      octaves: 2
+                                      lacunarity: 1.6
+                                      sampler:
+                                        type: PERLIN
+                                        frequency: 0.0002
+                          MesaGenRegion:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 6000, z - 6000)
+                            variables:
+                              globalScale: 1
+                              scale: 2
+                              offset: 0.1
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 2
+                                lacunarity: 2.0
+                                gain: 0.4
+                                sampler:
+                                  type: PERLIN
+                                  frequency: 0.0005
+                                  salt: 200.0
+                          PeakHeightMultiplierAtPosition:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                            variables:
+                              VarianceRatio: 0.3
+                            samplers:
+                              max_elev_prob:
+                                dimensions: 2
+                                type: PROBABILITY
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  salt: 697.0
+                                  frequency: 0.0003333333333
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                     samplers:
                       base:
                         dimensions: 2
@@ -2312,7 +2375,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -2377,7 +2440,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -2512,7 +2575,7 @@ samplers:
                 type: EXPRESSION
                 expression: |
                   lerp(
-                    HillHeightModifier(x, z),
+                    base(x, z),
                     threshold(x,z),
                     0,
                     0.5,
@@ -2521,6 +2584,29 @@ samplers:
                 variables:
                   MaxHillElev: 0.1
                 samplers:
+                  base:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: continental_landmass(x, z)
+                    samplers:
+                      continental_landmass:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 10000, z - 10000)
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: TRANSLATE
+                            x: 10000
+                            z: 10000
+                            sampler:
+                              type: FBM
+                              gain: 0.7
+                              octaves: 2
+                              lacunarity: 1.6
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0002
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -2541,7 +2627,7 @@ samplers:
                     type: FBM
                     octaves: 2
                     lacunarity: 2.0
-                    gain: 0.3
+                    gain: 0.1
                     sampler:
                       type: PERLIN
                       frequency: 0.006666666667
@@ -2706,9 +2792,9 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: |
-                  if(base(x, z) < -threshold(x,z),
+                  if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                     // Below ocean cutoff: Add ocean noise with negative offset
-                    base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                    base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                     // Above feature offset: Create mesa/hills/mountains
                     if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                       base(x, z) + max(
@@ -2720,8 +2806,7 @@ samplers:
                     )
                   )
                 variables:
-                  continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-                  MaxUnderwaterMulti: 2
+                  MaxUnderwaterMulti: 0.4
                 functions:
                   lerp:
                     arguments:
@@ -2793,21 +2878,6 @@ samplers:
                         - x
                         expression: x^2
                 samplers:
-                  threshold:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                    variables:
-                      nominal_value: 0.07
-                      variance: 0.03
-                    samplers:
-                      applied_threshold_variance:
-                        dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -2911,7 +2981,7 @@ samplers:
                               0.0,
                               0.0,
                               abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
+                              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                             ),
                           0),
                           if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -2920,11 +2990,11 @@ samplers:
                               0.0,
                               0.0,
                               0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
+                              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                             ),
                           0)
                         )
-                      ) * PeakElevAtPos(x,z) * MaxPeakElev
+                      ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                     variables:
                       MountainHeightGenThreshold: 0.07
                       MaxPeakElev: 4
@@ -3152,21 +3222,21 @@ samplers:
 
                         // If above the transition threshold and the wall transition delta, need to transition to flat top.
                         if(MesaUpwardDistFromTransPnt(x,z)>0,
-                          (prefiltered_mesa_elev(x,z)/2 +
-                            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                          (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                           //Else return the transition down to floor height
                           if(MesaDownwardDistFromTransPnt(x,z)>0,
-                            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                            (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                             0)
                         ),
                         0)
                     variables:
                       MesaFlattopTransitionDelta: 0.01
-                      MesaFlattopTransitionRate: 0.01
-                      MesaRegionActiveThresh: 0.1
+                      MesaFlattopTransitionRate: 1
+                      MesaRegionActiveThresh: 0.25
                     samplers:
                       mesa_gen_region:
                         dimensions: 2
@@ -3187,33 +3257,11 @@ samplers:
                               type: PERLIN
                               frequency: 0.0005
                               salt: 200.0
-                      prefiltered_mesa_elev:
+                      base_shifted_prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: |
-                          if(base(x,z)>threshold(x,z),
-                            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                            0
-                          )
-                        variables:
-                          MaxNMesSteps: 3
-                          MaxPeakElev: 1.8
+                        expression: prefiltered_mesa_elev(x,z) - base(x,z)
                         samplers:
-                          threshold:
-                            dimensions: 2
-                            type: EXPRESSION
-                            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                            variables:
-                              nominal_value: 0.07
-                              variance: 0.03
-                            samplers:
-                              applied_threshold_variance:
-                                dimensions: 2
-                                type: PROBABILITY
-                                sampler:
-                                  type: OPEN_SIMPLEX_2
-                                  salt: 697.0
-                                  frequency: 0.0003333333333
                           base:
                             dimensions: 2
                             type: EXPRESSION
@@ -3237,45 +3285,95 @@ samplers:
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
-                          MesaGenRegion:
+                          prefiltered_mesa_elev:
                             dimensions: 2
                             type: EXPRESSION
-                            expression: sampler(x - 6000, z - 6000)
+                            expression: |
+                              if(base(x,z)>threshold(x,z),
+                                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                                0
+                              )
                             variables:
-                              globalScale: 1
-                              scale: 2
-                              offset: 0.1
+                              MaxNMesSteps: 3
+                              MaxPeakElev: 1.8
                             samplers:
-                              sampler:
+                              threshold:
                                 dimensions: 2
-                                type: FBM
-                                octaves: 2
-                                lacunarity: 2.0
-                                gain: 0.4
-                                sampler:
-                                  type: PERLIN
-                                  frequency: 0.0005
-                                  salt: 200.0
-                          PeakHeightMultiplierAtPosition:
-                            dimensions: 2
-                            type: EXPRESSION
-                            expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                            variables:
-                              VarianceRatio: 0.3
-                            samplers:
-                              max_elev_prob:
+                                type: EXPRESSION
+                                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                                variables:
+                                  nominal_value: 0.07
+                                  variance: 0.03
+                                samplers:
+                                  applied_threshold_variance:
+                                    dimensions: 2
+                                    type: PROBABILITY
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      salt: 697.0
+                                      frequency: 0.0003333333333
+                              base:
                                 dimensions: 2
-                                type: PROBABILITY
-                                sampler:
-                                  type: OPEN_SIMPLEX_2
-                                  salt: 697.0
-                                  frequency: 0.0003333333333
+                                type: EXPRESSION
+                                expression: continental_landmass(x, z)
+                                samplers:
+                                  continental_landmass:
+                                    dimensions: 2
+                                    type: EXPRESSION
+                                    expression: sampler(x - 10000, z - 10000)
+                                    samplers:
+                                      sampler:
+                                        dimensions: 2
+                                        type: TRANSLATE
+                                        x: 10000
+                                        z: 10000
+                                        sampler:
+                                          type: FBM
+                                          gain: 0.7
+                                          octaves: 2
+                                          lacunarity: 1.6
+                                          sampler:
+                                            type: PERLIN
+                                            frequency: 0.0002
+                              MesaGenRegion:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: sampler(x - 6000, z - 6000)
+                                variables:
+                                  globalScale: 1
+                                  scale: 2
+                                  offset: 0.1
+                                samplers:
+                                  sampler:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 2
+                                    lacunarity: 2.0
+                                    gain: 0.4
+                                    sampler:
+                                      type: PERLIN
+                                      frequency: 0.0005
+                                      salt: 200.0
+                              PeakHeightMultiplierAtPosition:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                                variables:
+                                  VarianceRatio: 0.3
+                                samplers:
+                                  max_elev_prob:
+                                    dimensions: 2
+                                    type: PROBABILITY
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      salt: 697.0
+                                      frequency: 0.0003333333333
                       MesaHeightModifier:
                         dimensions: 2
                         type: EXPRESSION
                         expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                         variables:
-                          MesaRegionActiveThresh: 0.1
+                          MesaRegionActiveThresh: 0.25
                         samplers:
                           base:
                             dimensions: 2
@@ -3339,7 +3437,7 @@ samplers:
                         type: EXPRESSION
                         expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                         variables:
-                          MesaRegionActiveThresh: 0.1
+                          MesaRegionActiveThresh: 0.25
                           MesaFlattopTransitionDelta: 0.01
                         samplers:
                           base:
@@ -3404,7 +3502,7 @@ samplers:
                         type: EXPRESSION
                         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                         variables:
-                          MesaRegionActiveThresh: 0.1
+                          MesaRegionActiveThresh: 0.25
                           MesaFlattopTransitionDelta: 0.01
                         samplers:
                           base:
@@ -3539,7 +3637,7 @@ samplers:
                     type: EXPRESSION
                     expression: |
                       lerp(
-                        HillHeightModifier(x, z),
+                        base(x, z),
                         threshold(x,z),
                         0,
                         0.5,
@@ -3548,6 +3646,29 @@ samplers:
                     variables:
                       MaxHillElev: 0.1
                     samplers:
+                      base:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: continental_landmass(x, z)
+                        samplers:
+                          continental_landmass:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 10000, z - 10000)
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: TRANSLATE
+                                x: 10000
+                                z: 10000
+                                sampler:
+                                  type: FBM
+                                  gain: 0.7
+                                  octaves: 2
+                                  lacunarity: 1.6
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0002
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -3568,7 +3689,7 @@ samplers:
                         type: FBM
                         octaves: 2
                         lacunarity: 2.0
-                        gain: 0.3
+                        gain: 0.1
                         sampler:
                           type: PERLIN
                           frequency: 0.006666666667
@@ -5698,7 +5819,7 @@ samplers:
               0.0,
               0.0,
               abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-              (mnt_and_ocean_valleys(x, z) )
+              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
             ),
           0),
           if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -5707,11 +5828,11 @@ samplers:
               0.0,
               0.0,
               0.5-MountainHeightGenThreshold,
-              (mnt_and_ocean_valleys(x, z) )
+              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
             ),
           0)
         )
-      ) * PeakElevAtPos(x,z) * MaxPeakElev
+      ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
     variables:
       MountainHeightGenThreshold: 0.07
       MaxPeakElev: 4
@@ -6129,7 +6250,7 @@ samplers:
     type: EXPRESSION
     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
     variables:
-      MesaRegionActiveThresh: 0.1
+      MesaRegionActiveThresh: 0.25
     samplers:
       base:
         dimensions: 2
@@ -6193,7 +6314,7 @@ samplers:
     type: EXPRESSION
     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
     variables:
-      MesaRegionActiveThresh: 0.1
+      MesaRegionActiveThresh: 0.25
       MesaFlattopTransitionDelta: 0.01
     samplers:
       base:
@@ -6258,7 +6379,7 @@ samplers:
     type: EXPRESSION
     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
     variables:
-      MesaRegionActiveThresh: 0.1
+      MesaRegionActiveThresh: 0.25
       MesaFlattopTransitionDelta: 0.01
     samplers:
       base:
@@ -6327,21 +6448,21 @@ samplers:
 
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
         if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (prefiltered_mesa_elev(x,z)/2 +
-            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+          (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
           //Else return the transition down to floor height
           if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+            (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
             0)
         ),
         0)
     variables:
       MesaFlattopTransitionDelta: 0.01
-      MesaFlattopTransitionRate: 0.01
-      MesaRegionActiveThresh: 0.1
+      MesaFlattopTransitionRate: 1
+      MesaRegionActiveThresh: 0.25
     samplers:
       mesa_gen_region:
         dimensions: 2
@@ -6362,33 +6483,11 @@ samplers:
               type: PERLIN
               frequency: 0.0005
               salt: 200.0
-      prefiltered_mesa_elev:
+      base_shifted_prefiltered_mesa_elev:
         dimensions: 2
         type: EXPRESSION
-        expression: |
-          if(base(x,z)>threshold(x,z),
-            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-            0
-          )
-        variables:
-          MaxNMesSteps: 3
-          MaxPeakElev: 1.8
+        expression: prefiltered_mesa_elev(x,z) - base(x,z)
         samplers:
-          threshold:
-            dimensions: 2
-            type: EXPRESSION
-            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-            variables:
-              nominal_value: 0.07
-              variance: 0.03
-            samplers:
-              applied_threshold_variance:
-                dimensions: 2
-                type: PROBABILITY
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  salt: 697.0
-                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -6412,45 +6511,95 @@ samplers:
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
-          MesaGenRegion:
+          prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
-            expression: sampler(x - 6000, z - 6000)
+            expression: |
+              if(base(x,z)>threshold(x,z),
+                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                0
+              )
             variables:
-              globalScale: 1
-              scale: 2
-              offset: 0.1
+              MaxNMesSteps: 3
+              MaxPeakElev: 1.8
             samplers:
-              sampler:
+              threshold:
                 dimensions: 2
-                type: FBM
-                octaves: 2
-                lacunarity: 2.0
-                gain: 0.4
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0005
-                  salt: 200.0
-          PeakHeightMultiplierAtPosition:
-            dimensions: 2
-            type: EXPRESSION
-            expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-            variables:
-              VarianceRatio: 0.3
-            samplers:
-              max_elev_prob:
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.07
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.0003333333333
+              base:
                 dimensions: 2
-                type: PROBABILITY
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  salt: 697.0
-                  frequency: 0.0003333333333
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              MesaGenRegion:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+              PeakHeightMultiplierAtPosition:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                variables:
+                  VarianceRatio: 0.3
+                samplers:
+                  max_elev_prob:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.0003333333333
       MesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
         expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
         variables:
-          MesaRegionActiveThresh: 0.1
+          MesaRegionActiveThresh: 0.25
         samplers:
           base:
             dimensions: 2
@@ -6514,7 +6663,7 @@ samplers:
         type: EXPRESSION
         expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
         variables:
-          MesaRegionActiveThresh: 0.1
+          MesaRegionActiveThresh: 0.25
           MesaFlattopTransitionDelta: 0.01
         samplers:
           base:
@@ -6579,7 +6728,7 @@ samplers:
         type: EXPRESSION
         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
         variables:
-          MesaRegionActiveThresh: 0.1
+          MesaRegionActiveThresh: 0.25
           MesaFlattopTransitionDelta: 0.01
         samplers:
           base:
@@ -6714,7 +6863,7 @@ samplers:
     type: FBM
     octaves: 2
     lacunarity: 2.0
-    gain: 0.3
+    gain: 0.1
     sampler:
       type: PERLIN
       frequency: 0.006666666667
@@ -6724,7 +6873,7 @@ samplers:
     type: EXPRESSION
     expression: |
       lerp(
-        HillHeightModifier(x, z),
+        base(x, z),
         threshold(x,z),
         0,
         0.5,
@@ -6733,6 +6882,29 @@ samplers:
     variables:
       MaxHillElev: 0.1
     samplers:
+      base:
+        dimensions: 2
+        type: EXPRESSION
+        expression: continental_landmass(x, z)
+        samplers:
+          continental_landmass:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 10000, z - 10000)
+            samplers:
+              sampler:
+                dimensions: 2
+                type: TRANSLATE
+                x: 10000
+                z: 10000
+                sampler:
+                  type: FBM
+                  gain: 0.7
+                  octaves: 2
+                  lacunarity: 1.6
+                  sampler:
+                    type: PERLIN
+                    frequency: 0.0002
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -6753,7 +6925,7 @@ samplers:
         type: FBM
         octaves: 2
         lacunarity: 2.0
-        gain: 0.3
+        gain: 0.1
         sampler:
           type: PERLIN
           frequency: 0.006666666667
@@ -6832,9 +7004,9 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < -threshold(x,z),
+      if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
@@ -6846,8 +7018,7 @@ samplers:
         )
       )
     variables:
-      continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-      MaxUnderwaterMulti: 2
+      MaxUnderwaterMulti: 0.4
     functions:
       lerp:
         arguments:
@@ -6919,21 +7090,6 @@ samplers:
             - x
             expression: x^2
     samplers:
-      threshold:
-        dimensions: 2
-        type: EXPRESSION
-        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-        variables:
-          nominal_value: 0.07
-          variance: 0.03
-        samplers:
-          applied_threshold_variance:
-            dimensions: 2
-            type: PROBABILITY
-            sampler:
-              type: OPEN_SIMPLEX_2
-              salt: 697.0
-              frequency: 0.0003333333333
       base:
         dimensions: 2
         type: EXPRESSION
@@ -7037,7 +7193,7 @@ samplers:
                   0.0,
                   0.0,
                   abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                  (mnt_and_ocean_valleys(x, z) )
+                  (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                 ),
               0),
               if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -7046,11 +7202,11 @@ samplers:
                   0.0,
                   0.0,
                   0.5-MountainHeightGenThreshold,
-                  (mnt_and_ocean_valleys(x, z) )
+                  (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                 ),
               0)
             )
-          ) * PeakElevAtPos(x,z) * MaxPeakElev
+          ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
         variables:
           MountainHeightGenThreshold: 0.07
           MaxPeakElev: 4
@@ -7278,21 +7434,21 @@ samplers:
 
             // If above the transition threshold and the wall transition delta, need to transition to flat top.
             if(MesaUpwardDistFromTransPnt(x,z)>0,
-              (prefiltered_mesa_elev(x,z)/2 +
-                ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+              (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                 (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
               //Else return the transition down to floor height
               if(MesaDownwardDistFromTransPnt(x,z)>0,
-                (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                 (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                 0)
             ),
             0)
         variables:
           MesaFlattopTransitionDelta: 0.01
-          MesaFlattopTransitionRate: 0.01
-          MesaRegionActiveThresh: 0.1
+          MesaFlattopTransitionRate: 1
+          MesaRegionActiveThresh: 0.25
         samplers:
           mesa_gen_region:
             dimensions: 2
@@ -7313,33 +7469,11 @@ samplers:
                   type: PERLIN
                   frequency: 0.0005
                   salt: 200.0
-          prefiltered_mesa_elev:
+          base_shifted_prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
-            expression: |
-              if(base(x,z)>threshold(x,z),
-                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                0
-              )
-            variables:
-              MaxNMesSteps: 3
-              MaxPeakElev: 1.8
+            expression: prefiltered_mesa_elev(x,z) - base(x,z)
             samplers:
-              threshold:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                variables:
-                  nominal_value: 0.07
-                  variance: 0.03
-                samplers:
-                  applied_threshold_variance:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -7363,45 +7497,95 @@ samplers:
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
-              MesaGenRegion:
+              prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: sampler(x - 6000, z - 6000)
+                expression: |
+                  if(base(x,z)>threshold(x,z),
+                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                    0
+                  )
                 variables:
-                  globalScale: 1
-                  scale: 2
-                  offset: 0.1
+                  MaxNMesSteps: 3
+                  MaxPeakElev: 1.8
                 samplers:
-                  sampler:
+                  threshold:
                     dimensions: 2
-                    type: FBM
-                    octaves: 2
-                    lacunarity: 2.0
-                    gain: 0.4
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0005
-                      salt: 200.0
-              PeakHeightMultiplierAtPosition:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                variables:
-                  VarianceRatio: 0.3
-                samplers:
-                  max_elev_prob:
+                    type: EXPRESSION
+                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                    variables:
+                      nominal_value: 0.07
+                      variance: 0.03
+                    samplers:
+                      applied_threshold_variance:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.0003333333333
+                  base:
                     dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.0003333333333
+                    type: EXPRESSION
+                    expression: continental_landmass(x, z)
+                    samplers:
+                      continental_landmass:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 10000, z - 10000)
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: TRANSLATE
+                            x: 10000
+                            z: 10000
+                            sampler:
+                              type: FBM
+                              gain: 0.7
+                              octaves: 2
+                              lacunarity: 1.6
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0002
+                  MesaGenRegion:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 6000, z - 6000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 200.0
+                  PeakHeightMultiplierAtPosition:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                    variables:
+                      VarianceRatio: 0.3
+                    samplers:
+                      max_elev_prob:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.0003333333333
           MesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
             expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
             samplers:
               base:
                 dimensions: 2
@@ -7465,7 +7649,7 @@ samplers:
             type: EXPRESSION
             expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -7530,7 +7714,7 @@ samplers:
             type: EXPRESSION
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.1
+              MesaRegionActiveThresh: 0.25
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -7665,7 +7849,7 @@ samplers:
         type: EXPRESSION
         expression: |
           lerp(
-            HillHeightModifier(x, z),
+            base(x, z),
             threshold(x,z),
             0,
             0.5,
@@ -7674,6 +7858,29 @@ samplers:
         variables:
           MaxHillElev: 0.1
         samplers:
+          base:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continental_landmass(x, z)
+            samplers:
+              continental_landmass:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 10000, z - 10000)
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: TRANSLATE
+                    x: 10000
+                    z: 10000
+                    sampler:
+                      type: FBM
+                      gain: 0.7
+                      octaves: 2
+                      lacunarity: 1.6
+                      sampler:
+                        type: PERLIN
+                        frequency: 0.0002
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -7694,7 +7901,7 @@ samplers:
             type: FBM
             octaves: 2
             lacunarity: 2.0
-            gain: 0.3
+            gain: 0.1
             sampler:
               type: PERLIN
               frequency: 0.006666666667
@@ -7859,9 +8066,9 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < -threshold(x,z),
+          if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
@@ -7873,8 +8080,7 @@ samplers:
             )
           )
         variables:
-          continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-          MaxUnderwaterMulti: 2
+          MaxUnderwaterMulti: 0.4
         functions:
           lerp:
             arguments:
@@ -7946,21 +8152,6 @@ samplers:
                 - x
                 expression: x^2
         samplers:
-          threshold:
-            dimensions: 2
-            type: EXPRESSION
-            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-            variables:
-              nominal_value: 0.07
-              variance: 0.03
-            samplers:
-              applied_threshold_variance:
-                dimensions: 2
-                type: PROBABILITY
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  salt: 697.0
-                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -8064,7 +8255,7 @@ samplers:
                       0.0,
                       0.0,
                       abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0),
                   if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -8073,11 +8264,11 @@ samplers:
                       0.0,
                       0.0,
                       0.5-MountainHeightGenThreshold,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0)
                 )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+              ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -8305,21 +8496,21 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 0.01
-              MesaRegionActiveThresh: 0.1
+              MesaFlattopTransitionRate: 1
+              MesaRegionActiveThresh: 0.25
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -8340,33 +8531,11 @@ samplers:
                       type: PERLIN
                       frequency: 0.0005
                       salt: 200.0
-              prefiltered_mesa_elev:
+              base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
-                  if(base(x,z)>threshold(x,z),
-                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                    0
-                  )
-                variables:
-                  MaxNMesSteps: 3
-                  MaxPeakElev: 1.8
+                expression: prefiltered_mesa_elev(x,z) - base(x,z)
                 samplers:
-                  threshold:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                    variables:
-                      nominal_value: 0.07
-                      variance: 0.03
-                    samplers:
-                      applied_threshold_variance:
-                        dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -8390,45 +8559,95 @@ samplers:
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
-                  MesaGenRegion:
+                  prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: sampler(x - 6000, z - 6000)
+                    expression: |
+                      if(base(x,z)>threshold(x,z),
+                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        0
+                      )
                     variables:
-                      globalScale: 1
-                      scale: 2
-                      offset: 0.1
+                      MaxNMesSteps: 3
+                      MaxPeakElev: 1.8
                     samplers:
-                      sampler:
+                      threshold:
                         dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.4
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 200.0
-                  PeakHeightMultiplierAtPosition:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                    variables:
-                      VarianceRatio: 0.3
-                    samplers:
-                      max_elev_prob:
+                        type: EXPRESSION
+                        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                        variables:
+                          nominal_value: 0.07
+                          variance: 0.03
+                        samplers:
+                          applied_threshold_variance:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
+                      base:
                         dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
+                        type: EXPRESSION
+                        expression: continental_landmass(x, z)
+                        samplers:
+                          continental_landmass:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 10000, z - 10000)
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: TRANSLATE
+                                x: 10000
+                                z: 10000
+                                sampler:
+                                  type: FBM
+                                  gain: 0.7
+                                  octaves: 2
+                                  lacunarity: 1.6
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0002
+                      MesaGenRegion:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 6000, z - 6000)
+                        variables:
+                          globalScale: 1
+                          scale: 2
+                          offset: 0.1
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 2
+                            lacunarity: 2.0
+                            gain: 0.4
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0005
+                              salt: 200.0
+                      PeakHeightMultiplierAtPosition:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                        variables:
+                          VarianceRatio: 0.3
+                        samplers:
+                          max_elev_prob:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                 samplers:
                   base:
                     dimensions: 2
@@ -8492,7 +8711,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -8557,7 +8776,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -8692,7 +8911,7 @@ samplers:
             type: EXPRESSION
             expression: |
               lerp(
-                HillHeightModifier(x, z),
+                base(x, z),
                 threshold(x,z),
                 0,
                 0.5,
@@ -8701,6 +8920,29 @@ samplers:
             variables:
               MaxHillElev: 0.1
             samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -8721,7 +8963,7 @@ samplers:
                 type: FBM
                 octaves: 2
                 lacunarity: 2.0
-                gain: 0.3
+                gain: 0.1
                 sampler:
                   type: PERLIN
                   frequency: 0.006666666667
@@ -9518,9 +9760,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -threshold(x,z),
+                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -9532,8 +9774,7 @@ samplers:
                   )
                 )
               variables:
-                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-                MaxUnderwaterMulti: 2
+                MaxUnderwaterMulti: 0.4
               functions:
                 lerp:
                   arguments:
@@ -9605,21 +9846,6 @@ samplers:
                       - x
                       expression: x^2
               samplers:
-                threshold:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                  variables:
-                    nominal_value: 0.07
-                    variance: 0.03
-                  samplers:
-                    applied_threshold_variance:
-                      dimensions: 2
-                      type: PROBABILITY
-                      sampler:
-                        type: OPEN_SIMPLEX_2
-                        salt: 697.0
-                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -9723,7 +9949,7 @@ samplers:
                             0.0,
                             0.0,
                             abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0),
                         if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -9732,11 +9958,11 @@ samplers:
                             0.0,
                             0.0,
                             0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0)
                       )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -9964,21 +10190,21 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
-                    MesaRegionActiveThresh: 0.1
+                    MesaFlattopTransitionRate: 1
+                    MesaRegionActiveThresh: 0.25
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -9999,33 +10225,11 @@ samplers:
                             type: PERLIN
                             frequency: 0.0005
                             salt: 200.0
-                    prefiltered_mesa_elev:
+                    base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: |
-                        if(base(x,z)>threshold(x,z),
-                          ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                          0
-                        )
-                      variables:
-                        MaxNMesSteps: 3
-                        MaxPeakElev: 1.8
+                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
                       samplers:
-                        threshold:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                          variables:
-                            nominal_value: 0.07
-                            variance: 0.03
-                          samplers:
-                            applied_threshold_variance:
-                              dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -10049,45 +10253,95 @@ samplers:
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
-                        MesaGenRegion:
+                        prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
-                          expression: sampler(x - 6000, z - 6000)
+                          expression: |
+                            if(base(x,z)>threshold(x,z),
+                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              0
+                            )
                           variables:
-                            globalScale: 1
-                            scale: 2
-                            offset: 0.1
+                            MaxNMesSteps: 3
+                            MaxPeakElev: 1.8
                           samplers:
-                            sampler:
+                            threshold:
                               dimensions: 2
-                              type: FBM
-                              octaves: 2
-                              lacunarity: 2.0
-                              gain: 0.4
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0005
-                                salt: 200.0
-                        PeakHeightMultiplierAtPosition:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                          variables:
-                            VarianceRatio: 0.3
-                          samplers:
-                            max_elev_prob:
+                              type: EXPRESSION
+                              expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                              variables:
+                                nominal_value: 0.07
+                                variance: 0.03
+                              samplers:
+                                applied_threshold_variance:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
+                            base:
                               dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
+                              type: EXPRESSION
+                              expression: continental_landmass(x, z)
+                              samplers:
+                                continental_landmass:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: sampler(x - 10000, z - 10000)
+                                  samplers:
+                                    sampler:
+                                      dimensions: 2
+                                      type: TRANSLATE
+                                      x: 10000
+                                      z: 10000
+                                      sampler:
+                                        type: FBM
+                                        gain: 0.7
+                                        octaves: 2
+                                        lacunarity: 1.6
+                                        sampler:
+                                          type: PERLIN
+                                          frequency: 0.0002
+                            MesaGenRegion:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: sampler(x - 6000, z - 6000)
+                              variables:
+                                globalScale: 1
+                                scale: 2
+                                offset: 0.1
+                              samplers:
+                                sampler:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 2
+                                  lacunarity: 2.0
+                                  gain: 0.4
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0005
+                                    salt: 200.0
+                            PeakHeightMultiplierAtPosition:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                              variables:
+                                VarianceRatio: 0.3
+                              samplers:
+                                max_elev_prob:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                       samplers:
                         base:
                           dimensions: 2
@@ -10151,7 +10405,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -10216,7 +10470,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -10351,7 +10605,7 @@ samplers:
                   type: EXPRESSION
                   expression: |
                     lerp(
-                      HillHeightModifier(x, z),
+                      base(x, z),
                       threshold(x,z),
                       0,
                       0.5,
@@ -10360,6 +10614,29 @@ samplers:
                   variables:
                     MaxHillElev: 0.1
                   samplers:
+                    base:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: continental_landmass(x, z)
+                      samplers:
+                        continental_landmass:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 10000, z - 10000)
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: TRANSLATE
+                              x: 10000
+                              z: 10000
+                              sampler:
+                                type: FBM
+                                gain: 0.7
+                                octaves: 2
+                                lacunarity: 1.6
+                                sampler:
+                                  type: PERLIN
+                                  frequency: 0.0002
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -10380,7 +10657,7 @@ samplers:
                       type: FBM
                       octaves: 2
                       lacunarity: 2.0
-                      gain: 0.3
+                      gain: 0.1
                       sampler:
                         type: PERLIN
                         frequency: 0.006666666667
@@ -11426,9 +11703,9 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < -threshold(x,z),
+          if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
@@ -11440,8 +11717,7 @@ samplers:
             )
           )
         variables:
-          continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-          MaxUnderwaterMulti: 2
+          MaxUnderwaterMulti: 0.4
         functions:
           lerp:
             arguments:
@@ -11513,21 +11789,6 @@ samplers:
                 - x
                 expression: x^2
         samplers:
-          threshold:
-            dimensions: 2
-            type: EXPRESSION
-            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-            variables:
-              nominal_value: 0.07
-              variance: 0.03
-            samplers:
-              applied_threshold_variance:
-                dimensions: 2
-                type: PROBABILITY
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  salt: 697.0
-                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -11631,7 +11892,7 @@ samplers:
                       0.0,
                       0.0,
                       abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0),
                   if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -11640,11 +11901,11 @@ samplers:
                       0.0,
                       0.0,
                       0.5-MountainHeightGenThreshold,
-                      (mnt_and_ocean_valleys(x, z) )
+                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                     ),
                   0)
                 )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+              ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
             variables:
               MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
@@ -11872,21 +12133,21 @@ samplers:
 
                 // If above the transition threshold and the wall transition delta, need to transition to flat top.
                 if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                   //Else return the transition down to floor height
                   if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                     (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                     0)
                 ),
                 0)
             variables:
               MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 0.01
-              MesaRegionActiveThresh: 0.1
+              MesaFlattopTransitionRate: 1
+              MesaRegionActiveThresh: 0.25
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -11907,33 +12168,11 @@ samplers:
                       type: PERLIN
                       frequency: 0.0005
                       salt: 200.0
-              prefiltered_mesa_elev:
+              base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
-                  if(base(x,z)>threshold(x,z),
-                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                    0
-                  )
-                variables:
-                  MaxNMesSteps: 3
-                  MaxPeakElev: 1.8
+                expression: prefiltered_mesa_elev(x,z) - base(x,z)
                 samplers:
-                  threshold:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                    variables:
-                      nominal_value: 0.07
-                      variance: 0.03
-                    samplers:
-                      applied_threshold_variance:
-                        dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -11957,45 +12196,95 @@ samplers:
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
-                  MesaGenRegion:
+                  prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: sampler(x - 6000, z - 6000)
+                    expression: |
+                      if(base(x,z)>threshold(x,z),
+                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        0
+                      )
                     variables:
-                      globalScale: 1
-                      scale: 2
-                      offset: 0.1
+                      MaxNMesSteps: 3
+                      MaxPeakElev: 1.8
                     samplers:
-                      sampler:
+                      threshold:
                         dimensions: 2
-                        type: FBM
-                        octaves: 2
-                        lacunarity: 2.0
-                        gain: 0.4
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0005
-                          salt: 200.0
-                  PeakHeightMultiplierAtPosition:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                    variables:
-                      VarianceRatio: 0.3
-                    samplers:
-                      max_elev_prob:
+                        type: EXPRESSION
+                        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                        variables:
+                          nominal_value: 0.07
+                          variance: 0.03
+                        samplers:
+                          applied_threshold_variance:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
+                      base:
                         dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.0003333333333
+                        type: EXPRESSION
+                        expression: continental_landmass(x, z)
+                        samplers:
+                          continental_landmass:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 10000, z - 10000)
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: TRANSLATE
+                                x: 10000
+                                z: 10000
+                                sampler:
+                                  type: FBM
+                                  gain: 0.7
+                                  octaves: 2
+                                  lacunarity: 1.6
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0002
+                      MesaGenRegion:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 6000, z - 6000)
+                        variables:
+                          globalScale: 1
+                          scale: 2
+                          offset: 0.1
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 2
+                            lacunarity: 2.0
+                            gain: 0.4
+                            sampler:
+                              type: PERLIN
+                              frequency: 0.0005
+                              salt: 200.0
+                      PeakHeightMultiplierAtPosition:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                        variables:
+                          VarianceRatio: 0.3
+                        samplers:
+                          max_elev_prob:
+                            dimensions: 2
+                            type: PROBABILITY
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              salt: 697.0
+                              frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                 samplers:
                   base:
                     dimensions: 2
@@ -12059,7 +12348,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -12124,7 +12413,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.1
+                  MesaRegionActiveThresh: 0.25
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -12259,7 +12548,7 @@ samplers:
             type: EXPRESSION
             expression: |
               lerp(
-                HillHeightModifier(x, z),
+                base(x, z),
                 threshold(x,z),
                 0,
                 0.5,
@@ -12268,6 +12557,29 @@ samplers:
             variables:
               MaxHillElev: 0.1
             samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -12288,7 +12600,7 @@ samplers:
                 type: FBM
                 octaves: 2
                 lacunarity: 2.0
-                gain: 0.3
+                gain: 0.1
                 sampler:
                   type: PERLIN
                   frequency: 0.006666666667
@@ -13961,9 +14273,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -threshold(x,z),
+                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -13975,8 +14287,7 @@ samplers:
                   )
                 )
               variables:
-                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-                MaxUnderwaterMulti: 2
+                MaxUnderwaterMulti: 0.4
               functions:
                 lerp:
                   arguments:
@@ -14048,21 +14359,6 @@ samplers:
                       - x
                       expression: x^2
               samplers:
-                threshold:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                  variables:
-                    nominal_value: 0.07
-                    variance: 0.03
-                  samplers:
-                    applied_threshold_variance:
-                      dimensions: 2
-                      type: PROBABILITY
-                      sampler:
-                        type: OPEN_SIMPLEX_2
-                        salt: 697.0
-                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -14166,7 +14462,7 @@ samplers:
                             0.0,
                             0.0,
                             abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0),
                         if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -14175,11 +14471,11 @@ samplers:
                             0.0,
                             0.0,
                             0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0)
                       )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -14407,21 +14703,21 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
-                    MesaRegionActiveThresh: 0.1
+                    MesaFlattopTransitionRate: 1
+                    MesaRegionActiveThresh: 0.25
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -14442,33 +14738,11 @@ samplers:
                             type: PERLIN
                             frequency: 0.0005
                             salt: 200.0
-                    prefiltered_mesa_elev:
+                    base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: |
-                        if(base(x,z)>threshold(x,z),
-                          ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                          0
-                        )
-                      variables:
-                        MaxNMesSteps: 3
-                        MaxPeakElev: 1.8
+                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
                       samplers:
-                        threshold:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                          variables:
-                            nominal_value: 0.07
-                            variance: 0.03
-                          samplers:
-                            applied_threshold_variance:
-                              dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -14492,45 +14766,95 @@ samplers:
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
-                        MesaGenRegion:
+                        prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
-                          expression: sampler(x - 6000, z - 6000)
+                          expression: |
+                            if(base(x,z)>threshold(x,z),
+                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              0
+                            )
                           variables:
-                            globalScale: 1
-                            scale: 2
-                            offset: 0.1
+                            MaxNMesSteps: 3
+                            MaxPeakElev: 1.8
                           samplers:
-                            sampler:
+                            threshold:
                               dimensions: 2
-                              type: FBM
-                              octaves: 2
-                              lacunarity: 2.0
-                              gain: 0.4
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0005
-                                salt: 200.0
-                        PeakHeightMultiplierAtPosition:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                          variables:
-                            VarianceRatio: 0.3
-                          samplers:
-                            max_elev_prob:
+                              type: EXPRESSION
+                              expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                              variables:
+                                nominal_value: 0.07
+                                variance: 0.03
+                              samplers:
+                                applied_threshold_variance:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
+                            base:
                               dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
+                              type: EXPRESSION
+                              expression: continental_landmass(x, z)
+                              samplers:
+                                continental_landmass:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: sampler(x - 10000, z - 10000)
+                                  samplers:
+                                    sampler:
+                                      dimensions: 2
+                                      type: TRANSLATE
+                                      x: 10000
+                                      z: 10000
+                                      sampler:
+                                        type: FBM
+                                        gain: 0.7
+                                        octaves: 2
+                                        lacunarity: 1.6
+                                        sampler:
+                                          type: PERLIN
+                                          frequency: 0.0002
+                            MesaGenRegion:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: sampler(x - 6000, z - 6000)
+                              variables:
+                                globalScale: 1
+                                scale: 2
+                                offset: 0.1
+                              samplers:
+                                sampler:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 2
+                                  lacunarity: 2.0
+                                  gain: 0.4
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0005
+                                    salt: 200.0
+                            PeakHeightMultiplierAtPosition:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                              variables:
+                                VarianceRatio: 0.3
+                              samplers:
+                                max_elev_prob:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                       samplers:
                         base:
                           dimensions: 2
@@ -14594,7 +14918,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -14659,7 +14983,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -14794,7 +15118,7 @@ samplers:
                   type: EXPRESSION
                   expression: |
                     lerp(
-                      HillHeightModifier(x, z),
+                      base(x, z),
                       threshold(x,z),
                       0,
                       0.5,
@@ -14803,6 +15127,29 @@ samplers:
                   variables:
                     MaxHillElev: 0.1
                   samplers:
+                    base:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: continental_landmass(x, z)
+                      samplers:
+                        continental_landmass:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 10000, z - 10000)
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: TRANSLATE
+                              x: 10000
+                              z: 10000
+                              sampler:
+                                type: FBM
+                                gain: 0.7
+                                octaves: 2
+                                lacunarity: 1.6
+                                sampler:
+                                  type: PERLIN
+                                  frequency: 0.0002
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -14823,7 +15170,7 @@ samplers:
                       type: FBM
                       octaves: 2
                       lacunarity: 2.0
-                      gain: 0.3
+                      gain: 0.1
                       sampler:
                         type: PERLIN
                         frequency: 0.006666666667
@@ -15757,9 +16104,9 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -threshold(x,z),
+                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
@@ -15771,8 +16118,7 @@ samplers:
                   )
                 )
               variables:
-                continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-                MaxUnderwaterMulti: 2
+                MaxUnderwaterMulti: 0.4
               functions:
                 lerp:
                   arguments:
@@ -15844,21 +16190,6 @@ samplers:
                       - x
                       expression: x^2
               samplers:
-                threshold:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                  variables:
-                    nominal_value: 0.07
-                    variance: 0.03
-                  samplers:
-                    applied_threshold_variance:
-                      dimensions: 2
-                      type: PROBABILITY
-                      sampler:
-                        type: OPEN_SIMPLEX_2
-                        salt: 697.0
-                        frequency: 0.0003333333333
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -15962,7 +16293,7 @@ samplers:
                             0.0,
                             0.0,
                             abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0),
                         if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -15971,11 +16302,11 @@ samplers:
                             0.0,
                             0.0,
                             0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
+                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                           ),
                         0)
                       )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                   variables:
                     MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
@@ -16203,21 +16534,21 @@ samplers:
 
                       // If above the transition threshold and the wall transition delta, need to transition to flat top.
                       if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                         //Else return the transition down to floor height
                         if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                           (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                           0)
                       ),
                       0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 0.01
-                    MesaRegionActiveThresh: 0.1
+                    MesaFlattopTransitionRate: 1
+                    MesaRegionActiveThresh: 0.25
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -16238,33 +16569,11 @@ samplers:
                             type: PERLIN
                             frequency: 0.0005
                             salt: 200.0
-                    prefiltered_mesa_elev:
+                    base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: |
-                        if(base(x,z)>threshold(x,z),
-                          ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                          0
-                        )
-                      variables:
-                        MaxNMesSteps: 3
-                        MaxPeakElev: 1.8
+                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
                       samplers:
-                        threshold:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                          variables:
-                            nominal_value: 0.07
-                            variance: 0.03
-                          samplers:
-                            applied_threshold_variance:
-                              dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -16288,45 +16597,95 @@ samplers:
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
-                        MesaGenRegion:
+                        prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
-                          expression: sampler(x - 6000, z - 6000)
+                          expression: |
+                            if(base(x,z)>threshold(x,z),
+                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              0
+                            )
                           variables:
-                            globalScale: 1
-                            scale: 2
-                            offset: 0.1
+                            MaxNMesSteps: 3
+                            MaxPeakElev: 1.8
                           samplers:
-                            sampler:
+                            threshold:
                               dimensions: 2
-                              type: FBM
-                              octaves: 2
-                              lacunarity: 2.0
-                              gain: 0.4
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0005
-                                salt: 200.0
-                        PeakHeightMultiplierAtPosition:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                          variables:
-                            VarianceRatio: 0.3
-                          samplers:
-                            max_elev_prob:
+                              type: EXPRESSION
+                              expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                              variables:
+                                nominal_value: 0.07
+                                variance: 0.03
+                              samplers:
+                                applied_threshold_variance:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
+                            base:
                               dimensions: 2
-                              type: PROBABILITY
-                              sampler:
-                                type: OPEN_SIMPLEX_2
-                                salt: 697.0
-                                frequency: 0.0003333333333
+                              type: EXPRESSION
+                              expression: continental_landmass(x, z)
+                              samplers:
+                                continental_landmass:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: sampler(x - 10000, z - 10000)
+                                  samplers:
+                                    sampler:
+                                      dimensions: 2
+                                      type: TRANSLATE
+                                      x: 10000
+                                      z: 10000
+                                      sampler:
+                                        type: FBM
+                                        gain: 0.7
+                                        octaves: 2
+                                        lacunarity: 1.6
+                                        sampler:
+                                          type: PERLIN
+                                          frequency: 0.0002
+                            MesaGenRegion:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: sampler(x - 6000, z - 6000)
+                              variables:
+                                globalScale: 1
+                                scale: 2
+                                offset: 0.1
+                              samplers:
+                                sampler:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 2
+                                  lacunarity: 2.0
+                                  gain: 0.4
+                                  sampler:
+                                    type: PERLIN
+                                    frequency: 0.0005
+                                    salt: 200.0
+                            PeakHeightMultiplierAtPosition:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                              variables:
+                                VarianceRatio: 0.3
+                              samplers:
+                                max_elev_prob:
+                                  dimensions: 2
+                                  type: PROBABILITY
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    salt: 697.0
+                                    frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                       samplers:
                         base:
                           dimensions: 2
@@ -16390,7 +16749,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -16455,7 +16814,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.1
+                        MesaRegionActiveThresh: 0.25
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -16590,7 +16949,7 @@ samplers:
                   type: EXPRESSION
                   expression: |
                     lerp(
-                      HillHeightModifier(x, z),
+                      base(x, z),
                       threshold(x,z),
                       0,
                       0.5,
@@ -16599,6 +16958,29 @@ samplers:
                   variables:
                     MaxHillElev: 0.1
                   samplers:
+                    base:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: continental_landmass(x, z)
+                      samplers:
+                        continental_landmass:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: sampler(x - 10000, z - 10000)
+                          samplers:
+                            sampler:
+                              dimensions: 2
+                              type: TRANSLATE
+                              x: 10000
+                              z: 10000
+                              sampler:
+                                type: FBM
+                                gain: 0.7
+                                octaves: 2
+                                lacunarity: 1.6
+                                sampler:
+                                  type: PERLIN
+                                  frequency: 0.0002
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -16619,7 +17001,7 @@ samplers:
                       type: FBM
                       octaves: 2
                       lacunarity: 2.0
-                      gain: 0.3
+                      gain: 0.1
                       sampler:
                         type: PERLIN
                         frequency: 0.006666666667
@@ -17906,9 +18288,9 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < -threshold(x,z),
+              if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
@@ -17920,8 +18302,7 @@ samplers:
                 )
               )
             variables:
-              continentalSubOceanLargeFeaturesAllowedThreshold: -0.05
-              MaxUnderwaterMulti: 2
+              MaxUnderwaterMulti: 0.4
             functions:
               lerp:
                 arguments:
@@ -17993,21 +18374,6 @@ samplers:
                     - x
                     expression: x^2
             samplers:
-              threshold:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                variables:
-                  nominal_value: 0.07
-                  variance: 0.03
-                samplers:
-                  applied_threshold_variance:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -18111,7 +18477,7 @@ samplers:
                           0.0,
                           0.0,
                           abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                          (mnt_and_ocean_valleys(x, z) )
+                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                         ),
                       0),
                       if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -18120,11 +18486,11 @@ samplers:
                           0.0,
                           0.0,
                           0.5-MountainHeightGenThreshold,
-                          (mnt_and_ocean_valleys(x, z) )
+                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
                         ),
                       0)
                     )
-                  ) * PeakElevAtPos(x,z) * MaxPeakElev
+                  ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
                 variables:
                   MountainHeightGenThreshold: 0.07
                   MaxPeakElev: 4
@@ -18352,21 +18718,21 @@ samplers:
 
                     // If above the transition threshold and the wall transition delta, need to transition to flat top.
                     if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (prefiltered_mesa_elev(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                      (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
                       //Else return the transition down to floor height
                       if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+                        (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
                         (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
                         0)
                     ),
                     0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 0.01
-                  MesaRegionActiveThresh: 0.1
+                  MesaFlattopTransitionRate: 1
+                  MesaRegionActiveThresh: 0.25
                 samplers:
                   mesa_gen_region:
                     dimensions: 2
@@ -18387,33 +18753,11 @@ samplers:
                           type: PERLIN
                           frequency: 0.0005
                           salt: 200.0
-                  prefiltered_mesa_elev:
+                  base_shifted_prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: |
-                      if(base(x,z)>threshold(x,z),
-                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
-                        0
-                      )
-                    variables:
-                      MaxNMesSteps: 3
-                      MaxPeakElev: 1.8
+                    expression: prefiltered_mesa_elev(x,z) - base(x,z)
                     samplers:
-                      threshold:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                        variables:
-                          nominal_value: 0.07
-                          variance: 0.03
-                        samplers:
-                          applied_threshold_variance:
-                            dimensions: 2
-                            type: PROBABILITY
-                            sampler:
-                              type: OPEN_SIMPLEX_2
-                              salt: 697.0
-                              frequency: 0.0003333333333
                       base:
                         dimensions: 2
                         type: EXPRESSION
@@ -18437,45 +18781,95 @@ samplers:
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
-                      MesaGenRegion:
+                      prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: sampler(x - 6000, z - 6000)
+                        expression: |
+                          if(base(x,z)>threshold(x,z),
+                            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                            0
+                          )
                         variables:
-                          globalScale: 1
-                          scale: 2
-                          offset: 0.1
+                          MaxNMesSteps: 3
+                          MaxPeakElev: 1.8
                         samplers:
-                          sampler:
+                          threshold:
                             dimensions: 2
-                            type: FBM
-                            octaves: 2
-                            lacunarity: 2.0
-                            gain: 0.4
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0005
-                              salt: 200.0
-                      PeakHeightMultiplierAtPosition:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                        variables:
-                          VarianceRatio: 0.3
-                        samplers:
-                          max_elev_prob:
+                            type: EXPRESSION
+                            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                            variables:
+                              nominal_value: 0.07
+                              variance: 0.03
+                            samplers:
+                              applied_threshold_variance:
+                                dimensions: 2
+                                type: PROBABILITY
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  salt: 697.0
+                                  frequency: 0.0003333333333
+                          base:
                             dimensions: 2
-                            type: PROBABILITY
-                            sampler:
-                              type: OPEN_SIMPLEX_2
-                              salt: 697.0
-                              frequency: 0.0003333333333
+                            type: EXPRESSION
+                            expression: continental_landmass(x, z)
+                            samplers:
+                              continental_landmass:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: sampler(x - 10000, z - 10000)
+                                samplers:
+                                  sampler:
+                                    dimensions: 2
+                                    type: TRANSLATE
+                                    x: 10000
+                                    z: 10000
+                                    sampler:
+                                      type: FBM
+                                      gain: 0.7
+                                      octaves: 2
+                                      lacunarity: 1.6
+                                      sampler:
+                                        type: PERLIN
+                                        frequency: 0.0002
+                          MesaGenRegion:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: sampler(x - 6000, z - 6000)
+                            variables:
+                              globalScale: 1
+                              scale: 2
+                              offset: 0.1
+                            samplers:
+                              sampler:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 2
+                                lacunarity: 2.0
+                                gain: 0.4
+                                sampler:
+                                  type: PERLIN
+                                  frequency: 0.0005
+                                  salt: 200.0
+                          PeakHeightMultiplierAtPosition:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                            variables:
+                              VarianceRatio: 0.3
+                            samplers:
+                              max_elev_prob:
+                                dimensions: 2
+                                type: PROBABILITY
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  salt: 697.0
+                                  frequency: 0.0003333333333
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                     samplers:
                       base:
                         dimensions: 2
@@ -18539,7 +18933,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -18604,7 +18998,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.1
+                      MesaRegionActiveThresh: 0.25
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -18739,7 +19133,7 @@ samplers:
                 type: EXPRESSION
                 expression: |
                   lerp(
-                    HillHeightModifier(x, z),
+                    base(x, z),
                     threshold(x,z),
                     0,
                     0.5,
@@ -18748,6 +19142,29 @@ samplers:
                 variables:
                   MaxHillElev: 0.1
                 samplers:
+                  base:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: continental_landmass(x, z)
+                    samplers:
+                      continental_landmass:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 10000, z - 10000)
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: TRANSLATE
+                            x: 10000
+                            z: 10000
+                            sampler:
+                              type: FBM
+                              gain: 0.7
+                              octaves: 2
+                              lacunarity: 1.6
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0002
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -18768,7 +19185,7 @@ samplers:
                     type: FBM
                     octaves: 2
                     lacunarity: 2.0
-                    gain: 0.3
+                    gain: 0.1
                     sampler:
                       type: PERLIN
                       frequency: 0.006666666667

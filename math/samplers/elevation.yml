@@ -61,6 +61,11 @@ samplers:
     salt: 407
 
   MountainHeightModifier: &MountainHeightModifier
+    #dimensions: 2
+    #type: LINEAR
+    #min: -0.3
+    #max: 0.3
+    #sampler:
     dimensions: 2
     type: EXPRESSION
     expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
@@ -69,6 +74,7 @@ samplers:
       mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
 
 #Creates mountian hight modifiers in valid regions, also creates negative offsets in deep valleys / ocean valleys.
+#Note X3 because both mnt_and_ocean_valleys have a rough dist from -.3 to .3
   RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
     dimensions: 2
     type: EXPRESSION
@@ -81,7 +87,7 @@ samplers:
               0.0,
               0.0,
               abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-              (mnt_and_ocean_valleys(x, z) )
+              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
             ),
           0),
           if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
@@ -90,11 +96,11 @@ samplers:
               0.0,
               0.0,
               0.5-MountainHeightGenThreshold,
-              (mnt_and_ocean_valleys(x, z) )
+              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
             ),
           0)
         )
-      ) * PeakElevAtPos(x,z) * MaxPeakElev
+      ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
@@ -127,7 +133,7 @@ samplers:
       PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       
   # Mesa height modifier components
-  base_shifted_prefiltered_mesa_elev:
+  base_shifted_prefiltered_mesa_elev: &base_shifted_prefiltered_mesa_elev
     dimensions: 2
     type: EXPRESSION
     expression: prefiltered_mesa_elev(x,z) - base(x,z)
@@ -180,13 +186,13 @@ samplers:
 
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
         if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (prefiltered_mesa_elev(x,z)/2 +
-            ((MesaUpwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+          (base_shifted_prefiltered_mesa_elev(x,z)/2 +
+            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
 
           //Else return the transition down to floor height
           if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt(x,z)*prefiltered_mesa_elev(x,z)/2)/
+            (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
             (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
             0)
         ),
@@ -197,7 +203,7 @@ samplers:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
-      prefiltered_mesa_elev: *prefiltered_mesa_elev
+      base_shifted_prefiltered_mesa_elev: *base_shifted_prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier
       MesaUpwardDistFromTransPnt: *MesaUpwardDistFromTransPnt
       MesaDownwardDistFromTransPnt: *MesaDownwardDistFromTransPnt
@@ -210,7 +216,7 @@ samplers:
     type: FBM
     octaves: 2
     lacunarity: 2.0
-    gain: 0.3
+    gain: 0.1
     sampler:
       type: PERLIN
       frequency: (1/${customization.yml:continental-hill2hill-distance})
@@ -221,7 +227,7 @@ samplers:
     type: EXPRESSION
     expression: |
       lerp(
-        HillHeightModifier(x, z),
+        base(x, z),
         threshold(x,z),
         0,
         0.5,
@@ -230,6 +236,7 @@ samplers:
     variables:
       MaxHillElev: 0.1
     samplers:
+      base: *base
       threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       HillHeightModifier: *HillHeightModifier
     functions: $math/functions/interpolation.yml:functions
@@ -238,9 +245,9 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < -threshold(x,z),
+      if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - RegionFilteredMountainHeightModifier(x,z),
+        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
@@ -252,12 +259,10 @@ samplers:
         )
       )
     variables:
-      continentalSubOceanLargeFeaturesAllowedThreshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
       MaxUnderwaterMulti: $customization.yml:continental-UnderwaterPeakHeightRatio
     functions: $math/functions/interpolation.yml:functions
 
     samplers:
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       base: *base
       MountainHeightModifier: *MountainHeightModifier
       OceanValley: *OceanValley

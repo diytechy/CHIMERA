@@ -42,7 +42,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (rawElevation(x,z))*100
+        expression: (rawElevation(x,z))*50+50
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -225,7 +225,7 @@ samplers:
             type: EXPRESSION
             expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -290,7 +290,7 @@ samplers:
             type: EXPRESSION
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -669,7 +669,7 @@ samplers:
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -717,33 +717,33 @@ samplers:
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
-              abs(
-                min(
-                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+            expression: |2
+
+              if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                abs(
+                  min(
                     lerp(
                       abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                     ),
-                  0),
-                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                     lerp(
-                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                       0.0,
                       0.0,
-                      0.5-MountainHeightGenThreshold,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                    ),
-                  0)
-                )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                    )
+                  )
+                ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                0
+              )
             variables:
-              MountainHeightGenThreshold: 0.35
+              MountainHeightGenThreshold: 0.1
               MaxPeakElev: 4
-              MountianTransitionHeight: 0.01
+              MountianTransitionHeight: 0.1
             samplers:
               base:
                 dimensions: 2
@@ -804,7 +804,7 @@ samplers:
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -981,7 +981,7 @@ samplers:
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -1118,7 +1118,7 @@ samplers:
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                 samplers:
                   base:
                     dimensions: 2
@@ -1182,7 +1182,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -1247,7 +1247,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -1382,7 +1382,7 @@ samplers:
             type: EXPRESSION
             expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
             samplers:
               base:
                 dimensions: 2
@@ -1842,7 +1842,7 @@ samplers:
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -1910,33 +1910,33 @@ samplers:
               RegionFilteredMountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
-                  abs(
-                    min(
-                      if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                expression: |2
+
+                  if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                    abs(
+                      min(
                         lerp(
                           abs(base(x, z)) - threshold(x,z),
                           0.0,
                           0.0,
-                          abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                          MountianTransitionHeight,
+                          (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                         ),
-                      0),
-                      if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                         lerp(
-                          mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                          MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                           0.0,
                           0.0,
-                          0.5-MountainHeightGenThreshold,
-                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                        ),
-                      0)
-                    )
-                  ) * PeakElevAtPos(x,z) * MaxPeakElev
+                          MountianTransitionHeight,
+                          (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                        )
+                      )
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                    0
+                  )
                 variables:
-                  MountainHeightGenThreshold: 0.35
+                  MountainHeightGenThreshold: 0.1
                   MaxPeakElev: 4
-                  MountianTransitionHeight: 0.01
+                  MountianTransitionHeight: 0.1
                 samplers:
                   base:
                     dimensions: 2
@@ -1997,7 +1997,7 @@ samplers:
                   MountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                     samplers:
                       mountain_gen_region:
                         dimensions: 2
@@ -2174,7 +2174,7 @@ samplers:
                 variables:
                   MesaFlattopTransitionDelta: 0.01
                   MesaFlattopTransitionRate: 1
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                 samplers:
                   mesa_gen_region:
                     dimensions: 2
@@ -2311,7 +2311,7 @@ samplers:
                     type: EXPRESSION
                     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                     samplers:
                       base:
                         dimensions: 2
@@ -2375,7 +2375,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -2440,7 +2440,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -2904,7 +2904,7 @@ samplers:
                   MountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                     samplers:
                       mountain_gen_region:
                         dimensions: 2
@@ -2972,33 +2972,33 @@ samplers:
                   RegionFilteredMountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: |
-                      abs(
-                        min(
-                          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                    expression: |2
+
+                      if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                        abs(
+                          min(
                             lerp(
                               abs(base(x, z)) - threshold(x,z),
                               0.0,
                               0.0,
-                              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                              MountianTransitionHeight,
+                              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                             ),
-                          0),
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                             lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                              MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                               0.0,
                               0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                            ),
-                          0)
-                        )
-                      ) * PeakElevAtPos(x,z) * MaxPeakElev
+                              MountianTransitionHeight,
+                              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                            )
+                          )
+                        ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                        0
+                      )
                     variables:
-                      MountainHeightGenThreshold: 0.35
+                      MountainHeightGenThreshold: 0.1
                       MaxPeakElev: 4
-                      MountianTransitionHeight: 0.01
+                      MountianTransitionHeight: 0.1
                     samplers:
                       base:
                         dimensions: 2
@@ -3059,7 +3059,7 @@ samplers:
                       MountainHeightModifier:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                         samplers:
                           mountain_gen_region:
                             dimensions: 2
@@ -3236,7 +3236,7 @@ samplers:
                     variables:
                       MesaFlattopTransitionDelta: 0.01
                       MesaFlattopTransitionRate: 1
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                     samplers:
                       mesa_gen_region:
                         dimensions: 2
@@ -3373,7 +3373,7 @@ samplers:
                         type: EXPRESSION
                         expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                         variables:
-                          MesaRegionActiveThresh: 0.35
+                          MesaRegionActiveThresh: 0.33
                         samplers:
                           base:
                             dimensions: 2
@@ -3437,7 +3437,7 @@ samplers:
                         type: EXPRESSION
                         expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                         variables:
-                          MesaRegionActiveThresh: 0.35
+                          MesaRegionActiveThresh: 0.33
                           MesaFlattopTransitionDelta: 0.01
                         samplers:
                           base:
@@ -3502,7 +3502,7 @@ samplers:
                         type: EXPRESSION
                         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                         variables:
-                          MesaRegionActiveThresh: 0.35
+                          MesaRegionActiveThresh: 0.33
                           MesaFlattopTransitionDelta: 0.01
                         samplers:
                           base:
@@ -5762,7 +5762,7 @@ samplers:
   MountainHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
     samplers:
       mountain_gen_region:
         dimensions: 2
@@ -5810,33 +5810,33 @@ samplers:
   RegionFilteredMountainHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: |
-      abs(
-        min(
-          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+    expression: |2
+
+      if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+        abs(
+          min(
             lerp(
               abs(base(x, z)) - threshold(x,z),
               0.0,
               0.0,
-              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+              MountianTransitionHeight,
+              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
             ),
-          0),
-          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
             lerp(
-              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              MountainHeightModifier(x,z)-MountainHeightGenThreshold,
               0.0,
               0.0,
-              0.5-MountainHeightGenThreshold,
-              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-            ),
-          0)
-        )
-      ) * PeakElevAtPos(x,z) * MaxPeakElev
+              MountianTransitionHeight,
+              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+            )
+          )
+        ) * PeakElevAtPos(x,z) * MaxPeakElev,
+        0
+      )
     variables:
-      MountainHeightGenThreshold: 0.35
+      MountainHeightGenThreshold: 0.1
       MaxPeakElev: 4
-      MountianTransitionHeight: 0.01
+      MountianTransitionHeight: 0.1
     samplers:
       base:
         dimensions: 2
@@ -5897,7 +5897,7 @@ samplers:
       MountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
         samplers:
           mountain_gen_region:
             dimensions: 2
@@ -6250,7 +6250,7 @@ samplers:
     type: EXPRESSION
     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
     variables:
-      MesaRegionActiveThresh: 0.35
+      MesaRegionActiveThresh: 0.33
     samplers:
       base:
         dimensions: 2
@@ -6314,7 +6314,7 @@ samplers:
     type: EXPRESSION
     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
     variables:
-      MesaRegionActiveThresh: 0.35
+      MesaRegionActiveThresh: 0.33
       MesaFlattopTransitionDelta: 0.01
     samplers:
       base:
@@ -6379,7 +6379,7 @@ samplers:
     type: EXPRESSION
     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
     variables:
-      MesaRegionActiveThresh: 0.35
+      MesaRegionActiveThresh: 0.33
       MesaFlattopTransitionDelta: 0.01
     samplers:
       base:
@@ -6462,7 +6462,7 @@ samplers:
     variables:
       MesaFlattopTransitionDelta: 0.01
       MesaFlattopTransitionRate: 1
-      MesaRegionActiveThresh: 0.35
+      MesaRegionActiveThresh: 0.33
     samplers:
       mesa_gen_region:
         dimensions: 2
@@ -6599,7 +6599,7 @@ samplers:
         type: EXPRESSION
         expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
         variables:
-          MesaRegionActiveThresh: 0.35
+          MesaRegionActiveThresh: 0.33
         samplers:
           base:
             dimensions: 2
@@ -6663,7 +6663,7 @@ samplers:
         type: EXPRESSION
         expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
         variables:
-          MesaRegionActiveThresh: 0.35
+          MesaRegionActiveThresh: 0.33
           MesaFlattopTransitionDelta: 0.01
         samplers:
           base:
@@ -6728,7 +6728,7 @@ samplers:
         type: EXPRESSION
         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
         variables:
-          MesaRegionActiveThresh: 0.35
+          MesaRegionActiveThresh: 0.33
           MesaFlattopTransitionDelta: 0.01
         samplers:
           base:
@@ -7116,7 +7116,7 @@ samplers:
       MountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+        expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
         samplers:
           mountain_gen_region:
             dimensions: 2
@@ -7184,33 +7184,33 @@ samplers:
       RegionFilteredMountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: |
-          abs(
-            min(
-              if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+        expression: |2
+
+          if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+            abs(
+              min(
                 lerp(
                   abs(base(x, z)) - threshold(x,z),
                   0.0,
                   0.0,
-                  abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                  (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                  MountianTransitionHeight,
+                  (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                 ),
-              0),
-              if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                 lerp(
-                  mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                  MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                   0.0,
                   0.0,
-                  0.5-MountainHeightGenThreshold,
-                  (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                ),
-              0)
-            )
-          ) * PeakElevAtPos(x,z) * MaxPeakElev
+                  MountianTransitionHeight,
+                  (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                )
+              )
+            ) * PeakElevAtPos(x,z) * MaxPeakElev,
+            0
+          )
         variables:
-          MountainHeightGenThreshold: 0.35
+          MountainHeightGenThreshold: 0.1
           MaxPeakElev: 4
-          MountianTransitionHeight: 0.01
+          MountianTransitionHeight: 0.1
         samplers:
           base:
             dimensions: 2
@@ -7271,7 +7271,7 @@ samplers:
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -7448,7 +7448,7 @@ samplers:
         variables:
           MesaFlattopTransitionDelta: 0.01
           MesaFlattopTransitionRate: 1
-          MesaRegionActiveThresh: 0.35
+          MesaRegionActiveThresh: 0.33
         samplers:
           mesa_gen_region:
             dimensions: 2
@@ -7585,7 +7585,7 @@ samplers:
             type: EXPRESSION
             expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
             samplers:
               base:
                 dimensions: 2
@@ -7649,7 +7649,7 @@ samplers:
             type: EXPRESSION
             expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -7714,7 +7714,7 @@ samplers:
             type: EXPRESSION
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
               MesaFlattopTransitionDelta: 0.01
             samplers:
               base:
@@ -8178,7 +8178,7 @@ samplers:
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -8246,33 +8246,33 @@ samplers:
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
-              abs(
-                min(
-                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+            expression: |2
+
+              if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                abs(
+                  min(
                     lerp(
                       abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                     ),
-                  0),
-                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                     lerp(
-                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                       0.0,
                       0.0,
-                      0.5-MountainHeightGenThreshold,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                    ),
-                  0)
-                )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                    )
+                  )
+                ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                0
+              )
             variables:
-              MountainHeightGenThreshold: 0.35
+              MountainHeightGenThreshold: 0.1
               MaxPeakElev: 4
-              MountianTransitionHeight: 0.01
+              MountianTransitionHeight: 0.1
             samplers:
               base:
                 dimensions: 2
@@ -8333,7 +8333,7 @@ samplers:
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -8510,7 +8510,7 @@ samplers:
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -8647,7 +8647,7 @@ samplers:
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                 samplers:
                   base:
                     dimensions: 2
@@ -8711,7 +8711,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -8776,7 +8776,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -9872,7 +9872,7 @@ samplers:
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -9940,33 +9940,33 @@ samplers:
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
-                    abs(
-                      min(
-                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                  expression: |2
+
+                    if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                      abs(
+                        min(
                           lerp(
                             abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                           ),
-                        0),
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                           lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                             0.0,
                             0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                          ),
-                        0)
-                      )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                          )
+                        )
+                      ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                      0
+                    )
                   variables:
-                    MountainHeightGenThreshold: 0.35
+                    MountainHeightGenThreshold: 0.1
                     MaxPeakElev: 4
-                    MountianTransitionHeight: 0.01
+                    MountianTransitionHeight: 0.1
                   samplers:
                     base:
                       dimensions: 2
@@ -10027,7 +10027,7 @@ samplers:
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -10204,7 +10204,7 @@ samplers:
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
-                    MesaRegionActiveThresh: 0.35
+                    MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -10341,7 +10341,7 @@ samplers:
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                       samplers:
                         base:
                           dimensions: 2
@@ -10405,7 +10405,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -10470,7 +10470,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -11815,7 +11815,7 @@ samplers:
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+            expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
             samplers:
               mountain_gen_region:
                 dimensions: 2
@@ -11883,33 +11883,33 @@ samplers:
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
-              abs(
-                min(
-                  if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+            expression: |2
+
+              if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                abs(
+                  min(
                     lerp(
                       abs(base(x, z)) - threshold(x,z),
                       0.0,
                       0.0,
-                      abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                     ),
-                  0),
-                  if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                     lerp(
-                      mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                      MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                       0.0,
                       0.0,
-                      0.5-MountainHeightGenThreshold,
-                      (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                    ),
-                  0)
-                )
-              ) * PeakElevAtPos(x,z) * MaxPeakElev
+                      MountianTransitionHeight,
+                      (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                    )
+                  )
+                ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                0
+              )
             variables:
-              MountainHeightGenThreshold: 0.35
+              MountainHeightGenThreshold: 0.1
               MaxPeakElev: 4
-              MountianTransitionHeight: 0.01
+              MountianTransitionHeight: 0.1
             samplers:
               base:
                 dimensions: 2
@@ -11970,7 +11970,7 @@ samplers:
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -12147,7 +12147,7 @@ samplers:
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
-              MesaRegionActiveThresh: 0.35
+              MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -12284,7 +12284,7 @@ samplers:
                 type: EXPRESSION
                 expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                 samplers:
                   base:
                     dimensions: 2
@@ -12348,7 +12348,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -12413,7 +12413,7 @@ samplers:
                 type: EXPRESSION
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                   MesaFlattopTransitionDelta: 0.01
                 samplers:
                   base:
@@ -14385,7 +14385,7 @@ samplers:
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -14453,33 +14453,33 @@ samplers:
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
-                    abs(
-                      min(
-                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                  expression: |2
+
+                    if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                      abs(
+                        min(
                           lerp(
                             abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                           ),
-                        0),
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                           lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                             0.0,
                             0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                          ),
-                        0)
-                      )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                          )
+                        )
+                      ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                      0
+                    )
                   variables:
-                    MountainHeightGenThreshold: 0.35
+                    MountainHeightGenThreshold: 0.1
                     MaxPeakElev: 4
-                    MountianTransitionHeight: 0.01
+                    MountianTransitionHeight: 0.1
                   samplers:
                     base:
                       dimensions: 2
@@ -14540,7 +14540,7 @@ samplers:
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -14717,7 +14717,7 @@ samplers:
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
-                    MesaRegionActiveThresh: 0.35
+                    MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -14854,7 +14854,7 @@ samplers:
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                       samplers:
                         base:
                           dimensions: 2
@@ -14918,7 +14918,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -14983,7 +14983,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -16216,7 +16216,7 @@ samplers:
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                  expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                   samplers:
                     mountain_gen_region:
                       dimensions: 2
@@ -16284,33 +16284,33 @@ samplers:
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
-                    abs(
-                      min(
-                        if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                  expression: |2
+
+                    if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                      abs(
+                        min(
                           lerp(
                             abs(base(x, z)) - threshold(x,z),
                             0.0,
                             0.0,
-                            abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                           ),
-                        0),
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                           lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                             0.0,
                             0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                          ),
-                        0)
-                      )
-                    ) * PeakElevAtPos(x,z) * MaxPeakElev
+                            MountianTransitionHeight,
+                            (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                          )
+                        )
+                      ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                      0
+                    )
                   variables:
-                    MountainHeightGenThreshold: 0.35
+                    MountainHeightGenThreshold: 0.1
                     MaxPeakElev: 4
-                    MountianTransitionHeight: 0.01
+                    MountianTransitionHeight: 0.1
                   samplers:
                     base:
                       dimensions: 2
@@ -16371,7 +16371,7 @@ samplers:
                     MountainHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                      expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                       samplers:
                         mountain_gen_region:
                           dimensions: 2
@@ -16548,7 +16548,7 @@ samplers:
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
-                    MesaRegionActiveThresh: 0.35
+                    MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -16685,7 +16685,7 @@ samplers:
                       type: EXPRESSION
                       expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                       samplers:
                         base:
                           dimensions: 2
@@ -16749,7 +16749,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -16814,7 +16814,7 @@ samplers:
                       type: EXPRESSION
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
-                        MesaRegionActiveThresh: 0.35
+                        MesaRegionActiveThresh: 0.33
                         MesaFlattopTransitionDelta: 0.01
                       samplers:
                         base:
@@ -18400,7 +18400,7 @@ samplers:
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                 samplers:
                   mountain_gen_region:
                     dimensions: 2
@@ -18468,33 +18468,33 @@ samplers:
               RegionFilteredMountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
-                  abs(
-                    min(
-                      if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+                expression: |2
+
+                  if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+                    abs(
+                      min(
                         lerp(
                           abs(base(x, z)) - threshold(x,z),
                           0.0,
                           0.0,
-                          abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+                          MountianTransitionHeight,
+                          (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
                         ),
-                      0),
-                      if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
                         lerp(
-                          mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                          MountainHeightModifier(x,z)-MountainHeightGenThreshold,
                           0.0,
                           0.0,
-                          0.5-MountainHeightGenThreshold,
-                          (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-                        ),
-                      0)
-                    )
-                  ) * PeakElevAtPos(x,z) * MaxPeakElev
+                          MountianTransitionHeight,
+                          (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+                        )
+                      )
+                    ) * PeakElevAtPos(x,z) * MaxPeakElev,
+                    0
+                  )
                 variables:
-                  MountainHeightGenThreshold: 0.35
+                  MountainHeightGenThreshold: 0.1
                   MaxPeakElev: 4
-                  MountianTransitionHeight: 0.01
+                  MountianTransitionHeight: 0.1
                 samplers:
                   base:
                     dimensions: 2
@@ -18555,7 +18555,7 @@ samplers:
                   MountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+                    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
                     samplers:
                       mountain_gen_region:
                         dimensions: 2
@@ -18732,7 +18732,7 @@ samplers:
                 variables:
                   MesaFlattopTransitionDelta: 0.01
                   MesaFlattopTransitionRate: 1
-                  MesaRegionActiveThresh: 0.35
+                  MesaRegionActiveThresh: 0.33
                 samplers:
                   mesa_gen_region:
                     dimensions: 2
@@ -18869,7 +18869,7 @@ samplers:
                     type: EXPRESSION
                     expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                     samplers:
                       base:
                         dimensions: 2
@@ -18933,7 +18933,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:
@@ -18998,7 +18998,7 @@ samplers:
                     type: EXPRESSION
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
-                      MesaRegionActiveThresh: 0.35
+                      MesaRegionActiveThresh: 0.33
                       MesaFlattopTransitionDelta: 0.01
                     samplers:
                       base:

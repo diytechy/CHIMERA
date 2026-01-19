@@ -102,12 +102,12 @@ continental-large-features-threshold-variance-distance: 3000
 
 #Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mountain-region-allowed-distance: 2000
-continental-mountain-region-allowed-threshold: .42
-continental-mountain-region-transition-base-height: .01
+continental-mountain-region-allowed-threshold: .10 #0 - 0.5
+continental-mountain-region-transition-base-height: .1
 
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
-continental-mesa-region-allowed-threshold: .35
+continental-mesa-region-allowed-threshold: .33
 continental-mesa-flattop-trans-delta: 0.01 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
 continental-mesa-flattop-trans-rate: 1 #how quickly do mesa walls go vertical, ratiometric before map is scaled.
 

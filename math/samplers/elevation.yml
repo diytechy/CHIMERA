@@ -60,6 +60,7 @@ samplers:
     frequency: (1 / ${customization.yml:continental-large-features-height-flux-dist})
     salt: 407
 
+#Note X2 because both mnt_and_ocean_valleys have a rough dist from -.5 to .5, or .25 max, so x2 to normalize to base.
   MountainHeightModifier: &MountainHeightModifier
     #dimensions: 2
     #type: LINEAR
@@ -68,39 +69,38 @@ samplers:
     #sampler:
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
+    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
     samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
 
 #Creates mountian hight modifiers in valid regions, also creates negative offsets in deep valleys / ocean valleys.
-#Note X3 because both mnt_and_ocean_valleys have a rough dist from -.3 to .3
   RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
-      abs(
-        min(
-          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
+    
+      if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
+        abs(
+          min(
             lerp(
               abs(base(x, z)) - threshold(x,z),
               0.0,
               0.0,
-              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
-              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
+              MountianTransitionHeight,
+              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
             ),
-          0),
-          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
             lerp(
-              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              MountainHeightModifier(x,z)-MountainHeightGenThreshold,
               0.0,
               0.0,
-              0.5-MountainHeightGenThreshold,
-              (abs(mnt_and_ocean_valleys(x, z)) - abs(base(x,z)) )
-            ),
-          0)
-        )
-      ) * PeakElevAtPos(x,z) * MaxPeakElev
+              MountianTransitionHeight,
+              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
+            )
+          )
+        ) * PeakElevAtPos(x,z) * MaxPeakElev,
+        0
+      )
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio

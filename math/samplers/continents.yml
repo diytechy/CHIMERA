@@ -1,6 +1,6 @@
 samplers:
   #Determines the variance
-  continental-large-features-allowed-threshold-with-variance: &continental-large-features-allowed-threshold-with-variance
+  continental_large_features_allowed_threshold_with_variance: &continental_large_features_allowed_threshold_with_variance
     dimensions: 2
     type: EXPRESSION
     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
@@ -55,7 +55,7 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.5
+    gain: 0.7
     octaves: 6
     lacunarity: 1.6
     sampler: *continental_landmass

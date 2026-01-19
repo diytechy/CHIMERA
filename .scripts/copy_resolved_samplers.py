@@ -107,7 +107,8 @@ def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_l
     empty_samplers = []
 
     # Pattern to match sampler names (word followed by colon)
-    sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_]*):\s*(#.*)?$')
+    # Include hyphens in sampler names to support names like "continental-large-features-allowed-threshold-with-variance"
+    sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*):\s*(#.*)?$')
 
     # First, find the expected indent level for top-level samplers
     # Look for the 'samplers:' key after INSERT marker
@@ -162,7 +163,8 @@ def find_existing_samplers_in_insert(lines: list[str], insert_line: int, resolve
     existing_samplers = []
 
     # Pattern to match sampler names (word followed by colon)
-    sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_]*):\s*(#.*)?$')
+    # Include hyphens in sampler names to support names like "continental-large-features-allowed-threshold-with-variance"
+    sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*):\s*(#.*)?$')
 
     # First, find the expected indent level for top-level samplers
     # Look for the 'samplers:' key after INSERT marker

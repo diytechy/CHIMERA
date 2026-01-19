@@ -42,7 +42,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (PeakHeightMultiplierAtPosition(x,z))*100
+        expression: (base_shifted_prefiltered_mesa_elev(x,z))*100
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -64,7 +64,7 @@ samplers:
         # elevation (Derived elevation function)
         # continents (Derived continental function)
         # mnt_and_ocean_valleys (Currently not intended to be used)
-        # continental-large-features-allowed-threshold-with-variance
+        # continental_large_features_allowed_threshold_with_variance
         # --- INSERT COPIES OF MATCHING SAMPLERS HERE ---
         samplers:
           test:
@@ -94,7 +94,132 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
-          continental-large-features-allowed-threshold-with-variance:
+          base_shifted_prefiltered_mesa_elev:
+            dimensions: 2
+            type: EXPRESSION
+            expression: prefiltered_mesa_elev(x,z) - base(x,z)
+            samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              prefiltered_mesa_elev:
+                dimensions: 2
+                type: EXPRESSION
+                expression: |
+                  if(base(x,z)>threshold(x,z),
+                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                    0
+                  )
+                variables:
+                  MaxNMesSteps: 3
+                  MaxPeakElev: 1.8
+                samplers:
+                  threshold:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                    variables:
+                      nominal_value: 0.07
+                      variance: 0.03
+                    samplers:
+                      applied_threshold_variance:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.0003333333333
+                  base:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: continental_landmass(x, z)
+                    samplers:
+                      continental_landmass:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: sampler(x - 10000, z - 10000)
+                        samplers:
+                          sampler:
+                            dimensions: 2
+                            type: TRANSLATE
+                            x: 10000
+                            z: 10000
+                            sampler:
+                              type: FBM
+                              gain: 0.7
+                              octaves: 2
+                              lacunarity: 1.6
+                              sampler:
+                                type: PERLIN
+                                frequency: 0.0002
+                  MesaGenRegion:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 6000, z - 6000)
+                    variables:
+                      globalScale: 1
+                      scale: 2
+                      offset: 0.1
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 2
+                        lacunarity: 2.0
+                        gain: 0.4
+                        sampler:
+                          type: PERLIN
+                          frequency: 0.0005
+                          salt: 200.0
+                  PeakHeightMultiplierAtPosition:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                    variables:
+                      VarianceRatio: 0.3
+                    samplers:
+                      max_elev_prob:
+                        dimensions: 2
+                        type: PROBABILITY
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          salt: 697.0
+                          frequency: 0.0003333333333
+          continental_large_features_allowed_threshold_with_variance:
+            dimensions: 2
+            type: EXPRESSION
+            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+            variables:
+              nominal_value: 0.07
+              variance: 0.03
+            samplers:
+              applied_threshold_variance:
+                dimensions: 2
+                type: PROBABILITY
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  salt: 697.0
+                  frequency: 0.0003333333333
           MesaUpwardDistFromTransPnt:
             dimensions: 2
             type: EXPRESSION
@@ -131,7 +256,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -140,7 +265,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -196,7 +321,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -205,7 +330,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -242,7 +367,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -251,7 +376,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -299,7 +424,7 @@ samplers:
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                 variables:
-                  VarianceRatio: 0.6
+                  VarianceRatio: 0.3
                 samplers:
                   max_elev_prob:
                     dimensions: 2
@@ -307,7 +432,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
           mountain_gen_region:
             dimensions: 2
             type: EXPRESSION
@@ -361,7 +486,7 @@ samplers:
             type: EXPRESSION
             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
             variables:
-              VarianceRatio: 0.6
+              VarianceRatio: 0.3
             samplers:
               max_elev_prob:
                 dimensions: 2
@@ -369,7 +494,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           HillHeightModifier:
             dimensions: 2
             type: FBM
@@ -399,7 +524,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -408,7 +533,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               HillHeightModifier:
                 dimensions: 2
                 type: FBM
@@ -492,7 +617,7 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.5
+            gain: 0.7
             octaves: 6
             lacunarity: 1.6
             sampler:
@@ -545,7 +670,7 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -636,7 +761,7 @@ samplers:
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                 variables:
-                  VarianceRatio: 0.6
+                  VarianceRatio: 0.3
                 samplers:
                   max_elev_prob:
                     dimensions: 2
@@ -644,7 +769,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mountain_gen_region:
                 dimensions: 2
                 type: EXPRESSION
@@ -691,7 +816,7 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -717,7 +842,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -726,11 +851,11 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -882,7 +1007,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -891,7 +1016,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -939,7 +1064,7 @@ samplers:
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                     variables:
-                      VarianceRatio: 0.6
+                      VarianceRatio: 0.3
                     samplers:
                       max_elev_prob:
                         dimensions: 2
@@ -947,7 +1072,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -983,7 +1108,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -992,7 +1117,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -1048,7 +1173,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -1057,7 +1182,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -1113,7 +1238,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -1122,7 +1247,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -1247,7 +1372,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -1256,7 +1381,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -1708,7 +1833,7 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -1739,7 +1864,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -1748,7 +1873,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               RegionFilteredMountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -1819,7 +1944,7 @@ samplers:
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                     variables:
-                      VarianceRatio: 0.6
+                      VarianceRatio: 0.3
                     samplers:
                       max_elev_prob:
                         dimensions: 2
@@ -1827,7 +1952,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   mountain_gen_region:
                     dimensions: 2
                     type: EXPRESSION
@@ -1874,7 +1999,7 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.5
+                        gain: 0.7
                         octaves: 6
                         lacunarity: 1.6
                         sampler:
@@ -1900,7 +2025,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -1909,11 +2034,11 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -2065,7 +2190,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -2074,7 +2199,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       base:
                         dimensions: 2
                         type: EXPRESSION
@@ -2122,7 +2247,7 @@ samplers:
                         type: EXPRESSION
                         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                         variables:
-                          VarianceRatio: 0.6
+                          VarianceRatio: 0.3
                         samplers:
                           max_elev_prob:
                             dimensions: 2
@@ -2130,7 +2255,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
@@ -2166,7 +2291,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -2175,7 +2300,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -2231,7 +2356,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -2240,7 +2365,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -2296,7 +2421,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -2305,7 +2430,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -2414,7 +2539,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -2423,7 +2548,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   HillHeightModifier:
                     dimensions: 2
                     type: FBM
@@ -2737,7 +2862,7 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.5
+                        gain: 0.7
                         octaves: 6
                         lacunarity: 1.6
                         sampler:
@@ -2768,7 +2893,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -2777,7 +2902,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   RegionFilteredMountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
@@ -2848,7 +2973,7 @@ samplers:
                         type: EXPRESSION
                         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                         variables:
-                          VarianceRatio: 0.6
+                          VarianceRatio: 0.3
                         samplers:
                           max_elev_prob:
                             dimensions: 2
@@ -2856,7 +2981,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       mountain_gen_region:
                         dimensions: 2
                         type: EXPRESSION
@@ -2903,7 +3028,7 @@ samplers:
                           mnt_and_ocean_valleys:
                             dimensions: 2
                             type: FBM
-                            gain: 0.5
+                            gain: 0.7
                             octaves: 6
                             lacunarity: 1.6
                             sampler:
@@ -2929,7 +3054,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -2938,11 +3063,11 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.5
+                        gain: 0.7
                         octaves: 6
                         lacunarity: 1.6
                         sampler:
@@ -3094,7 +3219,7 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.7
+                              nominal_value: 0.07
                               variance: 0.03
                             samplers:
                               applied_threshold_variance:
@@ -3103,7 +3228,7 @@ samplers:
                                 sampler:
                                   type: OPEN_SIMPLEX_2
                                   salt: 697.0
-                                  frequency: 0.001
+                                  frequency: 0.0003333333333
                           base:
                             dimensions: 2
                             type: EXPRESSION
@@ -3151,7 +3276,7 @@ samplers:
                             type: EXPRESSION
                             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                             variables:
-                              VarianceRatio: 0.6
+                              VarianceRatio: 0.3
                             samplers:
                               max_elev_prob:
                                 dimensions: 2
@@ -3159,7 +3284,7 @@ samplers:
                                 sampler:
                                   type: OPEN_SIMPLEX_2
                                   salt: 697.0
-                                  frequency: 0.001
+                                  frequency: 0.0003333333333
                       MesaHeightModifier:
                         dimensions: 2
                         type: EXPRESSION
@@ -3195,7 +3320,7 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.7
+                              nominal_value: 0.07
                               variance: 0.03
                             samplers:
                               applied_threshold_variance:
@@ -3204,7 +3329,7 @@ samplers:
                                 sampler:
                                   type: OPEN_SIMPLEX_2
                                   salt: 697.0
-                                  frequency: 0.001
+                                  frequency: 0.0003333333333
                           MesaGenRegion:
                             dimensions: 2
                             type: EXPRESSION
@@ -3260,7 +3385,7 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.7
+                              nominal_value: 0.07
                               variance: 0.03
                             samplers:
                               applied_threshold_variance:
@@ -3269,7 +3394,7 @@ samplers:
                                 sampler:
                                   type: OPEN_SIMPLEX_2
                                   salt: 697.0
-                                  frequency: 0.001
+                                  frequency: 0.0003333333333
                           MesaGenRegion:
                             dimensions: 2
                             type: EXPRESSION
@@ -3325,7 +3450,7 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.7
+                              nominal_value: 0.07
                               variance: 0.03
                             samplers:
                               applied_threshold_variance:
@@ -3334,7 +3459,7 @@ samplers:
                                 sampler:
                                   type: OPEN_SIMPLEX_2
                                   salt: 697.0
-                                  frequency: 0.001
+                                  frequency: 0.0003333333333
                           MesaGenRegion:
                             dimensions: 2
                             type: EXPRESSION
@@ -3443,7 +3568,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -3452,7 +3577,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       HillHeightModifier:
                         dimensions: 2
                         type: FBM
@@ -4410,12 +4535,12 @@ samplers:
                     salt: 1.0
                     frequency: 0.0002
 # --- RESOLVED SAMPLERS BELOW ---
-  continental-large-features-allowed-threshold-with-variance:
+  continental_large_features_allowed_threshold_with_variance:
     dimensions: 2
     type: EXPRESSION
     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
     variables:
-      nominal_value: 0.7
+      nominal_value: 0.07
       variance: 0.03
     samplers:
       applied_threshold_variance:
@@ -4424,13 +4549,13 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           salt: 697.0
-          frequency: 0.001
+          frequency: 0.0003333333333
   PeakHeightMultiplierAtPosition:
     dimensions: 2
     type: EXPRESSION
     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
     variables:
-      VarianceRatio: 0.6
+      VarianceRatio: 0.3
     samplers:
       max_elev_prob:
         dimensions: 2
@@ -4438,7 +4563,7 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           salt: 697.0
-          frequency: 0.001
+          frequency: 0.0003333333333
   continental_landmass:
     dimensions: 2
     type: EXPRESSION
@@ -4460,7 +4585,7 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.5
+    gain: 0.7
     octaves: 6
     lacunarity: 1.6
     sampler:
@@ -5555,7 +5680,7 @@ samplers:
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.5
+        gain: 0.7
         octaves: 6
         lacunarity: 1.6
         sampler:
@@ -5646,7 +5771,7 @@ samplers:
         type: EXPRESSION
         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
         variables:
-          VarianceRatio: 0.6
+          VarianceRatio: 0.3
         samplers:
           max_elev_prob:
             dimensions: 2
@@ -5654,7 +5779,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       mountain_gen_region:
         dimensions: 2
         type: EXPRESSION
@@ -5701,7 +5826,7 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.5
+            gain: 0.7
             octaves: 6
             lacunarity: 1.6
             sampler:
@@ -5727,7 +5852,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -5736,11 +5861,11 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.5
+        gain: 0.7
         octaves: 6
         lacunarity: 1.6
         sampler:
@@ -5848,7 +5973,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -5857,7 +5982,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       base:
         dimensions: 2
         type: EXPRESSION
@@ -5905,7 +6030,7 @@ samplers:
         type: EXPRESSION
         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
         variables:
-          VarianceRatio: 0.6
+          VarianceRatio: 0.3
         samplers:
           max_elev_prob:
             dimensions: 2
@@ -5913,7 +6038,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
   base_shifted_prefiltered_mesa_elev:
     dimensions: 2
     type: EXPRESSION
@@ -5959,7 +6084,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -5968,7 +6093,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -6016,7 +6141,7 @@ samplers:
             type: EXPRESSION
             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
             variables:
-              VarianceRatio: 0.6
+              VarianceRatio: 0.3
             samplers:
               max_elev_prob:
                 dimensions: 2
@@ -6024,7 +6149,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
   MesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
@@ -6060,7 +6185,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -6069,7 +6194,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       MesaGenRegion:
         dimensions: 2
         type: EXPRESSION
@@ -6125,7 +6250,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -6134,7 +6259,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       MesaGenRegion:
         dimensions: 2
         type: EXPRESSION
@@ -6190,7 +6315,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -6199,7 +6324,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       MesaGenRegion:
         dimensions: 2
         type: EXPRESSION
@@ -6280,7 +6405,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -6289,7 +6414,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           base:
             dimensions: 2
             type: EXPRESSION
@@ -6337,7 +6462,7 @@ samplers:
             type: EXPRESSION
             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
             variables:
-              VarianceRatio: 0.6
+              VarianceRatio: 0.3
             samplers:
               max_elev_prob:
                 dimensions: 2
@@ -6345,7 +6470,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
       MesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
@@ -6381,7 +6506,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -6390,7 +6515,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           MesaGenRegion:
             dimensions: 2
             type: EXPRESSION
@@ -6446,7 +6571,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -6455,7 +6580,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           MesaGenRegion:
             dimensions: 2
             type: EXPRESSION
@@ -6511,7 +6636,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -6520,7 +6645,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           MesaGenRegion:
             dimensions: 2
             type: EXPRESSION
@@ -6639,7 +6764,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -6648,7 +6773,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       HillHeightModifier:
         dimensions: 2
         type: FBM
@@ -6876,7 +7001,7 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.5
+            gain: 0.7
             octaves: 6
             lacunarity: 1.6
             sampler:
@@ -6907,7 +7032,7 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.7
+          nominal_value: 0.07
           variance: 0.03
         samplers:
           applied_threshold_variance:
@@ -6916,7 +7041,7 @@ samplers:
             sampler:
               type: OPEN_SIMPLEX_2
               salt: 697.0
-              frequency: 0.001
+              frequency: 0.0003333333333
       RegionFilteredMountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
@@ -6987,7 +7112,7 @@ samplers:
             type: EXPRESSION
             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
             variables:
-              VarianceRatio: 0.6
+              VarianceRatio: 0.3
             samplers:
               max_elev_prob:
                 dimensions: 2
@@ -6995,7 +7120,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           mountain_gen_region:
             dimensions: 2
             type: EXPRESSION
@@ -7042,7 +7167,7 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -7068,7 +7193,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -7077,11 +7202,11 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.5
+            gain: 0.7
             octaves: 6
             lacunarity: 1.6
             sampler:
@@ -7233,7 +7358,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -7242,7 +7367,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -7290,7 +7415,7 @@ samplers:
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                 variables:
-                  VarianceRatio: 0.6
+                  VarianceRatio: 0.3
                 samplers:
                   max_elev_prob:
                     dimensions: 2
@@ -7298,7 +7423,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
           MesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -7334,7 +7459,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -7343,7 +7468,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -7399,7 +7524,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -7408,7 +7533,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -7464,7 +7589,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -7473,7 +7598,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -7582,7 +7707,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -7591,7 +7716,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           HillHeightModifier:
             dimensions: 2
             type: FBM
@@ -7905,7 +8030,7 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -7936,7 +8061,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -7945,7 +8070,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -8016,7 +8141,7 @@ samplers:
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                 variables:
-                  VarianceRatio: 0.6
+                  VarianceRatio: 0.3
                 samplers:
                   max_elev_prob:
                     dimensions: 2
@@ -8024,7 +8149,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mountain_gen_region:
                 dimensions: 2
                 type: EXPRESSION
@@ -8071,7 +8196,7 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -8097,7 +8222,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -8106,11 +8231,11 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -8262,7 +8387,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -8271,7 +8396,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -8319,7 +8444,7 @@ samplers:
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                     variables:
-                      VarianceRatio: 0.6
+                      VarianceRatio: 0.3
                     samplers:
                       max_elev_prob:
                         dimensions: 2
@@ -8327,7 +8452,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -8363,7 +8488,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -8372,7 +8497,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -8428,7 +8553,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -8437,7 +8562,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -8493,7 +8618,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -8502,7 +8627,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -8611,7 +8736,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -8620,7 +8745,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               HillHeightModifier:
                 dimensions: 2
                 type: FBM
@@ -9566,7 +9691,7 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -9597,7 +9722,7 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.7
+                    nominal_value: 0.07
                     variance: 0.03
                   samplers:
                     applied_threshold_variance:
@@ -9606,7 +9731,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.001
+                        frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -9677,7 +9802,7 @@ samplers:
                       type: EXPRESSION
                       expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                       variables:
-                        VarianceRatio: 0.6
+                        VarianceRatio: 0.3
                       samplers:
                         max_elev_prob:
                           dimensions: 2
@@ -9685,7 +9810,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -9732,7 +9857,7 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.5
+                          gain: 0.7
                           octaves: 6
                           lacunarity: 1.6
                           sampler:
@@ -9758,7 +9883,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -9767,11 +9892,11 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -9923,7 +10048,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -9932,7 +10057,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -9980,7 +10105,7 @@ samplers:
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                           variables:
-                            VarianceRatio: 0.6
+                            VarianceRatio: 0.3
                           samplers:
                             max_elev_prob:
                               dimensions: 2
@@ -9988,7 +10113,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
@@ -10024,7 +10149,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -10033,7 +10158,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -10089,7 +10214,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -10098,7 +10223,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -10154,7 +10279,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -10163,7 +10288,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -10272,7 +10397,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -10281,7 +10406,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -11476,7 +11601,7 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -11507,7 +11632,7 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.7
+              nominal_value: 0.07
               variance: 0.03
             samplers:
               applied_threshold_variance:
@@ -11516,7 +11641,7 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
-                  frequency: 0.001
+                  frequency: 0.0003333333333
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -11587,7 +11712,7 @@ samplers:
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                 variables:
-                  VarianceRatio: 0.6
+                  VarianceRatio: 0.3
                 samplers:
                   max_elev_prob:
                     dimensions: 2
@@ -11595,7 +11720,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mountain_gen_region:
                 dimensions: 2
                 type: EXPRESSION
@@ -11642,7 +11767,7 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -11668,7 +11793,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -11677,11 +11802,11 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.5
+                gain: 0.7
                 octaves: 6
                 lacunarity: 1.6
                 sampler:
@@ -11833,7 +11958,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -11842,7 +11967,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -11890,7 +12015,7 @@ samplers:
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                     variables:
-                      VarianceRatio: 0.6
+                      VarianceRatio: 0.3
                     samplers:
                       max_elev_prob:
                         dimensions: 2
@@ -11898,7 +12023,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -11934,7 +12059,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -11943,7 +12068,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -11999,7 +12124,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -12008,7 +12133,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -12064,7 +12189,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -12073,7 +12198,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -12182,7 +12307,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -12191,7 +12316,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               HillHeightModifier:
                 dimensions: 2
                 type: FBM
@@ -14013,7 +14138,7 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -14044,7 +14169,7 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.7
+                    nominal_value: 0.07
                     variance: 0.03
                   samplers:
                     applied_threshold_variance:
@@ -14053,7 +14178,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.001
+                        frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -14124,7 +14249,7 @@ samplers:
                       type: EXPRESSION
                       expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                       variables:
-                        VarianceRatio: 0.6
+                        VarianceRatio: 0.3
                       samplers:
                         max_elev_prob:
                           dimensions: 2
@@ -14132,7 +14257,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -14179,7 +14304,7 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.5
+                          gain: 0.7
                           octaves: 6
                           lacunarity: 1.6
                           sampler:
@@ -14205,7 +14330,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -14214,11 +14339,11 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -14370,7 +14495,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -14379,7 +14504,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -14427,7 +14552,7 @@ samplers:
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                           variables:
-                            VarianceRatio: 0.6
+                            VarianceRatio: 0.3
                           samplers:
                             max_elev_prob:
                               dimensions: 2
@@ -14435,7 +14560,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
@@ -14471,7 +14596,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -14480,7 +14605,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -14536,7 +14661,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -14545,7 +14670,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -14601,7 +14726,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -14610,7 +14735,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -14719,7 +14844,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -14728,7 +14853,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -15811,7 +15936,7 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -15842,7 +15967,7 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.7
+                    nominal_value: 0.07
                     variance: 0.03
                   samplers:
                     applied_threshold_variance:
@@ -15851,7 +15976,7 @@ samplers:
                       sampler:
                         type: OPEN_SIMPLEX_2
                         salt: 697.0
-                        frequency: 0.001
+                        frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -15922,7 +16047,7 @@ samplers:
                       type: EXPRESSION
                       expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                       variables:
-                        VarianceRatio: 0.6
+                        VarianceRatio: 0.3
                       samplers:
                         max_elev_prob:
                           dimensions: 2
@@ -15930,7 +16055,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mountain_gen_region:
                       dimensions: 2
                       type: EXPRESSION
@@ -15977,7 +16102,7 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.5
+                          gain: 0.7
                           octaves: 6
                           lacunarity: 1.6
                           sampler:
@@ -16003,7 +16128,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -16012,11 +16137,11 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.5
+                      gain: 0.7
                       octaves: 6
                       lacunarity: 1.6
                       sampler:
@@ -16168,7 +16293,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -16177,7 +16302,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         base:
                           dimensions: 2
                           type: EXPRESSION
@@ -16225,7 +16350,7 @@ samplers:
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                           variables:
-                            VarianceRatio: 0.6
+                            VarianceRatio: 0.3
                           samplers:
                             max_elev_prob:
                               dimensions: 2
@@ -16233,7 +16358,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
@@ -16269,7 +16394,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -16278,7 +16403,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -16334,7 +16459,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -16343,7 +16468,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -16399,7 +16524,7 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.7
+                            nominal_value: 0.07
                             variance: 0.03
                           samplers:
                             applied_threshold_variance:
@@ -16408,7 +16533,7 @@ samplers:
                               sampler:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
-                                frequency: 0.001
+                                frequency: 0.0003333333333
                         MesaGenRegion:
                           dimensions: 2
                           type: EXPRESSION
@@ -16517,7 +16642,7 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.7
+                        nominal_value: 0.07
                         variance: 0.03
                       samplers:
                         applied_threshold_variance:
@@ -16526,7 +16651,7 @@ samplers:
                           sampler:
                             type: OPEN_SIMPLEX_2
                             salt: 697.0
-                            frequency: 0.001
+                            frequency: 0.0003333333333
                     HillHeightModifier:
                       dimensions: 2
                       type: FBM
@@ -17962,7 +18087,7 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -17993,7 +18118,7 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.7
+                  nominal_value: 0.07
                   variance: 0.03
                 samplers:
                   applied_threshold_variance:
@@ -18002,7 +18127,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
-                      frequency: 0.001
+                      frequency: 0.0003333333333
               RegionFilteredMountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -18073,7 +18198,7 @@ samplers:
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                     variables:
-                      VarianceRatio: 0.6
+                      VarianceRatio: 0.3
                     samplers:
                       max_elev_prob:
                         dimensions: 2
@@ -18081,7 +18206,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   mountain_gen_region:
                     dimensions: 2
                     type: EXPRESSION
@@ -18128,7 +18253,7 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.5
+                        gain: 0.7
                         octaves: 6
                         lacunarity: 1.6
                         sampler:
@@ -18154,7 +18279,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -18163,11 +18288,11 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.5
+                    gain: 0.7
                     octaves: 6
                     lacunarity: 1.6
                     sampler:
@@ -18319,7 +18444,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -18328,7 +18453,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       base:
                         dimensions: 2
                         type: EXPRESSION
@@ -18376,7 +18501,7 @@ samplers:
                         type: EXPRESSION
                         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
                         variables:
-                          VarianceRatio: 0.6
+                          VarianceRatio: 0.3
                         samplers:
                           max_elev_prob:
                             dimensions: 2
@@ -18384,7 +18509,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
@@ -18420,7 +18545,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -18429,7 +18554,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -18485,7 +18610,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -18494,7 +18619,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -18550,7 +18675,7 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.7
+                          nominal_value: 0.07
                           variance: 0.03
                         samplers:
                           applied_threshold_variance:
@@ -18559,7 +18684,7 @@ samplers:
                             sampler:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
-                              frequency: 0.001
+                              frequency: 0.0003333333333
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -18668,7 +18793,7 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.7
+                      nominal_value: 0.07
                       variance: 0.03
                     samplers:
                       applied_threshold_variance:
@@ -18677,7 +18802,7 @@ samplers:
                         sampler:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
-                          frequency: 0.001
+                          frequency: 0.0003333333333
                   HillHeightModifier:
                     dimensions: 2
                     type: FBM

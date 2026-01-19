@@ -91,14 +91,14 @@ terrain-ocean-depth: 100
 
 # Options that defines large region (contental details)
 continental-baseline-distance: 5000
-continental-large-features-allowed-threshold: .7
+continental-large-features-allowed-threshold: .07
 continental-large-feature-allowed-threshold-variance: 0.03
 continental-sub-ocean-large-features-allowed-threshold: -0.05
 continental-large-features-height-flux-dist: 1000
 
 #Affects the variance of what elevation mountians / mesas start to protrude at:
 
-continental-large-features-threshold-variance-distance: 1000
+continental-large-features-threshold-variance-distance: 3000
 
 #Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mountain-region-allowed-distance: 2000
@@ -116,7 +116,7 @@ continental-mesa-flattop-trans-rate: 0.000001 #how quickly do mesa walls go vert
 continental-MaxMesaPeakHeightRatio: 1.8 #Keep less than mountian peak height ratio.
 continental-MaxMountainPeakHeightRatio: 4
 continental-UnderwaterPeakHeightRatio: 2
-continental-MaxPeakVariability: 0.6
+continental-MaxPeakVariability: 0.3
 continental-MaxNMesSteps: 3 #Max number of mesa steps to create
 
 

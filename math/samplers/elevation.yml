@@ -115,7 +115,7 @@ samplers:
       PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       MountainHeightModifier: *MountainHeightModifier
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
     functions: $math/functions/interpolation.yml:functions
 
@@ -132,7 +132,7 @@ samplers:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
     samplers:
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       base: *base
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
@@ -155,7 +155,7 @@ samplers:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       
   MesaDownwardDistFromTransPnt: &MesaDownwardDistFromTransPnt
@@ -167,7 +167,7 @@ samplers:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
     samplers:
       base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
   
   MesaUpwardDistFromTransPnt: &MesaUpwardDistFromTransPnt
@@ -179,7 +179,7 @@ samplers:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
     samplers:
       base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
@@ -241,7 +241,7 @@ samplers:
     variables:
       MaxHillElev: 0.1
     samplers:
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       HillHeightModifier: *HillHeightModifier
     functions: $math/functions/interpolation.yml:functions
 
@@ -277,7 +277,7 @@ samplers:
       base: *base
       MountainHeightModifier: *MountainHeightModifier
       OceanValley: *OceanValley
-      continentalHighRegionAllowedThreshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      continentalHighRegionAllowedThreshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       RegionFilteredMountainHeightModifier: *RegionFilteredMountainHeightModifier
       RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
       RegionFilteredHillHeightModifier: *RegionFilteredHillHeightModifier

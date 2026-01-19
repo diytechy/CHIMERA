@@ -114,7 +114,7 @@ samplers:
           base_shifted_prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
-            expression: prefiltered_mesa_elev(x,z) - base(x,z)
+            expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
             samplers:
               base:
                 dimensions: 2
@@ -275,10 +275,10 @@ samplers:
           MesaUpwardDistFromTransPnt:
             dimensions: 2
             type: EXPRESSION
-            expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+            expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
               MesaRegionActiveThresh: 0.33
-              MesaFlattopTransitionDelta: 0.01
+              MesaFlattopTransitionDelta: 0.05
             samplers:
               base:
                 dimensions: 2
@@ -360,7 +360,7 @@ samplers:
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
               MesaRegionActiveThresh: 0.33
-              MesaFlattopTransitionDelta: 0.01
+              MesaFlattopTransitionDelta: 0.05
             samplers:
               base:
                 dimensions: 2
@@ -1043,13 +1043,27 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
+            expression: |2
+
               if(MesaHeightModifier(x,z),
-                base_shifted_prefiltered_mesa_elev(x,z),
-              0)
+
+                // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                if(MesaUpwardDistFromTransPnt(x,z)>0,
+                  ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                  //Else return the transition down to floor height
+                  if(MesaDownwardDistFromTransPnt(x,z)>0,
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                    ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                    0)
+                ),
+                0)
             variables:
-              MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1
+              MesaFlattopTransitionDelta: 0.05
+              MesaFlattopTransitionRate: 30
               MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
@@ -1074,7 +1088,7 @@ samplers:
               base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                 samplers:
                   base:
                     dimensions: 2
@@ -1301,10 +1315,10 @@ samplers:
               MesaUpwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -1386,7 +1400,7 @@ samplers:
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -2350,13 +2364,27 @@ samplers:
               RegionFilteredMesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
+                expression: |2
+
                   if(MesaHeightModifier(x,z),
-                    base_shifted_prefiltered_mesa_elev(x,z),
-                  0)
+
+                    // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                    if(MesaUpwardDistFromTransPnt(x,z)>0,
+                      ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                        (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                      //Else return the transition down to floor height
+                      if(MesaDownwardDistFromTransPnt(x,z)>0,
+                      (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                        ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                        (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                        0)
+                    ),
+                    0)
                 variables:
-                  MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 1
+                  MesaFlattopTransitionDelta: 0.05
+                  MesaFlattopTransitionRate: 30
                   MesaRegionActiveThresh: 0.33
                 samplers:
                   mesa_gen_region:
@@ -2381,7 +2409,7 @@ samplers:
                   base_shifted_prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                    expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                     samplers:
                       base:
                         dimensions: 2
@@ -2608,10 +2636,10 @@ samplers:
                   MesaUpwardDistFromTransPnt:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                    expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.33
-                      MesaFlattopTransitionDelta: 0.01
+                      MesaFlattopTransitionDelta: 0.05
                     samplers:
                       base:
                         dimensions: 2
@@ -2693,7 +2721,7 @@ samplers:
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.33
-                      MesaFlattopTransitionDelta: 0.01
+                      MesaFlattopTransitionDelta: 0.05
                     samplers:
                       base:
                         dimensions: 2
@@ -3512,13 +3540,27 @@ samplers:
                   RegionFilteredMesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: |
+                    expression: |2
+
                       if(MesaHeightModifier(x,z),
-                        base_shifted_prefiltered_mesa_elev(x,z),
-                      0)
+
+                        // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                        if(MesaUpwardDistFromTransPnt(x,z)>0,
+                          ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                          //Else return the transition down to floor height
+                          if(MesaDownwardDistFromTransPnt(x,z)>0,
+                          (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                            ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                            0)
+                        ),
+                        0)
                     variables:
-                      MesaFlattopTransitionDelta: 0.01
-                      MesaFlattopTransitionRate: 1
+                      MesaFlattopTransitionDelta: 0.05
+                      MesaFlattopTransitionRate: 30
                       MesaRegionActiveThresh: 0.33
                     samplers:
                       mesa_gen_region:
@@ -3543,7 +3585,7 @@ samplers:
                       base_shifted_prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                        expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                         samplers:
                           base:
                             dimensions: 2
@@ -3770,10 +3812,10 @@ samplers:
                       MesaUpwardDistFromTransPnt:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                        expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                         variables:
                           MesaRegionActiveThresh: 0.33
-                          MesaFlattopTransitionDelta: 0.01
+                          MesaFlattopTransitionDelta: 0.05
                         samplers:
                           base:
                             dimensions: 2
@@ -3855,7 +3897,7 @@ samplers:
                         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                         variables:
                           MesaRegionActiveThresh: 0.33
-                          MesaFlattopTransitionDelta: 0.01
+                          MesaFlattopTransitionDelta: 0.05
                         samplers:
                           base:
                             dimensions: 2
@@ -6536,7 +6578,7 @@ samplers:
   base_shifted_prefiltered_mesa_elev:
     dimensions: 2
     type: EXPRESSION
-    expression: prefiltered_mesa_elev(x,z) - base(x,z)
+    expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
     samplers:
       base:
         dimensions: 2
@@ -6766,7 +6808,7 @@ samplers:
     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
     variables:
       MesaRegionActiveThresh: 0.33
-      MesaFlattopTransitionDelta: 0.01
+      MesaFlattopTransitionDelta: 0.05
     samplers:
       base:
         dimensions: 2
@@ -6845,10 +6887,10 @@ samplers:
   MesaUpwardDistFromTransPnt:
     dimensions: 2
     type: EXPRESSION
-    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+    expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
     variables:
       MesaRegionActiveThresh: 0.33
-      MesaFlattopTransitionDelta: 0.01
+      MesaFlattopTransitionDelta: 0.05
     samplers:
       base:
         dimensions: 2
@@ -6927,13 +6969,27 @@ samplers:
   RegionFilteredMesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: |
+    expression: |2
+
       if(MesaHeightModifier(x,z),
-        base_shifted_prefiltered_mesa_elev(x,z),
-      0)
+
+        // If above the transition threshold and the wall transition delta, need to transition to flat top.
+        if(MesaUpwardDistFromTransPnt(x,z)>0,
+          ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+          //Else return the transition down to floor height
+          if(MesaDownwardDistFromTransPnt(x,z)>0,
+          (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+            ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+            0)
+        ),
+        0)
     variables:
-      MesaFlattopTransitionDelta: 0.01
-      MesaFlattopTransitionRate: 1
+      MesaFlattopTransitionDelta: 0.05
+      MesaFlattopTransitionRate: 30
       MesaRegionActiveThresh: 0.33
     samplers:
       mesa_gen_region:
@@ -6958,7 +7014,7 @@ samplers:
       base_shifted_prefiltered_mesa_elev:
         dimensions: 2
         type: EXPRESSION
-        expression: prefiltered_mesa_elev(x,z) - base(x,z)
+        expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
         samplers:
           base:
             dimensions: 2
@@ -7185,10 +7241,10 @@ samplers:
       MesaUpwardDistFromTransPnt:
         dimensions: 2
         type: EXPRESSION
-        expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+        expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
         variables:
           MesaRegionActiveThresh: 0.33
-          MesaFlattopTransitionDelta: 0.01
+          MesaFlattopTransitionDelta: 0.05
         samplers:
           base:
             dimensions: 2
@@ -7270,7 +7326,7 @@ samplers:
         expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
         variables:
           MesaRegionActiveThresh: 0.33
-          MesaFlattopTransitionDelta: 0.01
+          MesaFlattopTransitionDelta: 0.05
         samplers:
           base:
             dimensions: 2
@@ -8013,13 +8069,27 @@ samplers:
       RegionFilteredMesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: |
+        expression: |2
+
           if(MesaHeightModifier(x,z),
-            base_shifted_prefiltered_mesa_elev(x,z),
-          0)
+
+            // If above the transition threshold and the wall transition delta, need to transition to flat top.
+            if(MesaUpwardDistFromTransPnt(x,z)>0,
+              ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+              //Else return the transition down to floor height
+              if(MesaDownwardDistFromTransPnt(x,z)>0,
+              (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                0)
+            ),
+            0)
         variables:
-          MesaFlattopTransitionDelta: 0.01
-          MesaFlattopTransitionRate: 1
+          MesaFlattopTransitionDelta: 0.05
+          MesaFlattopTransitionRate: 30
           MesaRegionActiveThresh: 0.33
         samplers:
           mesa_gen_region:
@@ -8044,7 +8114,7 @@ samplers:
           base_shifted_prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
-            expression: prefiltered_mesa_elev(x,z) - base(x,z)
+            expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
             samplers:
               base:
                 dimensions: 2
@@ -8271,10 +8341,10 @@ samplers:
           MesaUpwardDistFromTransPnt:
             dimensions: 2
             type: EXPRESSION
-            expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+            expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
             variables:
               MesaRegionActiveThresh: 0.33
-              MesaFlattopTransitionDelta: 0.01
+              MesaFlattopTransitionDelta: 0.05
             samplers:
               base:
                 dimensions: 2
@@ -8356,7 +8426,7 @@ samplers:
             expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
               MesaRegionActiveThresh: 0.33
-              MesaFlattopTransitionDelta: 0.01
+              MesaFlattopTransitionDelta: 0.05
             samplers:
               base:
                 dimensions: 2
@@ -9175,13 +9245,27 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
+            expression: |2
+
               if(MesaHeightModifier(x,z),
-                base_shifted_prefiltered_mesa_elev(x,z),
-              0)
+
+                // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                if(MesaUpwardDistFromTransPnt(x,z)>0,
+                  ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                  //Else return the transition down to floor height
+                  if(MesaDownwardDistFromTransPnt(x,z)>0,
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                    ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                    0)
+                ),
+                0)
             variables:
-              MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1
+              MesaFlattopTransitionDelta: 0.05
+              MesaFlattopTransitionRate: 30
               MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
@@ -9206,7 +9290,7 @@ samplers:
               base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                 samplers:
                   base:
                     dimensions: 2
@@ -9433,10 +9517,10 @@ samplers:
               MesaUpwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -9518,7 +9602,7 @@ samplers:
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -10969,13 +11053,27 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
+                  expression: |2
+
                     if(MesaHeightModifier(x,z),
-                      base_shifted_prefiltered_mesa_elev(x,z),
-                    0)
+
+                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                      if(MesaUpwardDistFromTransPnt(x,z)>0,
+                        ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                        //Else return the transition down to floor height
+                        if(MesaDownwardDistFromTransPnt(x,z)>0,
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                          ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                          0)
+                      ),
+                      0)
                   variables:
-                    MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1
+                    MesaFlattopTransitionDelta: 0.05
+                    MesaFlattopTransitionRate: 30
                     MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
@@ -11000,7 +11098,7 @@ samplers:
                     base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                      expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                       samplers:
                         base:
                           dimensions: 2
@@ -11227,10 +11325,10 @@ samplers:
                     MesaUpwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                      expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -11312,7 +11410,7 @@ samplers:
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -13012,13 +13110,27 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |
+            expression: |2
+
               if(MesaHeightModifier(x,z),
-                base_shifted_prefiltered_mesa_elev(x,z),
-              0)
+
+                // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                if(MesaUpwardDistFromTransPnt(x,z)>0,
+                  ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                  //Else return the transition down to floor height
+                  if(MesaDownwardDistFromTransPnt(x,z)>0,
+                  (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                    ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                    0)
+                ),
+                0)
             variables:
-              MesaFlattopTransitionDelta: 0.01
-              MesaFlattopTransitionRate: 1
+              MesaFlattopTransitionDelta: 0.05
+              MesaFlattopTransitionRate: 30
               MesaRegionActiveThresh: 0.33
             samplers:
               mesa_gen_region:
@@ -13043,7 +13155,7 @@ samplers:
               base_shifted_prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
-                expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                 samplers:
                   base:
                     dimensions: 2
@@ -13270,10 +13382,10 @@ samplers:
               MesaUpwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -13355,7 +13467,7 @@ samplers:
                 expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.33
-                  MesaFlattopTransitionDelta: 0.01
+                  MesaFlattopTransitionDelta: 0.05
                 samplers:
                   base:
                     dimensions: 2
@@ -15682,13 +15794,27 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
+                  expression: |2
+
                     if(MesaHeightModifier(x,z),
-                      base_shifted_prefiltered_mesa_elev(x,z),
-                    0)
+
+                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                      if(MesaUpwardDistFromTransPnt(x,z)>0,
+                        ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                        //Else return the transition down to floor height
+                        if(MesaDownwardDistFromTransPnt(x,z)>0,
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                          ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                          0)
+                      ),
+                      0)
                   variables:
-                    MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1
+                    MesaFlattopTransitionDelta: 0.05
+                    MesaFlattopTransitionRate: 30
                     MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
@@ -15713,7 +15839,7 @@ samplers:
                     base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                      expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                       samplers:
                         base:
                           dimensions: 2
@@ -15940,10 +16066,10 @@ samplers:
                     MesaUpwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                      expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -16025,7 +16151,7 @@ samplers:
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -17613,13 +17739,27 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |
+                  expression: |2
+
                     if(MesaHeightModifier(x,z),
-                      base_shifted_prefiltered_mesa_elev(x,z),
-                    0)
+
+                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                      if(MesaUpwardDistFromTransPnt(x,z)>0,
+                        ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                        //Else return the transition down to floor height
+                        if(MesaDownwardDistFromTransPnt(x,z)>0,
+                        (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                          ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                          0)
+                      ),
+                      0)
                   variables:
-                    MesaFlattopTransitionDelta: 0.01
-                    MesaFlattopTransitionRate: 1
+                    MesaFlattopTransitionDelta: 0.05
+                    MesaFlattopTransitionRate: 30
                     MesaRegionActiveThresh: 0.33
                   samplers:
                     mesa_gen_region:
@@ -17644,7 +17784,7 @@ samplers:
                     base_shifted_prefiltered_mesa_elev:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                      expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                       samplers:
                         base:
                           dimensions: 2
@@ -17871,10 +18011,10 @@ samplers:
                     MesaUpwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                      expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -17956,7 +18096,7 @@ samplers:
                       expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.33
-                        MesaFlattopTransitionDelta: 0.01
+                        MesaFlattopTransitionDelta: 0.05
                       samplers:
                         base:
                           dimensions: 2
@@ -19897,13 +20037,27 @@ samplers:
               RegionFilteredMesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |
+                expression: |2
+
                   if(MesaHeightModifier(x,z),
-                    base_shifted_prefiltered_mesa_elev(x,z),
-                  0)
+
+                    // If above the transition threshold and the wall transition delta, need to transition to flat top.
+                    if(MesaUpwardDistFromTransPnt(x,z)>0,
+                      ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                        (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+                      //Else return the transition down to floor height
+                      if(MesaDownwardDistFromTransPnt(x,z)>0,
+                      (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+                        ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+                        (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+                        0)
+                    ),
+                    0)
                 variables:
-                  MesaFlattopTransitionDelta: 0.01
-                  MesaFlattopTransitionRate: 1
+                  MesaFlattopTransitionDelta: 0.05
+                  MesaFlattopTransitionRate: 30
                   MesaRegionActiveThresh: 0.33
                 samplers:
                   mesa_gen_region:
@@ -19928,7 +20082,7 @@ samplers:
                   base_shifted_prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: prefiltered_mesa_elev(x,z) - base(x,z)
+                    expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
                     samplers:
                       base:
                         dimensions: 2
@@ -20155,10 +20309,10 @@ samplers:
                   MesaUpwardDistFromTransPnt:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+                    expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.33
-                      MesaFlattopTransitionDelta: 0.01
+                      MesaFlattopTransitionDelta: 0.05
                     samplers:
                       base:
                         dimensions: 2
@@ -20240,7 +20394,7 @@ samplers:
                     expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.33
-                      MesaFlattopTransitionDelta: 0.01
+                      MesaFlattopTransitionDelta: 0.05
                     samplers:
                       base:
                         dimensions: 2

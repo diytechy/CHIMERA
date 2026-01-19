@@ -79,7 +79,7 @@ samplers:
     frequency: (1 / ${customization.yml:continental-large-features-height-flux-dist})
     salt: 407
 
-#Note X2 because both mnt_and_ocean_valleys have a rough dist from -.5 to .5, or .25 max, so x2 to normalize to base.
+#Note X2 because both mnt_and_ocean_valleys have a rough dist from -.5 to .5, or .25 max, so x2 to normalize to standard.
   MountainHeightModifier: &MountainHeightModifier
     #dimensions: 2
     #type: LINEAR
@@ -88,7 +88,7 @@ samplers:
     #sampler:
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*3)
+    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*2)
     samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
@@ -156,7 +156,7 @@ samplers:
   base_shifted_prefiltered_mesa_elev: &base_shifted_prefiltered_mesa_elev
     dimensions: 2
     type: EXPRESSION
-    expression: prefiltered_mesa_elev(x,z) - base(x,z)
+    expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
     samplers:
       base: *base
       prefiltered_mesa_elev: *prefiltered_mesa_elev
@@ -188,7 +188,7 @@ samplers:
   MesaUpwardDistFromTransPnt: &MesaUpwardDistFromTransPnt
     dimensions: 2
     type: EXPRESSION
-    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+    expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
@@ -200,27 +200,28 @@ samplers:
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    #expression: |
-    #
-    #  if(MesaHeightModifier(x,z),
-    #
-    #    // If above the transition threshold and the wall transition delta, need to transition to flat top.
-    #    if(MesaUpwardDistFromTransPnt(x,z)>0,
-    #      ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
-    #        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-    #        (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-    #
-    #      //Else return the transition down to floor height
-    #      if(MesaDownwardDistFromTransPnt(x,z)>0,
-    #        (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-    #        (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-    #        0)
-    #    ),
-    #    0)
     expression: |
+    
       if(MesaHeightModifier(x,z),
-        base_shifted_prefiltered_mesa_elev(x,z),
-      0)
+    
+        // If above the transition threshold and the wall transition delta, need to transition to flat top.
+        if(MesaUpwardDistFromTransPnt(x,z)>0,
+          ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
+            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+    
+          //Else return the transition down to floor height
+          if(MesaDownwardDistFromTransPnt(x,z)>0,
+          (base_shifted_prefiltered_mesa_elev(x,z)/2) -
+            ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
+            0)
+        ),
+        0)
+    #expression: |
+    #  if(MesaHeightModifier(x,z),
+    #    base_shifted_prefiltered_mesa_elev(x,z),
+    #  0)
     variables:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
       MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate

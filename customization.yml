@@ -115,6 +115,10 @@ continental-MaxMountainPeakHeightRatio: 4
 continental-UnderwaterPeakHeightRatio: 2
 continental-MaxPeakVariability: 0.6
 
+
+# Rolling hill to hill rough distance, but passed through FBM filter with 2 octives by default with lunarcity 2, so value here should be 4x bump2bump dist as a rough approximation.
+continental-hill2hill-distance: 150
+
 #The hill ratio, how high / agressively sloped hilly regions are compared to the lowest possible max mountian height.
 #The applied hill ratio then is (MaxMountaiinPeakHeightRatio-MountainPeakVariance)*MaxHillElevRatio.
 continental-MaxHillElevRatio: 0.3

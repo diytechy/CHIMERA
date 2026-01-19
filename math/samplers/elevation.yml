@@ -157,10 +157,10 @@ samplers:
     type: FBM
     octaves: 2
     lacunarity: 2.0
-    gain: 0.35
+    gain: 0.3
     sampler:
       type: PERLIN
-      frequency: (1/1000)
+      frequency: (1/${customization.yml:continental-hill2hill-distance})
       salt: 700
 
   RegionFilteredHillHeightModifier: &RegionFilteredHillHeightModifier
@@ -169,15 +169,16 @@ samplers:
     expression: |
       lerp(
         HillHeightModifier(x, z),
-        HillHeightGenThreshold,
+        threshold(x,z),
         0,
         0.5,
-        (HillHeightModifier(x, z) - HillHeightGenThreshold) * MaxHillElev
+        (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
       )
     variables:
       HillHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
-      MaxHillElev: 2.0
+      MaxHillElev: 1.0
     samplers:
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
       HillHeightModifier: *HillHeightModifier
     functions: $math/functions/interpolation.yml:functions
 

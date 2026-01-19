@@ -99,13 +99,13 @@ continental-sub-ocean-large-features-allowed-threshold: -0.05
 
 continental-large-features-threshold-variance-distance: 300
 
-#Affect how apart mountain ranges are allowed to generate, and the absolute filter value (from -0.5 to 0.5) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+#Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mountain-region-allowed-distance: 2000
-continental-mountain-region-allowed-threshold: .2
+continental-mountain-region-allowed-threshold: .05
 
-#Affect how apart mesa ranges are allowed to generate, and the absolute filter value (from -0.5 to 0.5) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+#Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
-continental-mesa-region-allowed-threshold: .2
+continental-mesa-region-allowed-threshold: .05
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
 continental-MaxMountainPeakHeightRatio: 4

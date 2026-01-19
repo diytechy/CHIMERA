@@ -10,23 +10,6 @@ variables: &variables
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
 
 samplers:
-  #Determines the variance
-  continental-large-features-allowed-threshold-with-variance: &continental-large-features-allowed-threshold-with-variance
-    dimensions: 2
-    type: EXPRESSION
-    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-    variables:
-      nominal_value: $customization.yml:continental-large-features-allowed-threshold
-      variance: $customization.yml:continental-large-feature-allowed-threshold-variance
-    samplers:
-      applied_threshold_variance: 
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: OPEN_SIMPLEX_2
-          salt: 697.0
-          frequency: 1/300
-          #frequency: (1 / {$customization.yml:continental-large-features-threshold-variance-distance})
   rawFlatness: &rawFlatness
     dimensions: 2
     type: EXPRESSION
@@ -101,7 +84,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(abs(prefiltered_mountain_elev(x,z)) > threshold(x,z),
+      if(abs(MountainHeightModifier(x,z)) > threshold(x,z),
         lerp(
           MountainHeightModifier(x, z),
           threshold(x,z),
@@ -117,7 +100,7 @@ samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       prefiltered_mountain_elev: *prefiltered_mountain_elev
       MountainHeightModifier: *MountainHeightModifier
-      threshold: *continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
     functions: $math/functions/interpolation.yml:functions
 
   # Mesa height modifier components
@@ -147,7 +130,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(abs(mesa_gen_region(x,z)) > threshold(x,z),
+      if(abs(MesaHeightModifier(x,z)) > threshold(x,z),
         lerp(
           MesaHeightModifier(x, z),
           threshold(x,z),
@@ -163,7 +146,7 @@ samplers:
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier
-      threshold: *continental-large-features-allowed-threshold-with-variance
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
     functions: $math/functions/interpolation.yml:functions
 
   # Hill height modifier components
@@ -210,7 +193,7 @@ samplers:
           (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
         ),
         // Above feature offset: Create mesa/hills/mountains
-        if(base(x, z) > continentalMesaRegionAllowedThreshold,
+        if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
             max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
             RegionFilteredHillHeightModifier(x, z)
@@ -221,13 +204,13 @@ samplers:
       )
     variables:
       continentalSubOceanLargeFeaturesAllowedThreshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
-      continentalMesaRegionAllowedThreshold: $customization.yml:continental-mesa-region-allowed-threshold
     functions: $math/functions/interpolation.yml:functions
 
     samplers:
       base: *base
       MountainHeightModifier: *MountainHeightModifier
       OceanValley: *OceanValley
+      continentalHighRegionAllowedThreshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
       RegionFilteredMountainHeightModifier: *RegionFilteredMountainHeightModifier
       RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
       RegionFilteredHillHeightModifier: *RegionFilteredHillHeightModifier

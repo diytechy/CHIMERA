@@ -1,4 +1,21 @@
 samplers:
+  #Determines the variance
+  continental-large-features-allowed-threshold-with-variance: &continental-large-features-allowed-threshold-with-variance
+    dimensions: 2
+    type: EXPRESSION
+    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+    variables:
+      nominal_value: $customization.yml:continental-large-features-allowed-threshold
+      variance: $customization.yml:continental-large-feature-allowed-threshold-variance
+    samplers:
+      applied_threshold_variance: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          #frequency: 1/300
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
   # continental_landmass: Large-scale landmass shape.
   #   Low frequency = very large features (continents, major landmasses).
   #   Used as base terrain and for coastal rolloff calculation.

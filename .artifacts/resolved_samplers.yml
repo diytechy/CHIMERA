@@ -3469,7 +3469,7 @@ samplers:
         ),
       0)
     variables:
-      MountainHeightGenThreshold: 0.05
+      MountainHeightGenThreshold: 0.07
       MaxPeakElev: 4
     samplers:
       PeakElevAtPos:
@@ -3649,7 +3649,6 @@ samplers:
     type: EXPRESSION
     expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
     variables:
-      MountainHeightGenThreshold: 0.05
       MaxNMesSteps: 3
       MaxPeakElev: 1.8
     samplers:
@@ -3723,14 +3722,17 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-      \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition to flat\
-      \ top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-      \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n\
-      \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-      \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n0)\n"
+      \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
+      \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
+      \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n   \
+      \ (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n    \n    //Else\
+      \ return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+      \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
+      0)\n"
     variables:
       MesaFlattopTransitionDelta: 0.01
       MesaFlattopTransitionRate: 0.01
+      MesaRegionActiveThresh: 0.1
     samplers:
       mesa_gen_region:
         dimensions: 2
@@ -3766,7 +3768,6 @@ samplers:
         type: EXPRESSION
         expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
         variables:
-          MountainHeightGenThreshold: 0.05
           MaxNMesSteps: 3
           MaxPeakElev: 1.8
         samplers:
@@ -3836,21 +3837,6 @@ samplers:
                   type: OPEN_SIMPLEX_2
                   salt: 697.0
                   frequency: 0.003333333333
-      threshold:
-        dimensions: 2
-        type: EXPRESSION
-        expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-        variables:
-          nominal_value: 0.15
-          variance: 0.05
-        samplers:
-          applied_threshold_variance:
-            dimensions: 2
-            type: PROBABILITY
-            sampler:
-              type: OPEN_SIMPLEX_2
-              salt: 697.0
-              frequency: 0.003333333333
     functions:
       lerp:
         arguments:
@@ -3943,7 +3929,6 @@ samplers:
         (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
       )
     variables:
-      HillHeightGenThreshold: 0.05
       MaxHillElev: 1.0
     samplers:
       threshold:
@@ -4229,7 +4214,7 @@ samplers:
             ),
           0)
         variables:
-          MountainHeightGenThreshold: 0.05
+          MountainHeightGenThreshold: 0.07
           MaxPeakElev: 4
         samplers:
           PeakElevAtPos:
@@ -4398,14 +4383,17 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-          \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition to\
-          \ flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-          \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n\
-          \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-          \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n0)\n"
+          \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
+          \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
+          \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+          \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n    \n\
+          \    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+          \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
+          0)\n"
         variables:
           MesaFlattopTransitionDelta: 0.01
           MesaFlattopTransitionRate: 0.01
+          MesaRegionActiveThresh: 0.1
         samplers:
           mesa_gen_region:
             dimensions: 2
@@ -4442,7 +4430,6 @@ samplers:
             expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) -
               base(x,z)
             variables:
-              MountainHeightGenThreshold: 0.05
               MaxNMesSteps: 3
               MaxPeakElev: 1.8
             samplers:
@@ -4512,21 +4499,6 @@ samplers:
                       type: OPEN_SIMPLEX_2
                       salt: 697.0
                       frequency: 0.003333333333
-          threshold:
-            dimensions: 2
-            type: EXPRESSION
-            expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-            variables:
-              nominal_value: 0.15
-              variance: 0.05
-            samplers:
-              applied_threshold_variance:
-                dimensions: 2
-                type: PROBABILITY
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  salt: 697.0
-                  frequency: 0.003333333333
         functions:
           lerp:
             arguments:
@@ -4609,7 +4581,6 @@ samplers:
             (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
           )
         variables:
-          HillHeightGenThreshold: 0.05
           MaxHillElev: 1.0
         samplers:
           threshold:
@@ -4981,7 +4952,7 @@ samplers:
                 ),
               0)
             variables:
-              MountainHeightGenThreshold: 0.05
+              MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
             samplers:
               PeakElevAtPos:
@@ -5150,16 +5121,17 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-              \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-              \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-              \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n   \
-              \ (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n    \n    //Else\
-              \ return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-              \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
-              0)\n"
+              \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
+              \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
+              \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n \
+              \   \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+              \    ),\n0)\n"
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 0.01
+              MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -5196,7 +5168,6 @@ samplers:
                 expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                   - base(x,z)
                 variables:
-                  MountainHeightGenThreshold: 0.05
                   MaxNMesSteps: 3
                   MaxPeakElev: 1.8
                 samplers:
@@ -5266,21 +5237,6 @@ samplers:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
                           frequency: 0.003333333333
-              threshold:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                variables:
-                  nominal_value: 0.15
-                  variance: 0.05
-                samplers:
-                  applied_threshold_variance:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.003333333333
             functions:
               lerp:
                 arguments:
@@ -5363,7 +5319,6 @@ samplers:
                 (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
               )
             variables:
-              HillHeightGenThreshold: 0.05
               MaxHillElev: 1.0
             samplers:
               threshold:
@@ -6367,7 +6322,7 @@ samplers:
                       ),
                     0)
                   variables:
-                    MountainHeightGenThreshold: 0.05
+                    MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
                   samplers:
                     PeakElevAtPos:
@@ -6536,16 +6491,17 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-                    \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-                    \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-                    \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n   \
-                    \ \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n  \
-                    \  ),\n0)\n"
+                    \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
+                    \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
+                    \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+                    \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 0.01
+                    MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -6582,7 +6538,6 @@ samplers:
                       expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
-                        MountainHeightGenThreshold: 0.05
                         MaxNMesSteps: 3
                         MaxPeakElev: 1.8
                       samplers:
@@ -6652,21 +6607,6 @@ samplers:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
                                 frequency: 0.003333333333
-                    threshold:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                      variables:
-                        nominal_value: 0.15
-                        variance: 0.05
-                      samplers:
-                        applied_threshold_variance:
-                          dimensions: 2
-                          type: PROBABILITY
-                          sampler:
-                            type: OPEN_SIMPLEX_2
-                            salt: 697.0
-                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -6749,7 +6689,6 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    HillHeightGenThreshold: 0.05
                     MaxHillElev: 1.0
                   samplers:
                     threshold:
@@ -8002,7 +7941,7 @@ samplers:
                 ),
               0)
             variables:
-              MountainHeightGenThreshold: 0.05
+              MountainHeightGenThreshold: 0.07
               MaxPeakElev: 4
             samplers:
               PeakElevAtPos:
@@ -8171,16 +8110,17 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-              \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-              \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-              \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n   \
-              \ (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n    \n    //Else\
-              \ return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-              \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
-              0)\n"
+              \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need to transition\
+              \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
+              \ + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n \
+              \   \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+              \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+              \    ),\n0)\n"
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 0.01
+              MesaRegionActiveThresh: 0.1
             samplers:
               mesa_gen_region:
                 dimensions: 2
@@ -8217,7 +8157,6 @@ samplers:
                 expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                   - base(x,z)
                 variables:
-                  MountainHeightGenThreshold: 0.05
                   MaxNMesSteps: 3
                   MaxPeakElev: 1.8
                 samplers:
@@ -8287,21 +8226,6 @@ samplers:
                           type: OPEN_SIMPLEX_2
                           salt: 697.0
                           frequency: 0.003333333333
-              threshold:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                variables:
-                  nominal_value: 0.15
-                  variance: 0.05
-                samplers:
-                  applied_threshold_variance:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.003333333333
             functions:
               lerp:
                 arguments:
@@ -8384,7 +8308,6 @@ samplers:
                 (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
               )
             variables:
-              HillHeightGenThreshold: 0.05
               MaxHillElev: 1.0
             samplers:
               threshold:
@@ -10264,7 +10187,7 @@ samplers:
                       ),
                     0)
                   variables:
-                    MountainHeightGenThreshold: 0.05
+                    MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
                   samplers:
                     PeakElevAtPos:
@@ -10433,16 +10356,17 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-                    \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-                    \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-                    \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n   \
-                    \ \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n  \
-                    \  ),\n0)\n"
+                    \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
+                    \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
+                    \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+                    \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 0.01
+                    MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -10479,7 +10403,6 @@ samplers:
                       expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
-                        MountainHeightGenThreshold: 0.05
                         MaxNMesSteps: 3
                         MaxPeakElev: 1.8
                       samplers:
@@ -10549,21 +10472,6 @@ samplers:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
                                 frequency: 0.003333333333
-                    threshold:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                      variables:
-                        nominal_value: 0.15
-                        variance: 0.05
-                      samplers:
-                        applied_threshold_variance:
-                          dimensions: 2
-                          type: PROBABILITY
-                          sampler:
-                            type: OPEN_SIMPLEX_2
-                            salt: 697.0
-                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -10646,7 +10554,6 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    HillHeightGenThreshold: 0.05
                     MaxHillElev: 1.0
                   samplers:
                     threshold:
@@ -11787,7 +11694,7 @@ samplers:
                       ),
                     0)
                   variables:
-                    MountainHeightGenThreshold: 0.05
+                    MountainHeightGenThreshold: 0.07
                     MaxPeakElev: 4
                   samplers:
                     PeakElevAtPos:
@@ -11956,16 +11863,17 @@ samplers:
                   dimensions: 2
                   type: EXPRESSION
                   expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-                    \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-                    \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-                    \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n   \
-                    \ \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-                    \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n  \
-                    \  ),\n0)\n"
+                    \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
+                    \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
+                    \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                    \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+                    \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+                    \    ),\n0)\n"
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 0.01
+                    MesaRegionActiveThresh: 0.1
                   samplers:
                     mesa_gen_region:
                       dimensions: 2
@@ -12002,7 +11910,6 @@ samplers:
                       expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
-                        MountainHeightGenThreshold: 0.05
                         MaxNMesSteps: 3
                         MaxPeakElev: 1.8
                       samplers:
@@ -12072,21 +11979,6 @@ samplers:
                                 type: OPEN_SIMPLEX_2
                                 salt: 697.0
                                 frequency: 0.003333333333
-                    threshold:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                      variables:
-                        nominal_value: 0.15
-                        variance: 0.05
-                      samplers:
-                        applied_threshold_variance:
-                          dimensions: 2
-                          type: PROBABILITY
-                          sampler:
-                            type: OPEN_SIMPLEX_2
-                            salt: 697.0
-                            frequency: 0.003333333333
                   functions:
                     lerp:
                       arguments:
@@ -12169,7 +12061,6 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    HillHeightGenThreshold: 0.05
                     MaxHillElev: 1.0
                   samplers:
                     threshold:
@@ -13663,7 +13554,7 @@ samplers:
                     ),
                   0)
                 variables:
-                  MountainHeightGenThreshold: 0.05
+                  MountainHeightGenThreshold: 0.07
                   MaxPeakElev: 4
                 samplers:
                   PeakElevAtPos:
@@ -13832,16 +13723,17 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: "\n// If above the transition threshold, need to transition to mesa geometry.\nif(abs(mesa_gen_region(x,z))\
-                  \ > threshold(x,z),\n\n  // If above the transition threshold and the wall transition delta, need to transition\
-                  \ to flat top.\n  if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),\n    (MesaHeightModifier(x,z)/2\
-                  \ + \n    (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
-                  \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),\n    \n\
-                  \    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
-                  \    (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n    ),\n\
-                  0)\n"
+                  \ > MesaRegionActiveThresh,\n\n  // If above the transition threshold and the wall transition delta, need\
+                  \ to transition to flat top.\n  if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),\n\
+                  \    (MesaHeightModifier(x,z)/2 + \n    (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/\n\
+                  \    (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),\n\
+                  \    \n    //Else return the transition up the wall of the mesa\n    (MesaHeightModifier(x,z)/2 -\n    (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/\n\
+                  \    (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))\n\
+                  \    ),\n0)\n"
                 variables:
                   MesaFlattopTransitionDelta: 0.01
                   MesaFlattopTransitionRate: 0.01
+                  MesaRegionActiveThresh: 0.1
                 samplers:
                   mesa_gen_region:
                     dimensions: 2
@@ -13878,7 +13770,6 @@ samplers:
                     expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
                       - base(x,z)
                     variables:
-                      MountainHeightGenThreshold: 0.05
                       MaxNMesSteps: 3
                       MaxPeakElev: 1.8
                     samplers:
@@ -13948,21 +13839,6 @@ samplers:
                               type: OPEN_SIMPLEX_2
                               salt: 697.0
                               frequency: 0.003333333333
-                  threshold:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-                    variables:
-                      nominal_value: 0.15
-                      variance: 0.05
-                    samplers:
-                      applied_threshold_variance:
-                        dimensions: 2
-                        type: PROBABILITY
-                        sampler:
-                          type: OPEN_SIMPLEX_2
-                          salt: 697.0
-                          frequency: 0.003333333333
                 functions:
                   lerp:
                     arguments:
@@ -14045,7 +13921,6 @@ samplers:
                     (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                   )
                 variables:
-                  HillHeightGenThreshold: 0.05
                   MaxHillElev: 1.0
                 samplers:
                   threshold:

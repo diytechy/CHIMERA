@@ -122,7 +122,6 @@ samplers:
     type: EXPRESSION
     expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
     variables:
-      MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
     samplers:
@@ -137,28 +136,28 @@ samplers:
     expression: |
       
       // If above the transition threshold, need to transition to mesa geometry.
-      if(abs(mesa_gen_region(x,z)) > threshold(x,z),
+      if(abs(mesa_gen_region(x,z)) > MesaRegionActiveThresh,
       
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
-        if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),
+        if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),
           (MesaHeightModifier(x,z)/2 + 
-          (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),
+          (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/
+          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta))),
           
           //Else return the transition up the wall of the mesa
           (MesaHeightModifier(x,z)/2 -
-          (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))
+          (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/
+          (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))
           ),
       0)
     variables:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
       MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier
-      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
     functions: $math/functions/interpolation.yml:functions
 
   # Hill height modifier components
@@ -185,7 +184,6 @@ samplers:
         (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
       )
     variables:
-      HillHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
       MaxHillElev: 1.0
     samplers:
       threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance

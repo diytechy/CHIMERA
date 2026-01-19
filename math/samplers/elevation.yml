@@ -116,35 +116,45 @@ samplers:
       frequency: (1/1200)
       salt: 600
 
+  #Returns the mesa height increase from base elevation to the plataue
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: abs(MesaGenRegion(x, z) * prefiltered_mesa_elev(x, z))
+    expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
-      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
     samplers:
+      base: *base
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
+      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(abs(MesaHeightModifier(x,z)) > threshold(x,z),
-        lerp(
-          MesaHeightModifier(x, z),
-          threshold(x,z),
-          0.0,
-          0.5,
-          (MesaHeightModifier(x, z) - threshold(x,z)) * PeakElevAtPos(x,z) * MaxPeakElev
-        ),
+      
+      // If above the transition threshold, need to transition to mesa geometry.
+      if(abs(mesa_gen_region(x,z)) > threshold(x,z),
+      
+        // If above the transition threshold and the wall transition delta, need to transition to flat top.
+        if(abs(mesa_gen_region(x,z)) > (threshold(x,z)+MesaFlattopTransitionDelta),
+          (MesaHeightModifier(x,z)/2 + 
+          (((mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/
+          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-threshold(x,z)+MesaFlattopTransitionDelta))),
+          
+          //Else return the transition up the wall of the mesa
+          (MesaHeightModifier(x,z)/2 -
+          (((threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/
+          (MesaFlattopTransitionRate+(threshold(x,z)+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))
+          ),
       0)
     variables:
-      MountainHeightGenThreshold: $customization.yml:continental-mesa-region-allowed-threshold
-      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
+      MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate
     samplers:
-      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
       MesaHeightModifier: *MesaHeightModifier

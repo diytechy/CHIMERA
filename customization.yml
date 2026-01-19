@@ -107,6 +107,8 @@ continental-mountain-region-allowed-threshold: .05
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
 continental-mesa-region-allowed-threshold: .05
+continental-mesa-flattop-trans-delta: 0.01 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
+continental-mesa-flattop-trans-rate: 0.01 #how quickly do mesa walls go vertical, ratiometric before map is scaled.
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
 
@@ -114,6 +116,7 @@ continental-MaxMesaPeakHeightRatio: 1.8 #Keep less than mountian peak height rat
 continental-MaxMountainPeakHeightRatio: 4
 continental-UnderwaterPeakHeightRatio: 2
 continental-MaxPeakVariability: 0.6
+continental-MaxNMesSteps: 3 #Max number of mesa steps to create
 
 
 # Rolling hill to hill rough distance, but passed through FBM filter with 2 octives by default with lunarcity 2, so value here should be 4x bump2bump dist as a rough approximation.

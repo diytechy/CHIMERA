@@ -38,6 +38,11 @@ samplers:
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
         # MesaHeightModifier - Region filtered mesa region.
         # RegionFilteredMesaHeightModifier - Actual applied mesa height when in region.
+        # MesaHeightModifier
+        # 
+        # HillHeightModifier:
+        # RegionFilteredHillHeightModifier:
+        # MesaHeightModifier
         #expression: (continents(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
         #continental_landmass - New landmass distribution
@@ -77,6 +82,9 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          HillHeightModifier:
+          RegionFilteredHillHeightModifier:
+          MesaHeightModifier:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM

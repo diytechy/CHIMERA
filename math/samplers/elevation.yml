@@ -109,11 +109,17 @@ samplers:
   prefiltered_mesa_elev: &prefiltered_mesa_elev
     dimensions: 2
     type: EXPRESSION
-    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
+    expression: |
+      if(base(x,z)>threshold(x,z),
+        (((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+        0
+      )
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
     samplers:
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      base: *base
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
       PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       
@@ -126,46 +132,61 @@ samplers:
       base: *base
       prefiltered_mesa_elev: *prefiltered_mesa_elev
 
-  #Returns the mesa height increase from base elevation to the plataue
+  #Returns if the mesa region is active (mesa region is above threshold, and elevation is above threshold)
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: abs(MesaGenRegion(x, z) * prefiltered_mountain_elev(x, z))
-    samplers:
-      mountain_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
-      MesaGenRegion: *prefiltered_mountain_elev
-      
-      
-    dimensions: 2
-    type: EXPRESSION
-    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps) - base(x,z)
+    expression: (abs(MesaGenRegion(x, z)>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z)
     variables:
-      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
-      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       base: *base
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-      PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
+      
+  MesaDownwardDistFromTransPnt: &MesaDownwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+    variables:
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
+    samplers:
+      base: *base
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
+  
+  MesaUpwardDistFromTransPnt: &MesaUpwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)--threshold(x,z))),0)
+    variables:
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
+    samplers:
+      base: *base
+      threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
       
-      // If above the transition threshold, need to transition to mesa geometry.
-      if(abs(mesa_gen_region(x,z)) > MesaRegionActiveThresh,
+      if(MesaHeightModifier(x,z),
       
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
-        if(abs(mesa_gen_region(x,z)) > (MesaRegionActiveThresh+MesaFlattopTransitionDelta),
+        if(MesaUpwardDistFromTransPnt(x,z)>0,
           (MesaHeightModifier(x,z)/2 + 
-          (((mesa_gen_region(x,z)-MesaRegionActiveThresh+MesaFlattopTransitionDelta)*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+mesa_gen_region(x,z)-(MesaRegionActiveThresh+MesaFlattopTransitionDelta)))),
+          ((MesaUpwardDistFromTransPnt*MesaHeightModifier(x,z)/2)/
+          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt))),
           
           //Else return the transition up the wall of the mesa
-          (MesaHeightModifier(x,z)/2 -
-          (((MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z))*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+(MesaRegionActiveThresh+MesaFlattopTransitionDelta-mesa_gen_region(x,z)))))
-          ),
+          if(MesaDownwardDistFromTransPnt(x,z)>0,
+            (MesaDownwardDistFromTransPnt*MesaHeightModifier(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt),
+          0)
+        ),
       0)
     variables:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
@@ -174,6 +195,9 @@ samplers:
     samplers:
       mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
       prefiltered_mesa_elev: *prefiltered_mesa_elev
+      MesaHeightModifier: *MesaHeightModifier
+      MesaUpwardDistFromTransPnt: *MesaUpwardDistFromTransPnt
+      MesaDownwardDistFromTransPnt: *MesaDownwardDistFromTransPnt
       MesaHeightModifier: *MesaHeightModifier
     functions: $math/functions/interpolation.yml:functions
 

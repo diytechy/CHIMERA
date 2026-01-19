@@ -42,7 +42,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (RegionFilteredMountainHeightModifier(x,z))*50+50
+        expression: (rawElevation(x,z))*50+50
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -94,6 +94,23 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
           base_shifted_prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
@@ -116,12 +133,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
@@ -146,7 +180,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   base:
@@ -166,12 +200,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -217,7 +268,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           MesaUpwardDistFromTransPnt:
@@ -245,12 +296,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -263,7 +331,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -310,12 +378,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -328,7 +413,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -374,7 +459,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               base:
@@ -394,12 +479,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -536,12 +638,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -554,7 +673,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               HillHeightModifier:
@@ -734,12 +853,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               PeakElevAtPos:
                 dimensions: 2
                 type: EXPRESSION
@@ -819,7 +955,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               mnt_and_ocean_valleys:
@@ -968,12 +1104,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
@@ -998,7 +1151,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       base:
@@ -1018,12 +1171,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -1081,12 +1251,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -1099,7 +1286,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -1146,12 +1333,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -1164,7 +1368,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -1211,12 +1415,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -1229,7 +1450,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -1345,12 +1566,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -1363,7 +1601,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -1387,14 +1625,21 @@ samplers:
                       salt: 200.0
           roughness:
             dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0005
-              salt: 100.0
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
           continental_landmass:
             dimensions: 2
             type: EXPRESSION
@@ -1407,9 +1652,9 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
@@ -1516,14 +1761,21 @@ samplers:
                           frequency: 0.001
           roughness:
             dimensions: 2
-            type: FBM
-            octaves: 2
-            lacunarity: 2.0
-            gain: 0.5
-            sampler:
-              type: PERLIN
-              frequency: 0.0004
-              salt: 100.0
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
           hills:
             dimensions: 2
             type: FBM
@@ -1674,21 +1926,22 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+              (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
                     max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                    RegionFilteredHillHeightModifier(x, z)
+                    RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                   ),
                   // Else: just return base
-                  base(x, z)
+                  base(x, z) + roughness(x,z)
                 )
-              )
+              ))
             variables:
               MaxUnderwaterMulti: 0.4
+              RoughnessFactor: 0.05
             functions:
               lerp:
                 arguments:
@@ -1760,6 +2013,23 @@ samplers:
                     - x
                     expression: x^2
             samplers:
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -1777,12 +2047,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -1834,7 +2121,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               RegionFilteredMountainHeightModifier:
@@ -1885,12 +2172,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   PeakElevAtPos:
                     dimensions: 2
                     type: EXPRESSION
@@ -1970,7 +2274,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   mnt_and_ocean_valleys:
@@ -2119,12 +2423,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
@@ -2149,7 +2470,7 @@ samplers:
                                 dimensions: 2
                                 type: PROBABILITY
                                 sampler:
-                                  type: OPEN_SIMPLEX_2
+                                  type: PERLIN
                                   salt: 697.0
                                   frequency: 0.0003333333333
                           base:
@@ -2169,12 +2490,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           MesaGenRegion:
                             dimensions: 2
                             type: EXPRESSION
@@ -2232,12 +2570,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -2250,7 +2605,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -2297,12 +2652,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -2315,7 +2687,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -2362,12 +2734,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -2380,7 +2769,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -2503,12 +2892,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -2521,7 +2927,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   HillHeightModifier:
@@ -2694,21 +3100,22 @@ samplers:
                 dimensions: 2
                 type: EXPRESSION
                 expression: |
-                  if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+                  (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                     // Below ocean cutoff: Add ocean noise with negative offset
-                    base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                    base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                     // Above feature offset: Create mesa/hills/mountains
                     if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                       base(x, z) + max(
                         max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                        RegionFilteredHillHeightModifier(x, z)
+                        RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                       ),
                       // Else: just return base
-                      base(x, z)
+                      base(x, z) + roughness(x,z)
                     )
-                  )
+                  ))
                 variables:
                   MaxUnderwaterMulti: 0.4
+                  RoughnessFactor: 0.05
                 functions:
                   lerp:
                     arguments:
@@ -2780,6 +3187,23 @@ samplers:
                         - x
                         expression: x^2
                 samplers:
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
                   base:
                     dimensions: 2
                     type: EXPRESSION
@@ -2797,12 +3221,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   MountainHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
@@ -2854,7 +3295,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   RegionFilteredMountainHeightModifier:
@@ -2905,12 +3346,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       PeakElevAtPos:
                         dimensions: 2
                         type: EXPRESSION
@@ -2990,7 +3448,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       mnt_and_ocean_valleys:
@@ -3139,12 +3597,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           prefiltered_mesa_elev:
                             dimensions: 2
                             type: EXPRESSION
@@ -3169,7 +3644,7 @@ samplers:
                                     dimensions: 2
                                     type: PROBABILITY
                                     sampler:
-                                      type: OPEN_SIMPLEX_2
+                                      type: PERLIN
                                       salt: 697.0
                                       frequency: 0.0003333333333
                               base:
@@ -3189,12 +3664,29 @@ samplers:
                                         z: 10000
                                         sampler:
                                           type: FBM
-                                          gain: 0.7
+                                          gain: 0.9
                                           octaves: 2
-                                          lacunarity: 1.6
+                                          lacunarity: 2
                                           sampler:
                                             type: PERLIN
                                             frequency: 0.0002
+                                  roughness:
+                                    dimensions: 2
+                                    type: EXPRESSION
+                                    expression: raw_roughness(x,z)*factor
+                                    variables:
+                                      factor: 0.05
+                                    samplers:
+                                      raw_roughness:
+                                        dimensions: 2
+                                        type: FBM
+                                        octaves: 3
+                                        lacunarity: 2.0
+                                        gain: 0.3
+                                        sampler:
+                                          type: OPEN_SIMPLEX_2
+                                          frequency: 0.01
+                                          salt: 100.0
                               MesaGenRegion:
                                 dimensions: 2
                                 type: EXPRESSION
@@ -3252,12 +3744,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           threshold:
                             dimensions: 2
                             type: EXPRESSION
@@ -3270,7 +3779,7 @@ samplers:
                                 dimensions: 2
                                 type: PROBABILITY
                                 sampler:
-                                  type: OPEN_SIMPLEX_2
+                                  type: PERLIN
                                   salt: 697.0
                                   frequency: 0.0003333333333
                           MesaGenRegion:
@@ -3317,12 +3826,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           threshold:
                             dimensions: 2
                             type: EXPRESSION
@@ -3335,7 +3861,7 @@ samplers:
                                 dimensions: 2
                                 type: PROBABILITY
                                 sampler:
-                                  type: OPEN_SIMPLEX_2
+                                  type: PERLIN
                                   salt: 697.0
                                   frequency: 0.0003333333333
                           MesaGenRegion:
@@ -3382,12 +3908,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           threshold:
                             dimensions: 2
                             type: EXPRESSION
@@ -3400,7 +3943,7 @@ samplers:
                                 dimensions: 2
                                 type: PROBABILITY
                                 sampler:
-                                  type: OPEN_SIMPLEX_2
+                                  type: PERLIN
                                   salt: 697.0
                                   frequency: 0.0003333333333
                           MesaGenRegion:
@@ -3523,12 +4066,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -3541,7 +4101,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       HillHeightModifier:
@@ -4513,7 +5073,7 @@ samplers:
         dimensions: 2
         type: PROBABILITY
         sampler:
-          type: OPEN_SIMPLEX_2
+          type: PERLIN
           salt: 697.0
           frequency: 0.0003333333333
   PeakHeightMultiplierAtPosition:
@@ -4542,9 +5102,9 @@ samplers:
         z: 10000
         sampler:
           type: FBM
-          gain: 0.7
+          gain: 0.9
           octaves: 2
-          lacunarity: 1.6
+          lacunarity: 2
           sampler:
             type: PERLIN
             frequency: 0.0002
@@ -5577,6 +6137,23 @@ samplers:
                 sampler:
                   type: OPEN_SIMPLEX_2
                   frequency: 0.001
+  roughness:
+    dimensions: 2
+    type: EXPRESSION
+    expression: raw_roughness(x,z)*factor
+    variables:
+      factor: 0.05
+    samplers:
+      raw_roughness:
+        dimensions: 2
+        type: FBM
+        octaves: 3
+        lacunarity: 2.0
+        gain: 0.3
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.01
+          salt: 100.0
   base:
     dimensions: 2
     type: EXPRESSION
@@ -5594,12 +6171,29 @@ samplers:
             z: 10000
             sampler:
               type: FBM
-              gain: 0.7
+              gain: 0.9
               octaves: 2
-              lacunarity: 1.6
+              lacunarity: 2
               sampler:
                 type: PERLIN
                 frequency: 0.0002
+      roughness:
+        dimensions: 2
+        type: EXPRESSION
+        expression: raw_roughness(x,z)*factor
+        variables:
+          factor: 0.05
+        samplers:
+          raw_roughness:
+            dimensions: 2
+            type: FBM
+            octaves: 3
+            lacunarity: 2.0
+            gain: 0.3
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.01
+              salt: 100.0
   OceanValley:
     dimensions: 2
     type: OPEN_SIMPLEX_2
@@ -5687,12 +6281,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       PeakElevAtPos:
         dimensions: 2
         type: EXPRESSION
@@ -5772,7 +6383,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       mnt_and_ocean_valleys:
@@ -5879,7 +6490,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       base:
@@ -5899,12 +6510,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       MesaGenRegion:
         dimensions: 2
         type: EXPRESSION
@@ -5960,12 +6588,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       prefiltered_mesa_elev:
         dimensions: 2
         type: EXPRESSION
@@ -5990,7 +6635,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           base:
@@ -6010,12 +6655,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           MesaGenRegion:
             dimensions: 2
             type: EXPRESSION
@@ -6073,12 +6735,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -6091,7 +6770,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       MesaGenRegion:
@@ -6138,12 +6817,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -6156,7 +6852,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       MesaGenRegion:
@@ -6203,12 +6899,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -6221,7 +6934,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       MesaGenRegion:
@@ -6309,12 +7022,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           prefiltered_mesa_elev:
             dimensions: 2
             type: EXPRESSION
@@ -6339,7 +7069,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               base:
@@ -6359,12 +7089,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               MesaGenRegion:
                 dimensions: 2
                 type: EXPRESSION
@@ -6422,12 +7169,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -6440,7 +7204,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           MesaGenRegion:
@@ -6487,12 +7251,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -6505,7 +7286,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           MesaGenRegion:
@@ -6552,12 +7333,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -6570,7 +7368,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           MesaGenRegion:
@@ -6703,12 +7501,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -6721,7 +7536,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       HillHeightModifier:
@@ -6808,21 +7623,22 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+      (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
             max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-            RegionFilteredHillHeightModifier(x, z)
+            RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
           ),
           // Else: just return base
-          base(x, z)
+          base(x, z) + roughness(x,z)
         )
-      )
+      ))
     variables:
       MaxUnderwaterMulti: 0.4
+      RoughnessFactor: 0.05
     functions:
       lerp:
         arguments:
@@ -6894,6 +7710,23 @@ samplers:
             - x
             expression: x^2
     samplers:
+      roughness:
+        dimensions: 2
+        type: EXPRESSION
+        expression: raw_roughness(x,z)*factor
+        variables:
+          factor: 0.05
+        samplers:
+          raw_roughness:
+            dimensions: 2
+            type: FBM
+            octaves: 3
+            lacunarity: 2.0
+            gain: 0.3
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.01
+              salt: 100.0
       base:
         dimensions: 2
         type: EXPRESSION
@@ -6911,12 +7744,29 @@ samplers:
                 z: 10000
                 sampler:
                   type: FBM
-                  gain: 0.7
+                  gain: 0.9
                   octaves: 2
-                  lacunarity: 1.6
+                  lacunarity: 2
                   sampler:
                     type: PERLIN
                     frequency: 0.0002
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
       MountainHeightModifier:
         dimensions: 2
         type: EXPRESSION
@@ -6968,7 +7818,7 @@ samplers:
             dimensions: 2
             type: PROBABILITY
             sampler:
-              type: OPEN_SIMPLEX_2
+              type: PERLIN
               salt: 697.0
               frequency: 0.0003333333333
       RegionFilteredMountainHeightModifier:
@@ -7019,12 +7869,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           PeakElevAtPos:
             dimensions: 2
             type: EXPRESSION
@@ -7104,7 +7971,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           mnt_and_ocean_valleys:
@@ -7253,12 +8120,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               prefiltered_mesa_elev:
                 dimensions: 2
                 type: EXPRESSION
@@ -7283,7 +8167,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   base:
@@ -7303,12 +8187,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   MesaGenRegion:
                     dimensions: 2
                     type: EXPRESSION
@@ -7366,12 +8267,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -7384,7 +8302,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -7431,12 +8349,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -7449,7 +8384,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -7496,12 +8431,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -7514,7 +8466,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               MesaGenRegion:
@@ -7637,12 +8589,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -7655,7 +8624,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           HillHeightModifier:
@@ -7828,21 +8797,22 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+          (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
                 max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                RegionFilteredHillHeightModifier(x, z)
+                RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
               ),
               // Else: just return base
-              base(x, z)
+              base(x, z) + roughness(x,z)
             )
-          )
+          ))
         variables:
           MaxUnderwaterMulti: 0.4
+          RoughnessFactor: 0.05
         functions:
           lerp:
             arguments:
@@ -7914,6 +8884,23 @@ samplers:
                 - x
                 expression: x^2
         samplers:
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
           base:
             dimensions: 2
             type: EXPRESSION
@@ -7931,12 +8918,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -7988,7 +8992,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           RegionFilteredMountainHeightModifier:
@@ -8039,12 +9043,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               PeakElevAtPos:
                 dimensions: 2
                 type: EXPRESSION
@@ -8124,7 +9145,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               mnt_and_ocean_valleys:
@@ -8273,12 +9294,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
@@ -8303,7 +9341,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       base:
@@ -8323,12 +9361,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -8386,12 +9441,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -8404,7 +9476,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -8451,12 +9523,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -8469,7 +9558,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -8516,12 +9605,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -8534,7 +9640,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -8657,12 +9763,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -8675,7 +9798,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               HillHeightModifier:
@@ -9480,21 +10603,22 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+                (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z)
+                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                     ),
                     // Else: just return base
-                    base(x, z)
+                    base(x, z) + roughness(x,z)
                   )
-                )
+                ))
               variables:
                 MaxUnderwaterMulti: 0.4
+                RoughnessFactor: 0.05
               functions:
                 lerp:
                   arguments:
@@ -9566,6 +10690,23 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                roughness:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: raw_roughness(x,z)*factor
+                  variables:
+                    factor: 0.05
+                  samplers:
+                    raw_roughness:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 3
+                      lacunarity: 2.0
+                      gain: 0.3
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        frequency: 0.01
+                        salt: 100.0
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -9583,12 +10724,29 @@ samplers:
                           z: 10000
                           sampler:
                             type: FBM
-                            gain: 0.7
+                            gain: 0.9
                             octaves: 2
-                            lacunarity: 1.6
+                            lacunarity: 2
                             sampler:
                               type: PERLIN
                               frequency: 0.0002
+                    roughness:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: raw_roughness(x,z)*factor
+                      variables:
+                        factor: 0.05
+                      samplers:
+                        raw_roughness:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.3
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            frequency: 0.01
+                            salt: 100.0
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -9640,7 +10798,7 @@ samplers:
                       dimensions: 2
                       type: PROBABILITY
                       sampler:
-                        type: OPEN_SIMPLEX_2
+                        type: PERLIN
                         salt: 697.0
                         frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
@@ -9691,12 +10849,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     PeakElevAtPos:
                       dimensions: 2
                       type: EXPRESSION
@@ -9776,7 +10951,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
@@ -9925,12 +11100,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
@@ -9955,7 +11147,7 @@ samplers:
                                   dimensions: 2
                                   type: PROBABILITY
                                   sampler:
-                                    type: OPEN_SIMPLEX_2
+                                    type: PERLIN
                                     salt: 697.0
                                     frequency: 0.0003333333333
                             base:
@@ -9975,12 +11167,29 @@ samplers:
                                       z: 10000
                                       sampler:
                                         type: FBM
-                                        gain: 0.7
+                                        gain: 0.9
                                         octaves: 2
-                                        lacunarity: 1.6
+                                        lacunarity: 2
                                         sampler:
                                           type: PERLIN
                                           frequency: 0.0002
+                                roughness:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: raw_roughness(x,z)*factor
+                                  variables:
+                                    factor: 0.05
+                                  samplers:
+                                    raw_roughness:
+                                      dimensions: 2
+                                      type: FBM
+                                      octaves: 3
+                                      lacunarity: 2.0
+                                      gain: 0.3
+                                      sampler:
+                                        type: OPEN_SIMPLEX_2
+                                        frequency: 0.01
+                                        salt: 100.0
                             MesaGenRegion:
                               dimensions: 2
                               type: EXPRESSION
@@ -10038,12 +11247,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -10056,7 +11282,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -10103,12 +11329,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -10121,7 +11364,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -10168,12 +11411,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -10186,7 +11446,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -10309,12 +11569,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -10327,7 +11604,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     HillHeightModifier:
@@ -11381,21 +12658,22 @@ samplers:
         dimensions: 2
         type: EXPRESSION
         expression: |
-          if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+          (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
             // Below ocean cutoff: Add ocean noise with negative offset
-            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+            base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
             // Above feature offset: Create mesa/hills/mountains
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
                 max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                RegionFilteredHillHeightModifier(x, z)
+                RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
               ),
               // Else: just return base
-              base(x, z)
+              base(x, z) + roughness(x,z)
             )
-          )
+          ))
         variables:
           MaxUnderwaterMulti: 0.4
+          RoughnessFactor: 0.05
         functions:
           lerp:
             arguments:
@@ -11467,6 +12745,23 @@ samplers:
                 - x
                 expression: x^2
         samplers:
+          roughness:
+            dimensions: 2
+            type: EXPRESSION
+            expression: raw_roughness(x,z)*factor
+            variables:
+              factor: 0.05
+            samplers:
+              raw_roughness:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                lacunarity: 2.0
+                gain: 0.3
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.01
+                  salt: 100.0
           base:
             dimensions: 2
             type: EXPRESSION
@@ -11484,12 +12779,29 @@ samplers:
                     z: 10000
                     sampler:
                       type: FBM
-                      gain: 0.7
+                      gain: 0.9
                       octaves: 2
-                      lacunarity: 1.6
+                      lacunarity: 2
                       sampler:
                         type: PERLIN
                         frequency: 0.0002
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
           MountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -11541,7 +12853,7 @@ samplers:
                 dimensions: 2
                 type: PROBABILITY
                 sampler:
-                  type: OPEN_SIMPLEX_2
+                  type: PERLIN
                   salt: 697.0
                   frequency: 0.0003333333333
           RegionFilteredMountainHeightModifier:
@@ -11592,12 +12904,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               PeakElevAtPos:
                 dimensions: 2
                 type: EXPRESSION
@@ -11677,7 +13006,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               mnt_and_ocean_valleys:
@@ -11826,12 +13155,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   prefiltered_mesa_elev:
                     dimensions: 2
                     type: EXPRESSION
@@ -11856,7 +13202,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       base:
@@ -11876,12 +13222,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       MesaGenRegion:
                         dimensions: 2
                         type: EXPRESSION
@@ -11939,12 +13302,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -11957,7 +13337,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -12004,12 +13384,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -12022,7 +13419,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -12069,12 +13466,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -12087,7 +13501,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   MesaGenRegion:
@@ -12210,12 +13624,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -12228,7 +13659,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               HillHeightModifier:
@@ -13909,21 +15340,22 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+                (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z)
+                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                     ),
                     // Else: just return base
-                    base(x, z)
+                    base(x, z) + roughness(x,z)
                   )
-                )
+                ))
               variables:
                 MaxUnderwaterMulti: 0.4
+                RoughnessFactor: 0.05
               functions:
                 lerp:
                   arguments:
@@ -13995,6 +15427,23 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                roughness:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: raw_roughness(x,z)*factor
+                  variables:
+                    factor: 0.05
+                  samplers:
+                    raw_roughness:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 3
+                      lacunarity: 2.0
+                      gain: 0.3
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        frequency: 0.01
+                        salt: 100.0
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -14012,12 +15461,29 @@ samplers:
                           z: 10000
                           sampler:
                             type: FBM
-                            gain: 0.7
+                            gain: 0.9
                             octaves: 2
-                            lacunarity: 1.6
+                            lacunarity: 2
                             sampler:
                               type: PERLIN
                               frequency: 0.0002
+                    roughness:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: raw_roughness(x,z)*factor
+                      variables:
+                        factor: 0.05
+                      samplers:
+                        raw_roughness:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.3
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            frequency: 0.01
+                            salt: 100.0
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -14069,7 +15535,7 @@ samplers:
                       dimensions: 2
                       type: PROBABILITY
                       sampler:
-                        type: OPEN_SIMPLEX_2
+                        type: PERLIN
                         salt: 697.0
                         frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
@@ -14120,12 +15586,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     PeakElevAtPos:
                       dimensions: 2
                       type: EXPRESSION
@@ -14205,7 +15688,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
@@ -14354,12 +15837,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
@@ -14384,7 +15884,7 @@ samplers:
                                   dimensions: 2
                                   type: PROBABILITY
                                   sampler:
-                                    type: OPEN_SIMPLEX_2
+                                    type: PERLIN
                                     salt: 697.0
                                     frequency: 0.0003333333333
                             base:
@@ -14404,12 +15904,29 @@ samplers:
                                       z: 10000
                                       sampler:
                                         type: FBM
-                                        gain: 0.7
+                                        gain: 0.9
                                         octaves: 2
-                                        lacunarity: 1.6
+                                        lacunarity: 2
                                         sampler:
                                           type: PERLIN
                                           frequency: 0.0002
+                                roughness:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: raw_roughness(x,z)*factor
+                                  variables:
+                                    factor: 0.05
+                                  samplers:
+                                    raw_roughness:
+                                      dimensions: 2
+                                      type: FBM
+                                      octaves: 3
+                                      lacunarity: 2.0
+                                      gain: 0.3
+                                      sampler:
+                                        type: OPEN_SIMPLEX_2
+                                        frequency: 0.01
+                                        salt: 100.0
                             MesaGenRegion:
                               dimensions: 2
                               type: EXPRESSION
@@ -14467,12 +15984,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -14485,7 +16019,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -14532,12 +16066,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -14550,7 +16101,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -14597,12 +16148,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -14615,7 +16183,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -14738,12 +16306,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -14756,7 +16341,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     HillHeightModifier:
@@ -15698,21 +17283,22 @@ samplers:
               dimensions: 2
               type: EXPRESSION
               expression: |
-                if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+                (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                   // Below ocean cutoff: Add ocean noise with negative offset
-                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                  base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                   // Above feature offset: Create mesa/hills/mountains
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z)
+                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                     ),
                     // Else: just return base
-                    base(x, z)
+                    base(x, z) + roughness(x,z)
                   )
-                )
+                ))
               variables:
                 MaxUnderwaterMulti: 0.4
+                RoughnessFactor: 0.05
               functions:
                 lerp:
                   arguments:
@@ -15784,6 +17370,23 @@ samplers:
                       - x
                       expression: x^2
               samplers:
+                roughness:
+                  dimensions: 2
+                  type: EXPRESSION
+                  expression: raw_roughness(x,z)*factor
+                  variables:
+                    factor: 0.05
+                  samplers:
+                    raw_roughness:
+                      dimensions: 2
+                      type: FBM
+                      octaves: 3
+                      lacunarity: 2.0
+                      gain: 0.3
+                      sampler:
+                        type: OPEN_SIMPLEX_2
+                        frequency: 0.01
+                        salt: 100.0
                 base:
                   dimensions: 2
                   type: EXPRESSION
@@ -15801,12 +17404,29 @@ samplers:
                           z: 10000
                           sampler:
                             type: FBM
-                            gain: 0.7
+                            gain: 0.9
                             octaves: 2
-                            lacunarity: 1.6
+                            lacunarity: 2
                             sampler:
                               type: PERLIN
                               frequency: 0.0002
+                    roughness:
+                      dimensions: 2
+                      type: EXPRESSION
+                      expression: raw_roughness(x,z)*factor
+                      variables:
+                        factor: 0.05
+                      samplers:
+                        raw_roughness:
+                          dimensions: 2
+                          type: FBM
+                          octaves: 3
+                          lacunarity: 2.0
+                          gain: 0.3
+                          sampler:
+                            type: OPEN_SIMPLEX_2
+                            frequency: 0.01
+                            salt: 100.0
                 MountainHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
@@ -15858,7 +17478,7 @@ samplers:
                       dimensions: 2
                       type: PROBABILITY
                       sampler:
-                        type: OPEN_SIMPLEX_2
+                        type: PERLIN
                         salt: 697.0
                         frequency: 0.0003333333333
                 RegionFilteredMountainHeightModifier:
@@ -15909,12 +17529,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     PeakElevAtPos:
                       dimensions: 2
                       type: EXPRESSION
@@ -15994,7 +17631,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     mnt_and_ocean_valleys:
@@ -16143,12 +17780,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         prefiltered_mesa_elev:
                           dimensions: 2
                           type: EXPRESSION
@@ -16173,7 +17827,7 @@ samplers:
                                   dimensions: 2
                                   type: PROBABILITY
                                   sampler:
-                                    type: OPEN_SIMPLEX_2
+                                    type: PERLIN
                                     salt: 697.0
                                     frequency: 0.0003333333333
                             base:
@@ -16193,12 +17847,29 @@ samplers:
                                       z: 10000
                                       sampler:
                                         type: FBM
-                                        gain: 0.7
+                                        gain: 0.9
                                         octaves: 2
-                                        lacunarity: 1.6
+                                        lacunarity: 2
                                         sampler:
                                           type: PERLIN
                                           frequency: 0.0002
+                                roughness:
+                                  dimensions: 2
+                                  type: EXPRESSION
+                                  expression: raw_roughness(x,z)*factor
+                                  variables:
+                                    factor: 0.05
+                                  samplers:
+                                    raw_roughness:
+                                      dimensions: 2
+                                      type: FBM
+                                      octaves: 3
+                                      lacunarity: 2.0
+                                      gain: 0.3
+                                      sampler:
+                                        type: OPEN_SIMPLEX_2
+                                        frequency: 0.01
+                                        salt: 100.0
                             MesaGenRegion:
                               dimensions: 2
                               type: EXPRESSION
@@ -16256,12 +17927,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -16274,7 +17962,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -16321,12 +18009,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -16339,7 +18044,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -16386,12 +18091,29 @@ samplers:
                                   z: 10000
                                   sampler:
                                     type: FBM
-                                    gain: 0.7
+                                    gain: 0.9
                                     octaves: 2
-                                    lacunarity: 1.6
+                                    lacunarity: 2
                                     sampler:
                                       type: PERLIN
                                       frequency: 0.0002
+                            roughness:
+                              dimensions: 2
+                              type: EXPRESSION
+                              expression: raw_roughness(x,z)*factor
+                              variables:
+                                factor: 0.05
+                              samplers:
+                                raw_roughness:
+                                  dimensions: 2
+                                  type: FBM
+                                  octaves: 3
+                                  lacunarity: 2.0
+                                  gain: 0.3
+                                  sampler:
+                                    type: OPEN_SIMPLEX_2
+                                    frequency: 0.01
+                                    salt: 100.0
                         threshold:
                           dimensions: 2
                           type: EXPRESSION
@@ -16404,7 +18126,7 @@ samplers:
                               dimensions: 2
                               type: PROBABILITY
                               sampler:
-                                type: OPEN_SIMPLEX_2
+                                type: PERLIN
                                 salt: 697.0
                                 frequency: 0.0003333333333
                         MesaGenRegion:
@@ -16527,12 +18249,29 @@ samplers:
                               z: 10000
                               sampler:
                                 type: FBM
-                                gain: 0.7
+                                gain: 0.9
                                 octaves: 2
-                                lacunarity: 1.6
+                                lacunarity: 2
                                 sampler:
                                   type: PERLIN
                                   frequency: 0.0002
+                        roughness:
+                          dimensions: 2
+                          type: EXPRESSION
+                          expression: raw_roughness(x,z)*factor
+                          variables:
+                            factor: 0.05
+                          samplers:
+                            raw_roughness:
+                              dimensions: 2
+                              type: FBM
+                              octaves: 3
+                              lacunarity: 2.0
+                              gain: 0.3
+                              sampler:
+                                type: OPEN_SIMPLEX_2
+                                frequency: 0.01
+                                salt: 100.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -16545,7 +18284,7 @@ samplers:
                           dimensions: 2
                           type: PROBABILITY
                           sampler:
-                            type: OPEN_SIMPLEX_2
+                            type: PERLIN
                             salt: 697.0
                             frequency: 0.0003333333333
                     HillHeightModifier:
@@ -17840,21 +19579,22 @@ samplers:
             dimensions: 2
             type: EXPRESSION
             expression: |
-              if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+              (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
                 // Below ocean cutoff: Add ocean noise with negative offset
-                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+                base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
                 // Above feature offset: Create mesa/hills/mountains
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
                     max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                    RegionFilteredHillHeightModifier(x, z)
+                    RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
                   ),
                   // Else: just return base
-                  base(x, z)
+                  base(x, z) + roughness(x,z)
                 )
-              )
+              ))
             variables:
               MaxUnderwaterMulti: 0.4
+              RoughnessFactor: 0.05
             functions:
               lerp:
                 arguments:
@@ -17926,6 +19666,23 @@ samplers:
                     - x
                     expression: x^2
             samplers:
+              roughness:
+                dimensions: 2
+                type: EXPRESSION
+                expression: raw_roughness(x,z)*factor
+                variables:
+                  factor: 0.05
+                samplers:
+                  raw_roughness:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 3
+                    lacunarity: 2.0
+                    gain: 0.3
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      frequency: 0.01
+                      salt: 100.0
               base:
                 dimensions: 2
                 type: EXPRESSION
@@ -17943,12 +19700,29 @@ samplers:
                         z: 10000
                         sampler:
                           type: FBM
-                          gain: 0.7
+                          gain: 0.9
                           octaves: 2
-                          lacunarity: 1.6
+                          lacunarity: 2
                           sampler:
                             type: PERLIN
                             frequency: 0.0002
+                  roughness:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: raw_roughness(x,z)*factor
+                    variables:
+                      factor: 0.05
+                    samplers:
+                      raw_roughness:
+                        dimensions: 2
+                        type: FBM
+                        octaves: 3
+                        lacunarity: 2.0
+                        gain: 0.3
+                        sampler:
+                          type: OPEN_SIMPLEX_2
+                          frequency: 0.01
+                          salt: 100.0
               MountainHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
@@ -18000,7 +19774,7 @@ samplers:
                     dimensions: 2
                     type: PROBABILITY
                     sampler:
-                      type: OPEN_SIMPLEX_2
+                      type: PERLIN
                       salt: 697.0
                       frequency: 0.0003333333333
               RegionFilteredMountainHeightModifier:
@@ -18051,12 +19825,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   PeakElevAtPos:
                     dimensions: 2
                     type: EXPRESSION
@@ -18136,7 +19927,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   mnt_and_ocean_valleys:
@@ -18285,12 +20076,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       prefiltered_mesa_elev:
                         dimensions: 2
                         type: EXPRESSION
@@ -18315,7 +20123,7 @@ samplers:
                                 dimensions: 2
                                 type: PROBABILITY
                                 sampler:
-                                  type: OPEN_SIMPLEX_2
+                                  type: PERLIN
                                   salt: 697.0
                                   frequency: 0.0003333333333
                           base:
@@ -18335,12 +20143,29 @@ samplers:
                                     z: 10000
                                     sampler:
                                       type: FBM
-                                      gain: 0.7
+                                      gain: 0.9
                                       octaves: 2
-                                      lacunarity: 1.6
+                                      lacunarity: 2
                                       sampler:
                                         type: PERLIN
                                         frequency: 0.0002
+                              roughness:
+                                dimensions: 2
+                                type: EXPRESSION
+                                expression: raw_roughness(x,z)*factor
+                                variables:
+                                  factor: 0.05
+                                samplers:
+                                  raw_roughness:
+                                    dimensions: 2
+                                    type: FBM
+                                    octaves: 3
+                                    lacunarity: 2.0
+                                    gain: 0.3
+                                    sampler:
+                                      type: OPEN_SIMPLEX_2
+                                      frequency: 0.01
+                                      salt: 100.0
                           MesaGenRegion:
                             dimensions: 2
                             type: EXPRESSION
@@ -18398,12 +20223,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -18416,7 +20258,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -18463,12 +20305,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -18481,7 +20340,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -18528,12 +20387,29 @@ samplers:
                                 z: 10000
                                 sampler:
                                   type: FBM
-                                  gain: 0.7
+                                  gain: 0.9
                                   octaves: 2
-                                  lacunarity: 1.6
+                                  lacunarity: 2
                                   sampler:
                                     type: PERLIN
                                     frequency: 0.0002
+                          roughness:
+                            dimensions: 2
+                            type: EXPRESSION
+                            expression: raw_roughness(x,z)*factor
+                            variables:
+                              factor: 0.05
+                            samplers:
+                              raw_roughness:
+                                dimensions: 2
+                                type: FBM
+                                octaves: 3
+                                lacunarity: 2.0
+                                gain: 0.3
+                                sampler:
+                                  type: OPEN_SIMPLEX_2
+                                  frequency: 0.01
+                                  salt: 100.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -18546,7 +20422,7 @@ samplers:
                             dimensions: 2
                             type: PROBABILITY
                             sampler:
-                              type: OPEN_SIMPLEX_2
+                              type: PERLIN
                               salt: 697.0
                               frequency: 0.0003333333333
                       MesaGenRegion:
@@ -18669,12 +20545,29 @@ samplers:
                             z: 10000
                             sampler:
                               type: FBM
-                              gain: 0.7
+                              gain: 0.9
                               octaves: 2
-                              lacunarity: 1.6
+                              lacunarity: 2
                               sampler:
                                 type: PERLIN
                                 frequency: 0.0002
+                      roughness:
+                        dimensions: 2
+                        type: EXPRESSION
+                        expression: raw_roughness(x,z)*factor
+                        variables:
+                          factor: 0.05
+                        samplers:
+                          raw_roughness:
+                            dimensions: 2
+                            type: FBM
+                            octaves: 3
+                            lacunarity: 2.0
+                            gain: 0.3
+                            sampler:
+                              type: OPEN_SIMPLEX_2
+                              frequency: 0.01
+                              salt: 100.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -18687,7 +20580,7 @@ samplers:
                         dimensions: 2
                         type: PROBABILITY
                         sampler:
-                          type: OPEN_SIMPLEX_2
+                          type: PERLIN
                           salt: 697.0
                           frequency: 0.0003333333333
                   HillHeightModifier:

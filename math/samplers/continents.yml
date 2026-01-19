@@ -12,7 +12,8 @@ samplers:
         dimensions: 2
         type: PROBABILITY
         sampler:
-          type: OPEN_SIMPLEX_2
+          #type: OPEN_SIMPLEX_2
+          type: PERLIN
           salt: 697.0
           #frequency: 1/300
           frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
@@ -46,9 +47,9 @@ samplers:
         z: 10000
         sampler:
           type: FBM
-          gain: 0.7
+          gain: 0.9
           octaves: 2
-          lacunarity: 1.6
+          lacunarity: 2
           sampler:
             type: PERLIN
             frequency: (1 / ${customization.yml:continental-baseline-distance})

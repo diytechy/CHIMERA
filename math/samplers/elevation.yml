@@ -44,7 +44,25 @@ samplers:
       factor: $customization.yml:flatness-factor
     samplers:
       rawFlatness: *rawFlatness
-
+      
+  roughness: &roughness
+    dimensions: 2
+    type: EXPRESSION
+    expression: raw_roughness(x,z)*factor
+    variables:
+      factor: $customization.yml:terrain-roughness-value
+    samplers:
+      raw_roughness:
+        dimensions: 2
+        type: FBM
+        octaves: 3
+        lacunarity: 2.0
+        gain: 0.3
+        sampler:
+          #type: PERLIN
+          type: OPEN_SIMPLEX_2
+          frequency: (1 / ${customization.yml:terrain-roughness-p2p})
+          salt: 100
   # Base sampler - just returns continental_landmass value
   base: &base
     dimensions: 2
@@ -52,6 +70,7 @@ samplers:
     expression: continental_landmass(x, z)
     samplers:
       continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
+      roughness: *roughness
 
   # Ocean valley noise for underwater features
   OceanValley: &OceanValley
@@ -74,7 +93,7 @@ samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
 
-#Creates mountian hight modifiers in valid regions, also creates negative offsets in deep valleys / ocean valleys.
+#Creates mountian hight modifiers in valid regions, also creates negative offsets in ocean valleys.
   RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
     dimensions: 2
     type: EXPRESSION
@@ -245,24 +264,26 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
+      (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z),
+        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
             max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-            RegionFilteredHillHeightModifier(x, z)
+            RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
           ),
           // Else: just return base
-          base(x, z)
+          base(x, z) + roughness(x,z)
         )
-      )
+      ))
     variables:
       MaxUnderwaterMulti: $customization.yml:continental-UnderwaterPeakHeightRatio
+      RoughnessFactor: $customization.yml:terrain-roughness-value
     functions: $math/functions/interpolation.yml:functions
 
     samplers:
+      roughness: *roughness
       base: *base
       MountainHeightModifier: *MountainHeightModifier
       OceanValley: *OceanValley

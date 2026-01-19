@@ -73,37 +73,39 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      min(
+      abs(
         min(
-          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+          min(
+            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+              lerp(
+                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                0.0,
+                0.0,
+                0.5-MountainHeightGenThreshold,
+                (mnt_and_ocean_valleys(x, z) )
+              ),
+            0),
+            if(base(x,z) > threshold(x,z),
+              lerp(
+                base(x, z) - threshold(x,z),
+                0.0,
+                0.0,
+                base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                (mnt_and_ocean_valleys(x, z) )
+              ),
+            0)
+          ),
+          if(base(x,z) < -threshold(x,z),
             lerp(
-              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              base(x, z) < -threshold(x,z),
               0.0,
               0.0,
-              0.5-MountainHeightGenThreshold,
-              (mnt_and_ocean_valleys(x, z) )
-            ) * (if(base(x,z)>0,1,-1)),
-          0),
-          if(base(x,z) > threshold(x,z),
-            lerp(
-              base(x, z) - threshold(x,z),
-              0.0,
-              0.0,
-              base(x, z) - threshold(x,z) + MountianTransitionHeight,
+              base(x, z) + threshold(x,z) - MountianTransitionHeight,
               (mnt_and_ocean_valleys(x, z) )
             ),
-            0)
-        ),
-        if(base(x,z) < -threshold(x,z),
-          lerp(
-            base(x, z) < -threshold(x,z),
-            0.0,
-            0.0,
-            base(x, z) + threshold(x,z) + MountianTransitionHeight,
-            (mnt_and_ocean_valleys(x, z) )
-          ),
           0)
-      ) * PeakElevAtPos(x,z) * MaxPeakElev
+        ) * PeakElevAtPos(x,z) * MaxPeakElev
+      )
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio

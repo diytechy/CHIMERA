@@ -49,8 +49,11 @@ samplers:
         # MesaHeightModifier - Region filtered mesa region.
         # RegionFilteredMesaHeightModifier - Actual applied mesa height when in region.
         # PeakHeightMultiplierAtPosition
+        # mountain_gen_region
+        # mesa_gen_region
         # HillHeightModifier:
         # RegionFilteredHillHeightModifier:
+        # prefiltered_mesa_elev:
         #expression: (continents(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
         #continental_landmass - New landmass distribution
@@ -61,6 +64,7 @@ samplers:
         # elevation (Derived elevation function)
         # continents (Derived continental function)
         # mnt_and_ocean_valleys (Currently not intended to be used)
+        # continental-large-features-allowed-threshold-with-variance
         # --- INSERT COPIES OF MATCHING SAMPLERS HERE ---
         samplers:
           test:
@@ -90,6 +94,268 @@ samplers:
             #OPEN_SIMPLEX_2
             #OPEN_SIMPLEX_2S
             #GAUSSIAN
+          continental-large-features-allowed-threshold-with-variance:
+          MesaUpwardDistFromTransPnt:
+            dimensions: 2
+            type: EXPRESSION
+            expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
+            variables:
+              MesaRegionActiveThresh: 0.1
+              MesaFlattopTransitionDelta: 0.01
+            samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.7
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.001
+              MesaGenRegion:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+          MesaDownwardDistFromTransPnt:
+            dimensions: 2
+            type: EXPRESSION
+            expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
+            variables:
+              MesaRegionActiveThresh: 0.1
+              MesaFlattopTransitionDelta: 0.01
+            samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.7
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.001
+              MesaGenRegion:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+          prefiltered_mesa_elev:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              if(base(x,z)>threshold(x,z),
+                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                0
+              )
+            variables:
+              MaxNMesSteps: 3
+              MaxPeakElev: 1.8
+            samplers:
+              threshold:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+                variables:
+                  nominal_value: 0.7
+                  variance: 0.03
+                samplers:
+                  applied_threshold_variance:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.001
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              MesaGenRegion:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+              PeakHeightMultiplierAtPosition:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                variables:
+                  VarianceRatio: 0.6
+                samplers:
+                  max_elev_prob:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.001
+          mountain_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 3000, z - 3000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 100.0
+          mesa_gen_region:
+            dimensions: 2
+            type: EXPRESSION
+            expression: sampler(x - 6000, z - 6000)
+            variables:
+              globalScale: 1
+              scale: 2
+              offset: 0.1
+            samplers:
+              sampler:
+                dimensions: 2
+                type: FBM
+                octaves: 2
+                lacunarity: 2.0
+                gain: 0.4
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0005
+                  salt: 200.0
+          HillHeightModifier:
+            dimensions: 2
+            type: FBM
+            octaves: 2
+            lacunarity: 2.0
+            gain: 0.3
+            sampler:
+              type: PERLIN
+              frequency: 0.006666666667
+              salt: 700.0
           PeakHeightMultiplierAtPosition:
             dimensions: 2
             type: EXPRESSION
@@ -126,15 +392,15 @@ samplers:
                 (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
               )
             variables:
-              MaxHillElev: 1.0
+              MaxHillElev: 0.1
             samplers:
               threshold:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -226,8 +492,8 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.4
-            octaves: 3
+            gain: 0.5
+            octaves: 6
             lacunarity: 1.6
             sampler:
               dimensions: 2
@@ -279,8 +545,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -306,26 +572,6 @@ samplers:
             expression: |
               abs(
                 min(
-                  min(
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  ),
                   if(base(x,z) < -threshold(x,z),
                     lerp(
                       base(x, z) < -threshold(x,z),
@@ -334,7 +580,27 @@ samplers:
                       base(x, z) + threshold(x,z) - MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
-                  0)
+                  0),
+                  max(
+                    if(base(x,z) > threshold(x,z),
+                      lerp(
+                        base(x, z) - threshold(x,z),
+                        0.0,
+                        0.0,
+                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0),
+                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                      lerp(
+                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                        0.0,
+                        0.0,
+                        0.5-MountainHeightGenThreshold,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0)
+                  )
                 ) * PeakElevAtPos(x,z) * MaxPeakElev
               )
             variables:
@@ -425,8 +691,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -451,8 +717,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -464,8 +730,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -616,8 +882,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -717,8 +983,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -782,8 +1048,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -814,7 +1080,7 @@ samplers:
               MesaDownwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.1
                   MesaFlattopTransitionDelta: 0.01
@@ -847,8 +1113,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -981,8 +1247,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -1442,8 +1708,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -1473,8 +1739,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -1489,26 +1755,6 @@ samplers:
                 expression: |
                   abs(
                     min(
-                      min(
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                          lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                            0.0,
-                            0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0),
-                        if(base(x,z) > threshold(x,z),
-                          lerp(
-                            base(x, z) - threshold(x,z),
-                            0.0,
-                            0.0,
-                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0)
-                      ),
                       if(base(x,z) < -threshold(x,z),
                         lerp(
                           base(x, z) < -threshold(x,z),
@@ -1517,7 +1763,27 @@ samplers:
                           base(x, z) + threshold(x,z) - MountianTransitionHeight,
                           (mnt_and_ocean_valleys(x, z) )
                         ),
-                      0)
+                      0),
+                      max(
+                        if(base(x,z) > threshold(x,z),
+                          lerp(
+                            base(x, z) - threshold(x,z),
+                            0.0,
+                            0.0,
+                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0),
+                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                          lerp(
+                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            0.0,
+                            0.0,
+                            0.5-MountainHeightGenThreshold,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0)
+                      )
                     ) * PeakElevAtPos(x,z) * MaxPeakElev
                   )
                 variables:
@@ -1608,8 +1874,8 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.4
-                        octaves: 3
+                        gain: 0.5
+                        octaves: 6
                         lacunarity: 1.6
                         sampler:
                           dimensions: 2
@@ -1634,8 +1900,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -1647,8 +1913,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -1799,8 +2065,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -1900,8 +2166,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -1965,8 +2231,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -1997,7 +2263,7 @@ samplers:
                   MesaDownwardDistFromTransPnt:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                    expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.1
                       MesaFlattopTransitionDelta: 0.01
@@ -2030,8 +2296,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -2141,15 +2407,15 @@ samplers:
                     (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                   )
                 variables:
-                  MaxHillElev: 1.0
+                  MaxHillElev: 0.1
                 samplers:
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -2471,8 +2737,8 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.4
-                        octaves: 3
+                        gain: 0.5
+                        octaves: 6
                         lacunarity: 1.6
                         sampler:
                           dimensions: 2
@@ -2502,8 +2768,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -2518,26 +2784,6 @@ samplers:
                     expression: |
                       abs(
                         min(
-                          min(
-                            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                              lerp(
-                                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                                0.0,
-                                0.0,
-                                0.5-MountainHeightGenThreshold,
-                                (mnt_and_ocean_valleys(x, z) )
-                              ),
-                            0),
-                            if(base(x,z) > threshold(x,z),
-                              lerp(
-                                base(x, z) - threshold(x,z),
-                                0.0,
-                                0.0,
-                                base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                                (mnt_and_ocean_valleys(x, z) )
-                              ),
-                            0)
-                          ),
                           if(base(x,z) < -threshold(x,z),
                             lerp(
                               base(x, z) < -threshold(x,z),
@@ -2546,7 +2792,27 @@ samplers:
                               base(x, z) + threshold(x,z) - MountianTransitionHeight,
                               (mnt_and_ocean_valleys(x, z) )
                             ),
-                          0)
+                          0),
+                          max(
+                            if(base(x,z) > threshold(x,z),
+                              lerp(
+                                base(x, z) - threshold(x,z),
+                                0.0,
+                                0.0,
+                                base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                                (mnt_and_ocean_valleys(x, z) )
+                              ),
+                            0),
+                            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                              lerp(
+                                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                                0.0,
+                                0.0,
+                                0.5-MountainHeightGenThreshold,
+                                (mnt_and_ocean_valleys(x, z) )
+                              ),
+                            0)
+                          )
                         ) * PeakElevAtPos(x,z) * MaxPeakElev
                       )
                     variables:
@@ -2637,8 +2903,8 @@ samplers:
                           mnt_and_ocean_valleys:
                             dimensions: 2
                             type: FBM
-                            gain: 0.4
-                            octaves: 3
+                            gain: 0.5
+                            octaves: 6
                             lacunarity: 1.6
                             sampler:
                               dimensions: 2
@@ -2663,8 +2929,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -2676,8 +2942,8 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.4
-                        octaves: 3
+                        gain: 0.5
+                        octaves: 6
                         lacunarity: 1.6
                         sampler:
                           dimensions: 2
@@ -2828,8 +3094,8 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.15
-                              variance: 0.05
+                              nominal_value: 0.7
+                              variance: 0.03
                             samplers:
                               applied_threshold_variance:
                                 dimensions: 2
@@ -2929,8 +3195,8 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.15
-                              variance: 0.05
+                              nominal_value: 0.7
+                              variance: 0.03
                             samplers:
                               applied_threshold_variance:
                                 dimensions: 2
@@ -2994,8 +3260,8 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.15
-                              variance: 0.05
+                              nominal_value: 0.7
+                              variance: 0.03
                             samplers:
                               applied_threshold_variance:
                                 dimensions: 2
@@ -3026,7 +3292,7 @@ samplers:
                       MesaDownwardDistFromTransPnt:
                         dimensions: 2
                         type: EXPRESSION
-                        expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                        expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                         variables:
                           MesaRegionActiveThresh: 0.1
                           MesaFlattopTransitionDelta: 0.01
@@ -3059,8 +3325,8 @@ samplers:
                             type: EXPRESSION
                             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                             variables:
-                              nominal_value: 0.15
-                              variance: 0.05
+                              nominal_value: 0.7
+                              variance: 0.03
                             samplers:
                               applied_threshold_variance:
                                 dimensions: 2
@@ -3170,15 +3436,15 @@ samplers:
                         (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                       )
                     variables:
-                      MaxHillElev: 1.0
+                      MaxHillElev: 0.1
                     samplers:
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -4149,8 +4415,8 @@ samplers:
     type: EXPRESSION
     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
     variables:
-      nominal_value: 0.15
-      variance: 0.05
+      nominal_value: 0.7
+      variance: 0.03
     samplers:
       applied_threshold_variance:
         dimensions: 2
@@ -4194,8 +4460,8 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.4
-    octaves: 3
+    gain: 0.5
+    octaves: 6
     lacunarity: 1.6
     sampler:
       dimensions: 2
@@ -5289,8 +5555,8 @@ samplers:
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.4
-        octaves: 3
+        gain: 0.5
+        octaves: 6
         lacunarity: 1.6
         sampler:
           dimensions: 2
@@ -5316,26 +5582,6 @@ samplers:
     expression: |
       abs(
         min(
-          min(
-            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-              lerp(
-                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                0.0,
-                0.0,
-                0.5-MountainHeightGenThreshold,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0),
-            if(base(x,z) > threshold(x,z),
-              lerp(
-                base(x, z) - threshold(x,z),
-                0.0,
-                0.0,
-                base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0)
-          ),
           if(base(x,z) < -threshold(x,z),
             lerp(
               base(x, z) < -threshold(x,z),
@@ -5344,7 +5590,27 @@ samplers:
               base(x, z) + threshold(x,z) - MountianTransitionHeight,
               (mnt_and_ocean_valleys(x, z) )
             ),
-          0)
+          0),
+          max(
+            if(base(x,z) > threshold(x,z),
+              lerp(
+                base(x, z) - threshold(x,z),
+                0.0,
+                0.0,
+                base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                (mnt_and_ocean_valleys(x, z) )
+              ),
+            0),
+            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+              lerp(
+                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                0.0,
+                0.0,
+                0.5-MountainHeightGenThreshold,
+                (mnt_and_ocean_valleys(x, z) )
+              ),
+            0)
+          )
         ) * PeakElevAtPos(x,z) * MaxPeakElev
       )
     variables:
@@ -5435,8 +5701,8 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.4
-            octaves: 3
+            gain: 0.5
+            octaves: 6
             lacunarity: 1.6
             sampler:
               dimensions: 2
@@ -5461,8 +5727,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -5474,8 +5740,8 @@ samplers:
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.4
-        octaves: 3
+        gain: 0.5
+        octaves: 6
         lacunarity: 1.6
         sampler:
           dimensions: 2
@@ -5582,8 +5848,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -5693,8 +5959,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -5794,8 +6060,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -5826,7 +6092,7 @@ samplers:
   MesaDownwardDistFromTransPnt:
     dimensions: 2
     type: EXPRESSION
-    expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+    expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
     variables:
       MesaRegionActiveThresh: 0.1
       MesaFlattopTransitionDelta: 0.01
@@ -5859,8 +6125,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -5924,8 +6190,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -6014,8 +6280,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -6115,8 +6381,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -6180,8 +6446,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -6212,7 +6478,7 @@ samplers:
       MesaDownwardDistFromTransPnt:
         dimensions: 2
         type: EXPRESSION
-        expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+        expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
         variables:
           MesaRegionActiveThresh: 0.1
           MesaFlattopTransitionDelta: 0.01
@@ -6245,8 +6511,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -6366,15 +6632,15 @@ samplers:
         (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
       )
     variables:
-      MaxHillElev: 1.0
+      MaxHillElev: 0.1
     samplers:
       threshold:
         dimensions: 2
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -6610,8 +6876,8 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.4
-            octaves: 3
+            gain: 0.5
+            octaves: 6
             lacunarity: 1.6
             sampler:
               dimensions: 2
@@ -6641,8 +6907,8 @@ samplers:
         type: EXPRESSION
         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
         variables:
-          nominal_value: 0.15
-          variance: 0.05
+          nominal_value: 0.7
+          variance: 0.03
         samplers:
           applied_threshold_variance:
             dimensions: 2
@@ -6657,26 +6923,6 @@ samplers:
         expression: |
           abs(
             min(
-              min(
-                if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                  lerp(
-                    mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                    0.0,
-                    0.0,
-                    0.5-MountainHeightGenThreshold,
-                    (mnt_and_ocean_valleys(x, z) )
-                  ),
-                0),
-                if(base(x,z) > threshold(x,z),
-                  lerp(
-                    base(x, z) - threshold(x,z),
-                    0.0,
-                    0.0,
-                    base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                    (mnt_and_ocean_valleys(x, z) )
-                  ),
-                0)
-              ),
               if(base(x,z) < -threshold(x,z),
                 lerp(
                   base(x, z) < -threshold(x,z),
@@ -6685,7 +6931,27 @@ samplers:
                   base(x, z) + threshold(x,z) - MountianTransitionHeight,
                   (mnt_and_ocean_valleys(x, z) )
                 ),
-              0)
+              0),
+              max(
+                if(base(x,z) > threshold(x,z),
+                  lerp(
+                    base(x, z) - threshold(x,z),
+                    0.0,
+                    0.0,
+                    base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                    (mnt_and_ocean_valleys(x, z) )
+                  ),
+                0),
+                if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                  lerp(
+                    mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                    0.0,
+                    0.0,
+                    0.5-MountainHeightGenThreshold,
+                    (mnt_and_ocean_valleys(x, z) )
+                  ),
+                0)
+              )
             ) * PeakElevAtPos(x,z) * MaxPeakElev
           )
         variables:
@@ -6776,8 +7042,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -6802,8 +7068,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -6815,8 +7081,8 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.4
-            octaves: 3
+            gain: 0.5
+            octaves: 6
             lacunarity: 1.6
             sampler:
               dimensions: 2
@@ -6967,8 +7233,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -7068,8 +7334,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -7133,8 +7399,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -7165,7 +7431,7 @@ samplers:
           MesaDownwardDistFromTransPnt:
             dimensions: 2
             type: EXPRESSION
-            expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+            expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
             variables:
               MesaRegionActiveThresh: 0.1
               MesaFlattopTransitionDelta: 0.01
@@ -7198,8 +7464,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -7309,15 +7575,15 @@ samplers:
             (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
           )
         variables:
-          MaxHillElev: 1.0
+          MaxHillElev: 0.1
         samplers:
           threshold:
             dimensions: 2
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -7639,8 +7905,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -7670,8 +7936,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -7686,26 +7952,6 @@ samplers:
             expression: |
               abs(
                 min(
-                  min(
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  ),
                   if(base(x,z) < -threshold(x,z),
                     lerp(
                       base(x, z) < -threshold(x,z),
@@ -7714,7 +7960,27 @@ samplers:
                       base(x, z) + threshold(x,z) - MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
-                  0)
+                  0),
+                  max(
+                    if(base(x,z) > threshold(x,z),
+                      lerp(
+                        base(x, z) - threshold(x,z),
+                        0.0,
+                        0.0,
+                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0),
+                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                      lerp(
+                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                        0.0,
+                        0.0,
+                        0.5-MountainHeightGenThreshold,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0)
+                  )
                 ) * PeakElevAtPos(x,z) * MaxPeakElev
               )
             variables:
@@ -7805,8 +8071,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -7831,8 +8097,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -7844,8 +8110,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -7996,8 +8262,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -8097,8 +8363,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -8162,8 +8428,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -8194,7 +8460,7 @@ samplers:
               MesaDownwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.1
                   MesaFlattopTransitionDelta: 0.01
@@ -8227,8 +8493,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -8338,15 +8604,15 @@ samplers:
                 (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
               )
             variables:
-              MaxHillElev: 1.0
+              MaxHillElev: 0.1
             samplers:
               threshold:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -9300,8 +9566,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -9331,8 +9597,8 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.15
-                    variance: 0.05
+                    nominal_value: 0.7
+                    variance: 0.03
                   samplers:
                     applied_threshold_variance:
                       dimensions: 2
@@ -9347,26 +9613,6 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        min(
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        ),
                         if(base(x,z) < -threshold(x,z),
                           lerp(
                             base(x, z) < -threshold(x,z),
@@ -9375,7 +9621,27 @@ samplers:
                             base(x, z) + threshold(x,z) - MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
-                        0)
+                        0),
+                        max(
+                          if(base(x,z) > threshold(x,z),
+                            lerp(
+                              base(x, z) - threshold(x,z),
+                              0.0,
+                              0.0,
+                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0),
+                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                            lerp(
+                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                              0.0,
+                              0.0,
+                              0.5-MountainHeightGenThreshold,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0)
+                        )
                       ) * PeakElevAtPos(x,z) * MaxPeakElev
                     )
                   variables:
@@ -9466,8 +9732,8 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.4
-                          octaves: 3
+                          gain: 0.5
+                          octaves: 6
                           lacunarity: 1.6
                           sampler:
                             dimensions: 2
@@ -9492,8 +9758,8 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -9505,8 +9771,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -9657,8 +9923,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -9758,8 +10024,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -9823,8 +10089,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -9855,7 +10121,7 @@ samplers:
                     MesaDownwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                      expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.1
                         MesaFlattopTransitionDelta: 0.01
@@ -9888,8 +10154,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -9999,15 +10265,15 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    MaxHillElev: 1.0
+                    MaxHillElev: 0.1
                   samplers:
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -11210,8 +11476,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -11241,8 +11507,8 @@ samplers:
             type: EXPRESSION
             expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
             variables:
-              nominal_value: 0.15
-              variance: 0.05
+              nominal_value: 0.7
+              variance: 0.03
             samplers:
               applied_threshold_variance:
                 dimensions: 2
@@ -11257,26 +11523,6 @@ samplers:
             expression: |
               abs(
                 min(
-                  min(
-                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                      lerp(
-                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                        0.0,
-                        0.0,
-                        0.5-MountainHeightGenThreshold,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0),
-                    if(base(x,z) > threshold(x,z),
-                      lerp(
-                        base(x, z) - threshold(x,z),
-                        0.0,
-                        0.0,
-                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                        (mnt_and_ocean_valleys(x, z) )
-                      ),
-                    0)
-                  ),
                   if(base(x,z) < -threshold(x,z),
                     lerp(
                       base(x, z) < -threshold(x,z),
@@ -11285,7 +11531,27 @@ samplers:
                       base(x, z) + threshold(x,z) - MountianTransitionHeight,
                       (mnt_and_ocean_valleys(x, z) )
                     ),
-                  0)
+                  0),
+                  max(
+                    if(base(x,z) > threshold(x,z),
+                      lerp(
+                        base(x, z) - threshold(x,z),
+                        0.0,
+                        0.0,
+                        base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0),
+                    if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                      lerp(
+                        mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                        0.0,
+                        0.0,
+                        0.5-MountainHeightGenThreshold,
+                        (mnt_and_ocean_valleys(x, z) )
+                      ),
+                    0)
+                  )
                 ) * PeakElevAtPos(x,z) * MaxPeakElev
               )
             variables:
@@ -11376,8 +11642,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -11402,8 +11668,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -11415,8 +11681,8 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.4
-                octaves: 3
+                gain: 0.5
+                octaves: 6
                 lacunarity: 1.6
                 sampler:
                   dimensions: 2
@@ -11567,8 +11833,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -11668,8 +11934,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -11733,8 +11999,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -11765,7 +12031,7 @@ samplers:
               MesaDownwardDistFromTransPnt:
                 dimensions: 2
                 type: EXPRESSION
-                expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                 variables:
                   MesaRegionActiveThresh: 0.1
                   MesaFlattopTransitionDelta: 0.01
@@ -11798,8 +12064,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -11909,15 +12175,15 @@ samplers:
                 (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
               )
             variables:
-              MaxHillElev: 1.0
+              MaxHillElev: 0.1
             samplers:
               threshold:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -13747,8 +14013,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -13778,8 +14044,8 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.15
-                    variance: 0.05
+                    nominal_value: 0.7
+                    variance: 0.03
                   samplers:
                     applied_threshold_variance:
                       dimensions: 2
@@ -13794,26 +14060,6 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        min(
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        ),
                         if(base(x,z) < -threshold(x,z),
                           lerp(
                             base(x, z) < -threshold(x,z),
@@ -13822,7 +14068,27 @@ samplers:
                             base(x, z) + threshold(x,z) - MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
-                        0)
+                        0),
+                        max(
+                          if(base(x,z) > threshold(x,z),
+                            lerp(
+                              base(x, z) - threshold(x,z),
+                              0.0,
+                              0.0,
+                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0),
+                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                            lerp(
+                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                              0.0,
+                              0.0,
+                              0.5-MountainHeightGenThreshold,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0)
+                        )
                       ) * PeakElevAtPos(x,z) * MaxPeakElev
                     )
                   variables:
@@ -13913,8 +14179,8 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.4
-                          octaves: 3
+                          gain: 0.5
+                          octaves: 6
                           lacunarity: 1.6
                           sampler:
                             dimensions: 2
@@ -13939,8 +14205,8 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -13952,8 +14218,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -14104,8 +14370,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -14205,8 +14471,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -14270,8 +14536,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -14302,7 +14568,7 @@ samplers:
                     MesaDownwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                      expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.1
                         MesaFlattopTransitionDelta: 0.01
@@ -14335,8 +14601,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -14446,15 +14712,15 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    MaxHillElev: 1.0
+                    MaxHillElev: 0.1
                   samplers:
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -15545,8 +15811,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -15576,8 +15842,8 @@ samplers:
                   type: EXPRESSION
                   expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                   variables:
-                    nominal_value: 0.15
-                    variance: 0.05
+                    nominal_value: 0.7
+                    variance: 0.03
                   samplers:
                     applied_threshold_variance:
                       dimensions: 2
@@ -15592,26 +15858,6 @@ samplers:
                   expression: |
                     abs(
                       min(
-                        min(
-                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                            lerp(
-                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                              0.0,
-                              0.0,
-                              0.5-MountainHeightGenThreshold,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0),
-                          if(base(x,z) > threshold(x,z),
-                            lerp(
-                              base(x, z) - threshold(x,z),
-                              0.0,
-                              0.0,
-                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                              (mnt_and_ocean_valleys(x, z) )
-                            ),
-                          0)
-                        ),
                         if(base(x,z) < -threshold(x,z),
                           lerp(
                             base(x, z) < -threshold(x,z),
@@ -15620,7 +15866,27 @@ samplers:
                             base(x, z) + threshold(x,z) - MountianTransitionHeight,
                             (mnt_and_ocean_valleys(x, z) )
                           ),
-                        0)
+                        0),
+                        max(
+                          if(base(x,z) > threshold(x,z),
+                            lerp(
+                              base(x, z) - threshold(x,z),
+                              0.0,
+                              0.0,
+                              base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0),
+                          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                            lerp(
+                              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                              0.0,
+                              0.0,
+                              0.5-MountainHeightGenThreshold,
+                              (mnt_and_ocean_valleys(x, z) )
+                            ),
+                          0)
+                        )
                       ) * PeakElevAtPos(x,z) * MaxPeakElev
                     )
                   variables:
@@ -15711,8 +15977,8 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.4
-                          octaves: 3
+                          gain: 0.5
+                          octaves: 6
                           lacunarity: 1.6
                           sampler:
                             dimensions: 2
@@ -15737,8 +16003,8 @@ samplers:
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -15750,8 +16016,8 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.4
-                      octaves: 3
+                      gain: 0.5
+                      octaves: 6
                       lacunarity: 1.6
                       sampler:
                         dimensions: 2
@@ -15902,8 +16168,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -16003,8 +16269,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -16068,8 +16334,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -16100,7 +16366,7 @@ samplers:
                     MesaDownwardDistFromTransPnt:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                      expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                       variables:
                         MesaRegionActiveThresh: 0.1
                         MesaFlattopTransitionDelta: 0.01
@@ -16133,8 +16399,8 @@ samplers:
                           type: EXPRESSION
                           expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                           variables:
-                            nominal_value: 0.15
-                            variance: 0.05
+                            nominal_value: 0.7
+                            variance: 0.03
                           samplers:
                             applied_threshold_variance:
                               dimensions: 2
@@ -16244,15 +16510,15 @@ samplers:
                       (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                     )
                   variables:
-                    MaxHillElev: 1.0
+                    MaxHillElev: 0.1
                   samplers:
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
                       expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                       variables:
-                        nominal_value: 0.15
-                        variance: 0.05
+                        nominal_value: 0.7
+                        variance: 0.03
                       samplers:
                         applied_threshold_variance:
                           dimensions: 2
@@ -17696,8 +17962,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -17727,8 +17993,8 @@ samplers:
                 type: EXPRESSION
                 expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                 variables:
-                  nominal_value: 0.15
-                  variance: 0.05
+                  nominal_value: 0.7
+                  variance: 0.03
                 samplers:
                   applied_threshold_variance:
                     dimensions: 2
@@ -17743,26 +18009,6 @@ samplers:
                 expression: |
                   abs(
                     min(
-                      min(
-                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-                          lerp(
-                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                            0.0,
-                            0.0,
-                            0.5-MountainHeightGenThreshold,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0),
-                        if(base(x,z) > threshold(x,z),
-                          lerp(
-                            base(x, z) - threshold(x,z),
-                            0.0,
-                            0.0,
-                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                            (mnt_and_ocean_valleys(x, z) )
-                          ),
-                        0)
-                      ),
                       if(base(x,z) < -threshold(x,z),
                         lerp(
                           base(x, z) < -threshold(x,z),
@@ -17771,7 +18017,27 @@ samplers:
                           base(x, z) + threshold(x,z) - MountianTransitionHeight,
                           (mnt_and_ocean_valleys(x, z) )
                         ),
-                      0)
+                      0),
+                      max(
+                        if(base(x,z) > threshold(x,z),
+                          lerp(
+                            base(x, z) - threshold(x,z),
+                            0.0,
+                            0.0,
+                            base(x, z) - threshold(x,z) + MountianTransitionHeight,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0),
+                        if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+                          lerp(
+                            mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+                            0.0,
+                            0.0,
+                            0.5-MountainHeightGenThreshold,
+                            (mnt_and_ocean_valleys(x, z) )
+                          ),
+                        0)
+                      )
                     ) * PeakElevAtPos(x,z) * MaxPeakElev
                   )
                 variables:
@@ -17862,8 +18128,8 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.4
-                        octaves: 3
+                        gain: 0.5
+                        octaves: 6
                         lacunarity: 1.6
                         sampler:
                           dimensions: 2
@@ -17888,8 +18154,8 @@ samplers:
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2
@@ -17901,8 +18167,8 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.4
-                    octaves: 3
+                    gain: 0.5
+                    octaves: 6
                     lacunarity: 1.6
                     sampler:
                       dimensions: 2
@@ -18053,8 +18319,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -18154,8 +18420,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -18219,8 +18485,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -18251,7 +18517,7 @@ samplers:
                   MesaDownwardDistFromTransPnt:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z)))
+                    expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
                     variables:
                       MesaRegionActiveThresh: 0.1
                       MesaFlattopTransitionDelta: 0.01
@@ -18284,8 +18550,8 @@ samplers:
                         type: EXPRESSION
                         expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                         variables:
-                          nominal_value: 0.15
-                          variance: 0.05
+                          nominal_value: 0.7
+                          variance: 0.03
                         samplers:
                           applied_threshold_variance:
                             dimensions: 2
@@ -18395,15 +18661,15 @@ samplers:
                     (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
                   )
                 variables:
-                  MaxHillElev: 1.0
+                  MaxHillElev: 0.1
                 samplers:
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
                     variables:
-                      nominal_value: 0.15
-                      variance: 0.05
+                      nominal_value: 0.7
+                      variance: 0.03
                     samplers:
                       applied_threshold_variance:
                         dimensions: 2

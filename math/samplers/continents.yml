@@ -55,8 +55,8 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.4
-    octaves: 3
+    gain: 0.5
+    octaves: 6
     lacunarity: 1.6
     sampler: *continental_landmass
   mountain_gen_region: &mountain_gen_region

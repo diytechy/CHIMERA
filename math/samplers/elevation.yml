@@ -176,17 +176,17 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < continental-sub-ocean-large-features-allowed-threshold,
+      if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
         // Below ocean cutoff: Add ocean noise with negative offset
         base(x, z) - lerp(
           MountainHeightModifier(x, z),
-          continental-sub-ocean-large-features-allowed-threshold,
+          continentalSubOceanLargeFeaturesAllowedThreshold,
           0,
           0.5,
-          (MountainHeightModifier(x, z) - continental-sub-ocean-large-features-allowed-threshold) * OceanValley(x, z)
+          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z)
         ),
         // Above feature offset: Create mesa/hills/mountains
-        if(base(x, z) > continental-mesa-region-allowed-threshold,
+        if(base(x, z) > continentalMesaRegionAllowedThreshold,
           base(x, z) + max(
             max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
             RegionFilteredHillHeightModifier(x, z)
@@ -196,8 +196,8 @@ samplers:
         )
       )
     variables:
-      continental-sub-ocean-large-features-allowed-threshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
-      continental-mesa-region-allowed-threshold: $customization.yml:continental-mesa-region-allowed-threshold
+      continentalSubOceanLargeFeaturesAllowedThreshold: $customization.yml:continental-sub-ocean-large-features-allowed-threshold
+      continentalMesaRegionAllowedThreshold: $customization.yml:continental-mesa-region-allowed-threshold
     functions: $math/functions/interpolation.yml:functions
 
     samplers:

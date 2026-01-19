@@ -42,7 +42,7 @@ samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (rawElevation(x,z))*50+50
+        expression: (RegionFilteredMountainHeightModifier(x,z))*50+50
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
@@ -132,7 +132,7 @@ samplers:
                   )
                 variables:
                   MaxNMesSteps: 3
-                  MaxPeakElev: 1.8
+                  MaxPeakElev: 0.8
                 samplers:
                   threshold:
                     dimensions: 2
@@ -360,7 +360,7 @@ samplers:
               )
             variables:
               MaxNMesSteps: 3
-              MaxPeakElev: 1.8
+              MaxPeakElev: 0.8
             samplers:
               threshold:
                 dimensions: 2
@@ -640,27 +640,13 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.7
-            octaves: 6
-            lacunarity: 1.6
+            octaves: 5
+            lacunarity: 2.2
+            gain: 0.55
             sampler:
-              dimensions: 2
-              type: EXPRESSION
-              expression: sampler(x - 10000, z - 10000)
-              samplers:
-                sampler:
-                  dimensions: 2
-                  type: TRANSLATE
-                  x: 10000
-                  z: 10000
-                  sampler:
-                    type: FBM
-                    gain: 0.7
-                    octaves: 2
-                    lacunarity: 1.6
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0002
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 300.0
           OceanValley:
             dimensions: 2
             type: OPEN_SIMPLEX_2
@@ -693,27 +679,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
           RegionFilteredMountainHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -742,7 +714,7 @@ samplers:
               )
             variables:
               MountainHeightGenThreshold: 0.1
-              MaxPeakElev: 4
+              MaxPeakElev: 1
               MountianTransitionHeight: 0.1
             samplers:
               base:
@@ -828,27 +800,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -867,27 +825,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
             functions:
               lerp:
                 arguments:
@@ -1040,7 +984,7 @@ samplers:
                       )
                     variables:
                       MaxNMesSteps: 3
-                      MaxPeakElev: 1.8
+                      MaxPeakElev: 0.8
                     samplers:
                       threshold:
                         dimensions: 2
@@ -1866,27 +1810,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
               OceanValley:
                 dimensions: 2
                 type: OPEN_SIMPLEX_2
@@ -1935,7 +1865,7 @@ samplers:
                   )
                 variables:
                   MountainHeightGenThreshold: 0.1
-                  MaxPeakElev: 4
+                  MaxPeakElev: 1
                   MountianTransitionHeight: 0.1
                 samplers:
                   base:
@@ -2021,27 +1951,13 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.7
-                        octaves: 6
-                        lacunarity: 1.6
+                        octaves: 5
+                        lacunarity: 2.2
+                        gain: 0.55
                         sampler:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: sampler(x - 10000, z - 10000)
-                          samplers:
-                            sampler:
-                              dimensions: 2
-                              type: TRANSLATE
-                              x: 10000
-                              z: 10000
-                              sampler:
-                                type: FBM
-                                gain: 0.7
-                                octaves: 2
-                                lacunarity: 1.6
-                                sampler:
-                                  type: PERLIN
-                                  frequency: 0.0002
+                          type: PERLIN
+                          frequency: 0.0006666666667
+                          salt: 300.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -2060,27 +1976,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
                 functions:
                   lerp:
                     arguments:
@@ -2233,7 +2135,7 @@ samplers:
                           )
                         variables:
                           MaxNMesSteps: 3
-                          MaxPeakElev: 1.8
+                          MaxPeakElev: 0.8
                         samplers:
                           threshold:
                             dimensions: 2
@@ -2928,27 +2830,13 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.7
-                        octaves: 6
-                        lacunarity: 1.6
+                        octaves: 5
+                        lacunarity: 2.2
+                        gain: 0.55
                         sampler:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: sampler(x - 10000, z - 10000)
-                          samplers:
-                            sampler:
-                              dimensions: 2
-                              type: TRANSLATE
-                              x: 10000
-                              z: 10000
-                              sampler:
-                                type: FBM
-                                gain: 0.7
-                                octaves: 2
-                                lacunarity: 1.6
-                                sampler:
-                                  type: PERLIN
-                                  frequency: 0.0002
+                          type: PERLIN
+                          frequency: 0.0006666666667
+                          salt: 300.0
                   OceanValley:
                     dimensions: 2
                     type: OPEN_SIMPLEX_2
@@ -2997,7 +2885,7 @@ samplers:
                       )
                     variables:
                       MountainHeightGenThreshold: 0.1
-                      MaxPeakElev: 4
+                      MaxPeakElev: 1
                       MountianTransitionHeight: 0.1
                     samplers:
                       base:
@@ -3083,27 +2971,13 @@ samplers:
                           mnt_and_ocean_valleys:
                             dimensions: 2
                             type: FBM
-                            gain: 0.7
-                            octaves: 6
-                            lacunarity: 1.6
+                            octaves: 5
+                            lacunarity: 2.2
+                            gain: 0.55
                             sampler:
-                              dimensions: 2
-                              type: EXPRESSION
-                              expression: sampler(x - 10000, z - 10000)
-                              samplers:
-                                sampler:
-                                  dimensions: 2
-                                  type: TRANSLATE
-                                  x: 10000
-                                  z: 10000
-                                  sampler:
-                                    type: FBM
-                                    gain: 0.7
-                                    octaves: 2
-                                    lacunarity: 1.6
-                                    sampler:
-                                      type: PERLIN
-                                      frequency: 0.0002
+                              type: PERLIN
+                              frequency: 0.0006666666667
+                              salt: 300.0
                       threshold:
                         dimensions: 2
                         type: EXPRESSION
@@ -3122,27 +2996,13 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.7
-                        octaves: 6
-                        lacunarity: 1.6
+                        octaves: 5
+                        lacunarity: 2.2
+                        gain: 0.55
                         sampler:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: sampler(x - 10000, z - 10000)
-                          samplers:
-                            sampler:
-                              dimensions: 2
-                              type: TRANSLATE
-                              x: 10000
-                              z: 10000
-                              sampler:
-                                type: FBM
-                                gain: 0.7
-                                octaves: 2
-                                lacunarity: 1.6
-                                sampler:
-                                  type: PERLIN
-                                  frequency: 0.0002
+                          type: PERLIN
+                          frequency: 0.0006666666667
+                          salt: 300.0
                     functions:
                       lerp:
                         arguments:
@@ -3295,7 +3155,7 @@ samplers:
                               )
                             variables:
                               MaxNMesSteps: 3
-                              MaxPeakElev: 1.8
+                              MaxPeakElev: 0.8
                             samplers:
                               threshold:
                                 dimensions: 2
@@ -4691,27 +4551,13 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.7
-    octaves: 6
-    lacunarity: 1.6
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
     sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: sampler(x - 10000, z - 10000)
-      samplers:
-        sampler:
-          dimensions: 2
-          type: TRANSLATE
-          x: 10000
-          z: 10000
-          sampler:
-            type: FBM
-            gain: 0.7
-            octaves: 2
-            lacunarity: 1.6
-            sampler:
-              type: PERLIN
-              frequency: 0.0002
+      type: PERLIN
+      frequency: 0.0006666666667
+      salt: 300.0
   mountain_gen_region:
     dimensions: 2
     type: EXPRESSION
@@ -5786,27 +5632,13 @@ samplers:
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.7
-        octaves: 6
-        lacunarity: 1.6
+        octaves: 5
+        lacunarity: 2.2
+        gain: 0.55
         sampler:
-          dimensions: 2
-          type: EXPRESSION
-          expression: sampler(x - 10000, z - 10000)
-          samplers:
-            sampler:
-              dimensions: 2
-              type: TRANSLATE
-              x: 10000
-              z: 10000
-              sampler:
-                type: FBM
-                gain: 0.7
-                octaves: 2
-                lacunarity: 1.6
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0002
+          type: PERLIN
+          frequency: 0.0006666666667
+          salt: 300.0
   RegionFilteredMountainHeightModifier:
     dimensions: 2
     type: EXPRESSION
@@ -5835,7 +5667,7 @@ samplers:
       )
     variables:
       MountainHeightGenThreshold: 0.1
-      MaxPeakElev: 4
+      MaxPeakElev: 1
       MountianTransitionHeight: 0.1
     samplers:
       base:
@@ -5921,27 +5753,13 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.7
-            octaves: 6
-            lacunarity: 1.6
+            octaves: 5
+            lacunarity: 2.2
+            gain: 0.55
             sampler:
-              dimensions: 2
-              type: EXPRESSION
-              expression: sampler(x - 10000, z - 10000)
-              samplers:
-                sampler:
-                  dimensions: 2
-                  type: TRANSLATE
-                  x: 10000
-                  z: 10000
-                  sampler:
-                    type: FBM
-                    gain: 0.7
-                    octaves: 2
-                    lacunarity: 1.6
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0002
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 300.0
       threshold:
         dimensions: 2
         type: EXPRESSION
@@ -5960,27 +5778,13 @@ samplers:
       mnt_and_ocean_valleys:
         dimensions: 2
         type: FBM
-        gain: 0.7
-        octaves: 6
-        lacunarity: 1.6
+        octaves: 5
+        lacunarity: 2.2
+        gain: 0.55
         sampler:
-          dimensions: 2
-          type: EXPRESSION
-          expression: sampler(x - 10000, z - 10000)
-          samplers:
-            sampler:
-              dimensions: 2
-              type: TRANSLATE
-              x: 10000
-              z: 10000
-              sampler:
-                type: FBM
-                gain: 0.7
-                octaves: 2
-                lacunarity: 1.6
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0002
+          type: PERLIN
+          frequency: 0.0006666666667
+          salt: 300.0
     functions:
       lerp:
         arguments:
@@ -6061,7 +5865,7 @@ samplers:
       )
     variables:
       MaxNMesSteps: 3
-      MaxPeakElev: 1.8
+      MaxPeakElev: 0.8
     samplers:
       threshold:
         dimensions: 2
@@ -6172,7 +5976,7 @@ samplers:
           )
         variables:
           MaxNMesSteps: 3
-          MaxPeakElev: 1.8
+          MaxPeakElev: 0.8
         samplers:
           threshold:
             dimensions: 2
@@ -6521,7 +6325,7 @@ samplers:
               )
             variables:
               MaxNMesSteps: 3
-              MaxPeakElev: 1.8
+              MaxPeakElev: 0.8
             samplers:
               threshold:
                 dimensions: 2
@@ -7140,27 +6944,13 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.7
-            octaves: 6
-            lacunarity: 1.6
+            octaves: 5
+            lacunarity: 2.2
+            gain: 0.55
             sampler:
-              dimensions: 2
-              type: EXPRESSION
-              expression: sampler(x - 10000, z - 10000)
-              samplers:
-                sampler:
-                  dimensions: 2
-                  type: TRANSLATE
-                  x: 10000
-                  z: 10000
-                  sampler:
-                    type: FBM
-                    gain: 0.7
-                    octaves: 2
-                    lacunarity: 1.6
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0002
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 300.0
       OceanValley:
         dimensions: 2
         type: OPEN_SIMPLEX_2
@@ -7209,7 +6999,7 @@ samplers:
           )
         variables:
           MountainHeightGenThreshold: 0.1
-          MaxPeakElev: 4
+          MaxPeakElev: 1
           MountianTransitionHeight: 0.1
         samplers:
           base:
@@ -7295,27 +7085,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
           threshold:
             dimensions: 2
             type: EXPRESSION
@@ -7334,27 +7110,13 @@ samplers:
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
-            gain: 0.7
-            octaves: 6
-            lacunarity: 1.6
+            octaves: 5
+            lacunarity: 2.2
+            gain: 0.55
             sampler:
-              dimensions: 2
-              type: EXPRESSION
-              expression: sampler(x - 10000, z - 10000)
-              samplers:
-                sampler:
-                  dimensions: 2
-                  type: TRANSLATE
-                  x: 10000
-                  z: 10000
-                  sampler:
-                    type: FBM
-                    gain: 0.7
-                    octaves: 2
-                    lacunarity: 1.6
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0002
+              type: PERLIN
+              frequency: 0.0006666666667
+              salt: 300.0
         functions:
           lerp:
             arguments:
@@ -7507,7 +7269,7 @@ samplers:
                   )
                 variables:
                   MaxNMesSteps: 3
-                  MaxPeakElev: 1.8
+                  MaxPeakElev: 0.8
                 samplers:
                   threshold:
                     dimensions: 2
@@ -8202,27 +7964,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
           OceanValley:
             dimensions: 2
             type: OPEN_SIMPLEX_2
@@ -8271,7 +8019,7 @@ samplers:
               )
             variables:
               MountainHeightGenThreshold: 0.1
-              MaxPeakElev: 4
+              MaxPeakElev: 1
               MountianTransitionHeight: 0.1
             samplers:
               base:
@@ -8357,27 +8105,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -8396,27 +8130,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
             functions:
               lerp:
                 arguments:
@@ -8569,7 +8289,7 @@ samplers:
                       )
                     variables:
                       MaxNMesSteps: 3
-                      MaxPeakElev: 1.8
+                      MaxPeakElev: 0.8
                     samplers:
                       threshold:
                         dimensions: 2
@@ -9896,27 +9616,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                 OceanValley:
                   dimensions: 2
                   type: OPEN_SIMPLEX_2
@@ -9965,7 +9671,7 @@ samplers:
                     )
                   variables:
                     MountainHeightGenThreshold: 0.1
-                    MaxPeakElev: 4
+                    MaxPeakElev: 1
                     MountianTransitionHeight: 0.1
                   samplers:
                     base:
@@ -10051,27 +9757,13 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.7
-                          octaves: 6
-                          lacunarity: 1.6
+                          octaves: 5
+                          lacunarity: 2.2
+                          gain: 0.55
                           sampler:
-                            dimensions: 2
-                            type: EXPRESSION
-                            expression: sampler(x - 10000, z - 10000)
-                            samplers:
-                              sampler:
-                                dimensions: 2
-                                type: TRANSLATE
-                                x: 10000
-                                z: 10000
-                                sampler:
-                                  type: FBM
-                                  gain: 0.7
-                                  octaves: 2
-                                  lacunarity: 1.6
-                                  sampler:
-                                    type: PERLIN
-                                    frequency: 0.0002
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 300.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -10090,27 +9782,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                   functions:
                     lerp:
                       arguments:
@@ -10263,7 +9941,7 @@ samplers:
                             )
                           variables:
                             MaxNMesSteps: 3
-                            MaxPeakElev: 1.8
+                            MaxPeakElev: 0.8
                           samplers:
                             threshold:
                               dimensions: 2
@@ -11839,27 +11517,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
           OceanValley:
             dimensions: 2
             type: OPEN_SIMPLEX_2
@@ -11908,7 +11572,7 @@ samplers:
               )
             variables:
               MountainHeightGenThreshold: 0.1
-              MaxPeakElev: 4
+              MaxPeakElev: 1
               MountianTransitionHeight: 0.1
             samplers:
               base:
@@ -11994,27 +11658,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
               threshold:
                 dimensions: 2
                 type: EXPRESSION
@@ -12033,27 +11683,13 @@ samplers:
               mnt_and_ocean_valleys:
                 dimensions: 2
                 type: FBM
-                gain: 0.7
-                octaves: 6
-                lacunarity: 1.6
+                octaves: 5
+                lacunarity: 2.2
+                gain: 0.55
                 sampler:
-                  dimensions: 2
-                  type: EXPRESSION
-                  expression: sampler(x - 10000, z - 10000)
-                  samplers:
-                    sampler:
-                      dimensions: 2
-                      type: TRANSLATE
-                      x: 10000
-                      z: 10000
-                      sampler:
-                        type: FBM
-                        gain: 0.7
-                        octaves: 2
-                        lacunarity: 1.6
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0002
+                  type: PERLIN
+                  frequency: 0.0006666666667
+                  salt: 300.0
             functions:
               lerp:
                 arguments:
@@ -12206,7 +11842,7 @@ samplers:
                       )
                     variables:
                       MaxNMesSteps: 3
-                      MaxPeakElev: 1.8
+                      MaxPeakElev: 0.8
                     samplers:
                       threshold:
                         dimensions: 2
@@ -14409,27 +14045,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                 OceanValley:
                   dimensions: 2
                   type: OPEN_SIMPLEX_2
@@ -14478,7 +14100,7 @@ samplers:
                     )
                   variables:
                     MountainHeightGenThreshold: 0.1
-                    MaxPeakElev: 4
+                    MaxPeakElev: 1
                     MountianTransitionHeight: 0.1
                   samplers:
                     base:
@@ -14564,27 +14186,13 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.7
-                          octaves: 6
-                          lacunarity: 1.6
+                          octaves: 5
+                          lacunarity: 2.2
+                          gain: 0.55
                           sampler:
-                            dimensions: 2
-                            type: EXPRESSION
-                            expression: sampler(x - 10000, z - 10000)
-                            samplers:
-                              sampler:
-                                dimensions: 2
-                                type: TRANSLATE
-                                x: 10000
-                                z: 10000
-                                sampler:
-                                  type: FBM
-                                  gain: 0.7
-                                  octaves: 2
-                                  lacunarity: 1.6
-                                  sampler:
-                                    type: PERLIN
-                                    frequency: 0.0002
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 300.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -14603,27 +14211,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                   functions:
                     lerp:
                       arguments:
@@ -14776,7 +14370,7 @@ samplers:
                             )
                           variables:
                             MaxNMesSteps: 3
-                            MaxPeakElev: 1.8
+                            MaxPeakElev: 0.8
                           samplers:
                             threshold:
                               dimensions: 2
@@ -16240,27 +15834,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                 OceanValley:
                   dimensions: 2
                   type: OPEN_SIMPLEX_2
@@ -16309,7 +15889,7 @@ samplers:
                     )
                   variables:
                     MountainHeightGenThreshold: 0.1
-                    MaxPeakElev: 4
+                    MaxPeakElev: 1
                     MountianTransitionHeight: 0.1
                   samplers:
                     base:
@@ -16395,27 +15975,13 @@ samplers:
                         mnt_and_ocean_valleys:
                           dimensions: 2
                           type: FBM
-                          gain: 0.7
-                          octaves: 6
-                          lacunarity: 1.6
+                          octaves: 5
+                          lacunarity: 2.2
+                          gain: 0.55
                           sampler:
-                            dimensions: 2
-                            type: EXPRESSION
-                            expression: sampler(x - 10000, z - 10000)
-                            samplers:
-                              sampler:
-                                dimensions: 2
-                                type: TRANSLATE
-                                x: 10000
-                                z: 10000
-                                sampler:
-                                  type: FBM
-                                  gain: 0.7
-                                  octaves: 2
-                                  lacunarity: 1.6
-                                  sampler:
-                                    type: PERLIN
-                                    frequency: 0.0002
+                            type: PERLIN
+                            frequency: 0.0006666666667
+                            salt: 300.0
                     threshold:
                       dimensions: 2
                       type: EXPRESSION
@@ -16434,27 +16000,13 @@ samplers:
                     mnt_and_ocean_valleys:
                       dimensions: 2
                       type: FBM
-                      gain: 0.7
-                      octaves: 6
-                      lacunarity: 1.6
+                      octaves: 5
+                      lacunarity: 2.2
+                      gain: 0.55
                       sampler:
-                        dimensions: 2
-                        type: EXPRESSION
-                        expression: sampler(x - 10000, z - 10000)
-                        samplers:
-                          sampler:
-                            dimensions: 2
-                            type: TRANSLATE
-                            x: 10000
-                            z: 10000
-                            sampler:
-                              type: FBM
-                              gain: 0.7
-                              octaves: 2
-                              lacunarity: 1.6
-                              sampler:
-                                type: PERLIN
-                                frequency: 0.0002
+                        type: PERLIN
+                        frequency: 0.0006666666667
+                        salt: 300.0
                   functions:
                     lerp:
                       arguments:
@@ -16607,7 +16159,7 @@ samplers:
                             )
                           variables:
                             MaxNMesSteps: 3
-                            MaxPeakElev: 1.8
+                            MaxPeakElev: 0.8
                           samplers:
                             threshold:
                               dimensions: 2
@@ -18424,27 +17976,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
               OceanValley:
                 dimensions: 2
                 type: OPEN_SIMPLEX_2
@@ -18493,7 +18031,7 @@ samplers:
                   )
                 variables:
                   MountainHeightGenThreshold: 0.1
-                  MaxPeakElev: 4
+                  MaxPeakElev: 1
                   MountianTransitionHeight: 0.1
                 samplers:
                   base:
@@ -18579,27 +18117,13 @@ samplers:
                       mnt_and_ocean_valleys:
                         dimensions: 2
                         type: FBM
-                        gain: 0.7
-                        octaves: 6
-                        lacunarity: 1.6
+                        octaves: 5
+                        lacunarity: 2.2
+                        gain: 0.55
                         sampler:
-                          dimensions: 2
-                          type: EXPRESSION
-                          expression: sampler(x - 10000, z - 10000)
-                          samplers:
-                            sampler:
-                              dimensions: 2
-                              type: TRANSLATE
-                              x: 10000
-                              z: 10000
-                              sampler:
-                                type: FBM
-                                gain: 0.7
-                                octaves: 2
-                                lacunarity: 1.6
-                                sampler:
-                                  type: PERLIN
-                                  frequency: 0.0002
+                          type: PERLIN
+                          frequency: 0.0006666666667
+                          salt: 300.0
                   threshold:
                     dimensions: 2
                     type: EXPRESSION
@@ -18618,27 +18142,13 @@ samplers:
                   mnt_and_ocean_valleys:
                     dimensions: 2
                     type: FBM
-                    gain: 0.7
-                    octaves: 6
-                    lacunarity: 1.6
+                    octaves: 5
+                    lacunarity: 2.2
+                    gain: 0.55
                     sampler:
-                      dimensions: 2
-                      type: EXPRESSION
-                      expression: sampler(x - 10000, z - 10000)
-                      samplers:
-                        sampler:
-                          dimensions: 2
-                          type: TRANSLATE
-                          x: 10000
-                          z: 10000
-                          sampler:
-                            type: FBM
-                            gain: 0.7
-                            octaves: 2
-                            lacunarity: 1.6
-                            sampler:
-                              type: PERLIN
-                              frequency: 0.0002
+                      type: PERLIN
+                      frequency: 0.0006666666667
+                      salt: 300.0
                 functions:
                   lerp:
                     arguments:
@@ -18791,7 +18301,7 @@ samplers:
                           )
                         variables:
                           MaxNMesSteps: 3
-                          MaxPeakElev: 1.8
+                          MaxPeakElev: 0.8
                         samplers:
                           threshold:
                             dimensions: 2

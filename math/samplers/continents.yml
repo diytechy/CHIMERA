@@ -55,10 +55,13 @@ samplers:
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
-    gain: 0.7
-    octaves: 6
-    lacunarity: 1.6
-    sampler: *continental_landmass
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
+    sampler:
+      type: PERLIN
+      frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
+      salt: 300
   mountain_gen_region: &mountain_gen_region
     dimensions: 2
     type: EXPRESSION

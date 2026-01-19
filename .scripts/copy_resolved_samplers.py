@@ -97,13 +97,33 @@ def find_sampler_end(lines: list[str], start_line: int, indent: int) -> int:
 
 def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_line: int) -> list[tuple[str, int, int]]:
     """
-    Find all empty sampler placeholders in the INSERT section.
+    Find all TOP-LEVEL empty sampler placeholders in the INSERT section.
     Returns list of (sampler_name, line_index, indent_level).
+
+    Only matches samplers at the expected top-level indent (typically 2 spaces for
+    samplers directly under the 'samplers:' key). This avoids matching nested
+    samplers inside other sampler definitions.
     """
     empty_samplers = []
 
     # Pattern to match sampler names (word followed by colon)
     sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_]*):\s*(#.*)?$')
+
+    # First, find the expected indent level for top-level samplers
+    # Look for the 'samplers:' key after INSERT marker
+    expected_indent = None
+    for i in range(insert_line + 1, resolved_line):
+        line = lines[i]
+        stripped = line.strip()
+        if stripped.startswith('samplers:'):
+            # Top-level samplers should be indented one level more than 'samplers:'
+            samplers_indent = get_indent_level(line)
+            expected_indent = samplers_indent + 2  # Assuming 2-space indentation
+            break
+
+    if expected_indent is None:
+        # Fallback: assume top-level samplers are at indent 2
+        expected_indent = 2
 
     for i in range(insert_line + 1, resolved_line):
         line = lines[i]
@@ -112,6 +132,10 @@ def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_l
         if match:
             indent = len(match.group(1))
             name = match.group(2)
+
+            # Only match top-level samplers at the expected indent
+            if indent != expected_indent:
+                continue
 
             # Skip certain keywords that aren't samplers
             if name in ('type', 'dimensions', 'expression', 'variables', 'functions',
@@ -128,21 +152,52 @@ def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_l
 
 def find_existing_samplers_in_insert(lines: list[str], insert_line: int, resolved_line: int) -> list[tuple[str, int, int, int]]:
     """
-    Find all samplers with existing content in the INSERT section.
+    Find all TOP-LEVEL samplers with existing content in the INSERT section.
     Returns list of (sampler_name, start_line_index, end_line_index, indent_level).
+
+    Only matches samplers at the expected top-level indent (typically 2 spaces for
+    samplers directly under the 'samplers:' key). This avoids matching nested
+    samplers inside other sampler definitions.
     """
     existing_samplers = []
 
     # Pattern to match sampler names (word followed by colon)
     sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_]*):\s*(#.*)?$')
 
+    # First, find the expected indent level for top-level samplers
+    # Look for the 'samplers:' key after INSERT marker
+    expected_indent = None
     for i in range(insert_line + 1, resolved_line):
+        line = lines[i]
+        stripped = line.strip()
+        if stripped.startswith('samplers:'):
+            # Top-level samplers should be indented one level more than 'samplers:'
+            samplers_indent = get_indent_level(line)
+            expected_indent = samplers_indent + 2  # Assuming 2-space indentation
+            break
+
+    if expected_indent is None:
+        # Fallback: assume top-level samplers are at indent 2
+        expected_indent = 2
+
+    # Track which lines are "owned" by already-found samplers to avoid nested matches
+    skip_until_line = -1
+
+    for i in range(insert_line + 1, resolved_line):
+        # Skip lines that are part of an already-found sampler
+        if i < skip_until_line:
+            continue
+
         line = lines[i]
         match = sampler_pattern.match(line)
 
         if match:
             indent = len(match.group(1))
             name = match.group(2)
+
+            # Only match top-level samplers at the expected indent
+            if indent != expected_indent:
+                continue
 
             # Skip certain keywords that aren't samplers
             if name in ('type', 'dimensions', 'expression', 'variables', 'functions',
@@ -157,6 +212,8 @@ def find_existing_samplers_in_insert(lines: list[str], insert_line: int, resolve
                 # Make sure end_line doesn't exceed the resolved section marker
                 end_line = min(end_line, resolved_line)
                 existing_samplers.append((name, i, end_line, indent))
+                # Skip all lines within this sampler to avoid matching nested content
+                skip_until_line = end_line
 
     return existing_samplers
 

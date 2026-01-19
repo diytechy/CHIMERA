@@ -5,9 +5,11 @@ Copy matching samplers from RESOLVED section to INSERT section in resolved_sampl
 This script reads the resolved_samplers.yml file and:
 1. Finds ALL empty/placeholder sampler entries in the INSERT section
    (after '--- INSERT COPIES OF MATCHING SAMPLERS HERE ---')
-2. Finds matching samplers anywhere in the RESOLVED section
+2. Finds ALL samplers with existing content in the INSERT section that have a match
+   in the RESOLVED section
+3. Finds matching samplers anywhere in the RESOLVED section
    (after '--- RESOLVED SAMPLERS BELOW ---')
-3. Copies the resolved sampler content into the INSERT section, adjusting indentation
+4. Copies/updates the resolved sampler content into the INSERT section, adjusting indentation
 """
 
 import re
@@ -74,6 +76,25 @@ def is_empty_sampler(lines: list[str], line_idx: int, indent: int) -> bool:
     return True
 
 
+def find_sampler_end(lines: list[str], start_line: int, indent: int) -> int:
+    """
+    Find the end line of a sampler definition starting at start_line with given indent.
+    Returns the line index where this sampler ends (exclusive).
+    """
+    for j in range(start_line + 1, len(lines)):
+        line = lines[j]
+        stripped = line.strip()
+
+        if not stripped or stripped.startswith('#'):
+            continue
+
+        line_indent = get_indent_level(line)
+        if line_indent <= indent:
+            return j
+
+    return len(lines)
+
+
 def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_line: int) -> list[tuple[str, int, int]]:
     """
     Find all empty sampler placeholders in the INSERT section.
@@ -103,6 +124,41 @@ def find_empty_samplers_in_insert(lines: list[str], insert_line: int, resolved_l
                 empty_samplers.append((name, i, indent))
 
     return empty_samplers
+
+
+def find_existing_samplers_in_insert(lines: list[str], insert_line: int, resolved_line: int) -> list[tuple[str, int, int, int]]:
+    """
+    Find all samplers with existing content in the INSERT section.
+    Returns list of (sampler_name, start_line_index, end_line_index, indent_level).
+    """
+    existing_samplers = []
+
+    # Pattern to match sampler names (word followed by colon)
+    sampler_pattern = re.compile(r'^(\s*)([a-zA-Z_][a-zA-Z0-9_]*):\s*(#.*)?$')
+
+    for i in range(insert_line + 1, resolved_line):
+        line = lines[i]
+        match = sampler_pattern.match(line)
+
+        if match:
+            indent = len(match.group(1))
+            name = match.group(2)
+
+            # Skip certain keywords that aren't samplers
+            if name in ('type', 'dimensions', 'expression', 'variables', 'functions',
+                       'samplers', 'sampler', 'arguments', 'salt', 'frequency',
+                       'octaves', 'gain', 'lacunarity', 'amplitude', 'warp',
+                       'x', 'y', 'z', 'return', 'jitter', 'distance'):
+                continue
+
+            # Only include samplers that have content (not empty)
+            if not is_empty_sampler(lines, i, indent):
+                end_line = find_sampler_end(lines, i, indent)
+                # Make sure end_line doesn't exceed the resolved section marker
+                end_line = min(end_line, resolved_line)
+                existing_samplers.append((name, i, end_line, indent))
+
+    return existing_samplers
 
 
 def find_resolved_sampler_any_indent(lines: list[str], sampler_name: str, resolved_line: int) -> tuple[int, int, int] | None:
@@ -168,7 +224,7 @@ def copy_resolved_samplers(input_path: str, output_path: str = None, dry_run: bo
         dry_run: If True, just report what would be done without writing
 
     Returns:
-        Dict mapping sampler names to status ('copied', 'not_found', 'error')
+        Dict mapping sampler names to status ('copied', 'updated', 'not_found', 'no_match')
     """
     if output_path is None:
         output_path = input_path
@@ -188,9 +244,17 @@ def copy_resolved_samplers(input_path: str, output_path: str = None, dry_run: bo
     for name, line_idx, indent in empty_samplers:
         print(f"  - {name} (line {line_idx + 1}, indent {indent})")
 
+    # Find all existing (non-empty) samplers in the INSERT section
+    existing_samplers = find_existing_samplers_in_insert(lines, insert_line, resolved_line)
+
+    print(f"\nFound {len(existing_samplers)} existing samplers in INSERT section:")
+    for name, start_idx, end_idx, indent in existing_samplers:
+        print(f"  - {name} (lines {start_idx + 1}-{end_idx}, indent {indent})")
+
     results = {}
     replacements = []
 
+    # Process empty samplers (copy from RESOLVED)
     for sampler_name, line_idx, target_indent in empty_samplers:
         resolved = find_resolved_sampler_any_indent(lines, sampler_name, resolved_line)
 
@@ -211,6 +275,28 @@ def copy_resolved_samplers(input_path: str, output_path: str = None, dry_run: bo
         # Replace just the single placeholder line with full content
         replacements.append((line_idx, line_idx + 1, adjusted_content))
         results[sampler_name] = 'copied'
+
+    # Process existing samplers (update from RESOLVED if match found)
+    for sampler_name, start_idx, end_idx, target_indent in existing_samplers:
+        resolved = find_resolved_sampler_any_indent(lines, sampler_name, resolved_line)
+
+        if resolved is None:
+            print(f"\n  {sampler_name}: no match in RESOLVED section (keeping existing)")
+            results[sampler_name] = 'no_match'
+            continue
+
+        resolved_start, resolved_end, source_indent = resolved
+        print(f"\n  {sampler_name}: UPDATING from lines {resolved_start + 1}-{resolved_end} (indent {source_indent})")
+
+        # Get resolved content
+        resolved_content = get_sampler_content(lines, resolved_start, resolved_end)
+
+        # Adjust indentation from source to target
+        adjusted_content = adjust_indentation(resolved_content, source_indent, target_indent)
+
+        # Replace the existing sampler content with resolved content
+        replacements.append((start_idx, end_idx, adjusted_content))
+        results[sampler_name] = 'updated'
 
     if dry_run:
         print("\n--- DRY RUN - No changes written ---")
@@ -272,14 +358,24 @@ def main():
     # Summary
     print("\n=== SUMMARY ===")
     copied = sum(1 for v in results.values() if v == 'copied')
+    updated = sum(1 for v in results.values() if v == 'updated')
     not_found = sum(1 for v in results.values() if v == 'not_found')
+    no_match = sum(1 for v in results.values() if v == 'no_match')
     print(f"Copied: {copied}")
-    print(f"Not found: {not_found}")
+    print(f"Updated: {updated}")
+    print(f"Not found (empty placeholders): {not_found}")
+    print(f"No match (existing kept): {no_match}")
 
     if not_found > 0:
-        print("\nSamplers not found in RESOLVED section:")
+        print("\nEmpty samplers not found in RESOLVED section:")
         for name, status in results.items():
             if status == 'not_found':
+                print(f"  - {name}")
+
+    if updated > 0:
+        print("\nSamplers updated from RESOLVED section:")
+        for name, status in results.items():
+            if status == 'updated':
                 print(f"  - {name}")
 
 

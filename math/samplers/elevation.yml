@@ -60,43 +60,44 @@ samplers:
     frequency: (1 / ${customization.yml:continental-large-features-height-flux-dist})
     salt: 407
 
-  # Mountain height modifier components
-  prefiltered_mountain_elev: &prefiltered_mountain_elev
-    dimensions: 2
-    type: FBM
-    octaves: 4
-    lacunarity: 2.0
-    gain: 0.5
-    sampler:
-      type: PERLIN
-      frequency: (1/1500)
-      salt: 500
-
   MountainHeightModifier: &MountainHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: abs(mountain_gen_region(x, z) * prefiltered_mountain_elev(x, z))
+    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
     samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
-      prefiltered_mountain_elev: *prefiltered_mountain_elev
+      mnt_and_ocean_valleys: $math/samplers/continents.yml:mnt_and_ocean_valleys
 
   RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(abs(MountainHeightModifier(x,z)) > threshold(x,z),
-        lerp(
-          MountainHeightModifier(x, z),
-          threshold(x,z),
-          0.0,
-          0.5,
-          (MountainHeightModifier(x, z) - threshold(x,z)) * PeakElevAtPos(x,z) * MaxPeakElev
-        ),
-      0)
+      min(
+        if(abs(MountainHeightModifier(x,z)) > MountainHeightGenThreshold,
+          lerp(
+            MountainHeightModifier(x, z)-MountainHeightGenThreshold,
+            0.0,
+            0.0,
+            0.5-MountainHeightGenThreshold,
+            (MountainHeightModifier(x, z) )
+          ),
+        0),
+        if(base > threshold(x,z),
+          lerp(
+            base(x, z) - threshold(x,z),
+            0.0,
+            0.0,
+            base(x, z) - threshold(x,z) + MountianTransitionHeight,
+            (MountainHeightModifier(x, z) )
+          ),
+        0)
+      ) * PeakElevAtPos(x,z) * MaxPeakElev
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
+      MountianTransitionHeight: $customization.yml:continental-mountain-region-transition-base-height
     samplers:
+      base: *base
       PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
       prefiltered_mountain_elev: *prefiltered_mountain_elev
@@ -107,17 +108,34 @@ samplers:
   # Mesa height modifier components
   prefiltered_mesa_elev: &prefiltered_mesa_elev
     dimensions: 2
-    type: FBM
-    octaves: 3
-    lacunarity: 2.0
-    gain: 0.4
-    sampler:
-      type: PERLIN
-      frequency: (1/1200)
-      salt: 600
+    type: EXPRESSION
+    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+    samplers:
+      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
+      PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
+      
+  # Mesa height modifier components
+  base_shifted_prefiltered_mesa_elev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: prefiltered_mesa_elev - base(x,z)
+    samplers:
+      base: *base
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
 
   #Returns the mesa height increase from base elevation to the plataue
   MesaHeightModifier: &MesaHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: abs(MesaGenRegion(x, z) * prefiltered_mountain_elev(x, z))
+    samplers:
+      mountain_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
+      MesaGenRegion: *prefiltered_mountain_elev
+      
+      
     dimensions: 2
     type: EXPRESSION
     expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps) - base(x,z)

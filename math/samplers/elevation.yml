@@ -75,37 +75,26 @@ samplers:
     expression: |
       abs(
         min(
-          if(base(x,z) < -threshold(x,z),
+          if(((base(x,z) > threshold(x,z))||base(x,z) < -threshold(x,z)),
             lerp(
-              base(x, z) < -threshold(x,z),
+              abs(base(x, z)) - threshold(x,z),
               0.0,
               0.0,
-              base(x, z) + threshold(x,z) - MountianTransitionHeight,
+              abs(base(x, z)) - threshold(x,z) + MountianTransitionHeight,
               (mnt_and_ocean_valleys(x, z) )
             ),
           0),
-          max(
-            if(base(x,z) > threshold(x,z),
-              lerp(
-                base(x, z) - threshold(x,z),
-                0.0,
-                0.0,
-                base(x, z) - threshold(x,z) + MountianTransitionHeight,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0),
-            if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
-              lerp(
-                mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
-                0.0,
-                0.0,
-                0.5-MountainHeightGenThreshold,
-                (mnt_and_ocean_valleys(x, z) )
-              ),
-            0)
-          )
-        ) * PeakElevAtPos(x,z) * MaxPeakElev
-      )
+          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+            lerp(
+              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              0.0,
+              0.0,
+              0.5-MountainHeightGenThreshold,
+              (mnt_and_ocean_valleys(x, z) )
+            ),
+          0)
+        )
+      ) * PeakElevAtPos(x,z) * MaxPeakElev
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
@@ -249,15 +238,9 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x, z) < continentalSubOceanLargeFeaturesAllowedThreshold,
+      if(base(x, z) < -threshold(x,z),
         // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - lerp(
-          MountainHeightModifier(x, z),
-          continentalSubOceanLargeFeaturesAllowedThreshold,
-          0,
-          0.5,
-          (MountainHeightModifier(x, z) - continentalSubOceanLargeFeaturesAllowedThreshold) * OceanValley(x, z) * MaxUnderwaterMulti
-        ),
+        base(x, z) - RegionFilteredMountainHeightModifier(x,z),
         // Above feature offset: Create mesa/hills/mountains
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
@@ -274,6 +257,7 @@ samplers:
     functions: $math/functions/interpolation.yml:functions
 
     samplers:
+      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
       base: *base
       MountainHeightModifier: *MountainHeightModifier
       OceanValley: *OceanValley

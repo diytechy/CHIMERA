@@ -100,7 +100,7 @@ samplers:
             ),
           0)
         )
-      ) * PeakElevAtPos(x,z) * MaxPeakElev * 3
+      ) * PeakElevAtPos(x,z) * MaxPeakElev
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
       MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio

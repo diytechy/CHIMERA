@@ -66,31 +66,43 @@ samplers:
     expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z))
     samplers:
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
-      mnt_and_ocean_valleys: $math/samplers/continents.yml:mnt_and_ocean_valleys
+      mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
 
+#Creates mountian hight modifiers in valid regions, also creates negative offsets in deep valleys / ocean valleys.
   RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
       min(
-        if(abs(MountainHeightModifier(x,z)) > MountainHeightGenThreshold,
+        min(
+          if(MountainHeightModifier(x,z) > MountainHeightGenThreshold,
+            lerp(
+              mnt_and_ocean_valleys(x, z)-MountainHeightGenThreshold,
+              0.0,
+              0.0,
+              0.5-MountainHeightGenThreshold,
+              (mnt_and_ocean_valleys(x, z) )
+            ) * (if(base(x,z)>0,1,-1)),
+          0),
+          if(base(x,z) > threshold(x,z),
+            lerp(
+              base(x, z) - threshold(x,z),
+              0.0,
+              0.0,
+              base(x, z) - threshold(x,z) + MountianTransitionHeight,
+              (mnt_and_ocean_valleys(x, z) )
+            ),
+            0)
+        ),
+        if(base(x,z) < -threshold(x,z),
           lerp(
-            MountainHeightModifier(x, z)-MountainHeightGenThreshold,
+            base(x, z) < -threshold(x,z),
             0.0,
             0.0,
-            0.5-MountainHeightGenThreshold,
-            (MountainHeightModifier(x, z) )
+            base(x, z) + threshold(x,z) + MountianTransitionHeight,
+            (mnt_and_ocean_valleys(x, z) )
           ),
-        0),
-        if(base > threshold(x,z),
-          lerp(
-            base(x, z) - threshold(x,z),
-            0.0,
-            0.0,
-            base(x, z) - threshold(x,z) + MountianTransitionHeight,
-            (MountainHeightModifier(x, z) )
-          ),
-        0)
+          0)
       ) * PeakElevAtPos(x,z) * MaxPeakElev
     variables:
       MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
@@ -100,9 +112,9 @@ samplers:
       base: *base
       PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
       mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
-      prefiltered_mountain_elev: *prefiltered_mountain_elev
       MountainHeightModifier: *MountainHeightModifier
       threshold: $math/samplers/continents.yml:samplers.continental-large-features-allowed-threshold-with-variance
+      mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
     functions: $math/functions/interpolation.yml:functions
 
   # Mesa height modifier components
@@ -111,7 +123,7 @@ samplers:
     type: EXPRESSION
     expression: |
       if(base(x,z)>threshold(x,z),
-        (((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
         0
       )
     variables:
@@ -127,7 +139,7 @@ samplers:
   base_shifted_prefiltered_mesa_elev:
     dimensions: 2
     type: EXPRESSION
-    expression: prefiltered_mesa_elev - base(x,z)
+    expression: prefiltered_mesa_elev(x,z) - base(x,z)
     samplers:
       base: *base
       prefiltered_mesa_elev: *prefiltered_mesa_elev
@@ -136,7 +148,7 @@ samplers:
   MesaHeightModifier: &MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: (abs(MesaGenRegion(x, z)>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z)
+    expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
@@ -159,7 +171,7 @@ samplers:
   MesaUpwardDistFromTransPnt: &MesaUpwardDistFromTransPnt
     dimensions: 2
     type: EXPRESSION
-    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)--threshold(x,z))),0)
+    expression: max(min((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
@@ -172,22 +184,22 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      
+
       if(MesaHeightModifier(x,z),
-      
+
         // If above the transition threshold and the wall transition delta, need to transition to flat top.
         if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (MesaHeightModifier(x,z)/2 + 
-          ((MesaUpwardDistFromTransPnt*MesaHeightModifier(x,z)/2)/
-          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt))),
-          
-          //Else return the transition up the wall of the mesa
+          (MesaHeightModifier(x,z)/2 +
+            ((MesaUpwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
+
+          //Else return the transition down to floor height
           if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt*MesaHeightModifier(x,z)/2)/
-            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt),
-          0)
+            (MesaDownwardDistFromTransPnt(x,z)*MesaHeightModifier(x,z)/2)/
+            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
+            0)
         ),
-      0)
+        0)
     variables:
       MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
       MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate

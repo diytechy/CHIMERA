@@ -127,7 +127,6 @@ samplers:
     samplers:
       base: *base
       MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-      prefiltered_mesa_elev: *prefiltered_mesa_elev
       PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
 
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier

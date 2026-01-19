@@ -48,11 +48,9 @@ samplers:
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.
         # MesaHeightModifier - Region filtered mesa region.
         # RegionFilteredMesaHeightModifier - Actual applied mesa height when in region.
-        # MesaHeightModifier
         # PeakHeightMultiplierAtPosition
         # HillHeightModifier:
         # RegionFilteredHillHeightModifier:
-        # MesaHeightModifier
         #expression: (continents(x,z)+0.6)*64
         #expression: round(simelev(x,z)+0.6)*64
         #continental_landmass - New landmass distribution
@@ -226,81 +224,6 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
-          MesaHeightModifier:
-            dimensions: 2
-            type: EXPRESSION
-            expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
-            variables:
-              MountainHeightGenThreshold: 0.05
-              MaxNMesSteps: 3
-              MaxPeakElev: 1.8
-            samplers:
-              base:
-                dimensions: 2
-                type: EXPRESSION
-                expression: continental_landmass(x, z)
-                samplers:
-                  continental_landmass:
-                    dimensions: 2
-                    type: EXPRESSION
-                    expression: sampler(x - 10000, z - 10000)
-                    samplers:
-                      sampler:
-                        dimensions: 2
-                        type: TRANSLATE
-                        x: 10000
-                        z: 10000
-                        sampler:
-                          type: FBM
-                          gain: 0.7
-                          octaves: 2
-                          lacunarity: 1.6
-                          sampler:
-                            type: PERLIN
-                            frequency: 0.0002
-              MesaGenRegion:
-                dimensions: 2
-                type: EXPRESSION
-                expression: sampler(x - 6000, z - 6000)
-                variables:
-                  globalScale: 1
-                  scale: 2
-                  offset: 0.1
-                samplers:
-                  sampler:
-                    dimensions: 2
-                    type: FBM
-                    octaves: 2
-                    lacunarity: 2.0
-                    gain: 0.4
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0005
-                      salt: 200.0
-              prefiltered_mesa_elev:
-                dimensions: 2
-                type: FBM
-                octaves: 3
-                lacunarity: 2.0
-                gain: 0.4
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0008333333333
-                  salt: 600.0
-              PeakElevAtPos:
-                dimensions: 2
-                type: EXPRESSION
-                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-                variables:
-                  VarianceRatio: 0.6
-                samplers:
-                  max_elev_prob:
-                    dimensions: 2
-                    type: PROBABILITY
-                    sampler:
-                      type: OPEN_SIMPLEX_2
-                      salt: 697.0
-                      frequency: 0.003333333333
           mnt_and_ocean_valleys:
             dimensions: 2
             type: FBM
@@ -489,43 +412,6 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
-          MesaHeightModifier:
-            dimensions: 2
-            type: EXPRESSION
-            expression: abs(mesa_gen_region(x, z) * prefiltered_mesa_elev(x, z))
-            variables:
-              MountainHeightGenThreshold: 0.2
-              MaxPeakElev: 4
-            samplers:
-              mesa_gen_region:
-                dimensions: 2
-                type: EXPRESSION
-                expression: sampler(x - 6000, z - 6000)
-                variables:
-                  globalScale: 1
-                  scale: 2
-                  offset: 0.1
-                samplers:
-                  sampler:
-                    dimensions: 2
-                    type: FBM
-                    octaves: 2
-                    lacunarity: 2.0
-                    gain: 0.4
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0005
-                      salt: 200.0
-              prefiltered_mesa_elev:
-                dimensions: 2
-                type: FBM
-                octaves: 3
-                lacunarity: 2.0
-                gain: 0.4
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0008333333333
-                  salt: 600.0
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
@@ -648,6 +534,71 @@ samplers:
                     arguments:
                     - x
                     expression: x^2
+          MesaHeightModifier:
+            dimensions: 2
+            type: EXPRESSION
+            expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
+              - base(x,z)
+            variables:
+              MaxNMesSteps: 3
+              MaxPeakElev: 1.8
+            samplers:
+              base:
+                dimensions: 2
+                type: EXPRESSION
+                expression: continental_landmass(x, z)
+                samplers:
+                  continental_landmass:
+                    dimensions: 2
+                    type: EXPRESSION
+                    expression: sampler(x - 10000, z - 10000)
+                    samplers:
+                      sampler:
+                        dimensions: 2
+                        type: TRANSLATE
+                        x: 10000
+                        z: 10000
+                        sampler:
+                          type: FBM
+                          gain: 0.7
+                          octaves: 2
+                          lacunarity: 1.6
+                          sampler:
+                            type: PERLIN
+                            frequency: 0.0002
+              MesaGenRegion:
+                dimensions: 2
+                type: EXPRESSION
+                expression: sampler(x - 6000, z - 6000)
+                variables:
+                  globalScale: 1
+                  scale: 2
+                  offset: 0.1
+                samplers:
+                  sampler:
+                    dimensions: 2
+                    type: FBM
+                    octaves: 2
+                    lacunarity: 2.0
+                    gain: 0.4
+                    sampler:
+                      type: PERLIN
+                      frequency: 0.0005
+                      salt: 200.0
+              PeakHeightMultiplierAtPosition:
+                dimensions: 2
+                type: EXPRESSION
+                expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+                variables:
+                  VarianceRatio: 0.6
+                samplers:
+                  max_elev_prob:
+                    dimensions: 2
+                    type: PROBABILITY
+                    sampler:
+                      type: OPEN_SIMPLEX_2
+                      salt: 697.0
+                      frequency: 0.001
           roughness:
             dimensions: 2
             type: FBM
@@ -3671,7 +3622,7 @@ samplers:
   MesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
+    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps) - base(x,z)
     variables:
       MaxNMesSteps: 3
       MaxPeakElev: 1.8
@@ -3718,17 +3669,7 @@ samplers:
               type: PERLIN
               frequency: 0.0005
               salt: 200.0
-      prefiltered_mesa_elev:
-        dimensions: 2
-        type: FBM
-        octaves: 3
-        lacunarity: 2.0
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: 0.0008333333333
-          salt: 600.0
-      PeakElevAtPos:
+      PeakHeightMultiplierAtPosition:
         dimensions: 2
         type: EXPRESSION
         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -3790,7 +3731,8 @@ samplers:
       MesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) - base(x,z)
+        expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
+          - base(x,z)
         variables:
           MaxNMesSteps: 3
           MaxPeakElev: 1.8
@@ -3837,17 +3779,7 @@ samplers:
                   type: PERLIN
                   frequency: 0.0005
                   salt: 200.0
-          prefiltered_mesa_elev:
-            dimensions: 2
-            type: FBM
-            octaves: 3
-            lacunarity: 2.0
-            gain: 0.4
-            sampler:
-              type: PERLIN
-              frequency: 0.0008333333333
-              salt: 600.0
-          PeakElevAtPos:
+          PeakHeightMultiplierAtPosition:
             dimensions: 2
             type: EXPRESSION
             expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -4451,8 +4383,8 @@ samplers:
           MesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps) -
-              base(x,z)
+            expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
+              - base(x,z)
             variables:
               MaxNMesSteps: 3
               MaxPeakElev: 1.8
@@ -4499,17 +4431,7 @@ samplers:
                       type: PERLIN
                       frequency: 0.0005
                       salt: 200.0
-              prefiltered_mesa_elev:
-                dimensions: 2
-                type: FBM
-                octaves: 3
-                lacunarity: 2.0
-                gain: 0.4
-                sampler:
-                  type: PERLIN
-                  frequency: 0.0008333333333
-                  salt: 600.0
-              PeakElevAtPos:
+              PeakHeightMultiplierAtPosition:
                 dimensions: 2
                 type: EXPRESSION
                 expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -5189,7 +5111,7 @@ samplers:
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                   - base(x,z)
                 variables:
                   MaxNMesSteps: 3
@@ -5237,17 +5159,7 @@ samplers:
                           type: PERLIN
                           frequency: 0.0005
                           salt: 200.0
-                  prefiltered_mesa_elev:
-                    dimensions: 2
-                    type: FBM
-                    octaves: 3
-                    lacunarity: 2.0
-                    gain: 0.4
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0008333333333
-                      salt: 600.0
-                  PeakElevAtPos:
+                  PeakHeightMultiplierAtPosition:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -6559,7 +6471,7 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                      expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
                         MaxNMesSteps: 3
@@ -6607,17 +6519,7 @@ samplers:
                                 type: PERLIN
                                 frequency: 0.0005
                                 salt: 200.0
-                        prefiltered_mesa_elev:
-                          dimensions: 2
-                          type: FBM
-                          octaves: 3
-                          lacunarity: 2.0
-                          gain: 0.4
-                          sampler:
-                            type: PERLIN
-                            frequency: 0.0008333333333
-                            salt: 600.0
-                        PeakElevAtPos:
+                        PeakHeightMultiplierAtPosition:
                           dimensions: 2
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -8178,7 +8080,7 @@ samplers:
               MesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                   - base(x,z)
                 variables:
                   MaxNMesSteps: 3
@@ -8226,17 +8128,7 @@ samplers:
                           type: PERLIN
                           frequency: 0.0005
                           salt: 200.0
-                  prefiltered_mesa_elev:
-                    dimensions: 2
-                    type: FBM
-                    octaves: 3
-                    lacunarity: 2.0
-                    gain: 0.4
-                    sampler:
-                      type: PERLIN
-                      frequency: 0.0008333333333
-                      salt: 600.0
-                  PeakElevAtPos:
+                  PeakHeightMultiplierAtPosition:
                     dimensions: 2
                     type: EXPRESSION
                     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -10424,7 +10316,7 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                      expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
                         MaxNMesSteps: 3
@@ -10472,17 +10364,7 @@ samplers:
                                 type: PERLIN
                                 frequency: 0.0005
                                 salt: 200.0
-                        prefiltered_mesa_elev:
-                          dimensions: 2
-                          type: FBM
-                          octaves: 3
-                          lacunarity: 2.0
-                          gain: 0.4
-                          sampler:
-                            type: PERLIN
-                            frequency: 0.0008333333333
-                            salt: 600.0
-                        PeakElevAtPos:
+                        PeakHeightMultiplierAtPosition:
                           dimensions: 2
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -11931,7 +11813,7 @@ samplers:
                     MesaHeightModifier:
                       dimensions: 2
                       type: EXPRESSION
-                      expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                      expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                         - base(x,z)
                       variables:
                         MaxNMesSteps: 3
@@ -11979,17 +11861,7 @@ samplers:
                                 type: PERLIN
                                 frequency: 0.0005
                                 salt: 200.0
-                        prefiltered_mesa_elev:
-                          dimensions: 2
-                          type: FBM
-                          octaves: 3
-                          lacunarity: 2.0
-                          gain: 0.4
-                          sampler:
-                            type: PERLIN
-                            frequency: 0.0008333333333
-                            salt: 600.0
-                        PeakElevAtPos:
+                        PeakHeightMultiplierAtPosition:
                           dimensions: 2
                           type: EXPRESSION
                           expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -13791,7 +13663,7 @@ samplers:
                   MesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: ((ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps) * MaxPeakElev * PeakElevAtPos(x,z))/MaxNMesSteps)
+                    expression: ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps)
                       - base(x,z)
                     variables:
                       MaxNMesSteps: 3
@@ -13839,17 +13711,7 @@ samplers:
                               type: PERLIN
                               frequency: 0.0005
                               salt: 200.0
-                      prefiltered_mesa_elev:
-                        dimensions: 2
-                        type: FBM
-                        octaves: 3
-                        lacunarity: 2.0
-                        gain: 0.4
-                        sampler:
-                          type: PERLIN
-                          frequency: 0.0008333333333
-                          salt: 600.0
-                      PeakElevAtPos:
+                      PeakHeightMultiplierAtPosition:
                         dimensions: 2
                         type: EXPRESSION
                         expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))

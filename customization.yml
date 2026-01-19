@@ -86,7 +86,7 @@ terrain-ocean-depth: 100
 # Default: 100
 
 #Roughens terrain using FBM, ratio of overall height.
-terrain-roughness-value: 0.05
+terrain-roughness-value: 0.01
 terrain-roughness-p2p: 100
 
 # ---

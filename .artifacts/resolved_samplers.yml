@@ -99,7 +99,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -144,7 +144,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -161,12 +161,13 @@ samplers:
                 type: EXPRESSION
                 expression: |
                   if(base(x,z)>threshold(x,z),
-                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                    ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                     0
                   )
                 variables:
                   MaxNMesSteps: 3
                   MaxPeakElev: 0.8
+                  mesa_threshold: 0.33
                 samplers:
                   threshold:
                     dimensions: 2
@@ -211,7 +212,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -307,7 +308,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -389,7 +390,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -440,12 +441,13 @@ samplers:
             type: EXPRESSION
             expression: |
               if(base(x,z)>threshold(x,z),
-                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                 0
               )
             variables:
               MaxNMesSteps: 3
               MaxPeakElev: 0.8
+              mesa_threshold: 0.33
             samplers:
               threshold:
                 dimensions: 2
@@ -490,7 +492,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -649,7 +651,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -864,7 +866,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -1041,23 +1043,10 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |2
-
+            expression: |
               if(MesaHeightModifier(x,z),
-
-                // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                  //Else return the transition down to floor height
-                  if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                    0)
-                ),
-                0)
+                base_shifted_prefiltered_mesa_elev(x,z),
+              0)
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
@@ -1115,7 +1104,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -1132,12 +1121,13 @@ samplers:
                     type: EXPRESSION
                     expression: |
                       if(base(x,z)>threshold(x,z),
-                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                         0
                       )
                     variables:
                       MaxNMesSteps: 3
                       MaxPeakElev: 0.8
+                      mesa_threshold: 0.33
                     samplers:
                       threshold:
                         dimensions: 2
@@ -1182,7 +1172,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -1262,7 +1252,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -1344,7 +1334,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -1426,7 +1416,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -1577,7 +1567,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -1628,7 +1618,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -1764,7 +1754,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -1933,15 +1923,15 @@ samplers:
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
                     max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                    RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                    RegionFilteredHillHeightModifier(x, z)
                   ),
                   // Else: just return base
-                  base(x, z) + roughness(x,z)
+                  base(x, z)
                 )
-              ))
+              )) + roughness(x,z)
             variables:
               MaxUnderwaterMulti: 0.4
-              RoughnessFactor: 0.05
+              RoughnessFactor: 0.01
             functions:
               lerp:
                 arguments:
@@ -2018,7 +2008,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -2058,7 +2048,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -2183,7 +2173,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -2360,23 +2350,10 @@ samplers:
               RegionFilteredMesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |2
-
+                expression: |
                   if(MesaHeightModifier(x,z),
-
-                    // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                    if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                        (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                      //Else return the transition down to floor height
-                      if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                        (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                        0)
-                    ),
-                    0)
+                    base_shifted_prefiltered_mesa_elev(x,z),
+                  0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
                   MesaFlattopTransitionRate: 1
@@ -2434,7 +2411,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -2451,12 +2428,13 @@ samplers:
                         type: EXPRESSION
                         expression: |
                           if(base(x,z)>threshold(x,z),
-                            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                            ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                             0
                           )
                         variables:
                           MaxNMesSteps: 3
                           MaxPeakElev: 0.8
+                          mesa_threshold: 0.33
                         samplers:
                           threshold:
                             dimensions: 2
@@ -2501,7 +2479,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -2581,7 +2559,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -2663,7 +2641,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -2745,7 +2723,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -2903,7 +2881,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -3107,15 +3085,15 @@ samplers:
                     if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                       base(x, z) + max(
                         max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                        RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                        RegionFilteredHillHeightModifier(x, z)
                       ),
                       // Else: just return base
-                      base(x, z) + roughness(x,z)
+                      base(x, z)
                     )
-                  ))
+                  )) + roughness(x,z)
                 variables:
                   MaxUnderwaterMulti: 0.4
-                  RoughnessFactor: 0.05
+                  RoughnessFactor: 0.01
                 functions:
                   lerp:
                     arguments:
@@ -3192,7 +3170,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -3232,7 +3210,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -3357,7 +3335,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -3534,23 +3512,10 @@ samplers:
                   RegionFilteredMesaHeightModifier:
                     dimensions: 2
                     type: EXPRESSION
-                    expression: |2
-
+                    expression: |
                       if(MesaHeightModifier(x,z),
-
-                        // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                        if(MesaUpwardDistFromTransPnt(x,z)>0,
-                          (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                          //Else return the transition down to floor height
-                          if(MesaDownwardDistFromTransPnt(x,z)>0,
-                            (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                            0)
-                        ),
-                        0)
+                        base_shifted_prefiltered_mesa_elev(x,z),
+                      0)
                     variables:
                       MesaFlattopTransitionDelta: 0.01
                       MesaFlattopTransitionRate: 1
@@ -3608,7 +3573,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -3625,12 +3590,13 @@ samplers:
                             type: EXPRESSION
                             expression: |
                               if(base(x,z)>threshold(x,z),
-                                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                                ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                                 0
                               )
                             variables:
                               MaxNMesSteps: 3
                               MaxPeakElev: 0.8
+                              mesa_threshold: 0.33
                             samplers:
                               threshold:
                                 dimensions: 2
@@ -3675,7 +3641,7 @@ samplers:
                                     type: EXPRESSION
                                     expression: raw_roughness(x,z)*factor
                                     variables:
-                                      factor: 0.05
+                                      factor: 0.01
                                     samplers:
                                       raw_roughness:
                                         dimensions: 2
@@ -3755,7 +3721,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -3837,7 +3803,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -3919,7 +3885,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -4077,7 +4043,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -6142,7 +6108,7 @@ samplers:
     type: EXPRESSION
     expression: raw_roughness(x,z)*factor
     variables:
-      factor: 0.05
+      factor: 0.01
     samplers:
       raw_roughness:
         dimensions: 2
@@ -6182,7 +6148,7 @@ samplers:
         type: EXPRESSION
         expression: raw_roughness(x,z)*factor
         variables:
-          factor: 0.05
+          factor: 0.01
         samplers:
           raw_roughness:
             dimensions: 2
@@ -6292,7 +6258,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6471,12 +6437,13 @@ samplers:
     type: EXPRESSION
     expression: |
       if(base(x,z)>threshold(x,z),
-        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+        ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
         0
       )
     variables:
       MaxNMesSteps: 3
       MaxPeakElev: 0.8
+      mesa_threshold: 0.33
     samplers:
       threshold:
         dimensions: 2
@@ -6521,7 +6488,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6599,7 +6566,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6616,12 +6583,13 @@ samplers:
         type: EXPRESSION
         expression: |
           if(base(x,z)>threshold(x,z),
-            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+            ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
             0
           )
         variables:
           MaxNMesSteps: 3
           MaxPeakElev: 0.8
+          mesa_threshold: 0.33
         samplers:
           threshold:
             dimensions: 2
@@ -6666,7 +6634,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -6746,7 +6714,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6828,7 +6796,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6910,7 +6878,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -6959,23 +6927,10 @@ samplers:
   RegionFilteredMesaHeightModifier:
     dimensions: 2
     type: EXPRESSION
-    expression: |2
-
+    expression: |
       if(MesaHeightModifier(x,z),
-
-        // If above the transition threshold and the wall transition delta, need to transition to flat top.
-        if(MesaUpwardDistFromTransPnt(x,z)>0,
-          (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-          //Else return the transition down to floor height
-          if(MesaDownwardDistFromTransPnt(x,z)>0,
-            (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-            0)
-        ),
-        0)
+        base_shifted_prefiltered_mesa_elev(x,z),
+      0)
     variables:
       MesaFlattopTransitionDelta: 0.01
       MesaFlattopTransitionRate: 1
@@ -7033,7 +6988,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -7050,12 +7005,13 @@ samplers:
             type: EXPRESSION
             expression: |
               if(base(x,z)>threshold(x,z),
-                ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                 0
               )
             variables:
               MaxNMesSteps: 3
               MaxPeakElev: 0.8
+              mesa_threshold: 0.33
             samplers:
               threshold:
                 dimensions: 2
@@ -7100,7 +7056,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -7180,7 +7136,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -7262,7 +7218,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -7344,7 +7300,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -7512,7 +7468,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -7630,15 +7586,15 @@ samplers:
         if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
           base(x, z) + max(
             max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-            RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+            RegionFilteredHillHeightModifier(x, z)
           ),
           // Else: just return base
-          base(x, z) + roughness(x,z)
+          base(x, z)
         )
-      ))
+      )) + roughness(x,z)
     variables:
       MaxUnderwaterMulti: 0.4
-      RoughnessFactor: 0.05
+      RoughnessFactor: 0.01
     functions:
       lerp:
         arguments:
@@ -7715,7 +7671,7 @@ samplers:
         type: EXPRESSION
         expression: raw_roughness(x,z)*factor
         variables:
-          factor: 0.05
+          factor: 0.01
         samplers:
           raw_roughness:
             dimensions: 2
@@ -7755,7 +7711,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -7880,7 +7836,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -8057,23 +8013,10 @@ samplers:
       RegionFilteredMesaHeightModifier:
         dimensions: 2
         type: EXPRESSION
-        expression: |2
-
+        expression: |
           if(MesaHeightModifier(x,z),
-
-            // If above the transition threshold and the wall transition delta, need to transition to flat top.
-            if(MesaUpwardDistFromTransPnt(x,z)>0,
-              (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-              //Else return the transition down to floor height
-              if(MesaDownwardDistFromTransPnt(x,z)>0,
-                (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                0)
-            ),
-            0)
+            base_shifted_prefiltered_mesa_elev(x,z),
+          0)
         variables:
           MesaFlattopTransitionDelta: 0.01
           MesaFlattopTransitionRate: 1
@@ -8131,7 +8074,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -8148,12 +8091,13 @@ samplers:
                 type: EXPRESSION
                 expression: |
                   if(base(x,z)>threshold(x,z),
-                    ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                    ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                     0
                   )
                 variables:
                   MaxNMesSteps: 3
                   MaxPeakElev: 0.8
+                  mesa_threshold: 0.33
                 samplers:
                   threshold:
                     dimensions: 2
@@ -8198,7 +8142,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -8278,7 +8222,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -8360,7 +8304,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -8442,7 +8386,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -8600,7 +8544,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -8804,15 +8748,15 @@ samplers:
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
                 max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                RegionFilteredHillHeightModifier(x, z)
               ),
               // Else: just return base
-              base(x, z) + roughness(x,z)
+              base(x, z)
             )
-          ))
+          )) + roughness(x,z)
         variables:
           MaxUnderwaterMulti: 0.4
-          RoughnessFactor: 0.05
+          RoughnessFactor: 0.01
         functions:
           lerp:
             arguments:
@@ -8889,7 +8833,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -8929,7 +8873,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -9054,7 +8998,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -9231,23 +9175,10 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |2
-
+            expression: |
               if(MesaHeightModifier(x,z),
-
-                // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                  //Else return the transition down to floor height
-                  if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                    0)
-                ),
-                0)
+                base_shifted_prefiltered_mesa_elev(x,z),
+              0)
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
@@ -9305,7 +9236,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -9322,12 +9253,13 @@ samplers:
                     type: EXPRESSION
                     expression: |
                       if(base(x,z)>threshold(x,z),
-                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                         0
                       )
                     variables:
                       MaxNMesSteps: 3
                       MaxPeakElev: 0.8
+                      mesa_threshold: 0.33
                     samplers:
                       threshold:
                         dimensions: 2
@@ -9372,7 +9304,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -9452,7 +9384,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -9534,7 +9466,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -9616,7 +9548,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -9774,7 +9706,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -10610,15 +10542,15 @@ samplers:
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                      RegionFilteredHillHeightModifier(x, z)
                     ),
                     // Else: just return base
-                    base(x, z) + roughness(x,z)
+                    base(x, z)
                   )
-                ))
+                )) + roughness(x,z)
               variables:
                 MaxUnderwaterMulti: 0.4
-                RoughnessFactor: 0.05
+                RoughnessFactor: 0.01
               functions:
                 lerp:
                   arguments:
@@ -10695,7 +10627,7 @@ samplers:
                   type: EXPRESSION
                   expression: raw_roughness(x,z)*factor
                   variables:
-                    factor: 0.05
+                    factor: 0.01
                   samplers:
                     raw_roughness:
                       dimensions: 2
@@ -10735,7 +10667,7 @@ samplers:
                       type: EXPRESSION
                       expression: raw_roughness(x,z)*factor
                       variables:
-                        factor: 0.05
+                        factor: 0.01
                       samplers:
                         raw_roughness:
                           dimensions: 2
@@ -10860,7 +10792,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -11037,23 +10969,10 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |2
-
+                  expression: |
                     if(MesaHeightModifier(x,z),
-
-                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                      if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                        //Else return the transition down to floor height
-                        if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                          0)
-                      ),
-                      0)
+                      base_shifted_prefiltered_mesa_elev(x,z),
+                    0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
@@ -11111,7 +11030,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -11128,12 +11047,13 @@ samplers:
                           type: EXPRESSION
                           expression: |
                             if(base(x,z)>threshold(x,z),
-                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                               0
                             )
                           variables:
                             MaxNMesSteps: 3
                             MaxPeakElev: 0.8
+                            mesa_threshold: 0.33
                           samplers:
                             threshold:
                               dimensions: 2
@@ -11178,7 +11098,7 @@ samplers:
                                   type: EXPRESSION
                                   expression: raw_roughness(x,z)*factor
                                   variables:
-                                    factor: 0.05
+                                    factor: 0.01
                                   samplers:
                                     raw_roughness:
                                       dimensions: 2
@@ -11258,7 +11178,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -11340,7 +11260,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -11422,7 +11342,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -11580,7 +11500,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -12665,15 +12585,15 @@ samplers:
             if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
               base(x, z) + max(
                 max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                RegionFilteredHillHeightModifier(x, z)
               ),
               // Else: just return base
-              base(x, z) + roughness(x,z)
+              base(x, z)
             )
-          ))
+          )) + roughness(x,z)
         variables:
           MaxUnderwaterMulti: 0.4
-          RoughnessFactor: 0.05
+          RoughnessFactor: 0.01
         functions:
           lerp:
             arguments:
@@ -12750,7 +12670,7 @@ samplers:
             type: EXPRESSION
             expression: raw_roughness(x,z)*factor
             variables:
-              factor: 0.05
+              factor: 0.01
             samplers:
               raw_roughness:
                 dimensions: 2
@@ -12790,7 +12710,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -12915,7 +12835,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -13092,23 +13012,10 @@ samplers:
           RegionFilteredMesaHeightModifier:
             dimensions: 2
             type: EXPRESSION
-            expression: |2
-
+            expression: |
               if(MesaHeightModifier(x,z),
-
-                // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                if(MesaUpwardDistFromTransPnt(x,z)>0,
-                  (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                    ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                  //Else return the transition down to floor height
-                  if(MesaDownwardDistFromTransPnt(x,z)>0,
-                    (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                    (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                    0)
-                ),
-                0)
+                base_shifted_prefiltered_mesa_elev(x,z),
+              0)
             variables:
               MesaFlattopTransitionDelta: 0.01
               MesaFlattopTransitionRate: 1
@@ -13166,7 +13073,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -13183,12 +13090,13 @@ samplers:
                     type: EXPRESSION
                     expression: |
                       if(base(x,z)>threshold(x,z),
-                        ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                        ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                         0
                       )
                     variables:
                       MaxNMesSteps: 3
                       MaxPeakElev: 0.8
+                      mesa_threshold: 0.33
                     samplers:
                       threshold:
                         dimensions: 2
@@ -13233,7 +13141,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -13313,7 +13221,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -13395,7 +13303,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -13477,7 +13385,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -13635,7 +13543,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -15347,15 +15255,15 @@ samplers:
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                      RegionFilteredHillHeightModifier(x, z)
                     ),
                     // Else: just return base
-                    base(x, z) + roughness(x,z)
+                    base(x, z)
                   )
-                ))
+                )) + roughness(x,z)
               variables:
                 MaxUnderwaterMulti: 0.4
-                RoughnessFactor: 0.05
+                RoughnessFactor: 0.01
               functions:
                 lerp:
                   arguments:
@@ -15432,7 +15340,7 @@ samplers:
                   type: EXPRESSION
                   expression: raw_roughness(x,z)*factor
                   variables:
-                    factor: 0.05
+                    factor: 0.01
                   samplers:
                     raw_roughness:
                       dimensions: 2
@@ -15472,7 +15380,7 @@ samplers:
                       type: EXPRESSION
                       expression: raw_roughness(x,z)*factor
                       variables:
-                        factor: 0.05
+                        factor: 0.01
                       samplers:
                         raw_roughness:
                           dimensions: 2
@@ -15597,7 +15505,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -15774,23 +15682,10 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |2
-
+                  expression: |
                     if(MesaHeightModifier(x,z),
-
-                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                      if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                        //Else return the transition down to floor height
-                        if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                          0)
-                      ),
-                      0)
+                      base_shifted_prefiltered_mesa_elev(x,z),
+                    0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
@@ -15848,7 +15743,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -15865,12 +15760,13 @@ samplers:
                           type: EXPRESSION
                           expression: |
                             if(base(x,z)>threshold(x,z),
-                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                               0
                             )
                           variables:
                             MaxNMesSteps: 3
                             MaxPeakElev: 0.8
+                            mesa_threshold: 0.33
                           samplers:
                             threshold:
                               dimensions: 2
@@ -15915,7 +15811,7 @@ samplers:
                                   type: EXPRESSION
                                   expression: raw_roughness(x,z)*factor
                                   variables:
-                                    factor: 0.05
+                                    factor: 0.01
                                   samplers:
                                     raw_roughness:
                                       dimensions: 2
@@ -15995,7 +15891,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -16077,7 +15973,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -16159,7 +16055,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -16317,7 +16213,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -17290,15 +17186,15 @@ samplers:
                   if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                     base(x, z) + max(
                       max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                      RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                      RegionFilteredHillHeightModifier(x, z)
                     ),
                     // Else: just return base
-                    base(x, z) + roughness(x,z)
+                    base(x, z)
                   )
-                ))
+                )) + roughness(x,z)
               variables:
                 MaxUnderwaterMulti: 0.4
-                RoughnessFactor: 0.05
+                RoughnessFactor: 0.01
               functions:
                 lerp:
                   arguments:
@@ -17375,7 +17271,7 @@ samplers:
                   type: EXPRESSION
                   expression: raw_roughness(x,z)*factor
                   variables:
-                    factor: 0.05
+                    factor: 0.01
                   samplers:
                     raw_roughness:
                       dimensions: 2
@@ -17415,7 +17311,7 @@ samplers:
                       type: EXPRESSION
                       expression: raw_roughness(x,z)*factor
                       variables:
-                        factor: 0.05
+                        factor: 0.01
                       samplers:
                         raw_roughness:
                           dimensions: 2
@@ -17540,7 +17436,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -17717,23 +17613,10 @@ samplers:
                 RegionFilteredMesaHeightModifier:
                   dimensions: 2
                   type: EXPRESSION
-                  expression: |2
-
+                  expression: |
                     if(MesaHeightModifier(x,z),
-
-                      // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                      if(MesaUpwardDistFromTransPnt(x,z)>0,
-                        (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                          ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                        //Else return the transition down to floor height
-                        if(MesaDownwardDistFromTransPnt(x,z)>0,
-                          (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                          (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                          0)
-                      ),
-                      0)
+                      base_shifted_prefiltered_mesa_elev(x,z),
+                    0)
                   variables:
                     MesaFlattopTransitionDelta: 0.01
                     MesaFlattopTransitionRate: 1
@@ -17791,7 +17674,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -17808,12 +17691,13 @@ samplers:
                           type: EXPRESSION
                           expression: |
                             if(base(x,z)>threshold(x,z),
-                              ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                              ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                               0
                             )
                           variables:
                             MaxNMesSteps: 3
                             MaxPeakElev: 0.8
+                            mesa_threshold: 0.33
                           samplers:
                             threshold:
                               dimensions: 2
@@ -17858,7 +17742,7 @@ samplers:
                                   type: EXPRESSION
                                   expression: raw_roughness(x,z)*factor
                                   variables:
-                                    factor: 0.05
+                                    factor: 0.01
                                   samplers:
                                     raw_roughness:
                                       dimensions: 2
@@ -17938,7 +17822,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -18020,7 +17904,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -18102,7 +17986,7 @@ samplers:
                               type: EXPRESSION
                               expression: raw_roughness(x,z)*factor
                               variables:
-                                factor: 0.05
+                                factor: 0.01
                               samplers:
                                 raw_roughness:
                                   dimensions: 2
@@ -18260,7 +18144,7 @@ samplers:
                           type: EXPRESSION
                           expression: raw_roughness(x,z)*factor
                           variables:
-                            factor: 0.05
+                            factor: 0.01
                           samplers:
                             raw_roughness:
                               dimensions: 2
@@ -19586,15 +19470,15 @@ samplers:
                 if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
                   base(x, z) + max(
                     max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-                    RegionFilteredHillHeightModifier(x, z) + roughness(x,z)
+                    RegionFilteredHillHeightModifier(x, z)
                   ),
                   // Else: just return base
-                  base(x, z) + roughness(x,z)
+                  base(x, z)
                 )
-              ))
+              )) + roughness(x,z)
             variables:
               MaxUnderwaterMulti: 0.4
-              RoughnessFactor: 0.05
+              RoughnessFactor: 0.01
             functions:
               lerp:
                 arguments:
@@ -19671,7 +19555,7 @@ samplers:
                 type: EXPRESSION
                 expression: raw_roughness(x,z)*factor
                 variables:
-                  factor: 0.05
+                  factor: 0.01
                 samplers:
                   raw_roughness:
                     dimensions: 2
@@ -19711,7 +19595,7 @@ samplers:
                     type: EXPRESSION
                     expression: raw_roughness(x,z)*factor
                     variables:
-                      factor: 0.05
+                      factor: 0.01
                     samplers:
                       raw_roughness:
                         dimensions: 2
@@ -19836,7 +19720,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2
@@ -20013,23 +19897,10 @@ samplers:
               RegionFilteredMesaHeightModifier:
                 dimensions: 2
                 type: EXPRESSION
-                expression: |2
-
+                expression: |
                   if(MesaHeightModifier(x,z),
-
-                    // If above the transition threshold and the wall transition delta, need to transition to flat top.
-                    if(MesaUpwardDistFromTransPnt(x,z)>0,
-                      (base_shifted_prefiltered_mesa_elev(x,z)/2 +
-                        ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                        (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-
-                      //Else return the transition down to floor height
-                      if(MesaDownwardDistFromTransPnt(x,z)>0,
-                        (MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-                        (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z)),
-                        0)
-                    ),
-                    0)
+                    base_shifted_prefiltered_mesa_elev(x,z),
+                  0)
                 variables:
                   MesaFlattopTransitionDelta: 0.01
                   MesaFlattopTransitionRate: 1
@@ -20087,7 +19958,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -20104,12 +19975,13 @@ samplers:
                         type: EXPRESSION
                         expression: |
                           if(base(x,z)>threshold(x,z),
-                            ((min(ceil(abs(MesaGenRegion(x, z))*2*MaxNMesSteps),MaxNMesSteps) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/MaxNMesSteps),
+                            ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
                             0
                           )
                         variables:
                           MaxNMesSteps: 3
                           MaxPeakElev: 0.8
+                          mesa_threshold: 0.33
                         samplers:
                           threshold:
                             dimensions: 2
@@ -20154,7 +20026,7 @@ samplers:
                                 type: EXPRESSION
                                 expression: raw_roughness(x,z)*factor
                                 variables:
-                                  factor: 0.05
+                                  factor: 0.01
                                 samplers:
                                   raw_roughness:
                                     dimensions: 2
@@ -20234,7 +20106,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -20316,7 +20188,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -20398,7 +20270,7 @@ samplers:
                             type: EXPRESSION
                             expression: raw_roughness(x,z)*factor
                             variables:
-                              factor: 0.05
+                              factor: 0.01
                             samplers:
                               raw_roughness:
                                 dimensions: 2
@@ -20556,7 +20428,7 @@ samplers:
                         type: EXPRESSION
                         expression: raw_roughness(x,z)*factor
                         variables:
-                          factor: 0.05
+                          factor: 0.01
                         samplers:
                           raw_roughness:
                             dimensions: 2

@@ -1,0 +1,172 @@
+samplers:
+  #Determines the variance
+  continental_large_features_allowed_threshold_with_variance: &continental_large_features_allowed_threshold_with_variance
+    dimensions: 2
+    type: EXPRESSION
+    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
+    variables:
+      nominal_value: $customization.yml:continental-large-features-allowed-threshold
+      variance: $customization.yml:continental-large-feature-allowed-threshold-variance
+    samplers:
+      applied_threshold_variance: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          #type: OPEN_SIMPLEX_2
+          type: PERLIN
+          salt: 697.0
+          #frequency: 1/300
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+  PeakHeightMultiplierAtPosition:
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: $customization.yml:continental-MaxPeakVariability
+    samplers:
+      max_elev_prob: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          #frequency: 1/300
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+  # continental_landmass: Large-scale landmass shape.
+  #   Low frequency = very large features (continents, major landmasses).
+  #   Used as base terrain and for coastal rolloff calculation.
+  continental_landmass: &continental_landmass
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 10000, z - 10000)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          gain: 0.9
+          octaves: 2
+          lacunarity: 2
+          sampler:
+            type: PERLIN
+            frequency: (1 / ${customization.yml:continental-baseline-distance})
+  mnt_and_ocean_valleys:
+    dimensions: 2
+    type: FBM
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
+    sampler:
+      type: PERLIN
+      frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
+      salt: 300
+  mountain_gen_region: &mountain_gen_region
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 3000, z - 3000)
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: (1 / ${customization.yml:continental-mountain-region-allowed-distance})
+          salt: 100
+  mesa_gen_region: &mesa_gen_region
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 6000, z - 6000)
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+          salt: 200       
+  continents: &continents
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        max(
+          -sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset,
+          spawnIsland(x, z)
+        ),
+        // Set continentalness to spotContinentalFactor in center of spots, 0 on spot edges,
+        // and decrease quadratically moving further outwards
+        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2))
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+      spread: $customization.yml:continental-spread
+      spotContinentalFactor: 0.3
+    samplers:
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.35
+          octaves: 3
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 1
+            frequency: 1 / 5000
+  
+  continentBorder:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(inRange(continents(x, z), -threshold, threshold),
+        if(continentsEdge((x-width)/width, (z-width)/width) != 0, 1, -1),
+        -1
+      )
+    variables: &continentBorderVariables
+      width: ${customization.yml:continental-coast-width} * ${customization.yml:global-scale}
+      threshold: $customization.yml:continental-coast-width
+    functions:
+      inRange:
+        arguments:
+          - x
+          - lower
+          - upper
+        expression: x >= lower && x <= upper
+    samplers:
+      continents: *continents
+      continentsEdge:
+        dimensions: 2
+        type: KERNEL
+        kernel: [ [ 0,  1, 0 ],
+                  [ 1, -4, 1 ],
+                  [ 0,  1, 0 ] ]
+        sampler:
+          type: EXPRESSION
+          expression: continents(x*width, z*width) > 0
+          variables: *continentBorderVariables
+          samplers:
+            continents: *continents

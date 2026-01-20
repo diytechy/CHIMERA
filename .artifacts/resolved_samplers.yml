@@ -37,12 +37,14 @@ samplers:
     dimensions: 3
     type: EXPRESSION
     #expression: if(y<ZTestExp(x,z),ZTestExp(x,z),-100)
+    #expression: if(elevationDetailed(x,z),elevationDetailed(x,z)*180+65,oceanElevation(x,z)*100+60)
     expression: ZTestExp(x,z)
     samplers:
       ZTestExp:
         dimensions: 2
         type: EXPRESSION
-        expression: (oceanElevation(x,z))
+        #expression: (oceanElevation(x,z))
+        expression: if(elevationDetailed(x,z)>0,elevationDetailed(x,z)*180+65,oceanElevation(x,z)*100+60)
         # OceanValley (May be depricated, originally for underwater valleys)
         # MountainHeightModifier - Modifier intended for mountians
         # RegionFilteredMountainHeightModifier - #Transform that will actually apply mountian height if enabled.

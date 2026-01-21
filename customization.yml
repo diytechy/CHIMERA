@@ -54,12 +54,25 @@ terrain-ocean-depth: 100
 # that describes if the position is land / coastal / ocean. A continental value of
 # 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
 # These options are primarily used in the math/samplers/continents.yml config file.
+continental-baseline-distance: 5000
+continental-large-features-allowed-threshold: .07
+continental-large-feature-allowed-threshold-variance: 0.03
+continental-large-features-height-flux-dist: 1000
+
+
+# Definitions for the peak height formation of mesas / mountians.
+continental-large-features-threshold-variance-distance: 3000
+continental-MaxMountainPeakHeightRatio: 1
+continental-MaxMesaPeakHeightRatio: 0.8 #Keep less than mountian peak height ratio.
+continental-MaxPeakVariability: 0.3
+
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
 continental-mesa-region-allowed-threshold: .33
 continental-mesa-flattop-trans-delta: 0.05 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
 #how slowly do mesa walls transition between wall and top, bigger values are slower roll-off / more rounded transitions 
 continental-mesa-flattop-trans-rate: 30
+continental-MaxNMesSteps: 3 #Max number of mesa steps to create
 
 continental-offset: 0.15
 # Controls the land / ocean ratio.
@@ -163,6 +176,12 @@ elevation-continental-flat-threshold: -0.3
 # The continental value at which terrain height will be flat, only applicable if
 # the terrain-factor-continental option is enabled
 # Default: -0.3
+
+elevation-factor-spots: 1
+# Determines if spot artifacts should protrude from ground for rare biomes.  If
+# this is disabled it is recommended to remove / comment out the spot related biomes
+# in the distribution stage of the pack and distribute those biomes using a different
+# method if desired.
 
 elevation-factor-rivers: 1
 # Determines if terrain will gradually reduce closer to rivers.

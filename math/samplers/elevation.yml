@@ -162,7 +162,8 @@ samplers:
           frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
           salt: 200       
           
-  PeakHeightMultiplierAtPosition:
+  # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
+  PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
     dimensions: 2
     type: EXPRESSION
     expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
@@ -175,15 +176,15 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           salt: 697.0
-          #frequency: 1/300
           frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+          
   # Mesa height modifier components
   prefiltered_mesa_elev: &prefiltered_mesa_elev
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(base(x,z)>threshold(x,z),
-        ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
+      if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), 
+        ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), 
         0
       )
     variables:
@@ -191,8 +192,7 @@ samplers:
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      base: *base
+      continents: $math/samplers/continents.yml:samplers.continents
       mesaMask: *mesaMask
       PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
 
@@ -209,36 +209,38 @@ samplers:
   elevation_MesaHeightModifier: &elevation_MesaHeightModifier
     dimensions: 2
     type: EXPRESSION
-    expression: (abs(mesaMask(x, z))>MesaRegionActiveThresh) && (elevation(x,z)>threshold)
+    expression: (abs(mesaMask(x, z))>MesaRegionActiveThresh) && (continents(x,z))
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
       threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       elevation: *elevation
-      mesaMask: $math/samplers/continents.yml:samplers.mesaMask
+      mesaMask: *mesaMask
+      continents: $math/samplers/continents.yml:samplers.continents
 
   # Mesa distance calculators using current elevation
   elevation_MesaDownwardDistFromTransPnt: &elevation_MesaDownwardDistFromTransPnt
     dimensions: 2
     type: EXPRESSION
-    expression: max(max((MesaRegionActiveThresh-mesaMask(x, z)),(threshold-elevation(x,z))),0)
+    expression: max(max((MesaRegionActiveThresh-mesaMask(x, z)),(threshold-max(continents(x,z),0))), 0)
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
       threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       elevation: *elevation
-      mesaMask: $math/samplers/continents.yml:samplers.mesaMask
+      mesaMask: *mesaMask
+      continents: $math/samplers/continents.yml:samplers.continents
 
   elevation_MesaUpwardDistFromTransPnt: &elevation_MesaUpwardDistFromTransPnt
     dimensions: 2
     type: EXPRESSION
-    expression: max(max((mesaMask(x, z) - MesaRegionActiveThresh),(elevation(x,z)-threshold)),0)
+    expression: max(max((mesaMask(x, z) - MesaRegionActiveThresh),(elevation(x,z)-threshold)), 0)
     variables:
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
       threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       elevation: *elevation
-      mesaMask: $math/samplers/continents.yml:samplers.mesaMask
+      mesaMask: *mesaMask
 
   # Region-filtered mesa height modifier using current elevation
   elevation_RegionFilteredMesaHeightModifier: &elevation_RegionFilteredMesaHeightModifier
@@ -264,7 +266,6 @@ samplers:
       MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate
       MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
-      mesaMask: $math/samplers/continents.yml:samplers.mesaMask
       elevation_shifted_prefiltered_mesa_elev: *elevation_shifted_prefiltered_mesa_elev
       elevation_MesaHeightModifier: *elevation_MesaHeightModifier
       elevation_MesaUpwardDistFromTransPnt: *elevation_MesaUpwardDistFromTransPnt

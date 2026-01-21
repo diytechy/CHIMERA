@@ -243,7 +243,7 @@ samplers:
       mesaMask: *mesaMask
 
   # Region-filtered mesa height modifier using current elevation
-  elevation_RegionFilteredMesaHeightModifier: &elevation_RegionFilteredMesaHeightModifier
+  RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -360,10 +360,10 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      elevation(x, z) + elevation_RegionFilteredMesaHeightModifier(x, z)
+      elevation(x, z) + RegionFilteredMesaHeightModifier(x, z)
     samplers:
       elevation: *elevation
-      elevation_RegionFilteredMesaHeightModifier: *elevation_RegionFilteredMesaHeightModifier
+      RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
 
   oceanElevation:
     dimensions: 2

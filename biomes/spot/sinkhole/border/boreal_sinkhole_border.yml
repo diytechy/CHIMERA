@@ -1,0 +1,13 @@
+id: BOREAL_SINKHOLE_BORDER
+type: BIOME
+extends:
+  - EQ_LAND
+  - CARVING_OCEAN
+  - TAIGA
+  - BASE
+color: $biomes/colors.yml:BOREAL_SINKHOLE_BORDER
+
+vanilla: minecraft:plains
+
+tags:
+  - SINKHOLE

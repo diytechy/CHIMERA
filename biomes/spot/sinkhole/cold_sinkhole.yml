@@ -1,0 +1,37 @@
+id: COLD_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - SNOWY_MOUNTAINS
+  - BASE
+color: $biomes/colors.yml:COLD_SINKHOLE
+
+vanilla: minecraft:frozen_peaks
+
+tags:
+  - SINKHOLE
+
+ocean:
+  palette: FROZEN_OCEAN
+  level: $meta.yml:sinkhole-ocean-level
+
+palette:
+  - SNOW: $meta.yml:top-y
+  - << meta.yml:palette-sinkhole-underwater
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.6
+    palette:
+      - SNOWY_SLANT: $meta.yml:top-y
+      - << meta.yml:palette-sinkhole-underwater
+      - << meta.yml:palette-bottom
+  - threshold: 0.3
+    palette:
+      - << meta.yml:palette-slant-generic
+      - << meta.yml:palette-bottom
+
+features:
+  preprocessors:
+    - SINKHOLE_ICE_COASTLINE

@@ -1,0 +1,38 @@
+id: BOREAL_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - TAIGA
+  - BASE
+color: $biomes/colors.yml:BOREAL_SINKHOLE
+
+vanilla: minecraft:taiga
+
+tags:
+  - SINKHOLE
+
+ocean:
+  palette: BLOCK:minecraft:water
+  level: $meta.yml:sinkhole-ocean-level
+
+palette:
+  - GRASS: $meta.yml:top-y
+  - << meta.yml:palette-sinkhole-underwater
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.8
+    palette:
+      - GRASS: $meta.yml:top-y
+      - << meta.yml:palette-sinkhole-underwater
+      - << meta.yml:palette-bottom
+  - threshold: 0.45
+    palette:
+      - COARSE_DIRT: $meta.yml:top-y
+      - << meta.yml:palette-sinkhole-underwater
+      - << meta.yml:palette-bottom
+  - threshold: 0.4
+    palette:
+      - << meta.yml:palette-slant-generic
+      - << meta.yml:palette-bottom

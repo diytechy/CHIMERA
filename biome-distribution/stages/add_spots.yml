@@ -14,6 +14,7 @@ stages:
     to:
       - volcano: 1
       - mesa: 1
+      - sinkhole: 1
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1
@@ -55,3 +56,17 @@ stages:
       type: EXPRESSION
       expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
       variables: $math/samplers/spots.yml:variables
+
+  - type: BORDER
+    from: sinkhole
+    replace: land
+    to: sinkhole-border
+    sampler:
+      type: CONSTANT
+
+  - type: BORDER
+    from: sinkhole
+    replace: ocean
+    to: sinkhole-border-ocean
+    sampler:
+      type: CONSTANT

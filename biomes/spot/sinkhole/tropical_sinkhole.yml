@@ -1,0 +1,45 @@
+id: TROPICAL_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - JUNGLE
+  - BASE
+color: $biomes/colors.yml:TROPICAL_SINKHOLE
+
+vanilla: minecraft:jungle
+
+tags:
+  - SINKHOLE
+
+ocean:
+  palette: BLOCK:minecraft:water
+  level: $meta.yml:sinkhole-ocean-level
+
+palette:
+  - GRASS_VARIATION: $meta.yml:top-y
+  - << meta.yml:palette-sinkhole-underwater
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.8
+    palette:
+      - GRASS_VARIATION: $meta.yml:top-y
+      - << meta.yml:palette-sinkhole-underwater
+      - << meta.yml:palette-bottom
+  - threshold: 0.55
+    palette:
+      - MOSS_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.5
+    palette:
+      - MOSSY_COBBLESTONE_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.45
+    palette:
+      - TUFF_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.4
+    palette:
+      - BLOCK:minecraft:stone: $meta.yml:top-y
+      - << meta.yml:palette-bottom

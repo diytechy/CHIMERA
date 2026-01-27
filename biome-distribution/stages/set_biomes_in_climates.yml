@@ -38,6 +38,13 @@ stages:
       polar-crater-lake:
         - COLD_CRATER_LAKE: 1
 
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+
       polar-extinct-volcano:
         - COLD_EXTINCT_VOLCANO: 1
 
@@ -177,6 +184,13 @@ stages:
       boreal-crater-lake:
         - BOREAL_CRATER_LAKE: 1
 
+      boreal-sinkhole:
+        - BOREAL_SINKHOLE: 1
+      boreal-sinkhole-border:
+        - BOREAL_SINKHOLE_BORDER: 1
+      boreal-sinkhole-border-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+
       boreal-extinct-volcano:
         - BOREAL_EXTINCT_VOLCANO: 1
 
@@ -294,6 +308,13 @@ stages:
 
       temperate-crater-lake:
         - TEMPERATE_CRATER_LAKE: 1
+
+      temperate-sinkhole:
+        - TEMPERATE_SINKHOLE: 1
+      temperate-sinkhole-border:
+        - TEMPERATE_SINKHOLE_BORDER: 1
+      temperate-sinkhole-border-ocean:
+        - ISLAND_SHALLOWS: 1
 
       temperate-extinct-volcano:
         - TEMPERATE_EXTINCT_VOLCANO: 1
@@ -426,6 +447,13 @@ stages:
       cold-desert-crater-lake:
         - COLD_CRATER_LAKE: 1
 
+      cold-desert-sinkhole:
+        - COLD_DESERT_SINKHOLE: 1
+      cold-desert-sinkhole-border:
+        - COLD_DESERT_SINKHOLE_BORDER: 1
+      cold-sinkhole-border-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+
       cold-desert-extinct-volcano:
         - COLD_EXTINCT_VOLCANO: 1
 
@@ -441,6 +469,13 @@ stages:
 
       desert-crater-lake:
         - DESERT_CRATER_LAKE: 1
+
+      desert-sinkhole:
+        - DESERT_SINKHOLE: 1
+      desert-sinkhole-border:
+        - DESERT_SINKHOLE_BORDER: 1
+      desert-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
 
       desert-extinct-volcano:
         - DESERT_EXTINCT_VOLCANO: 1
@@ -502,6 +537,13 @@ stages:
 
       tropical-crater-lake:
         - TROPICAL_CRATER_LAKE: 1
+
+      tropical-sinkhole:
+        - TROPICAL_SINKHOLE: 1
+      tropical-sinkhole-border:
+        - TROPICAL_SINKHOLE_BORDER: 1
+      tropical-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
 
       tropical-extinct-volcano:
         - TROPICAL_EXTINCT_VOLCANO: 1

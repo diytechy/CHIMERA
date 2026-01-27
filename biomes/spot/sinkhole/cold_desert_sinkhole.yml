@@ -1,0 +1,22 @@
+id: COLD_DESERT_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - SNOWY_DUNES
+  - BASE
+color: $biomes/colors.yml:COLD_DESERT_SINKHOLE
+
+vanilla: minecraft:snowy_plains
+
+tags:
+  - SINKHOLE
+
+ocean:
+  palette: FROZEN_OCEAN
+  level: $meta.yml:sinkhole-ocean-level
+
+palette:
+  - SNOW: $meta.yml:top-y
+  - << meta.yml:palette-sinkhole-underwater
+  - << meta.yml:palette-bottom

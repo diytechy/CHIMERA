@@ -126,7 +126,7 @@ for (num tubeLevel = 0; tubeLevel <= tubeDepth; tubeLevel = tubeLevel + 1) {
     }
     if (allSolid) placeInAir = true;
 
-    if (tubeLevel == tubeDepth) structure(xOffset, -tubeDepth, zOffset, "underground_lava_lake", "NONE");
+    if (tubeLevel == tubeDepth) structure(xOffset, -tubeDepth, zOffset, "hornito_lava_lake", "NONE");
 }
 
 

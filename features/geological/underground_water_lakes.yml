@@ -34,5 +34,8 @@ locator:
 
 structures:
   distribution:
-    type: CONSTANT
-  structures: large_underground_water_lake
+    type: WHITE_NOISE
+  structures:
+    - underground_water_stream: 1
+    - underground_water_lake: 3
+    - blank: 2

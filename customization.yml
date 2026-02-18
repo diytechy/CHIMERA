@@ -164,9 +164,9 @@ continental-scale: 2
 # this produces larger landmasses and larger oceans, and vice-versa when
 # this is decreased.
 
-continental-island-threshold: -0.4
-# Threshold the continental_sampler must be below for islands to appear.
-# Lower values result in fewer/smaller islands.
+continental-island-threshold: -0.35
+# Threshold the continental_sampler must be below for continental value to change
+# to prepare for islands.
 # Default: -0.3
 
 continental-land-threshold: 0.0
@@ -174,10 +174,9 @@ continental-land-threshold: 0.0
 # Higher values result in smaller continents.
 # Default: 0.1
 
-continental-lake-threshold: 0.45
-# Threshold the continental_sampler must exceed for lakes to appear.
-# Higher values result in fewer/smaller lakes within continents.
-# Default: 0.8
+continental-lake-threshold: 0.35
+# Threshold the continental_sampler must exceed for continental value to change
+# to prepare for lakes.
 
 continental-max-island-ratio: 0.4
 # Maximum ratio that an island can have compared to the continental maximum (0 to 1).

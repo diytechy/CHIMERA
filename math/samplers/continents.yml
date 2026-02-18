@@ -64,16 +64,17 @@ samplers:
     expression: |
       if(continental_sampler(x,z) < island_threshold,
         // Islands: 0 to max island ratio, need to normalize with land range
-        ((island_threshold-continental_sampler(x,z)) * max_island_ratio * (lake_threshold-land_threshold))/ (0.5 - island_threshold),
-        if(continental_sampler(x,z) > land_threshold,
+        lerp(continental_sampler(x,z),-0.5,max_island_ratio,island_threshold,-1),
+        if(continental_sampler(x,z) < land_threshold,
+          //Ocean: 0 to 1
+          lerp(continental_sampler(x,z),island_threshold,-1,land_threshold,0),
+          //Check for lakes / continental land-masses.
           if(continental_sampler(x,z) > lake_threshold,
             // Lakes: 0 to -max lake ratio, need to normalize with ocean range.
-            ((lake_threshold - continental_sampler(x,z)) * max_lake_ratio * (land_threshold-island_threshold))/ (0.5 - lake_threshold),
+            lerp(continental_sampler(x,z),lake_threshold,1,0.5,-max_lake_ratio),
             // Continents: 0 to 1
-            (continental_sampler(x,z) - land_threshold) / (lake_threshold - land_threshold)
-          ),
-          // Oceans: 0 to -1
-          (continental_sampler(x,z)-land_threshold)/ (land_threshold - island_threshold)
+            lerp(continental_sampler(x,z),land_threshold,0,lake_threshold,1)
+          )
         )
       )
     variables:
@@ -84,6 +85,7 @@ samplers:
       max_lake_ratio: $customization.yml:continental-max-lake-ratio
     samplers:
       continental_sampler: *continental_sampler
+    functions: $math/functions/interpolation.yml:functions
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM

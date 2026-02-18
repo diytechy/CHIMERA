@@ -63,9 +63,34 @@ Even with identical parameters, these are two separate `OpenSimplex2Sampler` obj
 Each inline definition goes through the full create-template-load-instantiate pipeline
 (`GenericTemplateSupplierLoader.load()`), producing a fresh instance every time.
 
-YAML anchors (`&name` / `*name`) also create separate instances — the YAML parser
-substitutes the map values inline, and the config loader instantiates independently
-at each reference site.
+YAML anchors (`&name` / `*name`) also create separate instances — SnakeYAML expands
+the alias into a copy of the map values before Terra's config system sees it, and the
+config loader instantiates independently at each reference site.
+
+**Anchor scope:** Anchors work anywhere within the **same** `.yml` file. Each file is
+parsed independently by SnakeYAML (`YamlAddon` creates a separate `YamlConfiguration`
+per file), so an anchor defined in one file cannot be aliased in a different file.
+For cross-file value references, use Terra's Meta syntax: `<<: $other-file.yml:key`.
+
+```yaml
+# Within a single .yml file — anchors work at any nesting level
+base-noise: &base              # Anchor defined at root level
+  type: FBM
+  octaves: 4
+  sampler:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.01
+
+terrain:
+  type: EXPRESSION
+  dimensions: 2
+  expression: "a(x, z) * 0.7 + b(x, z) * 0.3"
+  samplers:
+    a:
+      <<: *base                # Alias works — same file, resolved by SnakeYAML
+    b:
+      <<: *base                # Also works — but creates a SEPARATE sampler instance
+```
 
 ### 2.2 Pack-Level Named Samplers — Shared Instance
 
@@ -172,16 +197,18 @@ See Section 4 for full details.
 ```yaml
 type: CACHE
 dimensions: 2          # 2 for 2D cache, 3 for 3D cache
+int: false             # Round coordinates to int32 (default: false)
 sampler:
   type: OPEN_SIMPLEX_2
   frequency: 0.01
 ```
 
-Or wrapping a more complex sampler tree:
+Or wrapping a more complex sampler tree with integer coordinate rounding:
 
 ```yaml
 type: CACHE
 dimensions: 2
+int: true              # Round to nearest integer, store keys as int32
 sampler:
   type: FBM
   octaves: 6
@@ -190,15 +217,36 @@ sampler:
     frequency: 0.005
 ```
 
-### 4.3 Implementation Details
+### 4.3 The `int` Parameter
+
+When `int: true`, CacheSampler rounds all input coordinates to the nearest integer
+(saturating at int32 bounds) **before** both cache lookup and sampler evaluation.
+This has two effects:
+
+1. **Higher cache hit rate:** Fractional coordinates that round to the same integer
+   (e.g., 5.1 and 5.4 both become 5) produce cache hits instead of misses. This is
+   especially beneficial when coordinates have sub-integer jitter or interpolation.
+
+2. **Reduced memory:** Coordinate keys are stored as `int[]` (4 bytes each) instead
+   of `double[]` (8 bytes each), saving 4 bytes per coordinate per cache slot.
+
+**Trade-off:** All sub-integer coordinate variation is lost. Two queries at (5.1, 10.7)
+and (5.4, 10.2) return the same value — the noise at (5, 11). Use `int: true` only
+when integer-resolution noise is acceptable (terrain generation, biome selection, etc.).
+
+The cached value is still stored as a `double` — only the coordinate keys are narrowed.
+
+### 4.4 Implementation Details
 
 The cache uses a **direct-mapped** design with parallel primitive arrays (no object
 allocation, no autoboxing). One cache instance per thread via `ThreadLocal`.
 
-| Variant | Slots  | Memory/Thread | Covers                       |
-|---------|--------|---------------|------------------------------|
-| 2D      | 4,096  | ~131 KB       | 16 chunks (256 coords each)  |
-| 3D      | 131,072| ~3 MB         | One full chunk column         |
+| Variant    | Slots   | Memory/Thread | Covers                       |
+|------------|---------|---------------|------------------------------|
+| 2D         | 4,096   | ~128 KB       | 16 chunks (256 coords each)  |
+| 2D + int   | 4,096   | ~96 KB        | Same, with int32 keys        |
+| 3D         | 131,072 | ~5 MB         | One full chunk column         |
+| 3D + int   | 131,072 | ~3.5 MB       | Same, with int32 keys        |
 
 **Hash design:** The lower 8 bits of the hash index encode chunk-local x and z
 coordinates: `((int)x & 0xF) | (((int)z & 0xF) << 4)`. This guarantees that all
@@ -214,7 +262,7 @@ are what you want cached, and that's what naturally stays.
 **Thread safety:** Each thread has its own cache arrays via `ThreadLocal`. No locking,
 no contention.
 
-### 4.4 When to Use CACHE
+### 4.5 When to Use CACHE
 
 Use `type: CACHE` when:
 - A sampler is **evaluated at the same coordinates from multiple call sites** (e.g.,
@@ -228,10 +276,10 @@ Use `type: CACHE` when:
 Do NOT use `type: CACHE` when:
 - The sampler is only evaluated once per coordinate (no redundant calls to eliminate).
 - The sampler is trivially cheap (e.g., `CONSTANT`, simple `WHITE_NOISE`).
-- The sampler is only used in 3D and memory is tight (~3 MB per thread per cached
-  sampler adds up).
+- The sampler is only used in 3D and memory is tight (~5 MB per thread per cached
+  sampler adds up, ~3.5 MB with `int: true`).
 
-### 4.5 CACHE at the Pack Level
+### 4.6 CACHE at the Pack Level
 
 The most impactful use of CACHE is wrapping pack-level samplers. Since pack-level
 samplers are already shared instances (Section 2.2), adding CACHE means that any
@@ -268,7 +316,7 @@ samplers:
 Now every expression in the pack that calls `continentNoise(x, z)` or
 `erosionValue(x, z)` shares both the same instance AND the same cached results.
 
-### 4.6 Caching Inline Samplers
+### 4.7 Caching Inline Samplers
 
 You can also cache inline samplers, but the cache is only useful within that single
 sampler tree. This is mainly valuable for self-referencing scenarios where the same
@@ -294,6 +342,58 @@ Without CACHE here, `base` would be computed twice per coordinate (once at `(x,z
 and once at `(x+100, z+100)`). With CACHE, the second call at `(x+100, z+100)` is
 a fresh computation, but if this expression is evaluated at shifted coordinates later,
 those earlier results may still be in the cache.
+
+### 4.8 Expression Functions and Repeated Evaluation
+
+When a function is defined in the `functions:` section of an EXPRESSION sampler
+(or at the pack level), the function body is **compiled once** into an AST. The
+function object is cached globally by its `FunctionTemplate` via a static map in
+`UserDefinedFunction`. However, each time the function appears in an expression
+string, it is **fully evaluated** — there is no automatic memoization of results.
+
+```yaml
+type: EXPRESSION
+dimensions: 2
+expression: "myFunc(x, z) + myFunc(x+10, z+10) + myFunc(x, z)"
+functions:
+  myFunc:
+    arguments: [x, z]
+    expression: "expensiveNoise(x, z) * 2"
+```
+
+When this expression is evaluated at coordinates (100, 200):
+
+| Call                  | Arguments   | Sampler Evaluation           |
+|-----------------------|-------------|------------------------------|
+| `myFunc(x, z)`        | (100, 200)  | `expensiveNoise(100, 200)`   |
+| `myFunc(x+10, z+10)`  | (110, 210)  | `expensiveNoise(110, 210)`   |
+| `myFunc(x, z)`        | (100, 200)  | `expensiveNoise(100, 200)` — **redundant** |
+
+The first and third calls compute identical results. The same applies to pack-level
+samplers referenced by name in expressions — calling `myNoise(x, z)` three times
+in the same expression evaluates the sampler three times.
+
+**To eliminate redundant evaluations**, wrap the sampler with `type: CACHE`:
+
+```yaml
+# Pack-level or inline — CACHE prevents recomputation at same coordinates
+samplers:
+  expensiveNoise:
+    dimensions: 2
+    type: CACHE
+    sampler:
+      type: FBM
+      octaves: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.005
+```
+
+With CACHE, the third call above becomes a cache hit from the first call's result.
+This also works across different expressions — if two separate EXPRESSION samplers
+both call the same pack-level cached sampler at the same coordinates during the
+same chunk's generation, the second expression benefits from the first's cached
+results.
 
 ---
 
@@ -536,6 +636,30 @@ frequency: 0.01            # but the principle applies to EXPRESSION wrappers an
 In practice, Terra's sampler architecture applies frequency internally within each
 noise function, so wrapping with CACHE at the top level naturally receives integer
 coordinates.
+
+### 7.8 Use `int: true` for Standard Chunk Generation
+
+When a cached sampler is only queried at whole-number world coordinates (the norm
+for chunk generation), set `int: true` to:
+- **Guarantee** cache hits for coordinates with sub-integer jitter (e.g., 5.0001 and
+  4.9999 both round to 5 and match the same cache slot).
+- **Reduce memory** per cached sampler: ~25% savings for 2D, ~30% for 3D (see
+  Section 4.4 table).
+
+```yaml
+type: CACHE
+dimensions: 2
+int: true
+sampler:
+  type: FBM
+  octaves: 6
+  sampler:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.005
+```
+
+Do NOT use `int: true` for samplers that intentionally rely on sub-integer coordinate
+precision (e.g., domain-warped noise where the warp offsets are fractional).
 
 ---
 

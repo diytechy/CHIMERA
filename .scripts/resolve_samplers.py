@@ -6,17 +6,20 @@ Resolves all sampler definitions from the math/ directory into a single YAML fil
 with all external references and inline variables resolved.
 
 Key features:
-- Preserves the header section of the output file (expressions, comments, custom samplers)
-- Retains YAML anchors (&name) and aliases (*name) for CACHE sampler compatibility
-- Only replaces the resolved samplers section, keeping user customizations
+- Resolves $file.yml:key.path and ${file.yml:key} inline variable references
+- Evaluates constant mathematical expressions (e.g., "1 / 1000" -> 0.001)
+- Deduplicates shared samplers using YAML anchors (&name) and aliases (*name)
+- Completely overwrites the output file with only resolved content
 
 Output format:
-    type: EXPRESSION
-    expression: <user's test expression>
-    #expression: <commented alternatives>
     samplers:
-      <custom test samplers with anchors>
-      <resolved samplers from math/>
+      sharedSampler: &sharedSampler
+        ...
+      dependentSampler:
+        samplers:
+          sharedSampler: *sharedSampler
+    functions:
+      ...
 """
 from ensure_module import ensure_modules
 ensure_modules(["yaml", "re"])
@@ -36,11 +39,25 @@ import yaml
 import re
 import sys
 import ast
+import copy
+import json
 import operator
 import math
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Set, Tuple, Union
-from collections import OrderedDict
+
+
+# =============================================================================
+# YAML Multiline String Representer (registered once, used everywhere)
+# =============================================================================
+
+def _represent_multiline_str(dumper, data):
+    """Use block scalar style (|) for multiline strings in YAML output."""
+    if '\n' in data:
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
+yaml.add_representer(str, _represent_multiline_str)
 
 
 # =============================================================================
@@ -593,286 +610,246 @@ class SamplerResolver:
 
         return self.all_functions
 
-    def build_resolved_output(self) -> Dict[str, Any]:
-        """
-        Build the final resolved output structure.
-        """
-        # Collect all samplers and functions
-        self.collect_all_samplers()
-        self.collect_all_functions()
 
-        # Build output structure
-        output = {
-            'type': 'EXPRESSION',
-            'expression': 'y',
-            'samplers': self.all_samplers,
-        }
+# =============================================================================
+# Anchor/Alias Deduplication System
+# =============================================================================
 
-        # Only include functions if we found any
-        if self.all_functions:
-            output['functions'] = self.all_functions
+def _content_hash(config: Any) -> str:
+    """Compute a deterministic content hash for a sampler config."""
+    return json.dumps(config, sort_keys=True, default=str)
 
-        return output
 
-    def generate_yaml_output(self, output: Dict[str, Any]) -> str:
-        """
-        Generate YAML string output with proper formatting.
-        """
-        # Custom representer for multiline strings
-        def str_representer(dumper, data):
-            if '\n' in data:
-                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+def _identify_shared_samplers(all_samplers: Dict[str, Any]) -> Set[str]:
+    """
+    Identify top-level samplers whose resolved content appears as nested
+    sub-samplers inside other sampler trees. These will become anchors.
+    """
+    # Build hash -> name lookup for all top-level samplers
+    hash_to_name: Dict[str, str] = {}
+    for name, config in all_samplers.items():
+        h = _content_hash(config)
+        hash_to_name[h] = name
 
-        yaml.add_representer(str, str_representer)
+    shared: Set[str] = set()
 
-        return yaml.dump(
-            output,
+    def walk(config: Any, owner_name: str):
+        if not isinstance(config, dict):
+            if isinstance(config, list):
+                for item in config:
+                    walk(item, owner_name)
+            return
+
+        # Check 'samplers' (plural) - named sub-samplers
+        sub_samplers = config.get('samplers')
+        if isinstance(sub_samplers, dict):
+            for key, value in sub_samplers.items():
+                if isinstance(value, dict):
+                    h = _content_hash(value)
+                    matched_name = hash_to_name.get(h)
+                    if matched_name and matched_name != owner_name:
+                        if value == all_samplers[matched_name]:
+                            shared.add(matched_name)
+                    walk(value, owner_name)
+
+        # Check 'sampler' (singular) - wrapper types like CACHE, FBM
+        sampler_val = config.get('sampler')
+        if isinstance(sampler_val, dict):
+            h = _content_hash(sampler_val)
+            matched_name = hash_to_name.get(h)
+            if matched_name:
+                if sampler_val == all_samplers[matched_name]:
+                    shared.add(matched_name)
+            walk(sampler_val, owner_name)
+
+        # Recurse into other dict values
+        for key, value in config.items():
+            if key not in ('samplers', 'sampler'):
+                walk(value, owner_name)
+
+    for name, config in all_samplers.items():
+        walk(config, name)
+
+    return shared
+
+
+def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> List[str]:
+    """
+    Topologically sort shared samplers (dependencies first), then append
+    remaining samplers in their original order. YAML requires anchors to
+    appear before their aliases.
+    """
+    # Build dependency graph among shared samplers
+    hash_to_name: Dict[str, str] = {}
+    for name in shared:
+        h = _content_hash(all_samplers[name])
+        hash_to_name[h] = name
+
+    deps: Dict[str, Set[str]] = {name: set() for name in shared}
+
+    def walk(config: Any, owner: str):
+        if not isinstance(config, dict):
+            if isinstance(config, list):
+                for item in config:
+                    walk(item, owner)
+            return
+
+        sub_samplers = config.get('samplers')
+        if isinstance(sub_samplers, dict):
+            for key, value in sub_samplers.items():
+                if isinstance(value, dict):
+                    h = _content_hash(value)
+                    dep_name = hash_to_name.get(h)
+                    if dep_name and dep_name != owner and value == all_samplers[dep_name]:
+                        deps[owner].add(dep_name)
+                    walk(value, owner)
+
+        sampler_val = config.get('sampler')
+        if isinstance(sampler_val, dict):
+            h = _content_hash(sampler_val)
+            dep_name = hash_to_name.get(h)
+            if dep_name and dep_name != owner and sampler_val == all_samplers[dep_name]:
+                deps[owner].add(dep_name)
+            walk(sampler_val, owner)
+
+        for key, value in config.items():
+            if key not in ('samplers', 'sampler'):
+                walk(value, owner)
+
+    for name in shared:
+        walk(all_samplers[name], name)
+
+    # Topological sort
+    result: List[str] = []
+    visited: Set[str] = set()
+    visiting: Set[str] = set()
+
+    def visit(name: str):
+        if name in visited:
+            return
+        if name in visiting:
+            return  # Cycle - skip to avoid infinite loop
+        visiting.add(name)
+        for dep in deps.get(name, set()):
+            visit(dep)
+        visiting.discard(name)
+        visited.add(name)
+        result.append(name)
+
+    for name in shared:
+        visit(name)
+
+    # Append non-shared samplers in original order
+    for name in all_samplers:
+        if name not in shared:
+            result.append(name)
+
+    return result
+
+
+def _replace_with_aliases(config: Any, all_samplers: Dict[str, Any],
+                          shared: Set[str], hash_to_name: Dict[str, str]) -> Any:
+    """
+    Deep-copy a sampler config and replace nested sub-sampler dicts that match
+    shared top-level samplers with alias marker strings ('*name').
+    """
+    config = copy.deepcopy(config)
+
+    def walk(node: Any):
+        if not isinstance(node, dict):
+            if isinstance(node, list):
+                for item in node:
+                    walk(item)
+            return
+
+        # Replace in 'samplers' (plural)
+        sub_samplers = node.get('samplers')
+        if isinstance(sub_samplers, dict):
+            for key in list(sub_samplers.keys()):
+                value = sub_samplers[key]
+                if isinstance(value, dict):
+                    h = _content_hash(value)
+                    matched_name = hash_to_name.get(h)
+                    if matched_name and matched_name in shared:
+                        if value == all_samplers[matched_name]:
+                            sub_samplers[key] = f'*{matched_name}'
+                            continue
+                    walk(value)
+
+        # Replace in 'sampler' (singular)
+        sampler_val = node.get('sampler')
+        if isinstance(sampler_val, dict):
+            h = _content_hash(sampler_val)
+            matched_name = hash_to_name.get(h)
+            if matched_name and matched_name in shared:
+                if sampler_val == all_samplers[matched_name]:
+                    node['sampler'] = f'*{matched_name}'
+                    return
+            walk(sampler_val)
+
+        # Recurse into other dict values
+        for key, value in node.items():
+            if key not in ('samplers', 'sampler'):
+                walk(value)
+
+    walk(config)
+    return config
+
+
+def build_anchor_aware_output(all_samplers: Dict[str, Any]) -> str:
+    """
+    Build YAML output with anchor/alias deduplication.
+
+    Shared samplers (those appearing as nested sub-samplers in other trees)
+    are emitted first with &anchor names. Subsequent references in dependent
+    samplers use *alias references instead of repeating the full config.
+    """
+    # Identify shared samplers and compute output order
+    shared = _identify_shared_samplers(all_samplers)
+    ordered = _build_dependency_order(all_samplers, shared)
+
+    # Build hash -> name lookup for alias replacement
+    hash_to_name: Dict[str, str] = {}
+    for name in shared:
+        h = _content_hash(all_samplers[name])
+        hash_to_name[h] = name
+
+    output_lines: List[str] = []
+
+    for name in ordered:
+        config = all_samplers[name]
+        is_shared = name in shared
+
+        # Replace nested shared subtrees with alias markers
+        modified_config = _replace_with_aliases(config, all_samplers, shared, hash_to_name)
+
+        # Dump this sampler as YAML
+        yaml_str = yaml.dump(
+            {name: modified_config},
             default_flow_style=False,
             allow_unicode=True,
             sort_keys=False,
             width=120
         )
 
-
-def represent_ordereddict(dumper, data):
-    """Custom representer to maintain key order in YAML output."""
-    return dumper.represent_mapping('tag:yaml.org,2002:map', data.items())
-
-
-yaml.add_representer(OrderedDict, represent_ordereddict)
-
-
-class HeaderPreserver:
-    """
-    Preserves the header section of the output file, including:
-    - type: EXPRESSION
-    - expression lines (active and commented)
-    - Custom test samplers defined before the resolved samplers
-    """
-
-    HEADER_END_MARKER = "# --- RESOLVED SAMPLERS BELOW ---"
-
-    @classmethod
-    def read_existing_header(cls, file_path: Path) -> Tuple[str, Dict[str, Any]]:
-        """
-        Read the existing output file and extract:
-        1. The header text (everything before samplers: or the marker)
-        2. Custom samplers defined in the header section
-
-        Returns (header_text, custom_samplers_dict)
-        """
-        if not file_path.exists():
-            return cls._default_header(), {}
-
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-        except Exception:
-            return cls._default_header(), {}
-
-        # Try to find the marker first
-        if cls.HEADER_END_MARKER in content:
-            parts = content.split(cls.HEADER_END_MARKER)
-            header_text = parts[0].rstrip() + '\n'
-            # Parse custom samplers from header
-            custom_samplers = cls._extract_custom_samplers(header_text)
-            return header_text, custom_samplers
-
-        # Otherwise, find where "samplers:" section starts and extract header
-        lines = content.split('\n')
-        header_lines = []
-        in_header = True
-        custom_sampler_lines = []
-        found_samplers = False
-        brace_depth = 0
-
-        for i, line in enumerate(lines):
-            # Check if we've hit the samplers section at root level
-            if line.startswith('samplers:') and not found_samplers:
-                found_samplers = True
-                header_lines.append(line)
-                continue
-
-            if not found_samplers:
-                header_lines.append(line)
-            elif found_samplers and in_header:
-                # Collect custom samplers (indented content after samplers:)
-                # Stop when we hit a sampler that looks like it came from math/
-                # (i.e., known samplers like continents, elevation, etc.)
-                stripped = line.strip()
-
-                # Check if this looks like a resolved sampler (not a custom test sampler)
-                # Custom samplers typically have names like cell_test, biome_place, etc.
-                # Resolved samplers have names like continents, elevation, temperature, etc.
-                if stripped and not stripped.startswith('#'):
-                    # Check if it's a sampler definition (name: or name: &anchor)
-                    match = re.match(r'^  ([a-zA-Z_][a-zA-Z0-9_-]*):(\s*&\w+)?(\s|$)', line)
-                    if match:
-                        sampler_name = match.group(1)
-                        # Known resolved sampler names from math/
-                        resolved_names = {
-                            'continents', 'continentsCached', 'continentBorder',
-                            'elevation', 'elevationCached', 'elevationDetailed',
-                            'flatness', 'flatnessCached', 'rawFlatness',
-                            'rawElevation', 'oceanElevation', 'oceanElevationCached',
-                            'temperature', 'temperatureCached', 'rawTemperature',
-                            'precipitation', 'precipitationCached', 'rawPrecipitation',
-                            'spawnIsland', 'spawnIslandCached',
-                            'spotDistance', 'spotRadius', 'spotAngle', 'spotSizePercent',
-                            'spotBaseElevation', 'spotEdgeRadiusPercent',
-                            'riverMask', 'riverTerrainErosion',
-                            'largeSpotDistance', 'largeSpotRadius', 'largeSpotAngle',
-                        }
-                        if sampler_name in resolved_names:
-                            # We've hit the resolved samplers section, stop collecting header
-                            in_header = False
-                            continue
-
-                if in_header:
-                    custom_sampler_lines.append(line)
-
-        # Build header text
-        header_text = '\n'.join(header_lines)
-        if custom_sampler_lines:
-            header_text += '\n' + '\n'.join(custom_sampler_lines)
-
-        # Parse custom samplers
-        custom_samplers = cls._extract_custom_samplers(header_text)
-
-        return header_text.rstrip() + '\n', custom_samplers
-
-    @classmethod
-    def _extract_custom_samplers(cls, header_text: str) -> Dict[str, Any]:
-        """Extract custom sampler definitions from header text."""
-        try:
-            # Use a YAML loader that preserves structure
-            data = yaml.safe_load(header_text)
-            if data and isinstance(data, dict) and 'samplers' in data:
-                return data['samplers']
-        except Exception:
-            pass
-        return {}
-
-    @classmethod
-    def _default_header(cls) -> str:
-        """Return a default header if no existing file."""
-        return """type: EXPRESSION
-#expression: elevation(x, z)
-#expression: continents(x, z)
-#expression: temperature(x, z)
-expression: y
-
-samplers:
-"""
-
-
-class AnchorAwareYAMLDumper(yaml.SafeDumper):
-    """
-    Custom YAML dumper that preserves anchors for CACHE sampler compatibility.
-
-    When a sampler is referenced by a CACHE sampler via anchor/alias,
-    this dumper will output the anchor on the source sampler and
-    use an alias reference in the CACHE sampler.
-    """
-
-    def __init__(self, *args, anchored_samplers: Set[str] = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.anchored_samplers = anchored_samplers or set()
-        self.written_anchors = set()
-
-
-def build_anchor_aware_output(samplers: Dict[str, Any], custom_samplers: Dict[str, Any] = None) -> str:
-    """
-    Build YAML output that preserves anchors for CACHE sampler references.
-
-    For each CACHE sampler that references another sampler via 'sampler' key,
-    we need to:
-    1. Add an anchor (&name) to the referenced sampler
-    2. Use an alias (*name) in the CACHE sampler's 'sampler' field
-    """
-    # Identify which samplers are referenced by CACHE samplers
-    cache_targets = {}  # Maps target sampler name -> anchor name
-
-    for name, config in samplers.items():
-        if isinstance(config, dict) and config.get('type') == 'CACHE':
-            # Look for sampler reference - it might be a dict (inlined) or should be an anchor
-            sampler_ref = config.get('sampler')
-            if isinstance(sampler_ref, dict):
-                # The sampler was inlined during resolution
-                # We need to find which sampler this corresponds to
-                # Check if there's a "Cached" suffix pattern
-                if name.endswith('Cached'):
-                    base_name = name[:-6]  # Remove 'Cached' suffix
-                    if base_name in samplers:
-                        cache_targets[base_name] = base_name
-
-    # Also check custom samplers for CACHE patterns
-    if custom_samplers:
-        for name, config in custom_samplers.items():
-            if isinstance(config, dict) and config.get('type') == 'CACHE':
-                if name.endswith('Cached'):
-                    base_name = name[:-6]
-                    if base_name in custom_samplers:
-                        cache_targets[base_name] = base_name
-
-    # Build output lines with proper anchors
-    output_lines = []
-
-    # Custom string representer for multiline
-    def represent_str(dumper, data):
-        if '\n' in data:
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-
-    yaml.add_representer(str, represent_str)
-
-    # Helper to dump a sampler with optional anchor
-    def dump_sampler(name: str, config: Any, add_anchor: bool = False) -> str:
-        """Dump a single sampler definition, optionally with an anchor."""
-        if isinstance(config, dict) and config.get('type') == 'CACHE':
-            # Special handling for CACHE samplers - use alias reference
-            base_name = name[:-6] if name.endswith('Cached') else None
-            if base_name and base_name in cache_targets:
-                # Create a modified config with alias reference
-                cache_config = dict(config)
-                # We'll manually write the alias reference
-                lines = [f"  {name}:"]
-                lines.append(f"    dimensions: {cache_config.get('dimensions', 2)}")
-                lines.append(f"    type: CACHE")
-                lines.append(f"    sampler: *{base_name}")
-                return '\n'.join(lines)
-
-        # Regular sampler - dump with optional anchor
-        yaml_str = yaml.dump({name: config}, default_flow_style=False, allow_unicode=True,
-                           sort_keys=False, width=120)
-
-        if add_anchor:
-            # Add anchor after the sampler name
-            # "  name:" -> "  name: &name"
+        # Add anchor if this is a shared sampler
+        if is_shared:
             yaml_str = yaml_str.replace(f"{name}:", f"{name}: &{name}", 1)
 
-        # Indent properly (samplers are under 'samplers:' key)
+        # Remove quotes around alias markers: '*name' -> *name
+        yaml_str = re.sub(r"'(\*[a-zA-Z_][a-zA-Z0-9_]*)'\s*$", r'\1', yaml_str, flags=re.MULTILINE)
+
+        # Indent for placement under 'samplers:' key
         lines = yaml_str.split('\n')
         indented = ['  ' + line if line.strip() else line for line in lines]
-        return '\n'.join(indented).rstrip()
-
-    # Output custom samplers first (with anchors if needed)
-    if custom_samplers:
-        for name, config in custom_samplers.items():
-            needs_anchor = name in cache_targets
-            output_lines.append(dump_sampler(name, config, add_anchor=needs_anchor))
-
-    # Output resolved samplers (with anchors if needed)
-    for name, config in samplers.items():
-        # Skip if this is a duplicate of a custom sampler
-        if custom_samplers and name in custom_samplers:
-            continue
-        needs_anchor = name in cache_targets
-        output_lines.append(dump_sampler(name, config, add_anchor=needs_anchor))
+        output_lines.append('\n'.join(indented).rstrip())
 
     return '\n'.join(output_lines)
 
+
+# =============================================================================
+# Main Entry Point
+# =============================================================================
 
 def main():
     """Main entry point."""
@@ -954,16 +931,7 @@ def main():
     print("\nCollecting functions...", file=sys.stderr)
     resolver.collect_all_functions(Path(args.functions_dir))
 
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Read existing header and custom samplers from output file
-    print("\nReading existing header...", file=sys.stderr)
-    header_text, custom_samplers = HeaderPreserver.read_existing_header(output_path)
-    print(f"  Found {len(custom_samplers)} custom samplers in header", file=sys.stderr)
-
-    # Evaluate constant expressions in resolved samplers
+    # Evaluate constant expressions
     if should_evaluate:
         print("\nEvaluating constant expressions...", file=sys.stderr)
         resolver.all_samplers = resolver.evaluate_constants(resolver.all_samplers)
@@ -971,22 +939,13 @@ def main():
             resolver.all_functions = resolver.evaluate_constants(resolver.all_functions)
         print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
 
-    # Count CACHE samplers for reporting
+    # Build anchor-aware sampler output
     print("\nBuilding anchor-aware output...", file=sys.stderr)
-    cache_count = sum(1 for name, config in resolver.all_samplers.items()
-                     if isinstance(config, dict) and config.get('type') == 'CACHE')
-    print(f"  Found {cache_count} CACHE samplers", file=sys.stderr)
+    samplers_yaml = build_anchor_aware_output(resolver.all_samplers)
 
     # Build functions section if present
     functions_yaml = ""
     if resolver.all_functions:
-        # Custom string representer for multiline
-        def represent_str(dumper, data):
-            if '\n' in data:
-                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-        yaml.add_representer(str, represent_str)
-
         functions_output = yaml.dump(
             {'functions': resolver.all_functions},
             default_flow_style=False,
@@ -996,33 +955,19 @@ def main():
         )
         functions_yaml = '\n' + functions_output
 
-    # Combine: header + marker + resolved samplers + functions
-    #
-    # IMPORTANT: header_text already contains custom samplers (before the marker).
-    # samplers_yaml should ONLY contain the resolved samplers from math/samplers/,
-    # NOT the custom samplers again. So we pass custom_samplers=None to avoid duplication.
-    #
-    # Rebuild samplers_yaml WITHOUT custom samplers to avoid duplication
-    samplers_yaml = build_anchor_aware_output(resolver.all_samplers, custom_samplers=None)
-
-    final_output = header_text
-    if not header_text.rstrip().endswith('samplers:'):
-        # Add samplers: key if not already in header
-        if 'samplers:' not in header_text:
-            final_output += '\nsamplers:\n'
-
-    final_output += HeaderPreserver.HEADER_END_MARKER + '\n'
-    final_output += samplers_yaml
-    final_output += functions_yaml
+    # Assemble complete output (overwrite entirely)
+    final_output = 'samplers:\n' + samplers_yaml + functions_yaml
 
     # Write output
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(final_output)
 
     print(f"\nOutput written to: {output_path}", file=sys.stderr)
     print(f"  Total samplers: {len(resolver.all_samplers)}", file=sys.stderr)
     print(f"  Total functions: {len(resolver.all_functions)}", file=sys.stderr)
-    print(f"  Custom samplers preserved: {len(custom_samplers)}", file=sys.stderr)
 
     # Report errors and warnings
     if resolver.errors:

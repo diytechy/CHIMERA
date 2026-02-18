@@ -35,10 +35,10 @@ samplers:
   # continental_landmass: Large-scale landmass shape.
   #   Low frequency = very large features (continents, major landmasses).
   #   Used as base terrain and for coastal rolloff calculation.
-  continental_landmass: &continental_landmass
+  continental_sampler: &continental_sampler
     dimensions: 2
     type: EXPRESSION
-    expression: sampler(x - 10000, z - 10000)
+    expression: sampler(x - 100000, z - 100000)
     samplers:
       sampler:
         dimensions: 2
@@ -47,12 +47,38 @@ samplers:
         z: 10000
         sampler:
           type: FBM
-          gain: 0.9
-          octaves: 2
-          lacunarity: 2
+          gain: 0.7
+          octaves: 3
+          lacunarity: 1.8121866
           sampler:
             type: PERLIN
             frequency: (1 / ${customization.yml:continental-baseline-distance})
+  continental_landmass: &continental_landmass
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continental_sampler(x,z) < continental-island-threshold,
+        // Islands: 0 to max island ratio
+        continental_sampler(x,z) * continental-max-island-ratio / continental-island-threshold,
+        if(continental_sampler(x,z) > continental-land-threshold,
+          if(continental_sampler(x,z) > continental-lake-threshold,
+            // Lakes: 0 to -max lake ratio
+            -(continental_sampler(x,z) - continental-lake-threshold) * continental-max-lake-ratio / (1 - continental-lake-threshold),
+            // Continents: 0 to 1
+            (continental_sampler(x,z) - continental-land-threshold) / (1 - continental-land-threshold)
+          ),
+          // Oceans: 0 to -1
+          continental_sampler(x,z)
+        )
+      )
+    variables:
+      continental-island-threshold: $customization.yml:continental-island-threshold
+      continental-land-threshold: $customization.yml:continental-land-threshold
+      continental-lake-threshold: $customization.yml:continental-lake-threshold
+      continental-max-island-ratio: $customization.yml:continental-max-island-ratio
+      continental-max-lake-ratio: $customization.yml:continental-max-lake-ratio
+    samplers:
+      continental_sampler: *continental_sampler
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM

@@ -60,19 +60,20 @@ samplers:
   continental_landmass: &continental_landmass
     dimensions: 2
     type: EXPRESSION
+    # Assumes range from -0.5 to 0.5 from continental_sampler.
     expression: |
       if(continental_sampler(x,z) < island_threshold,
-        // Islands: 0 to max island ratio
-        continental_sampler(x,z) * max_island_ratio / island_threshold,
+        // Islands: 0 to max island ratio, need to normalize with land range
+        ((island_threshold-continental_sampler(x,z)) * max_island_ratio * (lake_threshold-land_threshold))/ (0.5 - island_threshold),
         if(continental_sampler(x,z) > land_threshold,
           if(continental_sampler(x,z) > lake_threshold,
-            // Lakes: 0 to -max lake ratio
-            -(continental_sampler(x,z) - lake_threshold) * max_lake_ratio / (1 - lake_threshold),
+            // Lakes: 0 to -max lake ratio, need to normalize with ocean range.
+            ((lake_threshold - continental_sampler(x,z)) * max_lake_ratio * (land_threshold-island_threshold))/ (0.5 - lake_threshold),
             // Continents: 0 to 1
-            (continental_sampler(x,z) - land_threshold) / (1 - land_threshold)
+            (continental_sampler(x,z) - land_threshold) / (lake_threshold - land_threshold)
           ),
           // Oceans: 0 to -1
-          continental_sampler(x,z)
+          (continental_sampler(x,z)-land_threshold)/ (land_threshold - island_threshold)
         )
       )
     variables:

@@ -42,8 +42,9 @@ Try old constellation sampler:
               frequency: 0.0002
 
 This looks pretty interesting:
+
 type: DOMAIN_WARP
-amplitude: 1000
+amplitude: 1500
 sampler: *continental_landmass
 warp: 
   type: RIDGED

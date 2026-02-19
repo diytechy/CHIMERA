@@ -8,8 +8,161 @@ variables: &variables
   terraceOffsetVariation: 0.25
   terraceDepthVariation: 1
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
+  
+  
+  hillMaxElevation: 0.3
+  mountainCap: 0.9
 
 samplers:
+
+  mountainMask: &mountainMask
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      type: OPEN_SIMPLEX_2
+      salt: 0694
+      frequency: 1 / 1500
+ 
+  mountain_sampler: &mountain_sampler
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 1 / 900
+          
+  mountains: &mountains
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((-in+1)/2)^2
+    sampler:
+      type: PSEUDOEROSION
+      erosion-frequency: 0.01
+      lacunarity: 1.5
+      branch-strength: 1
+      octaves: 3
+      strength: 0.15
+      gain: 0.3
+      sampler:
+        type: FBM
+        octaves: 3
+        sampler: *mountain_sampler
+          
+  AppliedMountainHeight: &AppliedMountainHeight
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)),
+                    parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, mountains(x, z)))
+    variables:
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.6
+      mountainContZero: 0.0
+      mountainContFull: 0.3
+    samplers:
+      mountainMask: *mountainMask
+      mountains: *mountains
+      continents: $math/samplers/continents.yml:samplers.continents
+    functions: $math/functions/interpolation.yml:functions
+
+  # Smoothed version of AppliedMountainHeight for river generation
+  # Uses domain warping to create smoother gradients that rivers can follow without erratic behavior
+  SmoothedAppliedMountainHeight: &SmoothedAppliedMountainHeight
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 50
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.002
+      salt: 4521
+    sampler:
+      type: EXPRESSION
+      expression: |
+        (AppliedMountainHeight(x - smoothOffset, z) +
+         AppliedMountainHeight(x + smoothOffset, z) +
+         AppliedMountainHeight(x, z - smoothOffset) +
+         AppliedMountainHeight(x, z + smoothOffset) +
+         AppliedMountainHeight(x, z) * 2) / 6
+      variables:
+        smoothOffset: 75
+      samplers:
+        AppliedMountainHeight: *AppliedMountainHeight
+          
+  RiverMountainHeight: &RiverMountainHeight
+    dimensions: 2
+    type: EXPRESSION
+    expression: AppliedMountainHeight(x,z)*mountainRiverScale
+    #expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountain_sampler(x, z)),
+    #                parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, mountain_sampler(x, z)))*mountainRiverScale
+    variables:
+      mountainMaskZero: 0.35
+      mountainMaskFull: 0.65
+      mountainContZero: 0.05
+      mountainContFull: 0.35
+      mountainRiverScale: 0.8
+    samplers:
+      mountainMask: *mountainMask
+      mountain_sampler: *mountain_sampler
+      AppliedMountainHeight: *AppliedMountainHeight
+      continents: $math/samplers/continents.yml:samplers.continents
+    functions: $math/functions/interpolation.yml:functions
+
+  # Reference exports for use by other samplers (e.g., rivers.yml)
+  mountainMaskRef:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      type: OPEN_SIMPLEX_2
+      salt: 0694
+      frequency: 1 / 1500
+
+  continentalRise: &continentalRise
+    dimensions: 2
+    type: EXPRESSION
+    #expression: continental_sampler_base(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    #expression: continentOrigBase(x,z)^2*(continentalRiseRate / #(continentalRiseRate+verticalLift))
+    variables:
+      globalScale: $customization.yml:global-scale
+      verticalLift: $customization.yml:terrain-height
+      scale: $customization.yml:flatness-scale
+      continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1, note it typically maxes out around 0.5.
+    samplers:
+      continental_sampler_base: $math/samplers/continents.yml:samplers.continental_sampler_base
+      continents: $math/samplers/continents.yml:samplers.continents
+      continentOrigBase: $math/samplers/continents.yml:samplers.continentOrigBase
+
+  continentalRiver: &continentalRiver
+    dimensions: 2
+    type: EXPRESSION
+    #expression: continental_sampler_base(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    #expression: continents(x,z)^2*(continentalRiseRate / #(continentalRiseRate+verticalLift))
+    expression: continentOrigBase(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    variables:
+      globalScale: $customization.yml:global-scale
+      verticalLift: $customization.yml:terrain-height
+      scale: $customization.yml:flatness-scale
+      continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1, note it typically maxes out around 0.5.
+    samplers:
+      continental_sampler_base: $math/samplers/continents.yml:samplers.continental_sampler_base
+      continents: $math/samplers/continents.yml:samplers.continents
+      continentOrigBase: $math/samplers/continents.yml:samplers.continentOrigBase
+      
+         
+  riverHeight: &riverHeight
+    dimensions: 2
+    type: EXPRESSION
+    #expression: continentalRiver(x,z) + RiverMountainHeight(x,z)
+    expression: |
+      continentalRiver(x,z) + 
+      SmoothedAppliedMountainHeight(x,z)*mountainRiverScale
+    variables:
+      globalScale: $customization.yml:global-scale
+      verticalLift: $customization.yml:terrain-height
+      scale: $customization.yml:flatness-scale
+      mountainRiverScale: 0.8
+    samplers:
+      continentalRise: *continentalRise
+      continentalRiver: *continentalRiver
+      SmoothedAppliedMountainHeight: *SmoothedAppliedMountainHeight
+      RiverMountainHeight: *RiverMountainHeight
+              
   rawFlatness: &rawFlatness
     dimensions: 2
     type: EXPRESSION
@@ -44,260 +197,55 @@ samplers:
       factor: $customization.yml:flatness-factor
     samplers:
       rawFlatness: *rawFlatness
-      
-  roughness: &roughness
-    dimensions: 2
-    type: EXPRESSION
-    expression: raw_roughness(x,z)*factor
-    variables:
-      factor: $customization.yml:terrain-roughness-value
-    samplers:
-      raw_roughness:
-        dimensions: 2
-        type: FBM
-        octaves: 3
-        lacunarity: 2.0
-        gain: 0.3
-        sampler:
-          #type: PERLIN
-          type: OPEN_SIMPLEX_2
-          frequency: (1 / ${customization.yml:terrain-roughness-p2p})
-          salt: 100
-  # Base sampler - just returns continental_landmass value
-  base: &base
-    dimensions: 2
-    type: EXPRESSION
-    expression: continental_landmass(x, z)
-    samplers:
-      continental_landmass: $math/samplers/continents.yml:samplers.continental_landmass
-      roughness: *roughness
-
-  # Ocean valley noise for underwater features
-  OceanValley: &OceanValley
-    dimensions: 2
-    type: OPEN_SIMPLEX_2
-    frequency: (1 / ${customization.yml:continental-large-features-height-flux-dist})
-    salt: 407
-
-#Note X2 because both mnt_and_ocean_valleys have a rough dist from -.5 to .5, or .25 max, so x2 to normalize to standard.
-  MountainHeightModifier: &MountainHeightModifier
-    #dimensions: 2
-    #type: LINEAR
-    #min: -0.3
-    #max: 0.3
-    #sampler:
-    dimensions: 2
-    type: EXPRESSION
-    expression: abs(mountain_gen_region(x, z) * mnt_and_ocean_valleys(x, z)*2)
-    samplers:
-      mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
-      mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
-
-#Creates mountian hight modifiers in valid regions, also creates negative offsets in ocean valleys.
-  RegionFilteredMountainHeightModifier: &RegionFilteredMountainHeightModifier
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-    
-      if((((base(x,z) > threshold(x,z))||(base(x,z) < -threshold(x,z)))&&(MountainHeightModifier(x,z) > MountainHeightGenThreshold)),
-        abs(
-          min(
-            lerp(
-              abs(base(x, z)) - threshold(x,z),
-              0.0,
-              0.0,
-              MountianTransitionHeight,
-              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
-            ),
-            lerp(
-              MountainHeightModifier(x,z)-MountainHeightGenThreshold,
-              0.0,
-              0.0,
-              MountianTransitionHeight,
-              (abs(mnt_and_ocean_valleys(x, z) - base(x,z)) )
-            )
-          )
-        ) * PeakElevAtPos(x,z) * MaxPeakElev,
-        0
-      )
-    variables:
-      MountainHeightGenThreshold: $customization.yml:continental-mountain-region-allowed-threshold
-      MaxPeakElev: $customization.yml:continental-MaxMountainPeakHeightRatio
-      MountianTransitionHeight: $customization.yml:continental-mountain-region-transition-base-height
-    samplers:
-      base: *base
-      PeakElevAtPos: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
-      mountain_gen_region: $math/samplers/continents.yml:samplers.mountain_gen_region
-      MountainHeightModifier: *MountainHeightModifier
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      mnt_and_ocean_valleys: $math/samplers/continents.yml:samplers.mnt_and_ocean_valleys
-    functions: $math/functions/interpolation.yml:functions
-
-  # Mesa height modifier components
-  prefiltered_mesa_elev: &prefiltered_mesa_elev
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(base(x,z)>threshold(x,z),
-        ((max(min(round(abs((MesaGenRegion(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)),
-        0
-      )
-    variables:
-      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
-      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
-      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
-    samplers:
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      base: *base
-      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-      PeakHeightMultiplierAtPosition: $math/samplers/continents.yml:samplers.PeakHeightMultiplierAtPosition
-      
-  # Mesa height modifier components
-  base_shifted_prefiltered_mesa_elev: &base_shifted_prefiltered_mesa_elev
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(prefiltered_mesa_elev(x,z) - base(x,z),0)
-    samplers:
-      base: *base
-      prefiltered_mesa_elev: *prefiltered_mesa_elev
-
-  #Returns if the mesa region is active (mesa region is above threshold, and elevation is above threshold)
-  MesaHeightModifier: &MesaHeightModifier
-    dimensions: 2
-    type: EXPRESSION
-    expression: (abs(MesaGenRegion(x, z))>MesaRegionActiveThresh) && (base(x,z)>threshold(x,z))
-    variables:
-      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
-    samplers:
-      base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-      
-  MesaDownwardDistFromTransPnt: &MesaDownwardDistFromTransPnt
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(max((MesaRegionActiveThresh-MesaGenRegion(x, z)),(threshold(x,z)-base(x,z))),0)
-    variables:
-      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
-      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
-    samplers:
-      base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-  
-  MesaUpwardDistFromTransPnt: &MesaUpwardDistFromTransPnt
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(max((MesaGenRegion(x, z) - MesaRegionActiveThresh),(base(x,z)-threshold(x,z))),0)
-    variables:
-      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
-      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
-    samplers:
-      base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      MesaGenRegion: $math/samplers/continents.yml:samplers.mesa_gen_region
-
-  RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-    
-      if(MesaHeightModifier(x,z),
-    
-        // If above the transition threshold and the wall transition delta, need to transition to flat top.
-        if(MesaUpwardDistFromTransPnt(x,z)>0,
-          ((base_shifted_prefiltered_mesa_elev(x,z)/2) +
-            ((MesaUpwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-            (MesaFlattopTransitionRate+MesaUpwardDistFromTransPnt(x,z)))),
-    
-          //Else return the transition down to floor height
-          if(MesaDownwardDistFromTransPnt(x,z)>0,
-          (base_shifted_prefiltered_mesa_elev(x,z)/2) -
-            ((MesaDownwardDistFromTransPnt(x,z)*base_shifted_prefiltered_mesa_elev(x,z)/2)/
-            (MesaFlattopTransitionRate+MesaDownwardDistFromTransPnt(x,z))),
-            0)
-        ),
-        0)
-    #expression: |
-    #  if(MesaHeightModifier(x,z),
-    #    base_shifted_prefiltered_mesa_elev(x,z),
-    #  0)
-    variables:
-      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
-      MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate
-      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
-    samplers:
-      mesa_gen_region: $math/samplers/continents.yml:samplers.mesa_gen_region
-      base_shifted_prefiltered_mesa_elev: *base_shifted_prefiltered_mesa_elev
-      MesaHeightModifier: *MesaHeightModifier
-      MesaUpwardDistFromTransPnt: *MesaUpwardDistFromTransPnt
-      MesaDownwardDistFromTransPnt: *MesaDownwardDistFromTransPnt
-      MesaHeightModifier: *MesaHeightModifier
-    functions: $math/functions/interpolation.yml:functions
-
-  # Hill height modifier components
-  HillHeightModifier: &HillHeightModifier
-    dimensions: 2
-    type: FBM
-    octaves: 2
-    lacunarity: 2.0
-    gain: 0.1
-    sampler:
-      type: PERLIN
-      frequency: (1/${customization.yml:continental-hill2hill-distance})
-      salt: 700
-
-  RegionFilteredHillHeightModifier: &RegionFilteredHillHeightModifier
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      lerp(
-        base(x, z),
-        threshold(x,z),
-        0,
-        0.5,
-        (HillHeightModifier(x, z) - threshold(x,z)) * MaxHillElev
-      )
-    variables:
-      MaxHillElev: 0.1
-    samplers:
-      base: *base
-      threshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      HillHeightModifier: *HillHeightModifier
-    functions: $math/functions/interpolation.yml:functions
 
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
-    expression: |
-      (if(base(x, z) < -continentalHighRegionAllowedThreshold(x,z),
-        // Below ocean cutoff: Add ocean noise with negative offset
-        base(x, z) - MaxUnderwaterMulti * RegionFilteredMountainHeightModifier(x,z) + roughness(x,z),
-        // Above feature offset: Create mesa/hills/mountains
-        if(base(x, z) > continentalHighRegionAllowedThreshold(x,z),
-          base(x, z) + max(
-            max(RegionFilteredMountainHeightModifier(x, z), RegionFilteredMesaHeightModifier(x, z)),
-            RegionFilteredHillHeightModifier(x, z)
-          ),
-          // Else: just return base
-          base(x, z)
-        )
-      )) + roughness(x,z)
+    expression: noise(x / scale / globalScale, z / scale / globalScale) * multiplier + offset
     variables:
-      MaxUnderwaterMulti: $customization.yml:continental-UnderwaterPeakHeightRatio
-      RoughnessFactor: $customization.yml:terrain-roughness-value
-    functions: $math/functions/interpolation.yml:functions
-
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:elevation-scale
+      multiplier: $customization.yml:elevation-multiplier
+      offset: $customization.yml:elevation-offset
     samplers:
-      roughness: *roughness
-      base: *base
-      MountainHeightModifier: *MountainHeightModifier
-      OceanValley: *OceanValley
-      continentalHighRegionAllowedThreshold: $math/samplers/continents.yml:samplers.continental_large_features_allowed_threshold_with_variance
-      RegionFilteredMountainHeightModifier: *RegionFilteredMountainHeightModifier
-      RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
-      RegionFilteredHillHeightModifier: *RegionFilteredHillHeightModifier
+      noise:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: EXPRESSION
+          expression: |
+            continentalRise(x,z) +
+            combine(
+              hills(x, z) * hillMaxElevation,
+              AppliedMountainHeight(x,z),
+              mountainCap)
+          variables: *variables
+          functions:
+            parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
+            lerp: $math/functions/interpolation.yml:functions.lerp
+            herp: $math/functions/interpolation.yml:functions.herp
+            combine: # Stacks scaled mountain noise on top of hill noise
+              arguments:
+                - hills
+                - mountains
+                - mountainCap
+              expression: hills + mountains * min(1 - hills, mountainCap)
 
+          samplers:
+            continentalRise: *continentalRise
+            AppliedMountainHeight: *AppliedMountainHeight
+            hills:
+              dimensions: 2
+              type: EXPRESSION_NORMALIZER
+              expression: ((in+1)/2)^2
+              sampler:
+                type: FBM
+                octaves: 6
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 1 / 2000
           
   elevation: &elevation
     dimensions: 2
@@ -322,6 +270,137 @@ samplers:
       spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
       riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
   
+
+  mesaMask: &mesaMask
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 6000, z - 6000)
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+      offset: $customization.yml:continental-offset
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+          salt: 200       
+          
+  # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
+  PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: $customization.yml:continental-MaxPeakVariability
+    samplers:
+      max_elev_prob: 
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+          
+  # Mesa height modifier components
+  prefiltered_mesa_elev: &prefiltered_mesa_elev
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), 
+        ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), 
+        0
+      )
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      continents: $math/samplers/continents.yml:samplers.continents
+      mesaMask: *mesaMask
+      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+
+  # Elevation-shifted mesa elevation sampler - uses current elevation as offset
+  elevation_shifted_prefiltered_mesa_elev: &elevation_shifted_prefiltered_mesa_elev
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(prefiltered_mesa_elev(x,z) - elevation(x,z), 0)
+    samplers:
+      elevation: *elevation
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
+
+  # Mesa height modifier that works with current elevation
+  elevation_MesaHeightModifier: &elevation_MesaHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: (abs(mesaMask(x, z))>MesaRegionActiveThresh) && (continents(x,z))
+    variables:
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+      threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      elevation: *elevation
+      mesaMask: *mesaMask
+      continents: $math/samplers/continents.yml:samplers.continents
+
+  # Mesa distance calculators using current elevation
+  elevation_MesaDownwardDistFromTransPnt: &elevation_MesaDownwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(max((MesaRegionActiveThresh-mesaMask(x, z)),(threshold-max(continents(x,z),0))), 0)
+    variables:
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+      threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      elevation: *elevation
+      mesaMask: *mesaMask
+      continents: $math/samplers/continents.yml:samplers.continents
+
+  elevation_MesaUpwardDistFromTransPnt: &elevation_MesaUpwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(max((mesaMask(x, z) - MesaRegionActiveThresh),(elevation(x,z)-threshold)), 0)
+    variables:
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+      threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      elevation: *elevation
+      mesaMask: *mesaMask
+
+  # Region-filtered mesa height modifier using current elevation
+  RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(elevation_MesaHeightModifier(x,z),
+        // If above the transition threshold and the wall transition delta, need to transition to flat top.
+        if(elevation_MesaUpwardDistFromTransPnt(x,z)>0,
+          ((elevation_shifted_prefiltered_mesa_elev(x,z)/2) +
+            ((elevation_MesaUpwardDistFromTransPnt(x,z)*elevation_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+elevation_MesaUpwardDistFromTransPnt(x,z)))),
+          //Else return the transition down to floor height
+          if(elevation_MesaDownwardDistFromTransPnt(x,z)>0,
+          (elevation_shifted_prefiltered_mesa_elev(x,z)/2) -
+            ((elevation_MesaDownwardDistFromTransPnt(x,z)*elevation_shifted_prefiltered_mesa_elev(x,z)/2)/
+            (MesaFlattopTransitionRate+elevation_MesaDownwardDistFromTransPnt(x,z))),
+            0)
+        ),
+        0)
+    variables:
+      MesaFlattopTransitionDelta: $customization.yml:continental-mesa-flattop-trans-delta
+      MesaFlattopTransitionRate: $customization.yml:continental-mesa-flattop-trans-rate
+      MesaRegionActiveThresh: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      elevation_shifted_prefiltered_mesa_elev: *elevation_shifted_prefiltered_mesa_elev
+      elevation_MesaHeightModifier: *elevation_MesaHeightModifier
+      elevation_MesaUpwardDistFromTransPnt: *elevation_MesaUpwardDistFromTransPnt
+      elevation_MesaDownwardDistFromTransPnt: *elevation_MesaDownwardDistFromTransPnt
+    functions: $math/functions/interpolation.yml:functions
+
   elevationDetailed:
     dimensions: 2
     type: EXPRESSION
@@ -405,6 +484,30 @@ samplers:
           - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
+
+  elevation_with_mesas: &elevation_with_mesas
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      elevation(x, z) + RegionFilteredMesaHeightModifier(x, z)
+    samplers:
+      elevation: *elevation
+      RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
+
+  oceanElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (-1+rawElevation(x, z))
+      * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+    functions: $math/functions/interpolation.yml:functions
+    variables:
+      continentZero: 0
+      continentFull: -0.8
+      factorContinental: $customization.yml:elevation-factor-continental
+    samplers:
+      rawElevation: *rawElevation
+      continents: $math/samplers/continents.yml:samplers.continents
 
   oceanElevation:
     dimensions: 2

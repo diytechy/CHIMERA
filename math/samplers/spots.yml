@@ -3,7 +3,7 @@ variables: &variables
 
   largeSpawnRadiusOffset: $customization.yml:large-spot-spawn-radius-offset
   
-  biomeBorder: 15
+  biomeBorder: 20
 
   largeBiomeBorder: 100
 

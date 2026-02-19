@@ -103,7 +103,6 @@ samplers:
     variables:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
     samplers:
       sampler:
         dimensions: 2
@@ -122,7 +121,6 @@ samplers:
     variables:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
     samplers:
       sampler:
         dimensions: 2
@@ -136,40 +134,41 @@ samplers:
           salt: 200       
   continents: &continents
     dimensions: 2
-    type: EXPRESSION
-    expression: |
-      max(
+    type: CACHE
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
         max(
-          -sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset,
-          spawnIsland(x, z)
-        ),
-        // Set continentalness to spotContinentalFactor in center of spots, 0 on spot edges,
-        // and decrease quadratically moving further outwards
-        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2))
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
-      spread: $customization.yml:continental-spread
-      spotContinentalFactor: 0.3
-    samplers:
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-      sampler:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
+          max(
+            sampler(x / scale / globalScale, z / scale / globalScale),
+            spawnIsland(x, z)
+          ),
+          // Set continentalness to spotContinentalFactor in center of spots, 0 on spot edges,
+          // and decrease quadratically moving further outwards
+          spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2))
+      variables:
+        globalScale: $customization.yml:global-scale
+        scale: $customization.yml:continental-scale
+        spotContinentalFactor: 0.3
+      samplers:
+        spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
         sampler:
-          type: RIDGED
-          lacunarity: 3
-          gain: 0.35
-          octaves: 3
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 1
-            frequency: 1 / 5000
+          dimensions: 2
+          type: DOMAIN_WARP
+          amplitude: 1500
+          sampler: *continental_landmass
+          warp: 
+            type: RIDGED
+            lacunarity: 3
+            gain: 0.45
+            octaves: 4
+            sampler:
+              type: OPEN_SIMPLEX_2
+              salt: 1
+              frequency: (1/5000)
   
   continentBorder:
     dimensions: 2

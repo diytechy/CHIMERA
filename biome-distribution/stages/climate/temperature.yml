@@ -71,6 +71,45 @@ stages:
         - hot-crater-lake: *tropicalCold
         - hot-crater-lake: *tropicalWarm
         - hot-crater-lake: *tropicalHot
+      sinkhole:
+        - polar-sinkhole: *iceCap
+        - polar-sinkhole: *tundra
+        - boreal-sinkhole: *borealSnowy
+        - boreal-sinkhole: *borealCold
+        - boreal-sinkhole: *borealWarm
+        - boreal-sinkhole: *borealHot
+        - temperate-sinkhole: *temperateCold
+        - temperate-sinkhole: *temperateWarm
+        - temperate-sinkhole: *temperateHot
+        - hot-sinkhole: *tropicalCold
+        - hot-sinkhole: *tropicalWarm
+        - hot-sinkhole: *tropicalHot
+      sinkhole-border:
+        - polar-sinkhole-border: *iceCap
+        - polar-sinkhole-border: *tundra
+        - boreal-sinkhole-border: *borealSnowy
+        - boreal-sinkhole-border: *borealCold
+        - boreal-sinkhole-border: *borealWarm
+        - boreal-sinkhole-border: *borealHot
+        - temperate-sinkhole-border: *temperateCold
+        - temperate-sinkhole-border: *temperateWarm
+        - temperate-sinkhole-border: *temperateHot
+        - hot-sinkhole-border: *tropicalCold
+        - hot-sinkhole-border: *tropicalWarm
+        - hot-sinkhole-border: *tropicalHot
+      sinkhole-border-ocean:
+        - polar-sinkhole-border-ocean: *iceCap
+        - polar-sinkhole-border-ocean: *tundra
+        - boreal-sinkhole-border-ocean: *borealSnowy
+        - boreal-sinkhole-border-ocean: *borealCold
+        - boreal-sinkhole-border-ocean: *borealWarm
+        - boreal-sinkhole-border-ocean: *borealHot
+        - temperate-sinkhole-border-ocean: *temperateCold
+        - temperate-sinkhole-border-ocean: *temperateWarm
+        - temperate-sinkhole-border-ocean: *temperateHot
+        - hot-sinkhole-border-ocean: *tropicalCold
+        - hot-sinkhole-border-ocean: *tropicalWarm
+        - hot-sinkhole-border-ocean: *tropicalHot
       extinct-volcano:
         - polar-extinct-volcano: *iceCap
         - polar-extinct-volcano: *tundra

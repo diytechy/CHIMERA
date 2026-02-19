@@ -6,3 +6,6 @@ extends:
 color: $biomes/colors.yml:SUBTROPICAL_ISLAND_SHALLOWS
 
 vanilla: minecraft:lukewarm_ocean
+
+tags:
+  - OCEAN

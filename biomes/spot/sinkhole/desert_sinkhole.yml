@@ -1,0 +1,17 @@
+id: DESERT_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - DESERT
+  - BASE
+color: $biomes/colors.yml:DESERT_SINKHOLE
+
+vanilla: minecraft:desert
+
+tags:
+  - SINKHOLE
+
+ocean:
+  palette: BLOCK:minecraft:water
+  level: $meta.yml:sinkhole-ocean-level

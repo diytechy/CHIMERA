@@ -1,0 +1,13 @@
+id: TROPICAL_SINKHOLE_BORDER
+type: BIOME
+extends:
+  - EQ_LAND
+  - CARVING_OCEAN
+  - BASE
+  - JUNGLE
+color: $biomes/colors.yml:TROPICAL_SINKHOLE_BORDER
+
+vanilla: minecraft:plains
+
+tags:
+  - SINKHOLE

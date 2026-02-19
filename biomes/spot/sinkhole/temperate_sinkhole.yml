@@ -1,0 +1,46 @@
+id: TEMPERATE_SINKHOLE
+type: BIOME
+extends:
+  - EQ_SPOT_SINKHOLE
+  - CARVING_OCEAN
+  - BASE
+color: $biomes/colors.yml:TEMPERATE_SINKHOLE
+
+vanilla: minecraft:plains
+
+ocean:
+  palette: BLOCK:minecraft:water
+  level: $meta.yml:sinkhole-ocean-level
+
+tags:
+  - SINKHOLE
+
+palette:
+  - GRASS: $meta.yml:top-y
+  - << meta.yml:palette-sinkhole-underwater
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.55
+    palette:
+      - MOSS_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.5
+    palette:
+      - MOSSY_COBBLESTONE_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.45
+    palette:
+      - TUFF_STONE: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.4
+    palette:
+      - ROCKY_SLANT: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+
+features:
+  flora:
+    - WHITE_FLOWER_COVER
+    - GRASS
+  trees:
+    - SPARSE_TEMPERATE_TREE_PATCHES

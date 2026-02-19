@@ -49,6 +49,27 @@ stages:
         - tropical-crater-lake: *mid
         - tropical-crater-lake: *mildlyWet
         - tropical-crater-lake: *veryWet
+      hot-sinkhole:
+        - desert-sinkhole: *desert
+        - desert-sinkhole: *desertBorder
+        - desert-sinkhole: *semiArid
+        - tropical-sinkhole: *mid
+        - tropical-sinkhole: *mildlyWet
+        - tropical-sinkhole: *veryWet
+      hot-sinkhole-border:
+        - desert-sinkhole-border: *desert
+        - desert-sinkhole-border: *desertBorder
+        - desert-sinkhole-border: *semiArid
+        - tropical-sinkhole-border: *mid
+        - tropical-sinkhole-border: *mildlyWet
+        - tropical-sinkhole-border: *veryWet
+      hot-sinkhole-border-ocean:
+        - desert-sinkhole-border-ocean: *desert
+        - desert-sinkhole-border-ocean: *desertBorder
+        - desert-sinkhole-border-ocean: *semiArid
+        - tropical-sinkhole-border-ocean: *mid
+        - tropical-sinkhole-border-ocean: *mildlyWet
+        - tropical-sinkhole-border-ocean: *veryWet
       hot-extinct-volcano:
         - desert-extinct-volcano: *desert
         - desert-extinct-volcano: *desertBorder
@@ -90,6 +111,27 @@ stages:
         - temperate-crater-lake: *mid
         - temperate-crater-lake: *mildlyWet
         - temperate-crater-lake: *veryWet
+      temperate-sinkhole:
+        - desert-sinkhole: *desert
+        - desert-sinkhole: *desertBorder
+        - desert-sinkhole: *semiArid
+        - temperate-sinkhole: *mid
+        - temperate-sinkhole: *mildlyWet
+        - temperate-sinkhole: *veryWet
+      temperate-sinkhole-border:
+        - desert-sinkhole-border: *desert
+        - desert-sinkhole-border: *desertBorder
+        - desert-sinkhole-border: *semiArid
+        - temperate-sinkhole-border: *mid
+        - temperate-sinkhole-border: *mildlyWet
+        - temperate-sinkhole-border: *veryWet
+      temperate-sinkhole-border-ocean:
+        - desert-sinkhole-border-ocean: *desert
+        - desert-sinkhole-border-ocean: *desertBorder
+        - desert-sinkhole-border-ocean: *semiArid
+        - temperate-sinkhole-border-ocean: *mid
+        - temperate-sinkhole-border-ocean: *mildlyWet
+        - temperate-sinkhole-border-ocean: *veryWet
       temperate-extinct-volcano:
         - desert-extinct-volcano: *desert
         - desert-extinct-volcano: *desertBorder

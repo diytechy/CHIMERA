@@ -3,6 +3,7 @@
 # World Y levels
 top-y: 319
 ocean-level: 62
+sinkhole-ocean-level: 40
 deepslate-top: 7     # Y level where deepslate begins to replace stone
 deepslate-bottom: -7 # Y level where all stone is replaced by deepslate
 bedrock-top: -60     # Y level where deepslate starts to be replaced by bedrock
@@ -13,6 +14,9 @@ palette-slant-generic:
 
 palette-underwater:
   - MUDDY_BEACH: ${meta.yml:ocean-level} - 1
+
+palette-sinkhole-underwater:
+  - MUDDY_BEACH: ${meta.yml:sinkhole-ocean-level} - 1
 
 palette-bottom: # Added to the bottom of every biome palette stack
   - DEEPSLATE: $meta.yml:deepslate-top

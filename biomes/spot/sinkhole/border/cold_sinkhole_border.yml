@@ -1,0 +1,13 @@
+id: COLD_SINKHOLE_BORDER
+type: BIOME
+extends:
+  - EQ_LAND
+  - CARVING_OCEAN
+  - BASE
+  - SNOWY_MOUNTAINS
+color: $biomes/colors.yml:COLD_SINKHOLE_BORDER
+
+vanilla: minecraft:plains
+
+tags:
+  - SINKHOLE

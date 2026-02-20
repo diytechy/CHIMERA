@@ -13,10 +13,10 @@ variables: &variables
   plainsMaskFull: 0.85
   hillMaxElevation: 0.3
   mountainCap: 0.9
-  mountainMaskZero: 0.3
+  mountainMaskZero: 0.2
   mountainMaskFull: 0.5
-  mountainContZero: 0.0
-  mountainContFull: 0.3
+  mountainContZero: 0.05
+  mountainContFull: 0.5
 
   globalScale: $customization.yml:global-scale
   verticalLift: $customization.yml:terrain-height
@@ -139,7 +139,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(min(ceil((mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0))
+      max(min(ceil(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0)
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -163,6 +163,36 @@ samplers:
       continents: $math/samplers/continents.yml:samplers.continents
       prefiltered_mesa_steps: *prefiltered_mesa_steps
       PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+
+  # Find lower corresponding shelf, depends on elevation sampler below:
+  prefiltered_mesa_floor: &prefiltered_mesa_floor
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(((prefiltered_mesa_steps(x,z)-1)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps),elevation(x,z))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      continents: $math/samplers/continents.yml:samplers.continents
+      prefiltered_mesa_steps: *prefiltered_mesa_steps
+      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+      elevation: $math/samplers/elevation.yml:samplers.elevation
+
+  # Find Transition distance into next step, used to create smoother transition between steps
+  mesa_floor_step_dist: &mesa_floor_step_dist
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(prefiltered_mesa_steps(x,z) - mesaMask(x, z)* MaxNMesSteps,0)
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      prefiltered_mesa_steps: *prefiltered_mesa_steps
+      mesaMask: *mesaMask
 
   ############ Other land attributes ############
 

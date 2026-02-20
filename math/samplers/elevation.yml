@@ -9,13 +9,19 @@ variables: &variables
   terraceDepthVariation: 1
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
   
-  
+  plainsMaskZero: 0.4
+  plainsMaskFull: 0.6
   hillMaxElevation: 0.3
   mountainCap: 0.9
   mountainMaskZero: 0.4
   mountainMaskFull: 0.6
   mountainContZero: 0.0
   mountainContFull: 0.3
+
+  globalScale: $customization.yml:global-scale
+  verticalLift: $customization.yml:terrain-height
+  scale: $customization.yml:flatness-scale
+  continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1
 
 samplers:
 
@@ -171,27 +177,53 @@ samplers:
         type: OPEN_SIMPLEX_2
         frequency: 1 / 2000
 
-  plains: &plains
+
+  plainsMask: &plainsMask
     dimensions: 2
-    type: FBM
-    octaves: 2
-    sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 1 / 2000
+    type: EXPRESSION_NORMALIZER
+    expression: sampler(x,z)
+    samplers:
+      sampler:
+        type: FBM
+        octaves: 2
+        amplitude: 0.3
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 1 / 2000
+        
+  hillsApplied: &hillsApplied
+    expression: |
+      min(parabolicMap(abs(mountainMask(x, z)), mountainMaskZero, 1, mountainMaskFull, 0),
+        parabolicMap(abs(plainsMask(x, z)), plainsMaskZero, 1, plainsMaskFull, 0))*hills(x, z)
+    dimensions: 2
+    samplers:
+      mountainMask: *mountainMask
+      plainsMask: *plainsMask
+      hills: *hills
+    functions: $math/functions/interpolation.yml:functions
+
 
 ### BLENDING DEFINITIONS ############
   continentalRise: &continentalRise
     dimensions: 2
     type: EXPRESSION
     expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
-    variables:
-      globalScale: $customization.yml:global-scale
-      verticalLift: $customization.yml:terrain-height
-      scale: $customization.yml:flatness-scale
-      continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1, note it typically maxes out around 0.5.
+    variables: *variables
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
-              
+
+  continentalRiseApplied: &continentalRiseApplied
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      parabolicMap(plainsMask(x, z), plainsMaskZero, continentalRise(x,z), plainsMaskFull, continental_sampler(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))))
+    variables: *variables
+    samplers:
+      continents: $math/samplers/continents.yml:samplers.continents
+      plainsMask: *plainsMask
+      continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
+      continentalRise: *continentalRise
+
   rawFlatness: &rawFlatness
     dimensions: 2
     type: EXPRESSION
@@ -248,7 +280,7 @@ samplers:
           expression: |
             continentalRise(x,z) +
             combine(
-              hills(x, z) * hillMaxElevation,
+              hillsApplied(x,z) * hillMaxElevation,
               AppliedMountainHeight(x,z),
               mountainCap)
           variables: *variables
@@ -274,8 +306,7 @@ samplers:
     expression: |
       rawElevation(x, z) * (1-flatness(x, z))
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
-      * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1)
-      * if(factorRiver, (1-riverTerrainErosion(x, z)), 1)
+      * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1))
     functions: $math/functions/interpolation.yml:functions
     variables:
       continentZero: $customization.yml:elevation-continental-flat-threshold
@@ -289,9 +320,9 @@ samplers:
       flatness: *flatness
       continents: $math/samplers/continents.yml:samplers.continents
       spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-      riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
   
-    
+  # Now place mesas into elevation.
+
           
           
 

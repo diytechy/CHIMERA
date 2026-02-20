@@ -9,8 +9,8 @@ variables: &variables
   terraceDepthVariation: 1
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
   
-  plainsMaskZero: 0.4
-  plainsMaskFull: 0.6
+  plainsMaskZero: 0.5
+  plainsMaskFull: 0.85
   hillMaxElevation: 0.3
   mountainCap: 0.9
   mountainMaskZero: 0.4
@@ -103,10 +103,10 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: max(min((sampler(x - 6000, z - 6000)-mesa_threshold)/(0.5-mesa_threshold), continents(x, z)),0)
+    variables:
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
-      variables:
-        mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
       sampler:
         dimensions: 2
         type: FBM
@@ -139,7 +139,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(min(ceil((mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0)
+      max(min(ceil((mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0))
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -154,7 +154,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      prefiltered_mesa_steps(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps))
+      (prefiltered_mesa_steps(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -180,22 +180,26 @@ samplers:
 
   plainsMask: &plainsMask
     dimensions: 2
-    type: EXPRESSION_NORMALIZER
+    type: EXPRESSION
     expression: sampler(x,z)
     samplers:
       sampler:
+        dimensions: 2
         type: FBM
         octaves: 2
         amplitude: 0.3
+        salt: 67
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 1 / 2000
         
   hillsApplied: &hillsApplied
+    dimensions: 2
+    type: EXPRESSION
     expression: |
       min(parabolicMap(abs(mountainMask(x, z)), mountainMaskZero, 1, mountainMaskFull, 0),
         parabolicMap(abs(plainsMask(x, z)), plainsMaskZero, 1, plainsMaskFull, 0))*hills(x, z)
-    dimensions: 2
+    variables: *variables
     samplers:
       mountainMask: *mountainMask
       plainsMask: *plainsMask
@@ -216,13 +220,14 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      parabolicMap(plainsMask(x, z), plainsMaskZero, continentalRise(x,z), plainsMaskFull, continental_sampler(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))))
+      parabolicMap(plainsMask(x, z), plainsMaskZero, continentalRise(x,z), plainsMaskFull, continental_sampler(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift)))
     variables: *variables
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
       plainsMask: *plainsMask
       continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
       continentalRise: *continentalRise
+    functions: $math/functions/interpolation.yml:functions
 
   rawFlatness: &rawFlatness
     dimensions: 2
@@ -296,9 +301,9 @@ samplers:
               expression: hills + mountains * min(1 - hills, mountainCap)
 
           samplers:
-            continentalRise: *continentalRise
+            continentalRise: *continentalRiseApplied
             AppliedMountainHeight: *AppliedMountainHeight
-            hills: *hills
+            hillsApplied: *hillsApplied
           
   elevation: &elevation
     dimensions: 2
@@ -306,7 +311,7 @@ samplers:
     expression: |
       rawElevation(x, z) * (1-flatness(x, z))
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
-      * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1))
+      * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1)
     functions: $math/functions/interpolation.yml:functions
     variables:
       continentZero: $customization.yml:elevation-continental-flat-threshold

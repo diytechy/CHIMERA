@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""
+OptomizePackSamplers.py
+
+Optimizes pack-level sampler definition files by:
+  1. Discovering all pack sampler files from pack.yml (samplers section).
+  2. Removing YAML anchors from named samplers (only named samplers, not variables).
+  3. Replacing in-file aliases to named samplers with explicit cross-file
+     string references (e.g. "$math/samplers/rivers.yml:samplers.riverNoise").
+  4. Wrapping named samplers used more than 3 times (across all files) in a
+     CACHE sampler with exp: 2.
+
+Usage:
+    pip install ruamel.yaml
+    python OptomizePackSamplers.py
+"""
+
+from pathlib import Path
+from collections import Counter
+from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
+
+PACK_ROOT = Path(__file__).parent
+PACK_YML = PACK_ROOT / "pack.yml"
+CACHE_EXP = 2
+CACHE_THRESHOLD = 3  # wrap in CACHE if used strictly more than this many times
+
+
+# ---------------------------------------------------------------------------
+# YAML I/O
+# ---------------------------------------------------------------------------
+
+def make_yaml():
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.width = 4096  # prevent unwanted line-wrapping
+    yaml.best_sequence_indent = 2
+    yaml.best_map_flow_style = False
+    return yaml
+
+
+def load_yaml(path: Path):
+    yaml = make_yaml()
+    with open(path, encoding="utf-8") as f:
+        return yaml.load(f)
+
+
+def save_yaml(data, path: Path):
+    yaml = make_yaml()
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        yaml.dump(data, f)
+
+
+# ---------------------------------------------------------------------------
+# Phase 1 — Discovery
+# ---------------------------------------------------------------------------
+
+def discover_sampler_files():
+    """
+    Parse pack.yml and return [(rel_path_str, abs_Path), ...] for each
+    file listed in samplers["<<"].
+    Each entry in that list looks like "math/samplers/rivers.yml:samplers".
+    """
+    data = load_yaml(PACK_YML)
+    samplers_section = data.get("samplers", {})
+    merge_list = samplers_section.get("<<", [])
+
+    # merge_list may be a plain list of strings, or a CommentedSeq of strings
+    result = []
+    for entry in merge_list:
+        file_part = str(entry).split(":")[0]
+        abs_path = PACK_ROOT / file_part
+        result.append((file_part, abs_path))
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 — Catalog helpers
+# ---------------------------------------------------------------------------
+
+def get_named_sampler_ids(data):
+    """
+    Return {python_object_id: sampler_name} for every entry directly under
+    data['samplers'].  Only CommentedMap / CommentedSeq values are included
+    (scalar values are not samplers).
+    """
+    result = {}
+    samplers = data.get("samplers", {})
+    if isinstance(samplers, CommentedMap):
+        for name, val in samplers.items():
+            if isinstance(val, (CommentedMap, CommentedSeq)):
+                result[id(val)] = name
+    return result
+
+
+def get_definition_sites(data):
+    """
+    Return a set of (id(parent), key) pairs that represent the *definition*
+    location of each named sampler (i.e. its slot in the top-level samplers map).
+    Used to distinguish definitions from alias uses during the tree walk.
+    """
+    sites = set()
+    samplers = data.get("samplers", {})
+    if isinstance(samplers, CommentedMap):
+        for name in samplers:
+            sites.add((id(samplers), name))
+    return sites
+
+
+# ---------------------------------------------------------------------------
+# Tree walker
+# ---------------------------------------------------------------------------
+
+def walk_tree(node, parent, key, named_sampler_ids, definition_sites, callback):
+    """
+    Recursively walk the YAML tree.  For every node that is an alias to a
+    named sampler (detected by Python object identity), call:
+
+        callback(parent, key, node, sampler_name)
+
+    Rules:
+      - Skip the definition site itself (where the sampler is *defined*).
+      - Skip YAML merge keys ('<<') entirely.
+      - Do not recurse further into an alias node — the shared object would
+        already have been (or will be) visited at its definition site.
+    """
+    if parent is not None and key is not None:
+        if key != "<<" and (id(parent), key) not in definition_sites:
+            if id(node) in named_sampler_ids:
+                callback(parent, key, node, named_sampler_ids[id(node)])
+                # Do NOT recurse: the same shared object is handled at its
+                # definition site; recursing would risk double-processing.
+                return
+
+    # Recurse into children
+    if isinstance(node, CommentedMap):
+        for k in list(node.keys()):
+            child = node[k]
+            if isinstance(child, (CommentedMap, CommentedSeq)):
+                walk_tree(child, node, k, named_sampler_ids, definition_sites, callback)
+    elif isinstance(node, CommentedSeq):
+        for i, child in enumerate(node):
+            if isinstance(child, (CommentedMap, CommentedSeq)):
+                walk_tree(child, node, i, named_sampler_ids, definition_sites, callback)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 — Counting alias usages
+# ---------------------------------------------------------------------------
+
+def count_usages_in_file(data, named_sampler_ids, definition_sites, counter):
+    """Accumulate alias usage counts from one file into `counter`."""
+    def on_alias(_parent, _key, _val, sampler_name):
+        counter[sampler_name] += 1
+
+    walk_tree(data, None, None, named_sampler_ids, definition_sites, on_alias)
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — Transformations
+# ---------------------------------------------------------------------------
+
+def remove_anchors(data):
+    """
+    Remove YAML anchors (&name) from every named sampler definition.
+    Anchors on variables blocks or other non-sampler entries are left alone.
+    Returns list of anchor names that were removed.
+    """
+    removed = []
+    samplers = data.get("samplers", {})
+    if isinstance(samplers, CommentedMap):
+        for name, val in samplers.items():
+            if isinstance(val, CommentedMap):
+                anchor = getattr(val, "anchor", None)
+                if anchor and anchor.value:
+                    removed.append(anchor.value)
+                    anchor.value = None
+    return removed
+
+
+def replace_aliases(data, named_sampler_ids, definition_sites, rel_path):
+    """
+    Walk the file tree and replace every alias to a named sampler with an
+    explicit cross-file string reference.
+    Returns list of (key, new_ref_string) replacements made.
+    """
+    replacements = []
+
+    def on_alias(parent, key, _val, sampler_name):
+        ref = f"${rel_path}:samplers.{sampler_name}"
+        parent[key] = ref
+        replacements.append((key, ref))
+
+    walk_tree(data, None, None, named_sampler_ids, definition_sites, on_alias)
+    return replacements
+
+
+def apply_cache_wrapping(data, usage_counts):
+    """
+    For each named sampler used more than CACHE_THRESHOLD times (across all
+    files), wrap its definition in a CACHE sampler with exp: CACHE_EXP.
+    Skips samplers whose top-level type is already CACHE.
+    Returns list of sampler names that were wrapped.
+    """
+    samplers = data.get("samplers", {})
+    wrapped = []
+
+    if not isinstance(samplers, CommentedMap):
+        return wrapped
+
+    for name in list(samplers.keys()):
+        if usage_counts.get(name, 0) <= CACHE_THRESHOLD:
+            continue
+
+        original = samplers[name]
+        if not isinstance(original, CommentedMap):
+            continue
+
+        # Skip if already a CACHE sampler
+        if original.get("type") == "CACHE":
+            print(f"    (skipping {name!r}: already CACHE)")
+            continue
+
+        dims = original.get("dimensions", 2)
+
+        cache_wrapper = CommentedMap()
+        cache_wrapper["dimensions"] = dims
+        cache_wrapper["type"] = "CACHE"
+        cache_wrapper["exp"] = CACHE_EXP
+        cache_wrapper["sampler"] = original
+
+        samplers[name] = cache_wrapper
+        wrapped.append(name)
+
+    return wrapped
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    print(f"Pack root : {PACK_ROOT}")
+    print(f"Pack file : {PACK_YML}")
+
+    sampler_files = discover_sampler_files()
+    if not sampler_files:
+        print("No sampler files found in pack.yml. Exiting.")
+        return
+
+    print(f"\nFound {len(sampler_files)} sampler file(s):")
+    for rel, _ in sampler_files:
+        print(f"  {rel}")
+
+    # ------------------------------------------------------------------
+    # Pass 1 — parse every file and count alias usages
+    # ------------------------------------------------------------------
+    print("\n--- Pass 1: cataloging named samplers and counting alias usages ---")
+
+    file_data = {}        # rel_path -> parsed CommentedMap
+    file_named_ids = {}   # rel_path -> {object_id: sampler_name}
+    file_def_sites = {}   # rel_path -> set of (parent_id, key)
+    usage_counts: Counter = Counter()
+
+    for rel_path, abs_path in sampler_files:
+        if not abs_path.exists():
+            print(f"  WARNING: {abs_path} not found — skipping.")
+            continue
+
+        data = load_yaml(abs_path)
+        named_ids = get_named_sampler_ids(data)
+        def_sites = get_definition_sites(data)
+
+        file_data[rel_path] = data
+        file_named_ids[rel_path] = named_ids
+        file_def_sites[rel_path] = def_sites
+
+        count_usages_in_file(data, named_ids, def_sites, usage_counts)
+        print(f"  {rel_path}: {len(named_ids)} named sampler(s)")
+
+    if usage_counts:
+        print("\n  Alias usage counts (across all files):")
+        for name, count in sorted(usage_counts.items(), key=lambda x: -x[1]):
+            flag = f"  ← will CACHE (exp={CACHE_EXP})" if count > CACHE_THRESHOLD else ""
+            print(f"    {name}: {count}{flag}")
+    else:
+        print("\n  No aliases to named samplers found.")
+
+    # ------------------------------------------------------------------
+    # Pass 2 — apply transformations
+    # ------------------------------------------------------------------
+    print("\n--- Pass 2: applying transformations ---")
+
+    for rel_path, abs_path in sampler_files:
+        if rel_path not in file_data:
+            continue  # was skipped above
+
+        data = file_data[rel_path]
+        named_ids = file_named_ids[rel_path]
+        def_sites = file_def_sites[rel_path]
+
+        print(f"\n  {rel_path}:")
+
+        # Step A — remove anchors from named samplers
+        removed = remove_anchors(data)
+        if removed:
+            print(f"    Anchors removed: {removed}")
+
+        # Step B — replace aliases with cross-file refs
+        replacements = replace_aliases(data, named_ids, def_sites, rel_path)
+        if replacements:
+            for key, ref in replacements:
+                print(f"    Alias replaced: {key!r}  →  {ref}")
+
+        # Step C — wrap heavily-used samplers in CACHE
+        wrapped = apply_cache_wrapping(data, usage_counts)
+        if wrapped:
+            print(f"    CACHE wrapped (exp={CACHE_EXP}): {wrapped}")
+
+        if not removed and not replacements and not wrapped:
+            print("    No changes needed.")
+
+        # Write back
+        save_yaml(data, abs_path)
+        print(f"    Saved → {abs_path}")
+
+    print("\nDone.")
+
+
+if __name__ == "__main__":
+    main()

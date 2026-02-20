@@ -1,8 +1,107 @@
 samplers:
-  mountain_sampler: &mountain_sampler
+  spotSizePercent: &spotSizePercent
     dimensions: 2
-    type: OPEN_SIMPLEX_2
-    frequency: 0.001111111111
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 3.0
+      jitter: 0.8
+      return: CellValue
+  spotRadius: &spotRadius
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minHeight: 0.05
+      maxHeight: 0.5
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.5
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.01
+      volcanoMaxCenterDepth: 0.3
+      prismaticMinCenterDepth: 0.01
+      prismaticMaxCenterDepth: 0.15
+    samplers:
+      spotSizePercent: *spotSizePercent
   spotDistance: &spotDistance
     dimensions: 2
     type: DOMAIN_WARP
@@ -38,16 +137,6 @@ samplers:
           salt: 3.0
           jitter: 0.8
           distance: Euclidean
-  spotSizePercent: &spotSizePercent
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 3.0
-      jitter: 0.8
-      return: CellValue
   continental_sampler: &continental_sampler
     dimensions: 2
     type: CACHE
@@ -268,99 +357,6 @@ samplers:
             z: 0
           normalize: true
           radius: 400
-  spotRadius: &spotRadius
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minHeight: 0.05
-      maxHeight: 0.5
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.5
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.01
-      volcanoMaxCenterDepth: 0.3
-      prismaticMinCenterDepth: 0.01
-      prismaticMaxCenterDepth: 0.15
-    samplers:
-      spotSizePercent: *spotSizePercent
   continents: &continents
     dimensions: 2
     type: CACHE
@@ -398,11 +394,74 @@ samplers:
               type: OPEN_SIMPLEX_2
               salt: 1.0
               frequency: 0.0002
-  mountainMask: &mountainMask
+  rawFlatness: &rawFlatness
     dimensions: 2
-    type: PERLIN
-    salt: 694.0
-    frequency: 0.0006666666667
+    type: EXPRESSION
+    expression: noise(x / scale / globalScale, z / scale / globalScale)
+    variables:
+      globalScale: 1
+      scale: 1.05
+    samplers:
+      noise:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: PROBABILITY
+          sampler:
+            type: FBM
+            gain: 0.3
+            lacunarity: 2.3
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.001
+  mesaMask: &mesaMask
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 6000, z - 6000)
+    variables:
+      globalScale: 1
+      scale: 2
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: 0.0005
+          salt: 200.0
+  trenchNoise: &trenchNoise
+    dimensions: 2
+    type: TRANSLATE
+    x: -10000
+    z: -10000
+    sampler:
+      type: DOMAIN_WARP
+      amplitude: 3
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.1
+      sampler:
+        type: OPEN_SIMPLEX_2
+        salt: 4357.0
+  hills: &hills
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((in+1)/2)^2
+    sampler:
+      type: FBM
+      octaves: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0005
+  mountain_sampler: &mountain_sampler
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.001111111111
   mountains: &mountains
     dimensions: 2
     type: EXPRESSION_NORMALIZER
@@ -419,111 +478,6 @@ samplers:
         type: FBM
         octaves: 3
         sampler: *mountain_sampler
-  AppliedMountainHeightA: &AppliedMountainHeightA
-    dimensions: 2
-    type: EXPRESSION
-    expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)), parabolicMap(continents(x,
-      z), mountainContZero, 0, mountainContFull, mountains(x, z)))
-    variables:
-      detailFactor: 0.1
-      detailStart: 0
-      detailEnd: 0.5
-      terraceBaseScale: 0.2
-      terraceScaleVariation: 0.1
-      terraceOffsetVariation: 0.25
-      terraceDepthVariation: 1
-      terraceDepthStart: 0.1
-      hillMaxElevation: 0.3
-      mountainCap: 0.9
-      mountainMaskZero: 0.4
-      mountainMaskFull: 0.6
-      mountainContZero: 0.0
-      mountainContFull: 0.3
-    samplers:
-      mountainMask: *mountainMask
-      mountains: *mountains
-      continents: *continents
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-  continentalRise: &continentalRise
-    dimensions: 2
-    type: EXPRESSION
-    expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
-    variables:
-      globalScale: 1
-      verticalLift: 180
-      scale: 1.05
-      continentalRiseRate: 30
-    samplers:
-      continents: *continents
   mountainsB: &mountainsB
     dimensions: 2
     type: FBM
@@ -534,6 +488,11 @@ samplers:
       type: PERLIN
       frequency: 0.0006666666667
       salt: 300.0
+  mountainMask: &mountainMask
+    dimensions: 2
+    type: PERLIN
+    salt: 694.0
+    frequency: 0.0006666666667
   AppliedMountainHeightB: &AppliedMountainHeightB
     dimensions: 2
     type: EXPRESSION
@@ -628,6 +587,100 @@ samplers:
             arguments:
             - x
             expression: x^2
+  AppliedMountainHeightA: &AppliedMountainHeightA
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)), parabolicMap(continents(x,
+      z), mountainContZero, 0, mountainContFull, mountains(x, z)))
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      hillMaxElevation: 0.3
+      mountainCap: 0.9
+      mountainMaskZero: 0.4
+      mountainMaskFull: 0.6
+      mountainContZero: 0.0
+      mountainContFull: 0.3
+    samplers:
+      mountainMask: *mountainMask
+      mountains: *mountains
+      continents: *continents
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
   AppliedMountainHeight: &AppliedMountainHeight
     dimensions: 2
     type: EXPRESSION
@@ -635,6 +688,17 @@ samplers:
     samplers:
       AppliedMountainHeightA: *AppliedMountainHeightA
       AppliedMountainHeightB: *AppliedMountainHeightB
+  continentalRise: &continentalRise
+    dimensions: 2
+    type: EXPRESSION
+    expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    variables:
+      globalScale: 1
+      verticalLift: 180
+      scale: 1.05
+      continentalRiseRate: 30
+    samplers:
+      continents: *continents
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
@@ -729,38 +793,7 @@ samplers:
           samplers:
             continentalRise: *continentalRise
             AppliedMountainHeight: *AppliedMountainHeight
-            hills:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((in+1)/2)^2
-              sampler:
-                type: FBM
-                octaves: 6
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  frequency: 0.0005
-  rawFlatness: &rawFlatness
-    dimensions: 2
-    type: EXPRESSION
-    expression: noise(x / scale / globalScale, z / scale / globalScale)
-    variables:
-      globalScale: 1
-      scale: 1.05
-    samplers:
-      noise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: PROBABILITY
-          sampler:
-            type: FBM
-            gain: 0.3
-            lacunarity: 2.3
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 0.001
+            hills: *hills
   flatness: &flatness
     dimensions: 2
     type: EXPRESSION
@@ -969,24 +1002,6 @@ samplers:
             type: OPEN_SIMPLEX_2
             frequency: 0.001
             salt: 2175.0
-  mesaMask: &mesaMask
-    dimensions: 2
-    type: EXPRESSION
-    expression: sampler(x - 6000, z - 6000)
-    variables:
-      globalScale: 1
-      scale: 2
-    samplers:
-      sampler:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: 0.0005
-          salt: 200.0
   elevation: &elevation
     dimensions: 2
     type: EXPRESSION
@@ -1089,6 +1104,34 @@ samplers:
       elevation: *elevation
       mesaMask: *mesaMask
       continents: *continents
+  elevation_MesaDownwardDistFromTransPnt: &elevation_MesaDownwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(max((MesaRegionActiveThresh-mesaMask(x, z)),(threshold-max(continents(x,z),0))), 0)
+    variables:
+      MesaRegionActiveThresh: 0.33
+      threshold: 0.33
+    samplers:
+      elevation: *elevation
+      mesaMask: *mesaMask
+      continents: *continents
+  trenchDistance: &trenchDistance
+    dimensions: 2
+    type: EXPRESSION
+    expression: '|trenchNoise(x*trenchFrequency, z*trenchFrequency)|'
+    variables:
+      notTrenchValue: 2
+      borderValue: 1
+      trenchValue: 0
+      trenchFrequency: 0.025
+      trenchThreshold: 0.3
+      trenchMinWidth: 8
+      trenchMaxWidth: 13
+      erosionMaxDistance: 0.3
+      erosionMax: 0.95
+      erosionMin: 0
+    samplers:
+      trenchNoise: *trenchNoise
   spotEdgeRadiusPercent: &spotEdgeRadiusPercent
     dimensions: 2
     type: CELLULAR
@@ -1109,6 +1152,89 @@ samplers:
           arguments:
           - x
           expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
+  PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: 0.3
+    samplers:
+      max_elev_prob:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: 0.0003333333333
+  prefiltered_mesa_elev: &prefiltered_mesa_elev
+    dimensions: 2
+    type: EXPRESSION
+    expression: "if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), \n  ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2*\
+      \ MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), \n  0\n)\n"
+    variables:
+      MaxNMesSteps: 3
+      MaxPeakElev: 0.8
+      mesa_threshold: 0.33
+    samplers:
+      continents: *continents
+      mesaMask: *mesaMask
+      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+  elevation_MesaUpwardDistFromTransPnt: &elevation_MesaUpwardDistFromTransPnt
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(max((mesaMask(x, z) - MesaRegionActiveThresh),(elevation(x,z)-threshold)), 0)
+    variables:
+      MesaRegionActiveThresh: 0.33
+      threshold: 0.33
+    samplers:
+      elevation: *elevation
+      mesaMask: *mesaMask
+  largeSpotSizePercent: &largeSpotSizePercent
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0002409638554
+      salt: 1236.0
+      jitter: 0.2771084337
+      return: CellValue
+  spotAngle: &spotAngle
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: Angle
+  elevation_shifted_prefiltered_mesa_elev: &elevation_shifted_prefiltered_mesa_elev
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(prefiltered_mesa_elev(x,z) - elevation(x,z), 0)
+    samplers:
+      elevation: *elevation
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
+  rawPrecipitation: &rawPrecipitation
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset
+    variables:
+      globalScale: 1
+      scale: 1
+      offset: 0
+      spread: 1
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 4.0
+            frequency: 0.0001333333333
   rawTemperature: &rawTemperature
     dimensions: 2
     type: EXPRESSION
@@ -1132,114 +1258,6 @@ samplers:
             type: OPEN_SIMPLEX_2
             salt: 3.0
             frequency: 0.0002
-  rawPrecipitation: &rawPrecipitation
-    dimensions: 2
-    type: EXPRESSION
-    expression: sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset
-    variables:
-      globalScale: 1
-      scale: 1
-      offset: 0
-      spread: 1
-    samplers:
-      sampler:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: FBM
-          octaves: 2
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 4.0
-            frequency: 0.0001333333333
-  PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
-    dimensions: 2
-    type: EXPRESSION
-    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
-    variables:
-      VarianceRatio: 0.3
-    samplers:
-      max_elev_prob:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: OPEN_SIMPLEX_2
-          salt: 697.0
-          frequency: 0.0003333333333
-  spotAngle: &spotAngle
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: Angle
-  prefiltered_mesa_elev: &prefiltered_mesa_elev
-    dimensions: 2
-    type: EXPRESSION
-    expression: "if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), \n  ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2*\
-      \ MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), \n  0\n)\n"
-    variables:
-      MaxNMesSteps: 3
-      MaxPeakElev: 0.8
-      mesa_threshold: 0.33
-    samplers:
-      continents: *continents
-      mesaMask: *mesaMask
-      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
-  largeSpotSizePercent: &largeSpotSizePercent
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0002409638554
-      salt: 1236.0
-      jitter: 0.2771084337
-      return: CellValue
-  trenchNoise: &trenchNoise
-    dimensions: 2
-    type: TRANSLATE
-    x: -10000
-    z: -10000
-    sampler:
-      type: DOMAIN_WARP
-      amplitude: 3
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.1
-      sampler:
-        type: OPEN_SIMPLEX_2
-        salt: 4357.0
-  elevation_MesaDownwardDistFromTransPnt: &elevation_MesaDownwardDistFromTransPnt
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(max((MesaRegionActiveThresh-mesaMask(x, z)),(threshold-max(continents(x,z),0))), 0)
-    variables:
-      MesaRegionActiveThresh: 0.33
-      threshold: 0.33
-    samplers:
-      elevation: *elevation
-      mesaMask: *mesaMask
-      continents: *continents
-  elevation_MesaUpwardDistFromTransPnt: &elevation_MesaUpwardDistFromTransPnt
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(max((mesaMask(x, z) - MesaRegionActiveThresh),(elevation(x,z)-threshold)), 0)
-    variables:
-      MesaRegionActiveThresh: 0.33
-      threshold: 0.33
-    samplers:
-      elevation: *elevation
-      mesaMask: *mesaMask
-  elevation_shifted_prefiltered_mesa_elev: &elevation_shifted_prefiltered_mesa_elev
-    dimensions: 2
-    type: EXPRESSION
-    expression: max(prefiltered_mesa_elev(x,z) - elevation(x,z), 0)
-    samplers:
-      elevation: *elevation
-      prefiltered_mesa_elev: *prefiltered_mesa_elev
   RegionFilteredMesaHeightModifier: &RegionFilteredMesaHeightModifier
     dimensions: 2
     type: EXPRESSION
@@ -1337,23 +1355,6 @@ samplers:
             arguments:
             - x
             expression: x^2
-  trenchDistance: &trenchDistance
-    dimensions: 2
-    type: EXPRESSION
-    expression: '|trenchNoise(x*trenchFrequency, z*trenchFrequency)|'
-    variables:
-      notTrenchValue: 2
-      borderValue: 1
-      trenchValue: 0
-      trenchFrequency: 0.025
-      trenchThreshold: 0.3
-      trenchMinWidth: 8
-      trenchMaxWidth: 13
-      erosionMaxDistance: 0.3
-      erosionMax: 0.95
-      erosionMin: 0
-    samplers:
-      trenchNoise: *trenchNoise
   continental_large_features_allowed_threshold_with_variance:
     dimensions: 2
     type: EXPRESSION

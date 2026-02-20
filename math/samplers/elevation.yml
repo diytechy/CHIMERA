@@ -19,6 +19,8 @@ variables: &variables
 
 samplers:
 
+  ############ MOUNTAIN DEFINITIONS ############
+
   mountainMask: &mountainMask
     dimensions: 2
     type: PERLIN
@@ -90,6 +92,42 @@ samplers:
       AppliedMountainHeightA: *AppliedMountainHeightA
       AppliedMountainHeightB: *AppliedMountainHeightB
 
+  ############ MESA DEFINITIONS ############
+  mesaMask: &mesaMask
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x - 6000, z - 6000)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        lacunarity: 2.0
+        gain: 0.4
+        sampler:
+          type: PERLIN
+          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+          salt: 200   
+          
+  # Mesa height modifier components
+  prefiltered_mesa_elev: &prefiltered_mesa_elev
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), 
+        ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), 
+        0
+      )
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      continents: $math/samplers/continents.yml:samplers.continents
+      mesaMask: *mesaMask
+      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+
+### BLENDING DEFINITIONS ############
   continentalRise: &continentalRise
     dimensions: 2
     type: EXPRESSION
@@ -136,6 +174,17 @@ samplers:
       factor: $customization.yml:flatness-factor
     samplers:
       rawFlatness: *rawFlatness
+      
+  hills: &hills
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((in+1)/2)^2
+    sampler:
+      type: FBM
+      octaves: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 1 / 2000
 
   rawElevation: &rawElevation
     dimensions: 2
@@ -175,16 +224,7 @@ samplers:
           samplers:
             continentalRise: *continentalRise
             AppliedMountainHeight: *AppliedMountainHeight
-            hills:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((in+1)/2)^2
-              sampler:
-                type: FBM
-                octaves: 6
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  frequency: 1 / 2000
+            hills: *hills
           
   elevation: &elevation
     dimensions: 2
@@ -209,25 +249,7 @@ samplers:
       spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
       riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
   
-
-  mesaMask: &mesaMask
-    dimensions: 2
-    type: EXPRESSION
-    expression: sampler(x - 6000, z - 6000)
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-    samplers:
-      sampler:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
-          salt: 200       
+    
           
   # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
   PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
@@ -245,23 +267,6 @@ samplers:
           salt: 697.0
           frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
           
-  # Mesa height modifier components
-  prefiltered_mesa_elev: &prefiltered_mesa_elev
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(((continents(x,z)>0)&&(mesaMask(x,z)>mesa_threshold)), 
-        ((max(min(round(abs((mesaMask(x, z)-mesa_threshold)/(0.5-mesa_threshold))*2* MaxNMesSteps),MaxNMesSteps),0) * MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)), 
-        0
-      )
-    variables:
-      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
-      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
-      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
-    samplers:
-      continents: $math/samplers/continents.yml:samplers.continents
-      mesaMask: *mesaMask
-      PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
 
   # Elevation-shifted mesa elevation sampler - uses current elevation as offset
   elevation_shifted_prefiltered_mesa_elev: &elevation_shifted_prefiltered_mesa_elev

@@ -135,11 +135,11 @@ samplers:
           frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
           
   # How many steps the mesa should have
-  prefiltered_mesa_steps: &prefiltered_mesa_steps
+  prefiltered_mesa_step_ratio: &prefiltered_mesa_step_ratio
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(min(ceil(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0)
+      max(min(round(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0)/MaxNMesSteps
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -154,14 +154,14 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      (prefiltered_mesa_steps(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps)
+      (prefiltered_mesa_step_ratio(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
-      prefiltered_mesa_steps: *prefiltered_mesa_steps
+      prefiltered_mesa_step_ratio: *prefiltered_mesa_step_ratio
       PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
 
   # Find lower corresponding shelf, depends on elevation sampler below:
@@ -169,14 +169,14 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(((prefiltered_mesa_steps(x,z)-1)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))/(MaxNMesSteps),elevation(x,z))
+      max(((prefiltered_mesa_step_ratio(x,z)-(1/(MaxNMesSteps)))* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
-      prefiltered_mesa_steps: *prefiltered_mesa_steps
+      prefiltered_mesa_step_ratio: *prefiltered_mesa_step_ratio
       PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
       elevation: $math/samplers/elevation.yml:samplers.elevation
 
@@ -185,13 +185,13 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(prefiltered_mesa_steps(x,z) - mesaMask(x, z)* MaxNMesSteps,0)
+      prefiltered_mesa_step_ratio(x,z) - mesaMask(x, z)
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
-      prefiltered_mesa_steps: *prefiltered_mesa_steps
+      prefiltered_mesa_step_ratio: *prefiltered_mesa_step_ratio
       mesaMask: *mesaMask
 
   ############ Other land attributes ############

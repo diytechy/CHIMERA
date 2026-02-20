@@ -818,7 +818,7 @@ def build_anchor_aware_output(all_samplers: Dict[str, Any]) -> str:
 
     for name in ordered:
         config = all_samplers[name]
-        is_shared = name in shared
+        is_shared = True  # All pack-level named samplers receive anchors
 
         # Replace nested shared subtrees with alias markers
         modified_config = _replace_with_aliases(config, all_samplers, shared, hash_to_name)

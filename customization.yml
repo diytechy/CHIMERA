@@ -367,8 +367,21 @@ river-min-width: 11
 # Default: 11
 
 river-max-width: 20
-# Controls in blocks the maximum width of rivers.
+# Maximum width of rivers in blocks.
 # Default: 20
+
+minimum-continental-river-width: 10
+# Minimum width of continental rivers in blocks.
+# Default: 10
+
+maximum-continental-river-width: 30
+# Maximum width of continental rivers in blocks.
+# Default: 30
+
+continental-river-width-period: 50
+# Period for continental river width variation using Perlin noise.
+# Higher values create more gradual width changes.
+# Default: 50
 
 # ---
 # Trenches

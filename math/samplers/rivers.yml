@@ -159,3 +159,18 @@ samplers:
                       frequency: 0.1
                     sampler:
                       type: OPEN_SIMPLEX_2
+
+  continentalRiverWidth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      ((maximum-continental-river-width + minimum-continental-river-width) / 2) + 
+      (perlin(x, z) * (maximum-continental-river-width - minimum-continental-river-width))
+    variables:
+      minimum-continental-river-width: $customization.yml:minimum-continental-river-width
+      maximum-continental-river-width: $customization.yml:maximum-continental-river-width
+    samplers:
+      perlin:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 1 / 50

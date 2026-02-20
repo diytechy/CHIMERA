@@ -13,8 +13,8 @@ variables: &variables
   plainsMaskFull: 0.85
   hillMaxElevation: 0.3
   mountainCap: 0.9
-  mountainMaskZero: 0.4
-  mountainMaskFull: 0.6
+  mountainMaskZero: 0.3
+  mountainMaskFull: 0.5
   mountainContZero: 0.0
   mountainContFull: 0.3
 
@@ -268,7 +268,7 @@ samplers:
   rawElevation: &rawElevation
     dimensions: 2
     type: EXPRESSION
-    expression: noise(x / scale / globalScale, z / scale / globalScale) * multiplier + offset
+    expression: noise(x, z ) * multiplier + offset
     variables:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:elevation-scale
@@ -278,8 +278,8 @@ samplers:
       noise:
         dimensions: 2
         type: TRANSLATE
-        x: 10000
-        z: 10000
+        x: 0
+        z: 0
         sampler:
           type: EXPRESSION
           expression: |
@@ -298,7 +298,7 @@ samplers:
                 - hills
                 - mountains
                 - mountainCap
-              expression: hills + mountains * min(1 - hills, mountainCap)
+              expression: hills + mountains
 
           samplers:
             continentalRise: *continentalRiseApplied

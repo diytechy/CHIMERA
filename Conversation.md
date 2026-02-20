@@ -43,18 +43,13 @@ Try old constellation sampler:
 
 This looks pretty interesting:
 
-type: DOMAIN_WARP
-amplitude: 1500
-sampler: *continental_landmass
-warp: 
-  type: RIDGED
-  lacunarity: 3
-  gain: 0.45
-  octaves: 4
-  sampler:
-    type: OPEN_SIMPLEX_2
-    salt: 1
-    frequency: 0.0002
+type: EXPRESSION
+expression: (continents(x, z))
+samplers:
+  continental_sampler: *continental_sampler
+  continental_landmass: *continental_landmass
+  spawnIsland: *spawnIsland
+  continents: *continents
         
 Integrate river width variation
 Integrate river boundary distance
@@ -72,7 +67,10 @@ Note also current elevation "Flatness" parameter might need to be removed, as it
 Remove duplicate "lerp" function from applicable files, they should all reference the interpolation file.
 Add land tag to all appropriate biomes
 Add ocean tag to all appropriate biomes
-Make sure deep sinks avoid rivers
+Rename legacy sinkholes to rifts.
+Make sure rifts avoid wide coasts, so form wide coasts near rivers
+Make sure deep sinks avoid rivers (Take inner land, and remove anything in boundary range of rivers)
+Make sure rifts are 
 Add sinkholes?  Or how will those avoid rivers?  Only through border / land type biome filtering?
 
 

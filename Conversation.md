@@ -50,17 +50,37 @@ samplers:
   continental_landmass: *continental_landmass
   spawnIsland: *spawnIsland
   continents: *continents
+
+  ########################################
+
+  Make a plan for a new python script called "OptomizePackSamplers.py" and performs the following actions to optimize pack samplers based  on C:\Projects\ORIGEN2\sampler-optimization-reference.md:
+  1. Detects all pack level sampler definition files (from pack.yml, in the samplers section).
+  2. Loops through each file, and -for each named sampler (and only named samplers, this should not affect variables) - removed any anchors, and keep the label noted.
+  3. Loops through each file and for each alias to a named sampler, remove the alias and instead use the literal direction to the named sampler source (ex: "$math/samplers/elevation.yml:samplers.rawFlatness")
+  4. If any pack sampler is used more than 3 times, child the original sampler under a CACHE sampler with an "exp: 2"
         
+
 Integrate river width variation
 Integrate river boundary distance
   Add 3 parameters to customization.yml
   1. Nominal river boundary. (Value 25)
   2. River boundary variance magnitude (value 17).
-  3. River boundary variance frequency. (Value 50)
-  Create a sampler in sampler/river.yml that is similar to the final river width sampler, but this will be (Nominal river boundary + Perlin * River boundary variance magnitude)
+  3. river-boundary-variance-period. (Value 50)
+  Create a sampler in sampler/river.yml that is an expression sampler of the kind(river-nominal-boundary + Perlin * river-boundary-variance-magnitude), where the perlin sampler would have a frequency of 1/river-boundary-variance-period.
 Update river type value based on distance from boundary
+  
 Update elevation herp function with river distance influence
 
+
+Consider for mountain sampler:
+sampler:
+type: PERLIN
+frequency: 0.001
+
+Verify mountain mask
+Build composite mountain mask A
+Build composite mountain mask B
+Verify canyon mask
 
 Update elevation sampler with older elevation sampler?  Or do a comparison between the two to see where the details get exposed between the two.
 Update mountains to use both kinds of mountains (Using opposite sides of the mountain mask)
@@ -78,8 +98,6 @@ Make sure deep sinks avoid rivers (Take inner land, and remove anything in bound
 Make sure rifts are 
 Add sinkholes?  Or how will those avoid rivers?  Only through border / land type biome filtering?
 
-
-
 Now that "resolved_samplers.yml" has been built, make a plan to create another python script that performs the following:
 
 - Detects identical samplers that are used more than 3 times.
@@ -89,3 +107,8 @@ that runs against the resolved_samplers.yml
 
 Review "resolved_samplers.yml" and identify all samplers
 
+Terrain construction:
+ - Blend plains and continental contribution using... mask?
+ - Add mountains and hills.
+ - Is flatness really necessary?
+ - Overlay mesas

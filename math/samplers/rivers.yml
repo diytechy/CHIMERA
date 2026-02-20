@@ -164,11 +164,11 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      ((maximum-continental-river-width + minimum-continental-river-width) / 2) + 
-      (perlin(x, z) * (maximum-continental-river-width - minimum-continental-river-width))
+      ((maximum_continental_river_width + minimum_continental_river_width) / 2) + 
+      (perlin(x, z) * (maximum_continental_river_width - minimum_continental_river_width))
     variables:
-      minimum-continental-river-width: $customization.yml:minimum-continental-river-width
-      maximum-continental-river-width: $customization.yml:maximum-continental-river-width
+      minimum_continental_river_width: $customization.yml:minimum-continental-river-width
+      maximum_continental_river_width: $customization.yml:maximum-continental-river-width
     samplers:
       perlin:
         dimensions: 2

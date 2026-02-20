@@ -115,53 +115,14 @@ samplers:
   continentalRise: &continentalRise
     dimensions: 2
     type: EXPRESSION
-    #expression: continental_sampler_base(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))
     expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
-    #expression: continentOrigBase(x,z)^2*(continentalRiseRate / #(continentalRiseRate+verticalLift))
     variables:
       globalScale: $customization.yml:global-scale
       verticalLift: $customization.yml:terrain-height
       scale: $customization.yml:flatness-scale
       continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1, note it typically maxes out around 0.5.
     samplers:
-      continental_sampler_base: $math/samplers/continents.yml:samplers.continental_sampler_base
       continents: $math/samplers/continents.yml:samplers.continents
-      continentOrigBase: $math/samplers/continents.yml:samplers.continentOrigBase
-
-  continentalRiver: &continentalRiver
-    dimensions: 2
-    type: EXPRESSION
-    #expression: continental_sampler_base(x,z)*(continentalRiseRate / (continentalRiseRate+verticalLift))
-    #expression: continents(x,z)^2*(continentalRiseRate / #(continentalRiseRate+verticalLift))
-    expression: continentOrigBase(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
-    variables:
-      globalScale: $customization.yml:global-scale
-      verticalLift: $customization.yml:terrain-height
-      scale: $customization.yml:flatness-scale
-      continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1, note it typically maxes out around 0.5.
-    samplers:
-      continental_sampler_base: $math/samplers/continents.yml:samplers.continental_sampler_base
-      continents: $math/samplers/continents.yml:samplers.continents
-      continentOrigBase: $math/samplers/continents.yml:samplers.continentOrigBase
-      
-         
-  riverHeight: &riverHeight
-    dimensions: 2
-    type: EXPRESSION
-    #expression: continentalRiver(x,z) + RiverMountainHeight(x,z)
-    expression: |
-      continentalRiver(x,z) + 
-      SmoothedAppliedMountainHeight(x,z)*mountainRiverScale
-    variables:
-      globalScale: $customization.yml:global-scale
-      verticalLift: $customization.yml:terrain-height
-      scale: $customization.yml:flatness-scale
-      mountainRiverScale: 0.8
-    samplers:
-      continentalRise: *continentalRise
-      continentalRiver: *continentalRiver
-      SmoothedAppliedMountainHeight: *SmoothedAppliedMountainHeight
-      RiverMountainHeight: *RiverMountainHeight
               
   rawFlatness: &rawFlatness
     dimensions: 2
@@ -278,7 +239,6 @@ samplers:
     variables:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
     samplers:
       sampler:
         dimensions: 2

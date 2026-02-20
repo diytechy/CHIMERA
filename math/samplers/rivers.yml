@@ -160,7 +160,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
 
-  continentalRiverWidth:
+  continentalRiverWidth: &continentalRiverWidth
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -173,9 +173,9 @@ samplers:
       perlin:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 1 / 50
+        frequency: 1 / ${customization.yml:continental-river-width-period}
 
-  riverBoundaryDistance:
+  riverBoundaryDistance: &riverBoundaryDistance
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -187,4 +187,4 @@ samplers:
       perlin:
         dimensions: 2
         type: PERLIN
-        frequency: 1 / ${customization.yml:river-boundary-variance-frequency}
+        frequency: 1 / ${customization.yml:river-boundary-variance-period}

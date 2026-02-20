@@ -17,11 +17,9 @@ samplers:
 
   mountainMask: &mountainMask
     dimensions: 2
-    type: PROBABILITY
-    sampler:
-      type: OPEN_SIMPLEX_2
-      salt: 0694
-      frequency: 1 / 1500
+    type: PERLIN
+    salt: 0694
+    frequency: 1 / 1500
  
   mountain_sampler: &mountain_sampler
     dimensions: 2
@@ -60,57 +58,6 @@ samplers:
       mountains: *mountains
       continents: $math/samplers/continents.yml:samplers.continents
     functions: $math/functions/interpolation.yml:functions
-
-  # Smoothed version of AppliedMountainHeight for river generation
-  # Uses domain warping to create smoother gradients that rivers can follow without erratic behavior
-  SmoothedAppliedMountainHeight: &SmoothedAppliedMountainHeight
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 50
-    warp:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.002
-      salt: 4521
-    sampler:
-      type: EXPRESSION
-      expression: |
-        (AppliedMountainHeight(x - smoothOffset, z) +
-         AppliedMountainHeight(x + smoothOffset, z) +
-         AppliedMountainHeight(x, z - smoothOffset) +
-         AppliedMountainHeight(x, z + smoothOffset) +
-         AppliedMountainHeight(x, z) * 2) / 6
-      variables:
-        smoothOffset: 75
-      samplers:
-        AppliedMountainHeight: *AppliedMountainHeight
-          
-  RiverMountainHeight: &RiverMountainHeight
-    dimensions: 2
-    type: EXPRESSION
-    expression: AppliedMountainHeight(x,z)*mountainRiverScale
-    #expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountain_sampler(x, z)),
-    #                parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, mountain_sampler(x, z)))*mountainRiverScale
-    variables:
-      mountainMaskZero: 0.35
-      mountainMaskFull: 0.65
-      mountainContZero: 0.05
-      mountainContFull: 0.35
-      mountainRiverScale: 0.8
-    samplers:
-      mountainMask: *mountainMask
-      mountain_sampler: *mountain_sampler
-      AppliedMountainHeight: *AppliedMountainHeight
-      continents: $math/samplers/continents.yml:samplers.continents
-    functions: $math/functions/interpolation.yml:functions
-
-  # Reference exports for use by other samplers (e.g., rivers.yml)
-  mountainMaskRef:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      type: OPEN_SIMPLEX_2
-      salt: 0694
-      frequency: 1 / 1500
 
   continentalRise: &continentalRise
     dimensions: 2

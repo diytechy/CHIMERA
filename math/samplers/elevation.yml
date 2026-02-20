@@ -12,6 +12,10 @@ variables: &variables
   
   hillMaxElevation: 0.3
   mountainCap: 0.9
+  mountainMaskZero: 0.4
+  mountainMaskFull: 0.6
+  mountainContZero: 0.0
+  mountainContFull: 0.3
 
 samplers:
 
@@ -42,22 +46,49 @@ samplers:
         type: FBM
         octaves: 3
         sampler: *mountain_sampler
+        
+  mountainsB: &mountainsB
+    dimensions: 2
+    type: FBM
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
+    sampler:
+      type: PERLIN
+      frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
+      salt: 300
           
-  AppliedMountainHeight: &AppliedMountainHeight
+  AppliedMountainHeightA: &AppliedMountainHeightA
     dimensions: 2
     type: EXPRESSION
     expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)),
                     parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, mountains(x, z)))
-    variables:
-      mountainMaskZero: 0.3
-      mountainMaskFull: 0.6
-      mountainContZero: 0.0
-      mountainContFull: 0.3
+    variables: *variables
     samplers:
       mountainMask: *mountainMask
       mountains: *mountains
       continents: $math/samplers/continents.yml:samplers.continents
     functions: $math/functions/interpolation.yml:functions
+    
+  AppliedMountainHeightB: &AppliedMountainHeightB
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(parabolicMap(-mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, abs(mountainsB(x, z))),
+                    parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, abs(mountainsB(x, z))))
+    variables: *variables
+    samplers:
+      mountainMask: *mountainMask
+      mountainsB: *mountainsB
+      continents: $math/samplers/continents.yml:samplers.continents
+    functions: $math/functions/interpolation.yml:functions
+
+  AppliedMountainHeight: &AppliedMountainHeight
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(AppliedMountainHeightA(x, z), AppliedMountainHeightB(x, z))
+    samplers:
+      AppliedMountainHeightA: *AppliedMountainHeightA
+      AppliedMountainHeightB: *AppliedMountainHeightB
 
   continentalRise: &continentalRise
     dimensions: 2

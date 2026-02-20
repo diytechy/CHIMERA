@@ -174,3 +174,17 @@ samplers:
         dimensions: 2
         type: OPEN_SIMPLEX_2
         frequency: 1 / 50
+
+  riverBoundaryDistance:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      river_nominal_boundary + (perlin(x, z) * river_boundary_variance_magnitude)
+    variables:
+      river_nominal_boundary: $customization.yml:river-nominal-boundary
+      river_boundary_variance_magnitude: $customization.yml:river-boundary-variance-magnitude
+    samplers:
+      perlin:
+        dimensions: 2
+        type: PERLIN
+        frequency: 1 / ${customization.yml:river-boundary-variance-frequency}

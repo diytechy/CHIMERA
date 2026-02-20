@@ -383,6 +383,18 @@ continental-river-width-period: 50
 # Higher values create more gradual width changes.
 # Default: 50
 
+river-nominal-boundary: 25
+# Nominal distance from river center to boundary in blocks.
+# Default: 25
+
+river-boundary-variance-magnitude: 17
+# Magnitude of variance in river boundary distance.
+# Default: 17
+
+river-boundary-variance-period: 50
+# Frequency of river boundary variance using Perlin noise.
+# Default: 50
+
 # ---
 # Trenches
 # ---

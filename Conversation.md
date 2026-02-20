@@ -53,6 +53,11 @@ samplers:
         
 Integrate river width variation
 Integrate river boundary distance
+  Add 3 parameters to customization.yml
+  1. Nominal river boundary. (Value 25)
+  2. River boundary variance magnitude (value 17).
+  3. River boundary variance frequency. (Value 50)
+  Create a sampler in sampler/river.yml that is similar to the final river width sampler, but this will be (Nominal river boundary + Perlin * River boundary variance magnitude)
 Update river type value based on distance from boundary
 Update elevation herp function with river distance influence
 

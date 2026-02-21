@@ -383,6 +383,80 @@ samplers:
       prefiltered_mesa_elev: $math/samplers/elevation.yml:samplers.prefiltered_mesa_elev
     functions: $math/functions/interpolation.yml:functions
 
+  elevationTerraced:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      terrace(
+        combine(
+          elevation(x, z),
+          detailStart, 0,
+          detailEnd, detail(x, z) * detailFactor
+        ),
+        terraceBaseScale + terraceScale(x, z) * terraceScaleVariation,
+        terraceOffset(x, z) * terraceOffsetVariation,
+        0,
+        (terraceDepth(x, z)^3) * terraceDepthVariation,
+        0, terraceDepthStart
+      )
+    variables: *variables
+    samplers:
+      elevation: $math/samplers/elevation.yml:samplers.elevation
+      terraceScale:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.002
+        salt: 1926
+      terraceDepth:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.001
+          salt: 5812
+      terraceOffset:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.001
+          salt: 8512
+      detail:
+        dimensions: 2
+        type: FBM
+        octaves: 4
+        lacunarity: 2
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.008
+          salt: 5912
+
+    functions:
+      terrace: # Terrace function but with depth masked by input value, so terracing doesn't cut down below ocean level
+        arguments:
+        - i    # Input
+        - sc   # Scale
+        - o    # Offset
+        - g    # Gap
+        - d    # Terrace depth
+        - tz   # Value of i where depth = 0
+        - tf   # Value of i where depth = d
+        expression: terraceParalinear(i,sc,o,g,lerp(i,tz,0,tf,d))
+        functions:
+          "<<":
+          - math/functions/terrace.yml:functions
+          - math/functions/interpolation.yml:functions
+      combine: # Stacks a layer of noise on top scaled according to the base noise
+        arguments:
+        - x
+        - at
+        - a
+        - bt
+        - b
+        expression: x+lerp(x,at,a,bt,b)
+        functions: $math/functions/interpolation.yml:functions
+
+
   elevationDetailed:
     dimensions: 2
     type: EXPRESSION
@@ -466,6 +540,7 @@ samplers:
         - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
+
 
   oceanElevation:
     dimensions: 2

@@ -151,12 +151,14 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
 
+############# DENDRY BASED RIVER IMPLIMENTATION BELOW ##############
+
   continentalRiverWidth:
     dimensions: 2
     type: EXPRESSION
     expression: |
       ((maximum_continental_river_width + minimum_continental_river_width) / 2) + 
-      (perlin(x, z) * (maximum_continental_river_width - minimum_continental_river_width))
+      (perlin(x, z) * (maximum_continental_river_width - minimum_continental_river_width)/2)
     variables:
       minimum_continental_river_width: $customization.yml:minimum-continental-river-width
       maximum_continental_river_width: $customization.yml:maximum-continental-river-width
@@ -165,6 +167,12 @@ samplers:
         dimensions: 2
         type: OPEN_SIMPLEX_2
         frequency: 1 / ${customization.yml:continental-river-width-period}
+
+  continentalDendryRivers:
+    dimensions: 3
+    type: DENDRY
+    sampler: $math/samplers/elevation.yml:samplers.elevationTerraced
+    riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
 
   riverBoundaryDistance:
     dimensions: 2
@@ -179,3 +187,17 @@ samplers:
         dimensions: 2
         type: PERLIN
         frequency: 1 / ${customization.yml:river-boundary-variance-period}
+
+  continentalRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,1.0,z)
+    samplers:
+      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
+
+  continentalRiverDist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,0.0,z)
+    samplers:
+      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers

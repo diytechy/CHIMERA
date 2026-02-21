@@ -2,7 +2,6 @@ variables: &variables
   notTrenchValue: 2 # Value the sampler outputs for areas where there is not a trench.
   borderValue: 1 # Value the sampler outputs for areas bordering trenches.
   trenchValue: 0 # Value the sampler outputs where there should be a trench.
-  
   trenchFrequency: 1 / 40 / ${customization.yml:trench-spread-scale} / ${customization.yml:global-scale}
   trenchThreshold: 0.3 # Determines the area calculated as trench, which also determines how far away trench borders will be.
   trenchMinWidth: ${customization.yml:trench-min-width} * ${customization.yml:global-scale} # Determines the minimum width of trenches within trenchThreshold.
@@ -13,7 +12,7 @@ variables: &variables
   erosionMin: 0
 
 samplers:
-  trenchNoise: &trenchNoise
+  trenchNoise:
     dimensions: 2
     type: TRANSLATE
     x: -10000
@@ -28,13 +27,13 @@ samplers:
         type: OPEN_SIMPLEX_2
         salt: 4357
 
-  trenchDistance: &trenchDistance
+  trenchDistance:
     dimensions: 2
     type: EXPRESSION
     expression: "|trenchNoise(x*trenchFrequency, z*trenchFrequency)|"
     variables: *variables
     samplers:
-      trenchNoise: *trenchNoise
+      trenchNoise: $math/samplers/trenches.yml:samplers.trenchNoise
 
   trenchTerrainErosion:
     dimensions: 2
@@ -47,7 +46,7 @@ samplers:
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
     samplers:
-      trenchDistance: *trenchDistance
+      trenchDistance: $math/samplers/trenches.yml:samplers.trenchDistance
       erosionStrength:
         dimensions: 2
         type: PROBABILITY
@@ -89,18 +88,14 @@ samplers:
           )
         variables: *variables
         samplers:
-          trenchDistance: *trenchDistance
+          trenchDistance: $math/samplers/trenches.yml:samplers.trenchDistance
           trenchKerneled:
             dimensions: 3
             type: KERNEL # Edge detection
-            kernel: [
-              [ 0,  1, 0 ],
-              [ 1, -4, 1 ],
-              [ 0,  1, 0 ]
-            ]
+            kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
             sampler:
               type: EXPRESSION
               expression: trenchNoise(x*y*trenchFrequency, z*y*trenchFrequency)>0
               variables: *variables
               samplers:
-                trenchNoise: *trenchNoise
+                trenchNoise: $math/samplers/trenches.yml:samplers.trenchNoise

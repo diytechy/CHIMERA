@@ -2,14 +2,14 @@ variables: &variables
   spread: $customization.yml:spot-spread
 
   largeSpawnRadiusOffset: $customization.yml:large-spot-spawn-radius-offset
-  
+
   biomeBorder: 20
 
   largeBiomeBorder: 100
 
   minRadius: $customization.yml:spot-radius-min
   maxRadius: $customization.yml:spot-radius-max
-  
+
   minHeight: 0.05
   maxHeight: 0.5
 
@@ -133,7 +133,6 @@ samplers:
   # ---
   # Volcano Samplers
   # ---
-  
   spotEdgeRadiusPercent:
     <<: *cellular
     return: NoiseLookup
@@ -147,7 +146,7 @@ samplers:
           salt: 5812
       functions:
         quinticEaseInOut:
-          arguments: [ x ]
+          arguments: [x]
           expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
   spotEdgeRadius:

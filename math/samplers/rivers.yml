@@ -2,7 +2,6 @@ variables: &variables
   notRiverValue: 2 # Value the sampler outputs for areas where there is not a river.
   borderValue: 1 # Value the sampler outputs for areas bordering rivers.
   riverValue: 0 # Value the sampler outputs where there should be a river.
-  
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
   riverThreshold: 0.3 # Determines the area calculated as river, which also determines how far away river borders will be.
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
@@ -13,7 +12,7 @@ variables: &variables
   erosionMin: 0
 
 samplers:
-  riverNoise: &riverNoise
+  riverNoise:
     dimensions: 2
     type: TRANSLATE
     x: 10000
@@ -27,13 +26,13 @@ samplers:
       sampler:
         type: OPEN_SIMPLEX_2
 
-  riverDistance: &riverDistance
+  riverDistance:
     dimensions: 2
     type: EXPRESSION
     expression: "|riverNoise(x*riverFrequency, z*riverFrequency)|"
     variables: *variables
     samplers:
-      riverNoise: *riverNoise
+      riverNoise: $math/samplers/rivers.yml:samplers.riverNoise
 
   riverTerrainErosion:
     dimensions: 2
@@ -46,7 +45,7 @@ samplers:
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
     samplers:
-      riverDistance: *riverDistance
+      riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
       erosionStrength:
         dimensions: 2
         type: PROBABILITY
@@ -87,21 +86,17 @@ samplers:
           )
         variables: *variables
         samplers:
-          riverDistance: *riverDistance
+          riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
           riverKerneled:
             dimensions: 3
             type: KERNEL # Edge detection
-            kernel: [
-              [ 0,  1, 0 ],
-              [ 1, -4, 1 ],
-              [ 0,  1, 0 ]
-            ]
+            kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
             sampler:
               type: EXPRESSION
               expression: riverNoise(x*y*riverFrequency, z*y*riverFrequency)>0
               variables: *variables
               samplers:
-                riverNoise: *riverNoise
+                riverNoise: $math/samplers/rivers.yml:samplers.riverNoise
 
   riverBiomeMap2:
     dimensions: 2
@@ -132,15 +127,11 @@ samplers:
           )
         variables: *variables
         samplers:
-          riverDistance: *riverDistance
+          riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
           riverKerneled:
             dimensions: 3
             type: KERNEL # Edge detection
-            kernel: [
-              [ 0,  1, 0 ],
-              [ 1, -4, 1 ],
-              [ 0,  1, 0 ]
-            ]
+            kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
             sampler:
               type: EXPRESSION
               expression: riverNoise(x*y*riverFrequency, z*y*riverFrequency)>0
@@ -160,7 +151,7 @@ samplers:
                     sampler:
                       type: OPEN_SIMPLEX_2
 
-  continentalRiverWidth: &continentalRiverWidth
+  continentalRiverWidth:
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -175,7 +166,7 @@ samplers:
         type: OPEN_SIMPLEX_2
         frequency: 1 / ${customization.yml:continental-river-width-period}
 
-  riverBoundaryDistance: &riverBoundaryDistance
+  riverBoundaryDistance:
     dimensions: 2
     type: EXPRESSION
     expression: |

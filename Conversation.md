@@ -59,6 +59,39 @@ samplers:
   3. Loops through each file and for each alias to a named sampler, remove the alias and instead use the literal direction to the named sampler source (ex: "$math/samplers/elevation.yml:samplers.rawFlatness")
   4. If any pack sampler is used more than 3 times, child the original sampler under a CACHE sampler with an "exp: 2"
         
+#######################################################
+Finish elevation:
+Plains can exist anywhere mountains are not?
+Hills blend inversely to mountain mask
+
+########################################################
+
+Now when I have this in the elevation tab:
+
+type: EXPRESSION
+Expression: AppliedMountainHeight(x,z)
+
+I see a console error in the NoiseTool:
+
+Caused by: com.dfsek.tectonic.api.exception.ValueMissingException: Failed to load configuration:
+
+	Configuration: Noise Config
+	Message: Value "expression" was not found in the provided config: null
+	Path: ..expression
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "."
+		With type "EXPRESSION"
+		In entry "expression"
+
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadValue(ConfigLoader.java:177)
+	at com.dfsek.tectonic.impl.loading.template.ReflectiveTemplateLoader.load(ReflectiveTemplateLoader.java:46)
+
+It appears something broke with the mapped function names?  This is with the content of resolved_samplers.yml loaded into the common tab.
+
+Note looking at resolved_samplers.yml I am seeing a considerable amount of duplicate samplers, instead of just having named samplers directly reused through the sampler chain.  This indicates another issue in resolve_samplers.py
+
+########################################################################
 
 Integrate river width variation
 Integrate river boundary distance

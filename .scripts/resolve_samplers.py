@@ -9,8 +9,11 @@ Key features:
 - Resolves $file.yml:key.path and ${file.yml:key} inline variable references
 - Evaluates constant mathematical expressions (e.g., "1 / 1000" -> 0.001)
 - Orders shared samplers by dependency (dependencies first in output)
-- Keeps full inline copies of all sub-samplers (required because Terra's
-  pack-level samplers aren't available to each other during the loading phase)
+- Removes duplicate sub-sampler entries from 'samplers:' (plural) maps when
+  they match pack-level sampler names (NoiseTool loads them sequentially so
+  they're available via globalSamplers)
+- Keeps 'sampler:' (singular) entries as full inline copies (wrapper types
+  like FBM/CACHE load them directly)
 - Completely overwrites the output file with only resolved content
 
 Output format:
@@ -20,8 +23,7 @@ Output format:
       dependentSampler:
         type: EXPRESSION
         expression: "namedSampler(x, z)"
-        samplers:
-          namedSampler: { ... }  # inline copy kept for pack loading
+        # namedSampler NOT duplicated here — found via globalSamplers
     functions:
       ...
 """
@@ -751,18 +753,18 @@ def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> L
     return result
 
 
-def _remove_global_sampler_refs(config: Any, all_samplers: Dict[str, Any],
-                                shared: Set[str], hash_to_name: Dict[str, str]) -> Any:
+
+def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
+                                 owner_name: str) -> Any:
     """
-    Deep-copy a sampler config and remove nested sub-sampler entries from
-    'samplers:' (plural) sections that match pack-level named samplers.
+    Deep-walk a sampler config and remove entries from 'samplers:' (plural)
+    maps that match pack-level sampler names. With sequential loading in
+    DummyPack, these samplers are already available via globalSamplers, so
+    EXPRESSION types will find them automatically.
 
-    These entries are redundant because Terra's NoiseAddon injects pack-level
-    samplers into every ExpressionFunctionTemplate as global samplers, making
-    them callable by name without explicit local references.
-
-    'sampler:' (singular) entries are kept as inline copies since non-expression
-    sampler types (CACHE, FBM, etc.) cannot reference pack-level names.
+    Only removes from 'samplers:' (plural) — 'sampler:' (singular) entries
+    are kept as full inline copies because wrapper types (FBM, CACHE, etc.)
+    load them directly from config, not via expression evaluation.
     """
     config = copy.deepcopy(config)
 
@@ -773,27 +775,19 @@ def _remove_global_sampler_refs(config: Any, all_samplers: Dict[str, Any],
                     walk(item)
             return
 
-        # Remove matching entries from 'samplers' (plural) — available globally
+        # Remove matching entries from 'samplers' (plural)
         sub_samplers = node.get('samplers')
         if isinstance(sub_samplers, dict):
             keys_to_remove = []
-            for key in list(sub_samplers.keys()):
-                value = sub_samplers[key]
-                if isinstance(value, dict):
-                    h = _content_hash(value)
-                    matched_name = hash_to_name.get(h)
-                    if matched_name and matched_name in shared:
-                        if value == all_samplers[matched_name]:
-                            keys_to_remove.append(key)
-                            continue
-                    walk(value)
+            for key in sub_samplers:
+                if key in all_sampler_names and key != owner_name:
+                    keys_to_remove.append(key)
+                elif isinstance(sub_samplers[key], dict):
+                    walk(sub_samplers[key])
             for key in keys_to_remove:
                 del sub_samplers[key]
-            # If samplers section is now empty, remove it entirely
-            if not sub_samplers:
-                del node['samplers']
 
-        # Keep 'sampler' (singular) as-is but recurse into it
+        # Keep 'sampler' (singular) as full inline copy — recurse into it
         sampler_val = node.get('sampler')
         if isinstance(sampler_val, dict):
             walk(sampler_val)
@@ -801,7 +795,11 @@ def _remove_global_sampler_refs(config: Any, all_samplers: Dict[str, Any],
         # Recurse into other dict values
         for key, value in node.items():
             if key not in ('samplers', 'sampler'):
-                walk(value)
+                if isinstance(value, dict):
+                    walk(value)
+                elif isinstance(value, list):
+                    for item in value:
+                        walk(item)
 
     walk(config)
     return config
@@ -809,26 +807,28 @@ def _remove_global_sampler_refs(config: Any, all_samplers: Dict[str, Any],
 
 def build_resolved_output(all_samplers: Dict[str, Any]) -> str:
     """
-    Build YAML output with all samplers fully resolved as inline copies.
+    Build YAML output with shared samplers deduplicated.
 
-    Shared samplers are identified to determine dependency order (dependencies
-    first), but sub-sampler entries are kept intact. This is necessary because
-    during Terra's pack loading phase, pack-level samplers are NOT available
-    to each other — the packSamplers global map is only populated AFTER all
-    samplers finish loading. EXPRESSION samplers need explicit local sub-sampler
-    entries to compile successfully.
+    With NoiseTool's sequential loading (DummyPack loads pack-level samplers
+    one at a time in dependency order), EXPRESSION types can reference other
+    pack-level samplers by name via globalSamplers. This means sub-sampler
+    entries in 'samplers:' (plural) that match pack-level names can be removed.
+
+    'sampler:' (singular) entries are kept as full inline copies because wrapper
+    types (FBM, CACHE, etc.) load them directly from config.
     """
     # Identify shared samplers and compute output order (dependencies first)
     shared = _identify_shared_samplers(all_samplers)
     ordered = _build_dependency_order(all_samplers, shared)
+    all_names = set(all_samplers.keys())
 
     output_lines: List[str] = []
 
     for name in ordered:
         config = all_samplers[name]
 
-        # Keep full inline copies — do NOT remove sub-sampler entries
-        # Pack-level samplers aren't available to each other during loading
+        # Remove sub-sampler entries that match pack-level names
+        config = _remove_global_sampler_refs(config, all_names, name)
 
         # Dump this sampler as YAML
         yaml_str = yaml.dump(

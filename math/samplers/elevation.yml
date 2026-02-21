@@ -99,24 +99,40 @@ samplers:
       AppliedMountainHeightB: *AppliedMountainHeightB
 
   ############ MESA DEFINITIONS ############
+  mesaMaskRaw: &mesaMaskRaw
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        sampler:
+          dimensions: 2
+          type: FBM
+          octaves: 2
+          lacunarity: 1.7
+          gain: 0.7
+          sampler:
+            type: PERLIN
+            frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+            salt: 200
+        warp: 
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.45
+          octaves: 4
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 1
+            frequency: (1/5000)
+
   mesaMask: &mesaMask
     dimensions: 2
     type: EXPRESSION
-    expression: max(min((sampler(x - 6000, z - 6000)-mesa_threshold)/(0.5-mesa_threshold), continents(x, z)),0)
+    expression: max(min((sampler(x - 6000, z - 6000)-mesa_threshold)/(0.6-mesa_threshold), continents(x, z)),0)
+    #2.75-mesa_threshold
     variables:
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
     samplers:
       continents: $math/samplers/continents.yml:samplers.continents
-      sampler:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 1.7
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
-          salt: 200
+      sampler: *mesaMaskRaw
           
   # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
   PeakHeightMultiplierAtPosition: &PeakHeightMultiplierAtPosition
@@ -139,7 +155,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      max(min(round(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0)/MaxNMesSteps
+      max(min(round(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0) /MaxNMesSteps
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -154,7 +170,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      (prefiltered_mesa_step_ratio(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z))
+      max((prefiltered_mesa_step_ratio(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -163,6 +179,7 @@ samplers:
       continents: $math/samplers/continents.yml:samplers.continents
       prefiltered_mesa_step_ratio: *prefiltered_mesa_step_ratio
       PeakHeightMultiplierAtPosition: *PeakHeightMultiplierAtPosition
+      elevation: $math/samplers/elevation.yml:samplers.elevation
 
   # Find lower corresponding shelf, depends on elevation sampler below:
   prefiltered_mesa_floor: &prefiltered_mesa_floor
@@ -185,7 +202,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      prefiltered_mesa_step_ratio(x,z) - mesaMask(x, z)
+      max(if(prefiltered_mesa_step_ratio(x,z), (mesaMask(x, z)*MaxNMesSteps+0.5) - (prefiltered_mesa_step_ratio(x,z)*MaxNMesSteps),0), 0)
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -193,6 +210,7 @@ samplers:
     samplers:
       prefiltered_mesa_step_ratio: *prefiltered_mesa_step_ratio
       mesaMask: *mesaMask
+    
 
   ############ Other land attributes ############
 
@@ -357,8 +375,21 @@ samplers:
       spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
   
   # Now place mesas into elevation.
-
-          
+  # Blend the floor and nominal step height based on the distance to ramp from step to step.
+  elevation_with_mesas: &elevation_with_mesas
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      herp(mesa_floor_step_dist(x, z), 0, prefiltered_mesa_floor(x,z), 0.25, prefiltered_mesa_elev(x,z))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      mesa_floor_step_dist: *mesa_floor_step_dist
+      prefiltered_mesa_floor: *prefiltered_mesa_floor
+      prefiltered_mesa_elev: *prefiltered_mesa_elev
+    functions: $math/functions/interpolation.yml:functions
           
 
   # Elevation-shifted mesa elevation sampler - uses current elevation as offset
@@ -520,15 +551,6 @@ samplers:
           - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
-
-  elevation_with_mesas: &elevation_with_mesas
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      elevation(x, z) + RegionFilteredMesaHeightModifier(x, z)
-    samplers:
-      elevation: *elevation
-      RegionFilteredMesaHeightModifier: *RegionFilteredMesaHeightModifier
 
   oceanElevation:
     dimensions: 2

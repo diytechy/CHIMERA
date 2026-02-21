@@ -8,16 +8,20 @@ with all external references and inline variables resolved.
 Key features:
 - Resolves $file.yml:key.path and ${file.yml:key} inline variable references
 - Evaluates constant mathematical expressions (e.g., "1 / 1000" -> 0.001)
-- Deduplicates shared samplers using YAML anchors (&name) and aliases (*name)
+- Orders shared samplers by dependency (dependencies first in output)
+- Keeps full inline copies of all sub-samplers (required because Terra's
+  pack-level samplers aren't available to each other during the loading phase)
 - Completely overwrites the output file with only resolved content
 
 Output format:
     samplers:
-      sharedSampler: &sharedSampler
+      namedSampler:
         ...
       dependentSampler:
+        type: EXPRESSION
+        expression: "namedSampler(x, z)"
         samplers:
-          sharedSampler: *sharedSampler
+          namedSampler: { ... }  # inline copy kept for pack loading
     functions:
       ...
 """
@@ -747,11 +751,18 @@ def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> L
     return result
 
 
-def _replace_with_aliases(config: Any, all_samplers: Dict[str, Any],
-                          shared: Set[str], hash_to_name: Dict[str, str]) -> Any:
+def _remove_global_sampler_refs(config: Any, all_samplers: Dict[str, Any],
+                                shared: Set[str], hash_to_name: Dict[str, str]) -> Any:
     """
-    Deep-copy a sampler config and replace nested sub-sampler dicts that match
-    shared top-level samplers with alias marker strings ('*name').
+    Deep-copy a sampler config and remove nested sub-sampler entries from
+    'samplers:' (plural) sections that match pack-level named samplers.
+
+    These entries are redundant because Terra's NoiseAddon injects pack-level
+    samplers into every ExpressionFunctionTemplate as global samplers, making
+    them callable by name without explicit local references.
+
+    'sampler:' (singular) entries are kept as inline copies since non-expression
+    sampler types (CACHE, FBM, etc.) cannot reference pack-level names.
     """
     config = copy.deepcopy(config)
 
@@ -762,9 +773,10 @@ def _replace_with_aliases(config: Any, all_samplers: Dict[str, Any],
                     walk(item)
             return
 
-        # Replace in 'samplers' (plural)
+        # Remove matching entries from 'samplers' (plural) — available globally
         sub_samplers = node.get('samplers')
         if isinstance(sub_samplers, dict):
+            keys_to_remove = []
             for key in list(sub_samplers.keys()):
                 value = sub_samplers[key]
                 if isinstance(value, dict):
@@ -772,19 +784,18 @@ def _replace_with_aliases(config: Any, all_samplers: Dict[str, Any],
                     matched_name = hash_to_name.get(h)
                     if matched_name and matched_name in shared:
                         if value == all_samplers[matched_name]:
-                            sub_samplers[key] = f'*{matched_name}'
+                            keys_to_remove.append(key)
                             continue
                     walk(value)
+            for key in keys_to_remove:
+                del sub_samplers[key]
+            # If samplers section is now empty, remove it entirely
+            if not sub_samplers:
+                del node['samplers']
 
-        # Replace in 'sampler' (singular)
+        # Keep 'sampler' (singular) as-is but recurse into it
         sampler_val = node.get('sampler')
         if isinstance(sampler_val, dict):
-            h = _content_hash(sampler_val)
-            matched_name = hash_to_name.get(h)
-            if matched_name and matched_name in shared:
-                if sampler_val == all_samplers[matched_name]:
-                    node['sampler'] = f'*{matched_name}'
-                    return
             walk(sampler_val)
 
         # Recurse into other dict values
@@ -796,48 +807,37 @@ def _replace_with_aliases(config: Any, all_samplers: Dict[str, Any],
     return config
 
 
-def build_anchor_aware_output(all_samplers: Dict[str, Any]) -> str:
+def build_resolved_output(all_samplers: Dict[str, Any]) -> str:
     """
-    Build YAML output with anchor/alias deduplication.
+    Build YAML output with all samplers fully resolved as inline copies.
 
-    Shared samplers (those appearing as nested sub-samplers in other trees)
-    are emitted first with &anchor names. Subsequent references in dependent
-    samplers use *alias references instead of repeating the full config.
+    Shared samplers are identified to determine dependency order (dependencies
+    first), but sub-sampler entries are kept intact. This is necessary because
+    during Terra's pack loading phase, pack-level samplers are NOT available
+    to each other — the packSamplers global map is only populated AFTER all
+    samplers finish loading. EXPRESSION samplers need explicit local sub-sampler
+    entries to compile successfully.
     """
-    # Identify shared samplers and compute output order
+    # Identify shared samplers and compute output order (dependencies first)
     shared = _identify_shared_samplers(all_samplers)
     ordered = _build_dependency_order(all_samplers, shared)
-
-    # Build hash -> name lookup for alias replacement
-    hash_to_name: Dict[str, str] = {}
-    for name in shared:
-        h = _content_hash(all_samplers[name])
-        hash_to_name[h] = name
 
     output_lines: List[str] = []
 
     for name in ordered:
         config = all_samplers[name]
-        is_shared = True  # All pack-level named samplers receive anchors
 
-        # Replace nested shared subtrees with alias markers
-        modified_config = _replace_with_aliases(config, all_samplers, shared, hash_to_name)
+        # Keep full inline copies — do NOT remove sub-sampler entries
+        # Pack-level samplers aren't available to each other during loading
 
         # Dump this sampler as YAML
         yaml_str = yaml.dump(
-            {name: modified_config},
+            {name: config},
             default_flow_style=False,
             allow_unicode=True,
             sort_keys=False,
             width=120
         )
-
-        # Add anchor if this is a shared sampler
-        if is_shared:
-            yaml_str = yaml_str.replace(f"{name}:", f"{name}: &{name}", 1)
-
-        # Remove quotes around alias markers: '*name' -> *name
-        yaml_str = re.sub(r"'(\*[a-zA-Z_][a-zA-Z0-9_]*)'\s*$", r'\1', yaml_str, flags=re.MULTILINE)
 
         # Indent for placement under 'samplers:' key
         lines = yaml_str.split('\n')
@@ -939,9 +939,9 @@ def main():
             resolver.all_functions = resolver.evaluate_constants(resolver.all_functions)
         print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
 
-    # Build anchor-aware sampler output
-    print("\nBuilding anchor-aware output...", file=sys.stderr)
-    samplers_yaml = build_anchor_aware_output(resolver.all_samplers)
+    # Build resolved sampler output
+    print("\nBuilding resolved output...", file=sys.stderr)
+    samplers_yaml = build_resolved_output(resolver.all_samplers)
 
     # Build functions section if present
     functions_yaml = ""

@@ -596,3 +596,9 @@ Please write a python function that reads ".artifacts/resolved_samplers.yml", an
 
 
 
+I am trying to explore methods to improve the NoiseTool (C:\Projects\NoiseTools) performance / speed.  Options: 
+1. implementing methods for it to run multithreaded if not already capable.
+2. A method for it to load a pack file such that it's named samplers will only be instantiated and run once as normally, and then the samplers can be referenced in the color / elevation editor tabs.
+3. A method for named samplers to be called out without a filename, such that I can copy all samplers into the noise tool's common editor tab, and let them reference eachother directly instead of it's current state of using aliases.
+
+Can you review these options and recommend a design direction?

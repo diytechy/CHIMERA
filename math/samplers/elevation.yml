@@ -239,14 +239,24 @@ samplers:
           type: OPEN_SIMPLEX_2
           frequency: 1 / 2000
 
+  plainsMaskApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(plainsMask(x, z)), plainsMaskZero, 0, plainsMaskFull, 1)
+    variables: *variables
+    samplers:
+      plainsMask: $math/samplers/elevation.yml:samplers.plainsMask
+    functions: $math/functions/interpolation.yml:functions
+
   hillsApplied:
     dimensions: 2
     type: EXPRESSION
     expression: |
       min(10.0,
-        herp(abs(plainsMask(x, z)), plainsMaskZero, 1, plainsMaskFull, 0))*hills(x, z)
+        herp(plainsMaskApplied, 0, 1, 1, 0))*hills(x, z)
     variables: *variables
     samplers:
+      plainsMaskApplied: $math/samplers/elevation.yml:samplers.plainsMaskApplied
       mountainMask: $math/samplers/elevation.yml:samplers.mountainMask
       plainsMask: $math/samplers/elevation.yml:samplers.plainsMask
       hills: $math/samplers/elevation.yml:samplers.hills

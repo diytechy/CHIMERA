@@ -599,6 +599,101 @@ Please write a python function that reads ".artifacts/resolved_samplers.yml", an
 I am trying to explore methods to improve the NoiseTool (C:\Projects\NoiseTools) performance / speed.  Options: 
 1. implementing methods for it to run multithreaded if not already capable.
 2. A method for it to load a pack file such that it's named samplers will only be instantiated and run once as normally, and then the samplers can be referenced in the color / elevation editor tabs.
-3. A method for named samplers to be called out without a filename, such that I can copy all samplers into the noise tool's common editor tab, and let them reference eachother directly instead of it's current state of using aliases.
+3. A method for named samplers to be called out without a filename, such that I can copy all samplers into the noise tool's common editor tab, and let them reference each-other directly instead of it's current state of using aliases.
 
 Can you review these options and recommend a design direction?
+
+Common:
+samplers:
+  continental_landmass:
+    dimensions: 2
+    type: EXPRESSION
+    expression: "..."
+    samplers:
+      raw: { type: OPEN_SIMPLEX_2, frequency: 0.001 }
+
+Elevation:
+type: EXPRESSION
+expression: "continental_landmass(x, z) + localNoise(x, z)"
+samplers:
+  localNoise:
+    dimensions: 2
+    type: PERLIN
+    frequency: 0.01
+
+##########################################
+
+Does order matter for availability?
+
+In the NoiseTool console I see this error, after copying the resolved samplers into the common section, is something preventing the new named samplers from being resolved back to their noise object?
+
+08:33:19.202 [SwingWorker-pool-2-thread-3] INFO dendryterra.DendryAddon -- DendryTerra: Registered DENDRY sampler type
+com.dfsek.tectonic.api.exception.LoadException: Failed to load configuration:
+
+	Configuration: Noise Config
+	Message: Unexpected exception thrown during type loading: Failed to parse expression.
+	Path: samplers.spotRadius..
+	Full Path: 
+		From configuration "Noise Config"
+		In entry "samplers"
+		In entry "spotRadius"
+		In entry "."
+
+	at com.dfsek.tectonic.api.loader.ConfigLoader.getObject(ConfigLoader.java:232)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadType(ConfigLoader.java:214)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadValue(ConfigLoader.java:165)
+	at com.dfsek.tectonic.impl.loading.template.ReflectiveTemplateLoader.load(ReflectiveTemplateLoader.java:46)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.load(ConfigLoader.java:155)
+	at com.dfsek.tectonic.impl.loading.object.ObjectTemplateLoader.load(ObjectTemplateLoader.java:27)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.getObject(ConfigLoader.java:220)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadType(ConfigLoader.java:214)
+	at com.dfsek.tectonic.impl.loading.loaders.generic.HashMapLoader.load(HashMapLoader.java:28)
+	at com.dfsek.tectonic.impl.loading.loaders.generic.HashMapLoader.load(HashMapLoader.java:15)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.getObject(ConfigLoader.java:223)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadType(ConfigLoader.java:214)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.loadValue(ConfigLoader.java:165)
+	at com.dfsek.tectonic.impl.loading.template.ReflectiveTemplateLoader.load(ReflectiveTemplateLoader.java:46)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.load(ConfigLoader.java:155)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.load(ConfigLoader.java:151)
+	at com.dfsek.noise.platform.DummyPack.lambda$new$1(DummyPack.java:104)
+	at com.dfsek.terra.api.event.events.config.pack.ConfigPackLoadEvent.loadTemplate(ConfigPackLoadEvent.java:36)
+	at com.dfsek.terra.addons.noise.NoiseAddon.lambda$initialize$21(NoiseAddon.java:164)
+	at com.dfsek.terra.event.EventContextImpl.lambda$handle$0(EventContextImpl.java:50)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at com.dfsek.terra.event.EventContextImpl.handle(EventContextImpl.java:50)
+	at com.dfsek.terra.event.FunctionalEventHandlerImpl.lambda$handle$0(FunctionalEventHandlerImpl.java:52)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at com.dfsek.terra.event.FunctionalEventHandlerImpl.handle(FunctionalEventHandlerImpl.java:48)
+	at com.dfsek.terra.event.EventManagerImpl.lambda$callEvent$0(EventManagerImpl.java:38)
+	at java.base/java.util.HashMap$Values.forEach(HashMap.java:1074)
+	at com.dfsek.terra.event.EventManagerImpl.callEvent(EventManagerImpl.java:38)
+	at com.dfsek.noise.platform.DummyPack.<init>(DummyPack.java:103)
+	at com.dfsek.noise.swing.NoisePanel$RenderWorker.doInBackground(NoisePanel.java:156)
+	at com.dfsek.noise.swing.NoisePanel$RenderWorker.doInBackground(NoisePanel.java:104)
+	at java.desktop/javax.swing.SwingWorker$1.call(SwingWorker.java:305)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.desktop/javax.swing.SwingWorker.run(SwingWorker.java:342)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1575)
+Caused by: java.lang.RuntimeException: Failed to parse expression.
+	at com.dfsek.terra.addons.noise.config.templates.noise.ExpressionFunctionTemplate.get(ExpressionFunctionTemplate.java:64)
+	at com.dfsek.terra.addons.noise.config.templates.noise.ExpressionFunctionTemplate.get(ExpressionFunctionTemplate.java:29)
+	at com.dfsek.terra.config.loaders.GenericTemplateSupplierLoader.load(GenericTemplateSupplierLoader.java:50)
+	at com.dfsek.tectonic.api.loader.ConfigLoader.getObject(ConfigLoader.java:220)
+
+  New error:
+  Compiling elevation config...
+org.yaml.snakeyaml.error.YAMLException: The incoming YAML document exceeds the limit: 3145728 code points.
+	at org.yaml.snakeyaml.scanner.ScannerImpl.fetchMoreTokens(ScannerImpl.java:317)
+	at org.yaml.snakeyaml.scanner.ScannerImpl.checkToken(ScannerImpl.java:238)
+	at org.yaml.snakeyaml.parser.ParserImpl$ParseBlockMappingKey.produce(ParserImpl.java:637)
+	at org.yaml.snakeyaml.parser.ParserImpl.peekEvent(ParserImpl.java:161)
+	at org.yaml.snakeyaml.comments.CommentEventsCollector$1.peek(CommentEventsCollector.java:57)
+	at org.yaml.snakeyaml.comments.CommentEventsCollector$1.peek(CommentEventsCollector.java:43)
+	at org.yaml.snakeyaml.comments.CommentEventsCollector.collectEvents(CommentEventsCollector.java:136)
+	at org.yaml.snakeyaml.comments.CommentEventsCollector.collectEvents(CommentEventsCollector.java:116)
+	at org.yaml.snakeyaml.composer.Composer.composeScalarNode(Composer.java:241)
+	at org.yaml.snakeyaml.composer.Composer.composeNode(Composer.java:205)
+	at org.yaml.snakeyaml.composer.Composer.composeValueNode(Composer.java:369)
+	at org.yaml.snakeyaml.composer.Composer.composeMappingChildren(Composer.java:348)

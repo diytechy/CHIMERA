@@ -11,7 +11,7 @@ Slow down temperature changes???
 Fix crater lake water generation?
 
 Add caves to coasts / rivers / arches / islands / mesa / vast-forest?
-	Impliment as a part of the attribute tagging script?
+	Implement as a part of the attribute tagging script?
 
 Integrate usage to readme.md?  Or into DESIGN.md?
 

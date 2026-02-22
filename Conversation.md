@@ -118,6 +118,12 @@ Verify canyon mask
 Update elevation sampler with older elevation sampler?  Or do a comparison between the two to see where the details get exposed between the two.
 Update mountains to use both kinds of mountains (Using opposite sides of the mountain mask)
 Make sure all masks are also weighted / limited by the continental sampler.
+
+
+################################################################33
+
+Limit mountain / mesa mask based on river distance?
+
 Change Mesa to use herp interpolation instead off current exponential.
 Consider giving flat sampler an offset based on continental sampler.
 Tune mountain mask for distribution across land-base.

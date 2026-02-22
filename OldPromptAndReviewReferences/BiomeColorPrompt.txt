@@ -25,7 +25,7 @@ The climate meta region will be broken into 3 layers sliced along different valu
 
 A1. The highest level (highest value / brightness level) would be reserved only for snowy land biomes (biomes that have the term SNOW or very similar semantics).
 
-Limitted range of A: Value is 75% (SNOWY_VALUE_BOUNDARY) to 100%
+Limited range of A: Value is 75% (SNOWY_VALUE_BOUNDARY) to 100%
 
 A2A. The layer below would be reserved for standard climate zones.  The dimensions would scale according to:
 

@@ -185,17 +185,23 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.0||mesaMask(x, z)>0.0||precipitation(x, z)<0.3), 0,  rawPrecipitation(x, z)*1.5)
+    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<0.25), 0,  rawPrecipitation(x, z)*1.5)
     samplers:
       rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation
-      mesaMask: $math/samplers/elevation.yml:samplers.mesaMask
+      mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent
       continents: $math/samplers/continents.yml:samplers.continents
       precipitation: $math/samplers/precipitation.yml:samplers.precipitation
 
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
-    sampler: $math/samplers/elevation.yml:samplers.elevationTerraced
+    sampler: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(continents(x,z)>0.0, elevationTerraced(x,z), 0.0)
+      samplers:
+        elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
+        continents: $math/samplers/continents.yml:samplers.continents
     riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
     borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
     branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability

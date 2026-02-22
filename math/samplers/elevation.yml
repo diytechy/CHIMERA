@@ -10,7 +10,7 @@ variables: &variables
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
   plainsMaskZero: 0.5
   plainsMaskFull: 0.85
-  hillMaxElevation: 0.3
+  hillMaxElevation: 0.2
   mountainCap: 0.9
   mountainMaskZero: 0.2
   mountainMaskFull: 0.5
@@ -243,8 +243,8 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      min(parabolicMap(abs(mountainMask(x, z)), mountainMaskZero, 1, mountainMaskFull, 0),
-        parabolicMap(abs(plainsMask(x, z)), plainsMaskZero, 1, plainsMaskFull, 0))*hills(x, z)
+      min(10.0,
+        herp(abs(plainsMask(x, z)), plainsMaskZero, 1, plainsMaskFull, 0))*hills(x, z)
     variables: *variables
     samplers:
       mountainMask: $math/samplers/elevation.yml:samplers.mountainMask
@@ -328,11 +328,19 @@ samplers:
         sampler:
           type: EXPRESSION
           expression: |
-            continentalRise(x,z) * (1-flatness(x, z)) +
-            hillsApplied(x,z) * hillMaxElevation * (1-flatness(x, z)) +
-            AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z)
+            combine(continentalRise(x,z) * (1-flatness(x, z)),
+            hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+            AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z),
+            mountainCap)
           variables: *variables
           functions:
+            combine: # Stacks scaled mountain noise on top of hill noise
+              arguments:
+                - continents
+                - hills
+                - mountains
+                - mountainCap
+              expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
             parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
             lerp: $math/functions/interpolation.yml:functions.lerp
             herp: $math/functions/interpolation.yml:functions.herp
@@ -342,6 +350,7 @@ samplers:
             PeakHeightMultiplierAtPosition: $math/samplers/elevation.yml:samplers.PeakHeightMultiplierAtPosition
             AppliedMountainHeight: $math/samplers/elevation.yml:samplers.AppliedMountainHeight
             hillsApplied: $math/samplers/elevation.yml:samplers.hillsApplied
+
   elevation:
     dimensions: 2
     type: CACHE
@@ -459,12 +468,12 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      parabolic(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationTerraced(x,z))
+      herp(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationTerraced(x,z))
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
     samplers:
-      continentalRiverDist: $math/samplers/river.yml:samplers.continentalRiverDist
-      continentalRiverElev: $math/samplers/river.yml:samplers.continentalRiverElev
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
       elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
 
   elevationDetailed:
@@ -501,4 +510,14 @@ samplers:
       factorContinental: $customization.yml:elevation-factor-continental
     samplers:
       rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
+      continents: $math/samplers/continents.yml:samplers.continents
+
+  compositeElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continents(x, z)>=0, elevationDetailed(x, z), oceanElevation(x, z))
+    samplers:
+      elevationDetailed: $math/samplers/elevation.yml:samplers.elevationDetailed
+      oceanElevation: $math/samplers/elevation.yml:samplers.oceanElevation
       continents: $math/samplers/continents.yml:samplers.continents

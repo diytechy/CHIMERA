@@ -4,7 +4,8 @@ type: EXPRESSION
 expression: |
   if(compositeElevation(x,z)<0,compositeElevation(x,z),
     if(continentalRiverDist(x,z)<0,1+continentalRiverElev(x,z),
-      if(mesaMask(x,z)>0,2+compositeElevation(x,z),
+      if(mesaMask(x,z)>0,2+max(compositeElevation(x,z),0),
+        3+max(compositeElevation(x,z),0))))
         if(AppliedMountainHeightA(x,z)>0||AppliedMountainHeightB(x,z)>0,3+compositeElevation(x,z),
           if(plainsMaskApplied(x,z),4+continentalRiverElev(x,z),
             5+compositeElevation(x,z)+precipitation(x,z))
@@ -12,6 +13,8 @@ expression: |
       ) 
     )
   )
+
+
 
 
 Color Def:
@@ -26,5 +29,5 @@ Color Def:
 4.0, 1.0, 1.0, 1.0
 4.001, 0.65, 0.0, 0.65
 5.0, 1.0, 0.0, 1.0
-5.001, 0.0, 1.0, 0.4
+5.001, 0.4, 1.0, 0.4
 6.0, 1.0, 1.0, 0.4

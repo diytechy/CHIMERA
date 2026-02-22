@@ -420,7 +420,7 @@ samplers:
       )
     variables: *variables
     samplers:
-      elevation: $math/samplers/elevation.yml:samplers.elevation
+      elevation: $math/samplers/elevation.yml:samplers.elevation_with_mesas
       terraceScale:
         dimensions: 2
         type: OPEN_SIMPLEX_2

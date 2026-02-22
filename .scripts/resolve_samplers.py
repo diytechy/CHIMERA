@@ -755,7 +755,8 @@ def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> L
 
 
 def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
-                                 owner_name: str) -> Any:
+                                 owner_name: str,
+                                 errors: Optional[List[str]] = None) -> Any:
     """
     Deep-walk a sampler config and remove entries from 'samplers:' (plural)
     maps that match pack-level sampler names. With sequential loading in
@@ -765,15 +766,27 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
     Only removes from 'samplers:' (plural) — 'sampler:' (singular) entries
     are kept as full inline copies because wrapper types (FBM, CACHE, etc.)
     load them directly from config, not via expression evaluation.
+
+    Validates that removed samplers are referenced with coordinate arguments
+    (e.g. name(x, z)) in the expression, not as bare names.
     """
     config = copy.deepcopy(config)
 
-    def walk(node: Any):
+    def _find_bare_sampler_refs(expression: str, sampler_name: str) -> bool:
+        """Check if sampler_name appears as a bare name (without parenthesized
+        coordinate args) in the expression."""
+        # Match the name NOT followed by '(' (with optional whitespace)
+        pattern = r'(?<![a-zA-Z_0-9])' + re.escape(sampler_name) + r'(?!\s*\()(?![a-zA-Z_0-9])'
+        return bool(re.search(pattern, expression))
+
+    def walk(node: Any, context_name: str):
         if not isinstance(node, dict):
             if isinstance(node, list):
                 for item in node:
-                    walk(item)
+                    walk(item, context_name)
             return
+
+        expression = str(node.get('expression', '')) if 'expression' in node else ''
 
         # Remove matching entries from 'samplers' (plural)
         sub_samplers = node.get('samplers')
@@ -781,31 +794,40 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
             keys_to_remove = []
             for key in sub_samplers:
                 if key in all_sampler_names and key != owner_name:
+                    # Validate: expression must use name(coords), not bare name
+                    if expression and _find_bare_sampler_refs(expression, key):
+                        if errors is not None:
+                            errors.append(
+                                f"Sampler '{context_name}': references '{key}' "
+                                f"without coordinate arguments (e.g. {key}(x, z)). "
+                                f"Pack-level samplers must be called with coordinates."
+                            )
                     keys_to_remove.append(key)
                 elif isinstance(sub_samplers[key], dict):
-                    walk(sub_samplers[key])
+                    walk(sub_samplers[key], context_name)
             for key in keys_to_remove:
                 del sub_samplers[key]
 
         # Keep 'sampler' (singular) as full inline copy — recurse into it
         sampler_val = node.get('sampler')
         if isinstance(sampler_val, dict):
-            walk(sampler_val)
+            walk(sampler_val, context_name)
 
         # Recurse into other dict values
         for key, value in node.items():
             if key not in ('samplers', 'sampler'):
                 if isinstance(value, dict):
-                    walk(value)
+                    walk(value, context_name)
                 elif isinstance(value, list):
                     for item in value:
-                        walk(item)
+                        walk(item, context_name)
 
-    walk(config)
+    walk(config, owner_name)
     return config
 
 
-def build_resolved_output(all_samplers: Dict[str, Any]) -> str:
+def build_resolved_output(all_samplers: Dict[str, Any],
+                          errors: Optional[List[str]] = None) -> str:
     """
     Build YAML output with shared samplers deduplicated.
 
@@ -828,7 +850,7 @@ def build_resolved_output(all_samplers: Dict[str, Any]) -> str:
         config = all_samplers[name]
 
         # Remove sub-sampler entries that match pack-level names
-        config = _remove_global_sampler_refs(config, all_names, name)
+        config = _remove_global_sampler_refs(config, all_names, name, errors=errors)
 
         # Dump this sampler as YAML
         yaml_str = yaml.dump(
@@ -941,7 +963,7 @@ def main():
 
     # Build resolved sampler output
     print("\nBuilding resolved output...", file=sys.stderr)
-    samplers_yaml = build_resolved_output(resolver.all_samplers)
+    samplers_yaml = build_resolved_output(resolver.all_samplers, errors=resolver.errors)
 
     # Build functions section if present
     functions_yaml = ""

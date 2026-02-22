@@ -12,144 +12,21 @@ variables: &variables
   erosionMin: 0
 
 samplers:
-  riverNoise:
-    dimensions: 2
-    type: TRANSLATE
-    x: 10000
-    z: 10000
-    sampler:
-      type: DOMAIN_WARP
-      amplitude: 3
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.1
-      sampler:
-        type: OPEN_SIMPLEX_2
-
-  riverDistance:
-    dimensions: 2
-    type: EXPRESSION
-    expression: "|riverNoise(x*riverFrequency, z*riverFrequency)|"
-    variables: *variables
-    samplers:
-      riverNoise: $math/samplers/rivers.yml:samplers.riverNoise
-
-  riverTerrainErosion:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      herp(riverDistance(x, z) + herp(erosionStrength(x, z), 0.6, erosionMaxDistance, 0.4, 0),
-        0, erosionMax,
-        erosionMaxDistance, erosionMin
-      ) 
-    variables: *variables
-    functions: $math/functions/interpolation.yml:functions
-    samplers:
-      riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
-      erosionStrength:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: FBM
-          octaves: 2
-          sampler:
-            type: OPEN_SIMPLEX_2
-            frequency: 1 / 1000
-            salt: 2175
-
   riverBiomeMap:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      riverBiomeMap(
-        x,
-        lerp(width(x*riverFrequency, z*riverFrequency), -0.75, riverMinWidth, 0.75, riverMaxWidth),
-        z
+      if(continentalRiverDist(x,z)<0,
+        riverValue,
+        if(continentalRiverDist(x,z)>=1,
+          notRiverValue,
+          borderValue
+        )
       )
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
     samplers:
-      width:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2
-        frequency: 0.05
-      riverBiomeMap:
-        dimensions: 3 # Y dimension is used as the width
-        type: EXPRESSION
-        expression: |
-          if(riverDistance(x, z)>riverThreshold,
-            notRiverValue,
-            if(riverKerneled((x-y)/y, y, (z-y)/y)!=0,
-              riverValue,
-              borderValue
-            )
-          )
-        variables: *variables
-        samplers:
-          riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
-          riverKerneled:
-            dimensions: 3
-            type: KERNEL # Edge detection
-            kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
-            sampler:
-              type: EXPRESSION
-              expression: riverNoise(x*y*riverFrequency, z*y*riverFrequency)>0
-              variables: *variables
-              samplers:
-                riverNoise: $math/samplers/rivers.yml:samplers.riverNoise
-
-  riverBiomeMap2:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      riverBiomeMap(
-        z+500,
-        lerp(width(x*riverFrequency, z*riverFrequency), -0.75, riverMinWidth, 0.75, riverMaxWidth),
-        x-500
-      )
-    variables: *variables
-    functions: $math/functions/interpolation.yml:functions
-    samplers:
-      width:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2
-        frequency: 0.05
-      riverBiomeMap:
-        dimensions: 3 # Y dimension is used as the width
-        type: EXPRESSION
-        expression: |
-          if(riverDistance(x, z)>riverThreshold,
-            notRiverValue,
-            if(riverKerneled((x-y)/y, y, (z-y)/y)!=0,
-              riverValue,
-              borderValue
-            )
-          )
-        variables: *variables
-        samplers:
-          riverDistance: $math/samplers/rivers.yml:samplers.riverDistance
-          riverKerneled:
-            dimensions: 3
-            type: KERNEL # Edge detection
-            kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
-            sampler:
-              type: EXPRESSION
-              expression: riverNoise(x*y*riverFrequency, z*y*riverFrequency)>0
-              variables: *variables
-              samplers:
-                riverNoise:
-                  dimensions: 2
-                  type: TRANSLATE
-                  x: 10000
-                  z: 10000
-                  sampler:
-                    type: DOMAIN_WARP
-                    amplitude: 3
-                    warp:
-                      type: OPEN_SIMPLEX_2
-                      frequency: 0.1
-                    sampler:
-                      type: OPEN_SIMPLEX_2
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
 
 ############# DENDRY BASED RIVER IMPLIMENTATION BELOW ##############
 

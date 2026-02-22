@@ -258,7 +258,6 @@ samplers:
     samplers:
       plainsMaskApplied: $math/samplers/elevation.yml:samplers.plainsMaskApplied
       mountainMask: $math/samplers/elevation.yml:samplers.mountainMask
-      plainsMask: $math/samplers/elevation.yml:samplers.plainsMask
       hills: $math/samplers/elevation.yml:samplers.hills
     functions: $math/functions/interpolation.yml:functions
 
@@ -331,35 +330,31 @@ samplers:
       offset: $customization.yml:elevation-offset
     samplers:
       noise:
+        type: EXPRESSION
         dimensions: 2
-        type: TRANSLATE
-        x: 0
-        z: 0
-        sampler:
-          type: EXPRESSION
-          expression: |
-            combine(continentalRise(x,z) * (1-flatness(x, z)),
-            hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
-            AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z),
-            mountainCap)
-          variables: *variables
-          functions:
-            combine: # Stacks scaled mountain noise on top of hill noise
-              arguments:
-                - continents
-                - hills
-                - mountains
-                - mountainCap
-              expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
-            parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
-            lerp: $math/functions/interpolation.yml:functions.lerp
-            herp: $math/functions/interpolation.yml:functions.herp
-          samplers:
-            flatness: $math/samplers/elevation.yml:samplers.flatness
-            continentalRise: $math/samplers/elevation.yml:samplers.continentalRiseApplied
-            PeakHeightMultiplierAtPosition: $math/samplers/elevation.yml:samplers.PeakHeightMultiplierAtPosition
-            AppliedMountainHeight: $math/samplers/elevation.yml:samplers.AppliedMountainHeight
-            hillsApplied: $math/samplers/elevation.yml:samplers.hillsApplied
+        expression: |
+          combine(continentalRise(x,z) * (1-flatness(x, z)),
+          hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+          AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z),
+          mountainCap)
+        samplers:
+          flatness: $math/samplers/elevation.yml:samplers.flatness
+          continentalRise: $math/samplers/elevation.yml:samplers.continentalRiseApplied
+          PeakHeightMultiplierAtPosition: $math/samplers/elevation.yml:samplers.PeakHeightMultiplierAtPosition
+          AppliedMountainHeight: $math/samplers/elevation.yml:samplers.AppliedMountainHeight
+          hillsApplied: $math/samplers/elevation.yml:samplers.hillsApplied
+        variables: *variables
+        functions:
+          combine: # Stacks scaled mountain noise on top of hill noise
+            arguments:
+              - continents
+              - hills
+              - mountains
+              - mountainCap
+            expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+          parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
+          lerp: $math/functions/interpolation.yml:functions.lerp
+          herp: $math/functions/interpolation.yml:functions.herp
 
   elevation:
     dimensions: 2
@@ -408,7 +403,7 @@ samplers:
     expression: |
       terrace(
         combine(
-          elevation(x, z),
+          elevation_with_mesas(x, z),
           detailStart, 0,
           detailEnd, detail(x, z) * detailFactor
         ),
@@ -420,7 +415,7 @@ samplers:
       )
     variables: *variables
     samplers:
-      elevation: $math/samplers/elevation.yml:samplers.elevation_with_mesas
+      elevation_with_mesas: $math/samplers/elevation.yml:samplers.elevation_with_mesas
       terraceScale:
         dimensions: 2
         type: OPEN_SIMPLEX_2

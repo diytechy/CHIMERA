@@ -6,7 +6,8 @@ expression: |
     if(continentalRiverDist(x,z)<0,1+continentalRiverElev(x,z),
       if((mesaMask(x,z)>0 )&& (prefiltered_mesa_elev(x,z)>elevation(x,z)),2+max(compositeElevation(x,z),0),
         if(AppliedMountainHeightA(x,z)>0||AppliedMountainHeightB(x,z)>0,3+compositeElevation(x,z),
-        5+max(precipitation(x,z),0)))))
+          if(plainsMaskApplied(x,z),4+compositeElevation(x,z),4+compositeElevation(x,z),
+        5+max(precipitation(x,z),0))))))
 
 type: EXPRESSION
 expression: |

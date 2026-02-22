@@ -253,7 +253,7 @@ samplers:
     type: EXPRESSION
     expression: |
       min(10.0,
-        herp(plainsMaskApplied, 0, 1, 1, 0))*hills(x, z)
+        herp(plainsMaskApplied(x,z), 0, 1, 1, 0))*hills(x, z)
     variables: *variables
     samplers:
       plainsMaskApplied: $math/samplers/elevation.yml:samplers.plainsMaskApplied

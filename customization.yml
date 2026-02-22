@@ -112,10 +112,8 @@ continental-mountain-range-sampler-freq: 1500
 
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
-continental-mesa-region-allowed-threshold: .33
-continental-mesa-flattop-trans-delta: 0.05 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
-#how slowly do mesa walls transition between wall and top, bigger values are slower roll-off / more rounded transitions 
-continental-mesa-flattop-trans-rate: 30
+continental-mesa-region-allowed-threshold: .25
+
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
 

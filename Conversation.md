@@ -142,6 +142,7 @@ Now that "resolved_samplers.yml" has been built, make a plan to create another p
 - Detects identical samplers that are used more than 3 times.
 that runs against the resolved_samplers.yml
 
+Issues: Should mesas have so much detail on top?  Should they be flatter?
 
 
 Review "resolved_samplers.yml" and identify all samplers

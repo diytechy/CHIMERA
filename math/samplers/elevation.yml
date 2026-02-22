@@ -12,8 +12,8 @@ variables: &variables
   plainsMaskFull: 0.85
   hillMaxElevation: 0.2
   mountainCap: 0.9
-  mountainMaskZero: 0.2
-  mountainMaskFull: 0.5
+  mountainMaskZero: 0.3
+  mountainMaskFull: 0.55
   mountainContZero: 0.05
   mountainContFull: 0.5
 
@@ -133,6 +133,20 @@ samplers:
       samplers:
         continents: $math/samplers/continents.yml:samplers.continents
         sampler: $math/samplers/elevation.yml:samplers.mesaMaskRaw
+
+  mesaPresent:
+    dimensions: 2
+    type: CACHE
+    exp: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: mesaMask(x,z)>(1/(MaxNMesSteps*2))
+      variables:
+        MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      samplers:
+        mesaMask: $math/samplers/elevation.yml:samplers.mesaMask
+
   # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
   PeakHeightMultiplierAtPosition:
     dimensions: 2
@@ -376,7 +390,8 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      herp(mesa_floor_step_dist(x, z), 0, prefiltered_mesa_floor(x,z), 0.25, prefiltered_mesa_elev(x,z))
+      herp(mesa_floor_step_dist(x, z), 0, prefiltered_mesa_floor(x,z), 
+      0.1, prefiltered_mesa_elev(x,z))
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
       MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
@@ -475,10 +490,10 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(continentalRiverDist(x,z) < 0.1, elevationWithRivers(x,z), elevation(x,z))
+      if(continentalRiverDist(x,z) < 0.1, elevationWithRivers(x,z), noisyelevation(x,z))
     variables: *variables
     samplers:
-      elevation:
+      noisyelevation:
         dimensions: 2
         type: DOMAIN_WARP
         sampler: $math/samplers/elevation.yml:samplers.elevationWithRivers

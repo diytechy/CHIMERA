@@ -459,7 +459,13 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      herp(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationTerraced(x,z))
+      parabolic(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationTerraced(x,z))
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+    samplers:
+      continentalRiverDist: $math/samplers/river.yml:samplers.continentalRiverDist
+      continentalRiverElev: $math/samplers/river.yml:samplers.continentalRiverElev
+      elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
 
   elevationDetailed:
     dimensions: 2

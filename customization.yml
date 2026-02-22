@@ -105,13 +105,13 @@ continental-large-features-height-flux-dist: 1000
 continental-large-features-threshold-variance-distance: 3000
 
 #Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
-continental-mountain-region-allowed-distance: 1000
+continental-mountain-region-allowed-distance: 2000
 continental-mountain-region-allowed-threshold: .10 #0 - 0.5
 continental-mountain-region-transition-base-height: .1
 continental-mountain-range-sampler-freq: 1500
 
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
-continental-mesa-region-allowed-distance: 1000
+continental-mesa-region-allowed-distance: 2000
 continental-mesa-region-allowed-threshold: .33
 continental-mesa-flattop-trans-delta: 0.05 #rough vertical dist to travel to transition fully to squared filter to transition to top flat.
 #how slowly do mesa walls transition between wall and top, bigger values are slower roll-off / more rounded transitions 
@@ -370,15 +370,15 @@ river-max-width: 20
 # Maximum width of rivers in blocks.
 # Default: 20
 
-minimum-continental-river-width: 10
+minimum-continental-river-width: 12
 # Minimum width of continental rivers in blocks.
 # Default: 10
 
-maximum-continental-river-width: 30
+maximum-continental-river-width: 20
 # Maximum width of continental rivers in blocks.
 # Default: 30
 
-continental-river-width-period: 50
+continental-river-width-period: 100
 # Period for continental river width variation using Perlin noise.
 # Higher values create more gradual width changes.
 # Default: 50
@@ -391,7 +391,7 @@ river-boundary-variance-magnitude: 17
 # Magnitude of variance in river boundary distance.
 # Default: 17
 
-river-boundary-variance-period: 50
+river-boundary-variance-period: 200
 # Frequency of river boundary variance using Perlin noise.
 # Default: 50
 

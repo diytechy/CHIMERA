@@ -188,6 +188,7 @@ samplers:
     sampler: $math/samplers/elevation.yml:samplers.elevationTerraced
     riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
     borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
+    branches: $math/samplers/precipitation.yml:samplers.precipitation
 
   continentalRiverElev:
     dimensions: 2

@@ -1,19 +1,33 @@
-stages:
-  #Distribute land into large temperature breaks to seperate major canyon sections, since canyons changing vegitation mid trench is a little strange.
+stages: 
+  #Restrict generation away from rivers
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      expression: temperature(x, z)
+      expression: continentalRiverDist(x, z)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}
       max: 319
     to:
+      SELF: 99
+      _pot_well: 1
+
+  #Distribute land into large temperature breaks to separate major canyon sections, since canyons changing vegitation mid trench is a little strange.
+  - type: REPLACE
+    sampler:
+      type: EXPRESSION
+      expression: temperature(x, z)
+    from: _pot_well
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    to:
       _cold_sinkhole: 3
-      SELF: 1
+      land: 1
       _mod_sinkhole: 3
-      SELF: 1
+      land: 1
       _warm_sinkhole: 3
+     
       
   #Perform cellular distribution to create zones where canyons will actually occur so they are not everywhere in the land-mass.
   - type: REPLACE_LIST

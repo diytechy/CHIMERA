@@ -30,5 +30,5 @@ stages:
       max: 319
     to:
       _cold_canyon: 8
-      SELF: 3
+      land: 3
       _warm_canyon: 8

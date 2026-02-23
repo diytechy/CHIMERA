@@ -1,4 +1,22 @@
 stages:
+#Create mesa distributions
+  - type: REPLACE_LIST
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: (mesaPresent(x, z)>0)
+    samplers:
+      mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent
+    default-from: land
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    default-to:
+      SELF: 2
+      mesa: 1
+    to:
+      coast:
+        SELF: 2
+        mesa: 1
 #Create vast forest distributions
   - type: REPLACE_LIST
     from: land
@@ -16,92 +34,9 @@ stages:
     default-from: land
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     default-to:
-      mesa: 1
       vast-forest: 1
       SELF: 6
     to:
       coast:
-        mesa: 1
         vast-forest-coast: 1
         SELF: 6
-#Add islands
-  - type: REPLACE_LIST
-    default-from: ocean
-    sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 20 
-      warp:
-        type: SIMPLEX
-        frequency: 0.02
-      sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 60 
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.003
-        sampler:
-          dimensions: 2
-          type: DOMAIN_WARP
-          amplitude: 300 
-          warp:
-            type: OPEN_SIMPLEX_2
-            frequency: 0.0001
-          sampler:
-            type: CELLULAR
-            return: CellValue
-            frequency: 1 /  ${customization.yml:biomeSpread.islandDistance}
-            salt: 2001
-            jitter: 1.2
-            distance: Hybrid
-            # Ratios for default-to and to must be maintained for proper land merging with island intersections with coasts.
-    default-to: 
-      island-land: &LandMassDist 3
-      island:      &SpecIslandDist 1
-      mesa:        &MesaMassDist 1
-      ocean:       &NoChangeDist 150
-    to:
-      coast:
-        land:    *LandMassDist
-        coast:   *SpecIslandDist
-        mesa:    *MesaMassDist
-        coast:   *NoChangeDist
- #Create island coastlines
- #Note this is pushes coastline into oceans to ensure consistency within the island funciton if it is ever used in the future (so that island / island coast share the same cellular container)
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: island
-    to: island-coast
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: island-land
-    replace: ocean
-    to: island-land-coast
-#Placeholder to add island shelf surrounding island coast, to create more unique shelf components supporting island.
-#  - type: BORDER
-#    sampler:
-#      type: CONSTANT
-#    from: island-coast
-#    replace: ocean
-#    to: island-shelf
-#  - type: BORDER
-#    sampler:
-#      type: CONSTANT
-#    from: island-land-coast
-#    replace: ocean
-#    to: island-shelf
-#Now replace island-land back to land so it generates standard biomes.
-  - type: REPLACE
-    from: island-land
-    sampler:
-      type: CONSTANT
-    to: land
-  - type: REPLACE
-    from: island-land-coast
-    sampler:
-      type: CONSTANT
-    to: coast

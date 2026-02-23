@@ -156,3 +156,10 @@ Terrain construction:
 
 Now let's perform a deep
  
+ Current issues:
+
+ Missing rivers entirely
+ Mesas are dominating, an issue in distribution with the current mask
+ Sinkholes are getting dropped into places they shouldn't :
+  - like the ocean.
+  - And rifts / wells, it's probably easier for rifts / wells to avoid generation near spots.

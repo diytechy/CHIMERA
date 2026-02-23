@@ -75,6 +75,14 @@ samplers:
     <<: *cellular
     return: Angle
 
+  nearSpot:
+    dimensions: 2
+    type: EXPRESSION      
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+    samplers:
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+
   spotBaseElevation: # Returns the elevation value at the center of the spot
     <<: *cellular
     return: NoiseLookup

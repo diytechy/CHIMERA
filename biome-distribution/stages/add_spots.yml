@@ -54,7 +54,7 @@ stages:
       - volcano-coast: 1
     sampler:
       type: EXPRESSION
-      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+      expression: nearSpot(x, z)
       variables: $math/samplers/spots.yml:variables
 
   - type: BORDER

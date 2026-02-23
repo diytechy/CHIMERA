@@ -493,6 +493,8 @@ samplers:
       if(continentalRiverDist(x,z) < 0.1, elevationWithRivers(x,z), noisyelevation(x,z))
     variables: *variables
     samplers:
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      elevationWithRivers: $math/samplers/elevation.yml:samplers.elevationWithRivers
       noisyelevation:
         dimensions: 2
         type: DOMAIN_WARP

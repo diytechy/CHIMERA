@@ -826,6 +826,80 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
     return config
 
 
+def _extract_function_calls(expression: str) -> Set[str]:
+    """Extract all identifiers used as function calls in an expression string."""
+    pattern = r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\('
+    return set(re.findall(pattern, expression))
+
+
+def validate_expression_samplers(
+    all_samplers: Dict[str, Any],
+    all_functions: Dict[str, Any],
+    errors: List[str],
+    warnings: List[str],
+) -> None:
+    """
+    Walk every sampler config tree and validate EXPRESSION-type nodes:
+
+    Error:   a pack-level sampler name is called in the expression but is not
+             declared in the node's local 'samplers:' section (Terra will fail
+             to find it if loading order doesn't guarantee it's in globalSamplers
+             at parse time).
+
+    Warning: a local 'samplers:' entry is declared but never called in the
+             expression (dead declaration).
+
+    Identifiers that are user-defined functions (present in all_functions) are
+    skipped so they don't produce false positives.  Identifiers that are neither
+    in all_samplers nor all_functions are assumed to be built-ins (if, sin,
+    abs, …) and are also silently ignored.
+    """
+    all_sampler_names: Set[str] = set(all_samplers.keys())
+    all_function_names: Set[str] = set(all_functions.keys())
+
+    def walk(node: Any, owner_name: str) -> None:
+        if isinstance(node, list):
+            for item in node:
+                walk(item, owner_name)
+            return
+        if not isinstance(node, dict):
+            return
+
+        if node.get('type') == 'EXPRESSION' and 'expression' in node:
+            expression = str(node['expression'])
+            local_samplers = node.get('samplers') or {}
+            if not isinstance(local_samplers, dict):
+                local_samplers = {}
+            local_names: Set[str] = set(local_samplers.keys())
+
+            called = _extract_function_calls(expression)
+
+            # Error: pack-level sampler called but not in local samplers:
+            for identifier in called:
+                if identifier in all_function_names:
+                    continue  # user-defined function — not a sampler
+                if identifier in all_sampler_names and identifier not in local_names:
+                    errors.append(
+                        f"Sampler '{owner_name}': expression calls '{identifier}(...)' "
+                        f"but '{identifier}' is not declared in local samplers:"
+                    )
+
+            # Warning: local samplers: entry never called in expression
+            for local_name in local_names:
+                if local_name not in called:
+                    warnings.append(
+                        f"Sampler '{owner_name}': local sampler '{local_name}' is declared "
+                        f"but not used in expression"
+                    )
+
+        # Recurse into all nested values
+        for value in node.values():
+            walk(value, owner_name)
+
+    for name, config in all_samplers.items():
+        walk(config, name)
+
+
 def build_resolved_output(all_samplers: Dict[str, Any],
                           errors: Optional[List[str]] = None) -> str:
     """
@@ -960,6 +1034,15 @@ def main():
         if resolver.all_functions:
             resolver.all_functions = resolver.evaluate_constants(resolver.all_functions)
         print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
+
+    # Validate expression samplers (missing/unused local sampler declarations)
+    print("\nValidating expression samplers...", file=sys.stderr)
+    validate_expression_samplers(
+        resolver.all_samplers,
+        resolver.all_functions,
+        resolver.errors,
+        resolver.warnings,
+    )
 
     # Build resolved sampler output
     print("\nBuilding resolved output...", file=sys.stderr)

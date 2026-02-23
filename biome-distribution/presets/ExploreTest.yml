@@ -83,6 +83,8 @@ biomes:
         
         - << biome-distribution/stages/fill_coasts.yml:stages
         
+        - << biome-distribution/stages/add_rivers.yml:stages
+        
 
         # ========================================
         # SMOOTHING PASSES

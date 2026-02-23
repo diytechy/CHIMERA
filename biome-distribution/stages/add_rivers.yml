@@ -81,9 +81,9 @@ stages:
       ALPINE_ASCENDANCY:
         - SELF: 1
         - ALPINE_ASCENDANCY_RIVER: 1
-      BAD_BALCOONIES:
-        - SELF: 1
-        - BAD_BALCOONIES_RIVER: 1
+      #BAD_BALCOONIES:
+      #  - SELF: 1
+      #  - BAD_BALCOONIES_RIVER: 1
       FROZEN_FUNGI:
         - SELF: 1
         - FROZEN_FUNGI_RIVER: 1
@@ -105,9 +105,9 @@ stages:
       VERDANT_VALLEYS: #USE_VERDANT_RIVER:
         - SELF: 1
         - VERDANT_RIVER: 1
-      VERTICAL_JUNGLE:
-        - SELF: 1
-        - VERTICAL_JUNGLE_RIVER: 1
+      #VERTICAL_JUNGLE:
+      #  - SELF: 1
+      #  - VERTICAL_JUNGLE_RIVER: 1
       VERTICAL_VISTAS:
         - SELF: 1
         - VISTAS_RIVER: 1

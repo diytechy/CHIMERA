@@ -3,15 +3,27 @@ stages:
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      expression: continentalRiverDist(x, z)
+      expression: if(continentalRiverDist(x, z)>=1,1,-1)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}
       max: 319
     to:
-      SELF: 99
+      SELF: 1
       _pot_rift: 1
       
+  #Restrict generation away from spots
+  - type: REPLACE
+    sampler:
+      type: EXPRESSION
+      expression: nearSpot(x, z)
+    from: _pot_well
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    to:
+      land: 1
+      SELF: 1 
 
   - type: REPLACE
     sampler:

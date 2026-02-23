@@ -163,3 +163,24 @@ Now let's perform a deep
  Sinkholes are getting dropped into places they shouldn't :
   - like the ocean.
   - And rifts / wells, it's probably easier for rifts / wells to avoid generation near spots.
+
+  How to get spots to avoid rivers?  Or... viceversa?  Not sure how to.
+
+  Noise potentially is sometimes causing rivers to get lost / scrambled.
+
+How to validate spots are in range of river such that they get suppressed?  Query distance at cell center?  If distance is less than greatest distance, then... I guess switch them back to what they were before?
+
+A. Need to suppress sinkholes when:
+
+Their center is in range of river
+Their center is below continental value (because why would you have sinkholes in the middle of the ocean?  Maybe I need to see what these actually look like but it seems very silly to have them there.)
+
+B. Need to make sure rivers can go over all terrain for continuity?  Need to utalize "land" tag?
+
+C. Need to make sure rivers actually flow up using soul-sand?
+
+D. Need to add all original minecraft biome labels?
+
+E. Verify mesa placement for regions, and consider plains region designation.
+
+F. Fix biome table calculator, use distribution at stages to actually assert distribution per stage.  Can utilize resolved samplers?

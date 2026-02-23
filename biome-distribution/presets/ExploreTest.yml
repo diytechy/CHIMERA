@@ -83,9 +83,6 @@ biomes:
         
         - << biome-distribution/stages/fill_coasts.yml:stages
         
-        - << biome-distribution/stages/add_rivers.yml:stages
-        
-
         # ========================================
         # SMOOTHING PASSES
         # ========================================
@@ -95,3 +92,7 @@ biomes:
         - type: SMOOTH
           sampler:
             type: WHITE_NOISE
+            
+        - << biome-distribution/stages/add_rivers.yml:stages
+        
+

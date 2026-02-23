@@ -1,29 +1,7 @@
 riverSampler: &riverSampler
   type: EXPRESSION
   expression: |
-    segment(riverBiomeMap(x, z), 
-    riverValue, borderValue, 
-    (elevation(x, z) < lowlandsThreshold))
-  variables:
-    riverValue: $math/samplers/rivers.yml:variables.riverValue
-    borderValue: $math/samplers/rivers.yml:variables.borderValue
-    lowlandsThreshold: $customization.yml:elevation-lowlands-threshold
-  functions:
-    segment:
-      arguments:
-        - river
-        - riverValue
-        - borderValue
-        - borderPredicate
-      expression: if(river <= riverValue, 1, if((river <= borderValue), -0.4, -1))
-  samplers:
-    borderMask:
-      dimensions: 2
-      type: PROBABILITY
-      sampler:
-        type: OPEN_SIMPLEX_2
-        salt: 4812
-        frequency: 0.003
+    riverSampler(x,z)
 
 # Tags are used by biomes to determine the kind of river to use, except for biomes with
 # their own specific river biome. These tags are formatted by the type of river, and optionally

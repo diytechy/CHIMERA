@@ -170,7 +170,7 @@ samplers:
       type: EXPRESSION
       expression: |
           spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2) * 
-          if(spotCenterRiverDistFar(x,z)<150,1,0)
+          if(spotCenterRiverDistFar(x,z)>150,1,0)
       variables:
         globalScale: $customization.yml:global-scale
         scale: $customization.yml:continental-scale

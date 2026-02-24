@@ -474,6 +474,23 @@ samplers:
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
+  elevationFromSpots:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (blotSpots(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))) * (1-flatness(x, z))
+      * if(factorContinental, herp(blotSpots(x, z), continentZero, 0, continentFull, 1), 1)
+    functions: $math/functions/interpolation.yml:functions
+    variables:
+      continentalRiseRate: 30
+      verticalLift: $customization.yml:terrain-height
+      continentZero: $customization.yml:elevation-continental-flat-threshold
+      continentFull: $customization.yml:elevation-continental-full-height-threshold
+      factorContinental: $customization.yml:elevation-factor-continental
+    samplers:
+      blotSpots: $math/samplers/spots.yml:samplers.blotSpots
+      flatness: $math/samplers/elevation.yml:samplers.flatness
+
   elevationWithSpots:
     dimensions: 2
     type: EXPRESSION

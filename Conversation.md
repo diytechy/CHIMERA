@@ -175,6 +175,14 @@ How to validate spots are in range of river such that they get suppressed?  Quer
 Formulate for spots only:
 Spots -> continentalRise -> continentalRise(x,z) * (1-flatness(x, z)) -> rawElevation(x, z) * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
 
+Using the sampler blotSpots, update the elevation sampler "elevationFromSpots" to contain the expression:
+
+{Apply continentalRise expression to blotSpots(x,z)}* (1-flatness(x, z))
+
+Then apply the same herp function to this outcome:
+
+ if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+
 Then take max of this elevation compared with current elevation, then lay in rivers.
 
 Note then this is only elevation due to spots.

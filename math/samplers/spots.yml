@@ -24,7 +24,7 @@ variables: &variables
   prismaticMinCenterDepth: 0.01
   prismaticMaxCenterDepth: 0.15
 
-cellular: &cellular
+smallCellular: &smallCellular
   dimensions: 2
   type: CELLULAR
   frequency: 1 / ${customization.yml:spot-spread}
@@ -52,14 +52,14 @@ samplers:
       variables: *variables
       samplers:
         noise:
-          <<: *cellular
+          <<: *smallCellular
           distance: Euclidean
 
   spotSizePercent: # Returns a random value between 0 and 1 that determines the size of the spot
     dimensions: 2
     type: PROBABILITY
     sampler:
-      <<: *cellular
+      <<: *smallCellular
       return: CellValue
 
   spotRadius: # Returns the radius of the spot in blocks
@@ -72,7 +72,7 @@ samplers:
       spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
 
   spotAngle:
-    <<: *cellular
+    <<: *smallCellular
     return: Angle
 
   nearSpot:
@@ -85,7 +85,7 @@ samplers:
       spotRadius: $math/samplers/spots.yml:samplers.spotRadius
 
   spotBaseElevation: # Returns the elevation value at the center of the spot
-    <<: *cellular
+    <<: *smallCellular
     return: NoiseLookup
     salt-lookup: false
     lookup:
@@ -143,7 +143,7 @@ samplers:
   # Volcano Samplers
   # ---
   spotEdgeRadiusPercent:
-    <<: *cellular
+    <<: *smallCellular
     return: NoiseLookup
     lookup:
       type: EXPRESSION
@@ -168,7 +168,7 @@ samplers:
       spotEdgeRadiusPercent: $math/samplers/spots.yml:samplers.spotEdgeRadiusPercent
 
   volcanoActivity:
-    <<: *cellular
+    <<: *smallCellular
     return: NoiseLookup
     lookup:
       type: WHITE_NOISE

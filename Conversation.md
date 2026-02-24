@@ -184,3 +184,7 @@ D. Need to add all original minecraft biome labels?
 E. Verify mesa placement for regions, and consider plains region designation.
 
 F. Fix biome table calculator, use distribution at stages to actually assert distribution per stage.  Can utilize resolved samplers?
+
+G. Increase ore spawn rate via standard ore distributions.
+
+H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.

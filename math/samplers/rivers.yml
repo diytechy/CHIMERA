@@ -112,3 +112,10 @@ samplers:
     expression: continentalDendryRivers(x,0.0,z)
     samplers:
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
+
+  continentalRiverDistFarGrid:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,-1.0,z)
+    samplers:
+      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers

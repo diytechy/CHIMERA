@@ -170,12 +170,21 @@ Now let's perform a deep
 
 How to validate spots are in range of river such that they get suppressed?  Query distance at cell center?  If distance is less than greatest distance, then... I guess switch them back to what they were before?
 
+0. Update pre-river elevation to omit spots.  This means there must be continents / elevation before spots, then river eval, and then spot integration.
+
+Formulate for spots only:
+Spots -> continentalRise -> continentalRise(x,z) * (1-flatness(x, z)) -> rawElevation(x, z) * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+
+Then take max of this elevation compared with current elevation, then lay in rivers.
+
+Note then this is only elevation due to spots.
+
 A. Need to suppress sinkholes when:
 
 Their center is in range of river
 Their center is below continental value (because why would you have sinkholes in the middle of the ocean?  Maybe I need to see what these actually look like but it seems very silly to have them there.)
 
-B. Need to make sure rivers can go over all terrain for continuity?  Need to utalize "land" tag?
+B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
 
 C. Need to make sure rivers actually flow up using soul-sand?
 
@@ -188,3 +197,5 @@ F. Fix biome table calculator, use distribution at stages to actually assert dis
 G. Increase ore spawn rate via standard ore distributions.
 
 H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
+
+I. 

@@ -474,7 +474,7 @@ samplers:
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
-  elevationWithRivers:
+  elevationWithSpots:
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -485,6 +485,18 @@ samplers:
       continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
       continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
       elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
+
+  elevationWithRivers:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      herp(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationWithSpots(x,z))
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+    samplers:
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
+      elevationWithSpots: $math/samplers/elevation.yml:samplers.elevationWithSpots
 
   elevationDetailed:
     dimensions: 2

@@ -34,12 +34,12 @@ type: DENDRY
 n: 1                    # Resolution levels (1-5)
 epsilon: 0              # Point distribution bias [0, 0.5)
 delta: 0.05             # Segment displacement
-cachepixels: 25.0
+cachepixels: 5.1
 default-branches: 0.5
-return: PIXEL_LEVEL
+return: PIXEL_RIVER_FAR
 sampler:
-  type: EXPRESSION
-  expression: 1.0
+  type: CONSTANT
+  value: 1.0
 riverwidth:
   type: EXPRESSION
   expression: continentalRiverWidth(x,z)

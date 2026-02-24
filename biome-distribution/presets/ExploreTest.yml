@@ -92,7 +92,7 @@ biomes:
         - type: SMOOTH
           sampler:
             type: WHITE_NOISE
-            
+
         - << biome-distribution/stages/add_rivers.yml:stages
         
 

@@ -83,6 +83,16 @@ samplers:
     samplers:
       spotDistance: $math/samplers/spots.yml:samplers.spotDistance
       spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      
+  spotCenterRiverDistFar:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+      
+  spotCenterContinents:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup: $math/samplers/continents.yml:samplers.continents
 
   spotBaseElevation: # Returns the elevation value at the center of the spot
     <<: *smallCellular

@@ -96,6 +96,19 @@ samplers:
     samplers:
       lookup: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
       
+  spotCenterContinents:
+    dimensions: 2
+    type: CACHE
+    sampler:
+      <<: *smallCellular
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: continents(x, z)
+        samplers:
+          continents: $math/samplers/continents.yml:samplers.continents
+
   spotCenterOnOcean:
     dimensions: 2
     type: EXPRESSION
@@ -262,5 +275,4 @@ samplers:
       spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
       spotRadius: $math/samplers/spots.yml:samplers.spotRadius
       spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
-      spotCenterNotNearRiver: $math/samplers/spots.yml:samplers.spotCenterNotNearRiver
     variables: $math/samplers/spots.yml:variables

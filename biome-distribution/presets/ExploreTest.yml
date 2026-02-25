@@ -25,8 +25,8 @@ biomes:
           type: EXPRESSION
           expression: spotPlacer(x, z)
         biomes:
-          _ocean_spot: 1
-          _non_spot: 1
+          #_ocean_spot: 1
+          _non_spot: 2
           _land_spot: 1
       stages:
         

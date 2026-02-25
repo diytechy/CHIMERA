@@ -518,7 +518,8 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(continentalRiverDist(x,z) < 0.1, elevationWithRivers(x,z), noisyelevation(x,z))
+      herp(continentalRiverDist(x,z),0.1, elevationWithRivers(x,z),1, 
+        noisyelevation(x,z))
     variables: *variables
     samplers:
       continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist

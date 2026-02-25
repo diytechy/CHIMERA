@@ -8,7 +8,7 @@ stages:
       - land: 46
     sampler:
       type: EXPRESSION
-      expression: continentsWithSpots(x, z)
+      expression: continentalDistribution(x, z)
 
   #land spot
   - type: REPLACE

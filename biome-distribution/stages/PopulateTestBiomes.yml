@@ -1,5 +1,14 @@
 stages:
   - type: REPLACE
+    from: _non_spot
+    to:
+      - ocean: 50
+      - land: 50
+    sampler:
+      type: EXPRESSION
+      expression: continentsWithSpots(x, z)
+
+  - type: REPLACE
     sampler:
       dimensions: 2
       type: DOMAIN_WARP
@@ -36,6 +45,13 @@ stages:
       l3: 1
       l4: 1
       l5: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: ocean
+    to:
+      o1: 1
   - type: REPLACE
     sampler:
       dimensions: 2

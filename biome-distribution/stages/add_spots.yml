@@ -1,38 +1,18 @@
 stages:
-
-  #land spots
   - type: REPLACE
-    from: ALL
+    from: _non_spot
     to:
-      - SELF: 1
-      - land_spot: 1
+      - ocean: 50
+      - coast: 1
+      - coast_wide: 3
+      - land: 46
     sampler:
       type: EXPRESSION
-      expression: |
-        if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
-          if(spotCenterOnOcean(x,z), -1,
-            if(spotCenterNotNearRiver(x,z), 1, -1)),
-          -1)
-          
-      variables: $math/samplers/spots.yml:variables
-      
-  #ocean spots
-  - type: REPLACE
-    from: ALL
-    to:
-      - SELF: 1
-      - ocean_spot: 1
-    sampler:
-      type: EXPRESSION
-      expression: |
-        if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
-          if(spotCenterOnOcean(x,z), 1, -1),
-          -1)
-      variables: $math/samplers/spots.yml:variables
+      expression: continentsWithSpots(x, z)
 
   #land spot
   - type: REPLACE
-    from: land_spot
+    from: _land_spot
     to:
       - volcano: 1
       - mesa: 1
@@ -43,11 +23,10 @@ stages:
 
   #ocean spot
   - type: REPLACE
-    from: ocean_spot
+    from: _ocean_spot
     to:
       - volcano: 1
       - mesa: 1
-      - sinkhole: 1
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1

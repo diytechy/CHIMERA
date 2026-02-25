@@ -23,12 +23,11 @@ biomes:
         type: SAMPLER
         sampler:
           type: EXPRESSION
-          expression: continents(x, z)
+          expression: spotPlacer(x, z)
         biomes:
-          ocean: 50
-          coast: 1
-          coast_wide: 3
-          land: 46
+          _ocean_spot: 1
+          _non_spot: 1
+          _land_spot: 1
       stages:
         
         ##Add spots to drop large POIs like volcanos / mesas

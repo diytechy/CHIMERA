@@ -147,6 +147,7 @@ samplers:
         scale: $customization.yml:continental-scale
         spotContinentalFactor: 0.3
       samplers:
+        spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
         sampler:
           dimensions: 2
           type: DOMAIN_WARP
@@ -170,7 +171,7 @@ samplers:
       type: EXPRESSION
       expression: |
           spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2) * 
-          if(spotCenterRiverDistFar(x,z)>150,1,0)
+          max(spotCenterNotNearRiver(x,z),spotCenterOnOcean(x,z))
       variables:
         globalScale: $customization.yml:global-scale
         scale: $customization.yml:continental-scale
@@ -180,6 +181,8 @@ samplers:
         spotDistance: $math/samplers/spots.yml:samplers.spotDistance
         spotRadius: $math/samplers/spots.yml:samplers.spotRadius
         continents: $math/samplers/continents.yml:samplers.continents
+        spotCenterNotNearRiver: $math/samplers/spots.yml:samplers.spotCenterNotNearRiver
+        spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
 
   continentsWithSpots:
     dimensions: 2
@@ -192,7 +195,7 @@ samplers:
           continents(x, z),
           blotSpots(x,z))
       samplers:
-        blotSpots: $math/samplers/spots.yml:samplers.blotSpots
+        blotSpots: $math/samplers/continents.yml:samplers.blotSpots
         continents: $math/samplers/continents.yml:samplers.continents
 
 

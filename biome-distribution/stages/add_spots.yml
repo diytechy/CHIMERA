@@ -9,9 +9,11 @@ stages:
     sampler:
       type: EXPRESSION
       expression: |
-        if((spotDistance(x, z) < spotRadius(x, z) + biomeBorder) &&
-          (continentalRiverDist(spotCenter(x,z))>=1) &&
-          (continents(spotCenter(x,z))>0), 1, -1)
+        if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
+          if(spotCenterOnOcean(x,z), -1,
+            if(spotCenterNotNearRiver(x,z), 1, -1)),
+          -1)
+          
       variables: $math/samplers/spots.yml:variables
       
   #ocean spots
@@ -22,7 +24,10 @@ stages:
       - ocean_spot: 1
     sampler:
       type: EXPRESSION
-      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder, 1, -1)
+      expression: |
+        if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
+          if(spotCenterOnOcean(x,z), 1, -1),
+          -1)
       variables: $math/samplers/spots.yml:variables
 
   #land spot

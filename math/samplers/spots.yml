@@ -99,7 +99,7 @@ samplers:
   spotCenterOnOcean:
     dimensions: 2
     type: EXPRESSION
-    expression: if(cellsampler(x,z)<0.1,1,0)
+    expression: if(cellsampler(x,z)<-0.1,1,0)
     samplers:
       cellsampler:
         <<: *smallCellular

@@ -169,8 +169,10 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-          spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2) * 
-          max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z))
+          if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
+            spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
+            -1)
+          
       variables:
         globalScale: $customization.yml:global-scale
         spotContinentalFactor: 0.3

@@ -145,7 +145,6 @@ samplers:
       variables:
         globalScale: $customization.yml:global-scale
         scale: $customization.yml:continental-scale
-        spotContinentalFactor: 0.3
       samplers:
         spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
         sampler:
@@ -174,7 +173,6 @@ samplers:
           max(spotCenterNotNearRiver(x,z),spotCenterOnOcean(x,z))
       variables:
         globalScale: $customization.yml:global-scale
-        scale: $customization.yml:continental-scale
         spotContinentalFactor: 0.3
       samplers:
         spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland

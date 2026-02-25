@@ -192,6 +192,8 @@ A. Need to suppress sinkholes when:
 Their center is in range of river
 Their center is below continental value (because why would you have sinkholes in the middle of the ocean?  Maybe I need to see what these actually look like but it seems very silly to have them there.)
 
+IMPORTANT: Scale appears to be causing issues now, as it is applied inconsistently, and this interferes with resolving spot locations on continents / rivers.  Likely just need to remove entirely.  Can just increase frequency of sampler.
+
 B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
 
 C. Need to make sure rivers actually flow up using soul-sand?

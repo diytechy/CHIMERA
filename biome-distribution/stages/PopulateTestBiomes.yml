@@ -36,3 +36,24 @@ stages:
       l3: 1
       l4: 1
       l5: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _non_spot
+    to:
+      l1: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _land_spot
+    to:
+      ERUPTED_VOLCANO: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _ocean_spot
+    to:
+      BOREAL_MESA: 1

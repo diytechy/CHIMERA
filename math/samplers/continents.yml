@@ -170,7 +170,7 @@ samplers:
       type: EXPRESSION
       expression: |
           spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2) * 
-          max(spotCenterNotNearRiver(x,z),spotCenterOnOcean(x,z))
+          max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z))
       variables:
         globalScale: $customization.yml:global-scale
         spotContinentalFactor: 0.3
@@ -179,7 +179,7 @@ samplers:
         spotDistance: $math/samplers/spots.yml:samplers.spotDistance
         spotRadius: $math/samplers/spots.yml:samplers.spotRadius
         continents: $math/samplers/continents.yml:samplers.continents
-        spotCenterNotNearRiver: $math/samplers/spots.yml:samplers.spotCenterNotNearRiver
+        spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
         spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
 
   continentsWithSpots:
@@ -195,6 +195,18 @@ samplers:
       samplers:
         blotSpots: $math/samplers/continents.yml:samplers.blotSpots
         continents: $math/samplers/continents.yml:samplers.continents
+
+  continentalDistribution:
+    dimensions: 2
+    type: CACHE
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
+      samplers:
+        continentsWithSpots: $math/samplers/continents.yml:samplers.continentsWithSpots
+
 
 
 ############# UNUSED ##############

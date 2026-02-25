@@ -30,6 +30,13 @@ biomes:
           _land_spot: 1
       stages:
         
+        #********* This section should only be uncommented to test intermittent distribution before climate
+        #Input: All distributions so far
+        #Resolvable biomes
+        - << biome-distribution/stages/PopulateTestBiomes.yml:stages
+        - << biome-distribution/stages/PopulateTestStage.yml:stages
+        #*************************************
+        
         ##Add spots to drop large POIs like volcanos / mesas
         ##Input: ocean / land
         ##Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
@@ -49,7 +56,7 @@ biomes:
         #- << biome-distribution/stages/special/build_well_regions.yml:stages
         #
         ##Replace outer boundary zones to prevent sink-hole / canyon valley generation back to land.
-        - << biome-distribution/stages/special/return_boundary_to_land.yml:stages
+        #- << biome-distribution/stages/special/return_boundary_to_land.yml:stages
         #
         ##*************************************
         ##Should sinkholes / canyons be placed after rivers?...
@@ -57,13 +64,6 @@ biomes:
         #
         ##Output: land / vast-forest / island / ocean / island-coast
         #- << biome-distribution/stages/Distribute_Major_Regions.yml:stages
-        
-        #********* This section should only be uncommented to test intermittent distribution before climate
-        #Input: All distributions so far
-        #Resolvable biomes
-        - << biome-distribution/stages/PopulateTestBiomes.yml:stages
-        - << biome-distribution/stages/PopulateTestStage.yml:stages
-        #*************************************
         
         ###Build out climate regions
         #- << biome-distribution/stages/climate/elevation.yml:stages

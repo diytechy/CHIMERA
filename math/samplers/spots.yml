@@ -88,13 +88,26 @@ samplers:
     <<: *smallCellular
     return: NoiseLookup
     lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+      
+  spotApproxRiverDist:
+    dimensions: 2
+    type: CACHE
+    sampler:
+      <<: *smallCellular
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: spotCenterRiverDistFar(x, z)
+        samplers:
+          spotCenterRiverDistFar: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
 
   spotCenterNotNearRiver:
     dimensions: 2
     type: EXPRESSION
-    expression: if(lookup(x,z)>150,1,0)
+    expression: if(spotApproxRiverDist(x,z)>150,1,0)
     samplers:
-      lookup: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
+      spotApproxRiverDist: $math/samplers/spots.yml:samplers.spotApproxRiverDist
       
   spotCenterContinents:
     dimensions: 2
@@ -112,23 +125,17 @@ samplers:
   spotCenterOnOcean:
     dimensions: 2
     type: EXPRESSION
-    expression: if(cellsampler(x,z)<-0.1,1,0)
+    expression: if(spotCenterContinents(x,z)<-0.1,1,0)
     samplers:
-      cellsampler:
-        <<: *smallCellular
-        return: NoiseLookup
-        lookup: $math/samplers/continents.yml:samplers.continents
+      spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
       
   spotCenterOnLand:
     dimensions: 2
     type: EXPRESSION
-    expression: if((cellsampler(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
+    expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
     samplers:
       spotCenterNotNearRiver: $math/samplers/spots.yml:samplers.spotCenterNotNearRiver
-      cellsampler:
-        <<: *smallCellular
-        return: NoiseLookup
-        lookup: $math/samplers/continents.yml:samplers.continents
+      spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
 
   spotBaseElevation: # Returns the elevation value at the center of the spot
     <<: *smallCellular

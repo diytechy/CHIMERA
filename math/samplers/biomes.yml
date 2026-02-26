@@ -1,0 +1,66 @@
+BiomeShape: &BiomeShape
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20 
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+  sampler:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60 
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.003
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 300 
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0001
+      sampler:
+        type: CELLULAR
+        return: CellValue
+        frequency: 0.003333
+        salt: 2001
+        jitter: 1.2
+        distance: Hybrid
+
+samplers:
+  BiomeShapeA:
+    dimensions: 2
+    type: EXPRESSION
+    expression: ShapeSampler(x/variationScale, z/variationScale)
+    variables:
+      variationScale: $customization.yml:variation-scale
+    salt: 103
+    samplers:
+      ShapeSampler:
+        <<: *BiomeShape
+        salt: 101
+    
+  BiomeShapeB:
+    dimensions: 2
+    type: EXPRESSION
+    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+    variables:
+      variationScale: $customization.yml:variation-scale
+    salt: 103
+    samplers:
+      ShapeSampler:
+        <<: *BiomeShape
+        salt: 101
+
+    
+  BiomeShapeC:
+    dimensions: 2
+    type: EXPRESSION
+    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+    variables:
+      variationScale: $customization.yml:variation-scale
+    salt: 103
+    samplers:
+      ShapeSampler:
+        <<: *BiomeShape
+        salt: 102

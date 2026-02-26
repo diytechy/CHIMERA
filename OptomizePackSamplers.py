@@ -7,14 +7,16 @@ Optimizes pack-level sampler definition files by:
   2. Removing YAML anchors from named samplers (only named samplers, not variables).
   3. Replacing in-file aliases to named samplers with explicit cross-file
      string references (e.g. "$math/samplers/rivers.yml:samplers.riverNoise").
-  4. Wrapping named samplers used more than 3 times (across all files) in a
-     CACHE sampler with exp: 2.
+  4. Wrapping named samplers used more than 3 times (combined across sampler
+     files and biome-distribution stage files) in a CACHE sampler with exp: 2.
+     Samplers of type CACHE or DENDRY are excluded from wrapping.
 
 Usage:
     pip install ruamel.yaml
     python OptomizePackSamplers.py
 """
 
+import re
 from pathlib import Path
 from collections import Counter
 from ruamel.yaml import YAML
@@ -157,6 +159,67 @@ def count_usages_in_file(data, named_sampler_ids, definition_sites, counter):
 
 
 # ---------------------------------------------------------------------------
+# Phase 2b — Counting stage usages
+# ---------------------------------------------------------------------------
+
+def discover_stage_files():
+    """
+    Find all YAML files under biome-distribution/ that may reference
+    pack-level samplers in pipeline stage definitions.
+    """
+    stage_dir = PACK_ROOT / "biome-distribution"
+    if not stage_dir.exists():
+        return []
+    return list(stage_dir.rglob("*.yml"))
+
+
+def count_stage_usages(sampler_names, counter):
+    """
+    Scan biome-distribution stage files for references to pack-level samplers.
+
+    Counts two kinds of references:
+      1. Expression function calls: samplerName(x, z) or samplerName(x, y, z)
+      2. String cross-file refs:    $path:samplers.samplerName
+
+    Each unique reference per file is counted (a sampler referenced multiple
+    times in the same file counts multiple times).
+    """
+    stage_files = discover_stage_files()
+    if not stage_files:
+        return 0
+
+    # Build regex patterns for each sampler name
+    # Match name( in expressions — word boundary before, open paren after
+    expr_pattern = re.compile(
+        r'(?<![a-zA-Z_0-9])(' +
+        '|'.join(re.escape(n) for n in sampler_names) +
+        r')\s*\(',
+    )
+    # Match samplers.name in string references
+    ref_pattern = re.compile(
+        r'samplers\.(' +
+        '|'.join(re.escape(n) for n in sampler_names) +
+        r')(?![a-zA-Z_0-9])',
+    )
+
+    total = 0
+    for path in stage_files:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        for m in expr_pattern.finditer(text):
+            counter[m.group(1)] += 1
+            total += 1
+        for m in ref_pattern.finditer(text):
+            counter[m.group(1)] += 1
+            total += 1
+
+    return total
+
+
+# ---------------------------------------------------------------------------
 # Phase 3 — Transformations
 # ---------------------------------------------------------------------------
 
@@ -221,6 +284,11 @@ def apply_cache_wrapping(data, usage_counts):
             print(f"    (skipping {name!r}: already CACHE)")
             continue
 
+        # Skip DENDRY samplers — they inherently cache values
+        if original.get("type") == "DENDRY":
+            print(f"    (skipping {name!r}: DENDRY inherently caches)")
+            continue
+
         dims = original.get("dimensions", 2)
 
         cache_wrapper = CommentedMap()
@@ -278,13 +346,48 @@ def main():
         count_usages_in_file(data, named_ids, def_sites, usage_counts)
         print(f"  {rel_path}: {len(named_ids)} named sampler(s)")
 
+    # Collect all pack-level sampler names for stage scanning
+    all_sampler_names = set()
+    for named_ids in file_named_ids.values():
+        all_sampler_names.update(named_ids.values())
+
     if usage_counts:
-        print("\n  Alias usage counts (across all files):")
+        print("\n  Alias usage counts (within sampler files):")
         for name, count in sorted(usage_counts.items(), key=lambda x: -x[1]):
-            flag = f"  ← will CACHE (exp={CACHE_EXP})" if count > CACHE_THRESHOLD else ""
-            print(f"    {name}: {count}{flag}")
+            print(f"    {name}: {count}")
+
+    # ------------------------------------------------------------------
+    # Pass 1b — count usages in biome-distribution stage files
+    # ------------------------------------------------------------------
+    print("\n--- Pass 1b: counting usages in biome-distribution stages ---")
+    stage_counts: Counter = Counter()
+    stage_total = count_stage_usages(all_sampler_names, stage_counts)
+
+    if stage_counts:
+        print(f"\n  Stage usage counts ({stage_total} references found):")
+        for name, count in sorted(stage_counts.items(), key=lambda x: -x[1]):
+            print(f"    {name}: {count}")
     else:
-        print("\n  No aliases to named samplers found.")
+        print("\n  No stage references to pack-level samplers found.")
+
+    # Combine counts
+    combined_counts: Counter = Counter()
+    combined_counts.update(usage_counts)
+    combined_counts.update(stage_counts)
+
+    if combined_counts:
+        print("\n  Combined usage counts (samplers + stages):")
+        for name, count in sorted(combined_counts.items(), key=lambda x: -x[1]):
+            parts = []
+            if usage_counts.get(name, 0):
+                parts.append(f"{usage_counts[name]} alias")
+            if stage_counts.get(name, 0):
+                parts.append(f"{stage_counts[name]} stage")
+            detail = " + ".join(parts)
+            flag = f"  <- will CACHE (exp={CACHE_EXP})" if count > CACHE_THRESHOLD else ""
+            print(f"    {name}: {count} ({detail}){flag}")
+    else:
+        print("\n  No usages found.")
 
     # ------------------------------------------------------------------
     # Pass 2 — apply transformations
@@ -310,10 +413,10 @@ def main():
         replacements = replace_aliases(data, named_ids, def_sites, rel_path)
         if replacements:
             for key, ref in replacements:
-                print(f"    Alias replaced: {key!r}  →  {ref}")
+                print(f"    Alias replaced: {key!r}  ->  {ref}")
 
         # Step C — wrap heavily-used samplers in CACHE
-        wrapped = apply_cache_wrapping(data, usage_counts)
+        wrapped = apply_cache_wrapping(data, combined_counts)
         if wrapped:
             print(f"    CACHE wrapped (exp={CACHE_EXP}): {wrapped}")
 
@@ -322,7 +425,7 @@ def main():
 
         # Write back
         save_yaml(data, abs_path)
-        print(f"    Saved → {abs_path}")
+        print(f"    Saved -> {abs_path}")
 
     print("\nDone.")
 

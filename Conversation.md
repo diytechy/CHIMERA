@@ -199,6 +199,7 @@ IMPORTANT: Scale appears to be causing issues now, as it is applied inconsistent
 Fixes post spot dist:
 
 - Prevent river generation in ocean spots?  (Both biome dist and elevation change)
+  If continental < x, river distances should be past herp distance?  Just set to hard-coded value?
 - Update wells to use simpler sampler methods instead of concurrent replacements
 - Update rifts to use simpler sampler methods instead of concurrent replacements
 - Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'

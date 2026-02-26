@@ -520,6 +520,7 @@ samplers:
     expression: |
       herp(continentalRiverDist(x,z),0.1, elevationWithRivers(x,z),1, 
         noisyelevation(x,z))
+    functions: $math/functions/interpolation.yml:functions
     variables: *variables
     samplers:
       continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist

@@ -14,8 +14,8 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      #- volcano: 1
-      #- mesa: 1
+      - volcano: 1
+      - mesa: 1
       - sinkhole: 1
     sampler:
       type: EXPRESSION
@@ -26,7 +26,7 @@ stages:
     from: _ocean_spot
     to:
       - volcano: 1
-      #- mesa: 1
+      - mesa: 1
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1

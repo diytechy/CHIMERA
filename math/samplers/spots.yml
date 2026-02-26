@@ -106,6 +106,34 @@ samplers:
         samplers:
           spotCenterRiverDistFar: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
 
+  spotTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      <<: *smallCellular
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  spotPrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      <<: *smallCellular
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+
   spotCenterNotNearRiver:
     dimensions: 2
     type: EXPRESSION

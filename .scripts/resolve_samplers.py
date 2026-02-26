@@ -250,10 +250,10 @@ class SamplerResolver:
         self.all_samplers: Dict[str, Any] = {}
         # Collected functions
         self.all_functions: Dict[str, Any] = {}
-        # Errors encountered
-        self.errors: List[str] = []
-        # Warnings encountered
-        self.warnings: List[str] = []
+        # Errors encountered (deduplicated)
+        self.errors: Set[str] = set()
+        # Warnings encountered (deduplicated)
+        self.warnings: Set[str] = set()
         # Count of evaluated expressions
         self.evaluated_count: int = 0
 
@@ -268,7 +268,7 @@ class SamplerResolver:
 
         full_path = self.base_dir / file_path
         if not full_path.exists():
-            self.errors.append(f"File not found: {full_path}")
+            self.errors.add(f"File not found: {full_path}")
             return None
 
         try:
@@ -278,10 +278,10 @@ class SamplerResolver:
                 self.file_cache[cache_key] = data
                 return data
         except yaml.YAMLError as e:
-            self.errors.append(f"YAML error in {file_path}: {e}")
+            self.errors.add(f"YAML error in {file_path}: {e}")
             return None
         except Exception as e:
-            self.errors.append(f"Error reading {file_path}: {e}")
+            self.errors.add(f"Error reading {file_path}: {e}")
             return None
 
     def get_value_at_path(self, data: Any, key_path: str) -> Tuple[Any, bool]:
@@ -323,7 +323,7 @@ class SamplerResolver:
 
         # Check for cycles
         if ref in self.resolution_stack:
-            self.errors.append(f"Circular reference detected: {ref}")
+            self.errors.add(f"Circular reference detected: {ref}")
             return None, False
 
         # Parse the reference
@@ -345,7 +345,7 @@ class SamplerResolver:
         # Navigate to the key path
         value, success = self.get_value_at_path(data, key_path)
         if not success:
-            self.errors.append(f"Key path '{key_path}' not found in {file_part}")
+            self.errors.add(f"Key path '{key_path}' not found in {file_part}")
             return None, False
 
         # Mark as being resolved
@@ -377,10 +377,10 @@ class SamplerResolver:
                 elif isinstance(value, str):
                     return value
                 else:
-                    self.warnings.append(f"Complex value for inline reference ${{{ref}}}, using str()")
+                    self.warnings.add(f"Complex value for inline reference ${{{ref}}}, using str()")
                     return str(value)
             else:
-                self.warnings.append(f"Could not resolve inline reference ${{{ref}}}")
+                self.warnings.add(f"Could not resolve inline reference ${{{ref}}}")
                 return match.group(0)  # Keep original if unresolved
 
         return re.sub(pattern, replace_var, text)
@@ -391,7 +391,7 @@ class SamplerResolver:
         Handles dicts, lists, and string references.
         """
         if depth > 100:
-            self.errors.append("Maximum recursion depth exceeded")
+            self.errors.add("Maximum recursion depth exceeded")
             return value
 
         if isinstance(value, str):
@@ -569,7 +569,7 @@ class SamplerResolver:
 
         full_dir = self.base_dir / sampler_dir
         if not full_dir.exists():
-            self.errors.append(f"Sampler directory not found: {full_dir}")
+            self.errors.add(f"Sampler directory not found: {full_dir}")
             return {}
 
         print(f"Processing samplers from: {full_dir}", file=sys.stderr)
@@ -588,7 +588,7 @@ class SamplerResolver:
             samplers = self.process_sampler_file(rel_path)
             for name, config in samplers.items():
                 if name in self.all_samplers:
-                    self.warnings.append(f"Duplicate sampler '{name}' found, overwriting")
+                    self.warnings.add(f"Duplicate sampler '{name}' found, overwriting")
                 self.all_samplers[name] = config
 
         return self.all_samplers
@@ -599,7 +599,7 @@ class SamplerResolver:
         """
         full_dir = self.base_dir / functions_dir
         if not full_dir.exists():
-            self.warnings.append(f"Functions directory not found: {full_dir}")
+            self.warnings.add(f"Functions directory not found: {full_dir}")
             return {}
 
         print(f"Processing functions from: {full_dir}", file=sys.stderr)
@@ -611,7 +611,7 @@ class SamplerResolver:
             functions = self.process_functions_file(rel_path)
             for name, config in functions.items():
                 if name in self.all_functions:
-                    self.warnings.append(f"Duplicate function '{name}' found, overwriting")
+                    self.warnings.add(f"Duplicate function '{name}' found, overwriting")
                 self.all_functions[name] = config
 
         return self.all_functions
@@ -1074,19 +1074,19 @@ def main():
     print(f"  Total samplers: {len(resolver.all_samplers)}", file=sys.stderr)
     print(f"  Total functions: {len(resolver.all_functions)}", file=sys.stderr)
 
-    # Report errors and warnings
+    # Report errors and warnings (convert sets to sorted lists)
     if resolver.errors:
         print(f"\n{'=' * 70}", file=sys.stderr)
         print("ERRORS:", file=sys.stderr)
         print("=" * 70, file=sys.stderr)
-        for error in resolver.errors:
+        for error in sorted(resolver.errors):
             print(f"  - {error}", file=sys.stderr)
 
     if resolver.warnings:
         print(f"\n{'-' * 70}", file=sys.stderr)
         print("WARNINGS:", file=sys.stderr)
         print("-" * 70, file=sys.stderr)
-        for warning in resolver.warnings:
+        for warning in sorted(resolver.warnings):
             print(f"  - {warning}", file=sys.stderr)
 
     # Exit with error code if there were errors

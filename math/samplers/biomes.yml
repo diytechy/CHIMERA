@@ -28,7 +28,7 @@ BiomeShape: &BiomeShape
         distance: Hybrid
 
 samplers:
-  BiomeShapeA:
+  BiomeShapeLandmassStandard:
     dimensions: 2
     type: EXPRESSION
     expression: ShapeSampler(x/variationScale, z/variationScale)
@@ -40,7 +40,7 @@ samplers:
         <<: *BiomeShape
         salt: 101
     
-  BiomeShapeB:
+  BiomeShapeLandmassLarge:
     dimensions: 2
     type: EXPRESSION
     expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
@@ -51,9 +51,8 @@ samplers:
       ShapeSampler:
         <<: *BiomeShape
         salt: 101
-
     
-  BiomeShapeC:
+  BiomeShapeMesa:
     dimensions: 2
     type: EXPRESSION
     expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
@@ -64,3 +63,27 @@ samplers:
       ShapeSampler:
         <<: *BiomeShape
         salt: 102
+    
+  BiomeShapeOcean:
+    dimensions: 2
+    type: EXPRESSION
+    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+    variables:
+      variationScale: $customization.yml:variation-scale
+    salt: 103
+    samplers:
+      ShapeSampler:
+        <<: *BiomeShape
+        salt: 103
+    
+  BiomeShapeHighlands:
+    dimensions: 2
+    type: EXPRESSION
+    expression: ShapeSampler(x/(variationScale), z/(variationScale))
+    variables:
+      variationScale: $customization.yml:variation-scale
+    salt: 103
+    samplers:
+      ShapeSampler:
+        <<: *BiomeShape
+        salt: 104

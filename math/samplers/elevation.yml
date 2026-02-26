@@ -351,10 +351,10 @@ samplers:
     functions:
       combine: # Stacks scaled mountain noise on top of hill noise
         arguments:
-          - continents
-          - hills
-          - mountains
-          - mountainCap
+        - continents
+        - hills
+        - mountains
+        - mountainCap
         expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
       parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
       lerp: $math/functions/interpolation.yml:functions.lerp

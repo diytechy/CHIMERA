@@ -74,7 +74,7 @@ samplers:
         dimensions: 2
         type: PERLIN
         frequency: 1 / ${customization.yml:river-boundary-variance-period}
-        
+
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
@@ -88,7 +88,7 @@ samplers:
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
-    sampler: 
+    sampler:
       dimensions: 2
       type: EXPRESSION
       expression: if(continents(x,z)>0.0, elevationTerraced(x,z), 0.0)

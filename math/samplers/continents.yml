@@ -138,10 +138,10 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-          max(
-            sampler(x / scale / globalScale, z / scale / globalScale),
-            spawnIsland(x, z)
-          )
+        max(
+          sampler(x / scale / globalScale, z / scale / globalScale),
+          spawnIsland(x, z)
+        )
       variables:
         globalScale: $customization.yml:global-scale
         scale: $customization.yml:continental-scale
@@ -169,10 +169,10 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-          if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
-            spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
-            -1)
-          
+        if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
+          spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
+          -1)
+
       variables:
         globalScale: $customization.yml:global-scale
         spotContinentalFactor: 0.3

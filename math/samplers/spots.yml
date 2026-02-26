@@ -77,18 +77,22 @@ samplers:
 
   nearSpot:
     dimensions: 2
-    type: EXPRESSION      
-    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
-    variables: *variables
-    samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-      
+    type: CACHE
+    exp: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+      variables: *variables
+      samplers:
+        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup
     lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
-      
+
   spotApproxRiverDist:
     dimensions: 2
     type: CACHE
@@ -108,7 +112,7 @@ samplers:
     expression: if(spotApproxRiverDist(x,z)>150,1,0)
     samplers:
       spotApproxRiverDist: $math/samplers/spots.yml:samplers.spotApproxRiverDist
-      
+
   spotCenterContinents:
     dimensions: 2
     type: CACHE
@@ -128,7 +132,7 @@ samplers:
     expression: if(spotCenterContinents(x,z)<-0.1,1,0)
     samplers:
       spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
-      
+
   spotCenterOnLand:
     dimensions: 2
     type: EXPRESSION
@@ -196,20 +200,24 @@ samplers:
   # Volcano Samplers
   # ---
   spotEdgeRadiusPercent:
-    <<: *smallCellular
-    return: NoiseLookup
-    lookup:
-      type: EXPRESSION
-      expression: quinticEaseInOut(noise(x, z)) # Use in/out easing to favour extreme values over middle values
-      samplers:
-        noise:
-          dimensions: 2
-          type: POSITIVE_WHITE_NOISE
-          salt: 5812
-      functions:
-        quinticEaseInOut:
-          arguments: [x]
-          expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
+    dimensions: 2
+    type: CACHE
+    exp: 2
+    sampler:
+      <<: *smallCellular
+      return: NoiseLookup
+      lookup:
+        type: EXPRESSION
+        expression: quinticEaseInOut(noise(x, z)) # Use in/out easing to favour extreme values over middle values
+        samplers:
+          noise:
+            dimensions: 2
+            type: POSITIVE_WHITE_NOISE
+            salt: 5812
+        functions:
+          quinticEaseInOut:
+            arguments: [x]
+            expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
   spotEdgeRadius:
     dimensions: 2

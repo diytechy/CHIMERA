@@ -194,6 +194,18 @@ Their center is below continental value (because why would you have sinkholes in
 
 IMPORTANT: Scale appears to be causing issues now, as it is applied inconsistently, and this interferes with resolving spot locations on continents / rivers.  Likely just need to remove entirely.  Can just increase frequency of sampler.
 
+###########################################
+
+Fixes post spot dist:
+
+- Prevent river generation in ocean spots?  (Both biome dist and elevation change)
+- Update wells to use simpler sampler methods instead of concurrent replacements
+- Update rifts to use simpler sampler methods instead of concurrent replacements
+- Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'
+- Could set island types according to continental landmass being above the island threshold...
+
+
+
 B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
 
 C. Need to make sure rivers actually flow up using soul-sand?

@@ -33,17 +33,17 @@ biomes:
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far
         #Resolvable biomes
-        - << biome-distribution/stages/PopulateTestBiomes.yml:stages
-        - << biome-distribution/stages/PopulateTestStage.yml:stages
+        #- << biome-distribution/stages/PopulateTestBiomes.yml:stages
+        #- << biome-distribution/stages/PopulateTestStage.yml:stages
         #*************************************
         
         ##Add spots to drop large POIs like volcanos / mesas
         ##Input: ocean / land
         ##Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
-        #- << biome-distribution/stages/add_spots.yml:stages
+        - << biome-distribution/stages/add_spots.yml:stages
         #
         ##Segment temperature regions for respective canyon valleys / sinkholes
-        #- << biome-distribution/stages/special/build_rift_regions_1.yml:stages
+        - << biome-distribution/stages/special/build_rift_regions_1.yml:stages
         #
         ##Further segment into subzones so canyons are not everywhere.
         #- << biome-distribution/stages/special/build_rift_regions_2.yml:stages

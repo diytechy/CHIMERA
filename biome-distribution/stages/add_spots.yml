@@ -2,10 +2,8 @@ stages:
   - type: REPLACE
     from: _non_spot
     to:
-      - ocean: 50
-      - coast: 1
-      - coast_wide: 3
-      - land: 46
+      - ocean: 1
+      - land: 1
     sampler:
       type: EXPRESSION
       expression: continentalDistribution(x, z)

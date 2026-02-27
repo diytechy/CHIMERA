@@ -57,65 +57,65 @@ samplers:
           return: NoiseLookup
           lookup: $math/samplers/temperature.yml:samplers.temperature
 
-  BiomeShapeLandmassStandard:
-    dimensions: 2
-    type: EXPRESSION
-    expression: ShapeSampler(x/variationScale, z/variationScale)
-    variables:
-      variationScale: $customization.yml:variation-scale
-    salt: 103
-    samplers:
-      ShapeSampler:
-        <<: *BiomeShape
-        salt: 101
-    
-  BiomeShapeLandmassLarge:
-    dimensions: 2
-    type: EXPRESSION
-    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
-    variables:
-      variationScale: $customization.yml:variation-scale
-    salt: 103
-    samplers:
-      ShapeSampler:
-        <<: *BiomeShape
-        salt: 101
-    
-  BiomeShapeMesa:
-    dimensions: 2
-    type: EXPRESSION
-    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
-    variables:
-      variationScale: $customization.yml:variation-scale
-    salt: 103
-    samplers:
-      ShapeSampler:
-        <<: *BiomeShape
-        salt: 102
-    
-  BiomeShapeOcean:
-    dimensions: 2
-    type: EXPRESSION
-    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
-    variables:
-      variationScale: $customization.yml:variation-scale
-    salt: 103
-    samplers:
-      ShapeSampler:
-        <<: *BiomeShape
-        salt: 103
-    
-  BiomeShapeHighlands:
-    dimensions: 2
-    type: EXPRESSION
-    expression: ShapeSampler(x/(variationScale), z/(variationScale))
-    variables:
-      variationScale: $customization.yml:variation-scale
-    salt: 103
-    samplers:
-      ShapeSampler:
-        <<: *BiomeShape
-        salt: 104
+#  BiomeShapeLandmassStandard:
+#    dimensions: 2
+#    type: EXPRESSION
+#    expression: ShapeSampler(x/variationScale, z/variationScale)
+#    variables:
+#      variationScale: $customization.yml:variation-scale
+#    salt: 103
+#    samplers:
+#      ShapeSampler:
+#        <<: *BiomeShape
+#        salt: 101
+#    
+#  BiomeShapeLandmassLarge:
+#    dimensions: 2
+#    type: EXPRESSION
+#    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+#    variables:
+#      variationScale: $customization.yml:variation-scale
+#    salt: 103
+#    samplers:
+#      ShapeSampler:
+#        <<: *BiomeShape
+#        salt: 101
+#    
+#  BiomeShapeMesa:
+#    dimensions: 2
+#    type: EXPRESSION
+#    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+#    variables:
+#      variationScale: $customization.yml:variation-scale
+#    salt: 103
+#    samplers:
+#      ShapeSampler:
+#        <<: *BiomeShape
+#        salt: 102
+#    
+#  BiomeShapeOcean:
+#    dimensions: 2
+#    type: EXPRESSION
+#    expression: ShapeSampler(x/(variationScale*1.5), z/(variationScale*1.5))
+#    variables:
+#      variationScale: $customization.yml:variation-scale
+#    salt: 103
+#    samplers:
+#      ShapeSampler:
+#        <<: *BiomeShape
+#        salt: 103
+#    
+#  BiomeShapeHighlands:
+#    dimensions: 2
+#    type: EXPRESSION
+#    expression: ShapeSampler(x/(variationScale), z/(variationScale))
+#    variables:
+#      variationScale: $customization.yml:variation-scale
+#    salt: 103
+#    samplers:
+#      ShapeSampler:
+#        <<: *BiomeShape
+#        salt: 104
 
 
   BiomeShapeLandmassStandardTemperature:

@@ -756,7 +756,7 @@ def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> L
 
 def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
                                  owner_name: str,
-                                 errors: Optional[List[str]] = None) -> Any:
+                                 errors: Optional[Set[str]] = None) -> Any:
     """
     Deep-walk a sampler config and remove entries from 'samplers:' (plural)
     maps that match pack-level sampler names. With sequential loading in
@@ -797,7 +797,7 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
                     # Validate: expression must use name(coords), not bare name
                     if expression and _find_bare_sampler_refs(expression, key):
                         if errors is not None:
-                            errors.append(
+                            errors.add(
                                 f"Sampler '{context_name}': references '{key}' "
                                 f"without coordinate arguments (e.g. {key}(x, z)). "
                                 f"Pack-level samplers must be called with coordinates."
@@ -835,8 +835,8 @@ def _extract_function_calls(expression: str) -> Set[str]:
 def validate_expression_samplers(
     all_samplers: Dict[str, Any],
     all_functions: Dict[str, Any],
-    errors: List[str],
-    warnings: List[str],
+    errors: Set[str],
+    warnings: Set[str],
 ) -> None:
     """
     Walk every sampler config tree and validate EXPRESSION-type nodes:
@@ -879,7 +879,7 @@ def validate_expression_samplers(
                 if identifier in all_function_names:
                     continue  # user-defined function — not a sampler
                 if identifier in all_sampler_names and identifier not in local_names:
-                    errors.append(
+                    errors.add(
                         f"Sampler '{owner_name}': expression calls '{identifier}(...)' "
                         f"but '{identifier}' is not declared in local samplers:"
                     )
@@ -887,7 +887,7 @@ def validate_expression_samplers(
             # Warning: local samplers: entry never called in expression
             for local_name in local_names:
                 if local_name not in called:
-                    warnings.append(
+                    warnings.add(
                         f"Sampler '{owner_name}': local sampler '{local_name}' is declared "
                         f"but not used in expression"
                     )
@@ -901,7 +901,7 @@ def validate_expression_samplers(
 
 
 def build_resolved_output(all_samplers: Dict[str, Any],
-                          errors: Optional[List[str]] = None) -> str:
+                          errors: Optional[Set[str]] = None) -> str:
     """
     Build YAML output with shared samplers deduplicated.
 

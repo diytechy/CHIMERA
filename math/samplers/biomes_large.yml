@@ -1,0 +1,107 @@
+BaseBiomeCellLarge: &BaseBiomeCellLarge
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistanceLarge}
+  jitter: 1.2
+  distance: Hybrid
+
+_mesaShape: &mesaShape
+  <<: *BaseBiomeCellLarge
+  salt: 103
+
+_largelandShape: &largelandShape
+  <<: *BaseBiomeCellLarge
+  salt: 104
+
+_outerWarpLarge: &outerWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarpLarge: &midWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarpLarge: &innerWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
+
+samplers:
+  BiomeShapeMesaValue:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *mesaShape
+          return: CellValue
+
+  BiomeShapeMesaTemperature:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *mesaShape
+          return: NoiseLookup
+          lookup: $math/samplers/temperature.yml:samplers.temperature
+          salt-lookup: false
+
+  BiomeShapeMesaPrecipitation:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *mesaShape
+          return: NoiseLookup
+          lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          salt-lookup: false
+
+  BiomeShapeLargelandValue:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *largelandShape
+          return: CellValue
+
+  BiomeShapeLargelandTemperature:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *largelandShape
+          return: NoiseLookup
+          lookup: $math/samplers/temperature.yml:samplers.temperature
+          salt-lookup: false
+
+  BiomeShapeLargelandPrecipitation:
+    <<: *outerWarpLarge
+    sampler:
+      <<: *midWarpLarge
+      sampler:
+        <<: *innerWarpLarge
+        sampler:
+          <<: *largelandShape
+          return: NoiseLookup
+          lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          salt-lookup: false

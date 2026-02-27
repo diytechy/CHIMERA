@@ -1,33 +1,62 @@
-BiomeShape: &BiomeShape
-  dimensions: 2
-  type: DOMAIN_WARP
-  amplitude: 20 
-  warp:
-    type: SIMPLEX
-    frequency: 0.02
-  sampler:
+BaseBiomeCell: &BaseBiomeCell
+  type: CELLULAR
+  frequency: 0.003333
+  jitter: 1.2
+  distance: Hybrid
+
+
+samplers:
+  BiomeShapeLandmassValue:
     dimensions: 2
     type: DOMAIN_WARP
-    amplitude: 60 
+    amplitude: 20 
     warp:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.003
+      type: SIMPLEX
+      frequency: 0.02
     sampler:
       dimensions: 2
       type: DOMAIN_WARP
-      amplitude: 300 
+      amplitude: 60 
       warp:
         type: OPEN_SIMPLEX_2
-        frequency: 0.0001
+        frequency: 0.003
       sampler:
-        type: CELLULAR
-        return: CellValue
-        frequency: 0.003333
-        salt: 2001
-        jitter: 1.2
-        distance: Hybrid
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300 
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          <<: *BaseBiomeCell
+          return: CellValue
 
-samplers:
+  BiomeShapeLandmassTemp:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20 
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60 
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300 
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          <<: *BaseBiomeCell
+          return: NoiseLookup
+          lookup: $math/samplers/temperature.yml:samplers.temperature
+
   BiomeShapeLandmassStandard:
     dimensions: 2
     type: EXPRESSION
@@ -87,3 +116,184 @@ samplers:
       ShapeSampler:
         <<: *BiomeShape
         salt: 104
+
+
+  BiomeShapeLandmassStandardTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 101
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  BiomeShapeLandmassStandardPrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 101
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+
+  BiomeShapeLandmassLargeTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 101
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  BiomeShapeLandmassLargePrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 101
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+
+  BiomeShapeMesaTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 102
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  BiomeShapeMesaPrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 102
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+
+  BiomeShapeOceanTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 103
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  BiomeShapeOceanPrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 103
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+
+  BiomeShapeHighlandsTemperature:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 104
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: temperature(x, z)
+        samplers:
+          temperature: $math/samplers/temperature.yml:samplers.temperature
+
+  BiomeShapeHighlandsPrecipitation:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      type: CELLULAR
+      frequency: 0.003333
+      salt: 104
+      jitter: 1.2
+      distance: Hybrid
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: precipitation(x, z)
+        samplers:
+          precipitation: $math/samplers/precipitation.yml:samplers.precipitation

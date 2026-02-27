@@ -29,6 +29,14 @@ biomes:
           _non_spot: 1
           _land_spot: 1
       stages:
+        - type: REPLACE
+          from: _non_spot
+          to:
+            - ocean: 1
+            - land: 1
+          sampler:
+            type: EXPRESSION
+            expression: continentalDistribution(x, z)
         
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far

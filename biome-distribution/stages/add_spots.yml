@@ -1,12 +1,12 @@
 stages:
-  - type: REPLACE
-    from: _non_spot
-    to:
-      - ocean: 1
-      - land: 1
-    sampler:
-      type: EXPRESSION
-      expression: continentalDistribution(x, z)
+#  - type: REPLACE
+#    from: _non_spot
+#    to:
+#      - ocean: 1
+#      - land: 1
+#    sampler:
+#      type: EXPRESSION
+#      expression: continentalDistribution(x, z)
 
   #land spot
   - type: REPLACE

@@ -4,54 +4,49 @@ BaseBiomeCell: &BaseBiomeCell
   jitter: 1.2
   distance: Hybrid
 
+# Shared warp layer definitions (used via << merge in samplers below)
+_outerWarp: &outerWarp
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarp: &midWarp
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarp: &innerWarp
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
 
 samplers:
   BiomeShapeLandmassValue:
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 20 
-    warp:
-      type: SIMPLEX
-      frequency: 0.02
+    <<: *outerWarp
     sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 60 
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.003
+      <<: *midWarp
       sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 300 
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.0001
+        <<: *innerWarp
         sampler:
           <<: *BaseBiomeCell
           return: CellValue
 
   BiomeShapeLandmassTemp:
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 20 
-    warp:
-      type: SIMPLEX
-      frequency: 0.02
+    <<: *outerWarp
     sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 60 
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.003
+      <<: *midWarp
       sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 300 
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.0001
+        <<: *innerWarp
         sampler:
           <<: *BaseBiomeCell
           return: NoiseLookup

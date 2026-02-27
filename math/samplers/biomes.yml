@@ -55,6 +55,33 @@ _innerWarpSmall: &innerWarpSmall
     type: OPEN_SIMPLEX_2
     frequency: 0.0001
 
+_outerWarpLarge: &outerWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarpLarge: &midWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarpLarge: &innerWarpLarge
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
+    
+# Shared warp layer definitions (used via << merge in samplers below)
+
 samplers:
   BiomeShapeLandmassValue:
     <<: *outerWarpSmall
@@ -125,21 +152,21 @@ samplers:
           salt-lookup: false
 
   BiomeShapeMesaValue:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *mesaShape
           return: CellValue
 
   BiomeShapeMesaTemperature:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *mesaShape
           return: NoiseLookup
@@ -147,11 +174,11 @@ samplers:
           salt-lookup: false
           
   BiomeShapeMesaPrecipitation:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *mesaShape
           return: NoiseLookup
@@ -159,21 +186,21 @@ samplers:
           salt-lookup: false
 
   BiomeShapeLargelandValue:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *largelandShape
           return: CellValue
 
   BiomeShapeLargelandTemperature:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *largelandShape
           return: NoiseLookup
@@ -181,11 +208,11 @@ samplers:
           salt-lookup: false
           
   BiomeShapeLargelandPrecipitation:
-    <<: *outerWarpSmall
+    <<: *outerWarpLarge
     sampler:
-      <<: *midWarpSmall
+      <<: *midWarpLarge
       sampler:
-        <<: *innerWarpSmall
+        <<: *innerWarpLarge
         sampler:
           <<: *largelandShape
           return: NoiseLookup

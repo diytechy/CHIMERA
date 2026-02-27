@@ -285,3 +285,7 @@ stages:
       land-sea-border: BARE_BOULDERFIELDS
       vast-forest-coast: PALE_GARDEN_COAST
       island-coast: COAST_MEDIUM_A
+      sinkhole: YELLOWSTONE
+      sinkhole-border-ocean: SINKHOLE_OUTER
+      sinkhole-border-land: SINKHOLE_OUTER
+      sinkhole-border: TEMPERATE_SINKHOLE_BORDER

@@ -1,8 +1,16 @@
 BaseBiomeCell: &BaseBiomeCell
   type: CELLULAR
-  frequency: 0.003333
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
   jitter: 1.2
   distance: Hybrid
+
+_landmassShape: &landmassShape
+  <<: *BaseBiomeCell
+  salt: 101
+
+_highlandShape: &highlandShape
+  <<: *BaseBiomeCell
+  salt: 102
 
 # Shared warp layer definitions (used via << merge in samplers below)
 _outerWarpSmall: &outerWarpSmall
@@ -38,7 +46,7 @@ samplers:
       sampler:
         <<: *innerWarpSmall
         sampler:
-          <<: *BaseBiomeCell
+          <<: *landmassShape
           return: CellValue
 
   BiomeShapeLandmassTemperature:
@@ -48,9 +56,10 @@ samplers:
       sampler:
         <<: *innerWarpSmall
         sampler:
-          <<: *BaseBiomeCell
+          <<: *landmassShape
           return: NoiseLookup
           lookup: $math/samplers/temperature.yml:samplers.temperature
+          salt-lookup: false
           
   BiomeShapeLandmassPrecipitation:
     <<: *outerWarpSmall
@@ -59,9 +68,10 @@ samplers:
       sampler:
         <<: *innerWarpSmall
         sampler:
-          <<: *BaseBiomeCell
+          <<: *landmassShape
           return: NoiseLookup
           lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          salt-lookup: false
 
 #  BiomeShapeLandmassStandard:
 #    dimensions: 2

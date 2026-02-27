@@ -2,29 +2,352 @@
 """
 calculate_biome_percentages.py
 
-Calculates actual biome percentages by tracing through Terra preset pipelines.
-Properly handles YAML anchors/aliases and cascading probability calculations.
+PURPOSE
+-------
+Trace the Terra biome pipeline for each preset in biome-distribution/presets/ and produce
+a CSV with:
+  - Per-biome percentage in each preset (surface biomes sum to 100%; extrusion biomes separate).
+  - Expected temperature, precipitation, elevation (0-1) for each biome, derived from the
+    pipeline stage distributions.  For biomes not processed by a named-sampler stage, the
+    global mean of that sampler is used (0.5 for uniform distributions).
 
-Now also handles extrusion biomes (caves, underground biomes) which generate
-content below the surface level. Extrusion biomes are tracked separately so
-surface biomes still add to 100%.
+PIPELINE MODEL
+--------------
+Terra's ProbabilityCollection maps a sampler value to a biome slot via:
+    index = clamp(int(((v + 1) / 2) * arraySize), 0, arraySize - 1)
+where arraySize = sum of all weights.  Sampler output range is assumed [-1, 1].
+Probability of biome B = integral of the sampler's PDF over the slice of [-1, 1]
+assigned to B's weight slots.  For uniform samplers this reduces to weight/total.
 
-Includes schema validation for Terra stage types to catch configuration errors.
+NAMED CLIMATE SAMPLERS
+-----------------------
+Only three EXPRESSION sampler calls produce values tracked in the output CSV:
+  - temperature(x, z)    → Temperature column
+  - precipitation(x, z)  → Precipitation column
+  - elevation(x, z)      → Elevation column
+These names are configuration constants below (TEMPERATURE_SAMPLER_NAME, etc.).
+
+DISTRIBUTION CATEGORIES
+-----------------------
+Biomes are tagged into a distribution category:
+  SURFACE    — normal terrain from standard pipeline stages
+  RIVER      — biomes produced by river REPLACE stages (from-biome matches RIVER_STAGE_TAGS)
+  SUBSURFACE — cave/extrusion biomes (tracked separately, not in surface totals)
+
+SAMPLER DISTRIBUTION CONFIG
+----------------------------
+sampler_distributions.yml (same directory) defines the CDF of each base sampler type.
+Used by SamplerDistribution to compute slot-range integrals.
+Re-generate with: python .scripts/extract_sampler_cdfs.py
+
+BORDER STAGE MODEL
+------------------
+BORDER stages convert a fraction of the replace biome that neighbours the from biome.
+The conversion fraction is estimated geometrically:
+    border_fraction = min(BORDER_MAX_FRACTION, sqrt(from_prob) * BORDER_SCALE_FACTOR)
+
+MAGIC IDENTIFIERS (implementation-specific — edit if pack changes)
+-------------------------------------------------------------------
+See the "PACK-SPECIFIC IDENTIFIERS" section below.
 """
 from ensure_module import ensure_modules
 
-# Example: ensure 'requests' is installed
-requests = ensure_modules(["yaml", "re", "csv"])
-
+ensure_modules(["yaml", "re", "csv"])
 
 import yaml
 import re
 import sys
 import csv
+from enum import Enum
 from pathlib import Path
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional, Set
+
+# =============================================================================
+# SAMPLER DISTRIBUTION CONFIG
+# =============================================================================
+SAMPLER_DIST_CONFIG = Path(__file__).parent / "sampler_distributions.yml"
+
+# =============================================================================
+# NAMED CLIMATE SAMPLERS  (edit if pack renames these expression functions)
+# =============================================================================
+TEMPERATURE_SAMPLER_NAME   = "temperature"
+PRECIPITATION_SAMPLER_NAME = "precipitation"
+ELEVATION_SAMPLER_NAME     = "elevation"
+
+# =============================================================================
+# DISTRIBUTION CATEGORY RULES  (edit if pack structure changes)
+# =============================================================================
+# Tags on the 'from' biome that indicate a river replacement stage
+RIVER_STAGE_TAGS: Set[str] = {
+    "USE_RIVER", "USE_DESERT_RIVER", "USE_FROZEN_RIVER",
+    "USE_FROZEN_RIVER_FROZEN_MARSH", "USE_COLD_RIVER",
+}
+
+# =============================================================================
+# BORDER STAGE MODEL CONSTANTS
+# =============================================================================
+BORDER_MAX_FRACTION  = 0.20   # max fraction of replace biome converted to border
+BORDER_SCALE_FACTOR  = 0.40   # sqrt(from_prob) multiplier
+
+# =============================================================================
+# CLIMATE DATA PRESET  (edit if the main climate-stages preset changes)
+# =============================================================================
+# The preset used to derive temperature/precipitation/elevation values.
+# This should be the preset that runs the full climate pipeline
+# (temperature.yml → precipitation.yml → elevation.yml → set_biomes_in_climates.yml).
+# It may differ from the pack's active preset (pack.yml:biomes).
+CLIMATE_PRESET_NAME = "origen2"
+
+# =============================================================================
+# PACK-SPECIFIC IDENTIFIERS  (may break on other packs without updating these)
+# =============================================================================
+OCEAN_SOURCE_BIOMES: Set[str] = {"ocean", "deep-ocean", "shallow-ocean"}
+LAND_SOURCE_BIOMES: Set[str]  = {
+    "land", "coast", "mesa", "crater-lake",
+    "extinct-volcano", "island", "vast-forest",
+}
+
+
+# =============================================================================
+# Sampler Distribution  (CDF-based probability)
+# =============================================================================
+
+class SamplerDistribution:
+    """
+    Loads piecewise-linear CDFs from sampler_distributions.yml and computes
+    the actual probability each slot in a weighted biome list receives.
+
+    Terra maps a sampler output value v to a slot index:
+        index = clamp(int(((v + 1) / 2) * arraySize), 0, arraySize - 1)
+    So slot i occupies the value range:
+        v_start = -1 + 2 * i        / arraySize
+        v_end   = -1 + 2 * (i + 1) / arraySize
+    P(slot i) = CDF(v_end) - CDF(v_start)
+
+    For sampler types tagged 'uniform':  uniform distribution on [-1, 1] assumed.
+    For sampler type 'constant':         always outputs 0; midpoint slot gets prob 1.
+    """
+
+    _UNIFORM_TAG  = "uniform"
+    _CONSTANT_TAG = "constant"
+
+    def __init__(self):
+        self._distributions: Dict[str, Any] = {}
+
+    @classmethod
+    def load(cls, path: Path) -> "SamplerDistribution":
+        """Load CDF breakpoints from sampler_distributions.yml."""
+        instance = cls()
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            dist_map = data.get("distributions", {}) if data else {}
+            for k, v in dist_map.items():
+                instance._distributions[k] = v
+        except Exception as e:
+            print(f"Warning: Could not load sampler distributions from {path}: {e}",
+                  file=sys.stderr)
+        return instance
+
+    def cdf(self, sampler_type: str, v: float) -> float:
+        """CDF(v) for the given sampler type.  Clamps to [0, 1]."""
+        dist = self._distributions.get(sampler_type)
+
+        if dist is None or dist == self._UNIFORM_TAG:
+            return max(0.0, min(1.0, (v + 1.0) / 2.0))
+
+        if dist == self._CONSTANT_TAG:
+            return 0.0 if v < 0.0 else 1.0
+
+        if not isinstance(dist, list) or len(dist) < 2:
+            return max(0.0, min(1.0, (v + 1.0) / 2.0))
+
+        v0, c0 = dist[0]
+        vn, cn = dist[-1]
+        if v <= v0:
+            return float(c0)
+        if v >= vn:
+            return float(cn)
+
+        # Binary search for the enclosing segment
+        lo, hi = 0, len(dist) - 2
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if dist[mid + 1][0] <= v:
+                lo = mid + 1
+            else:
+                hi = mid
+        va, ca = dist[lo]
+        vb, cb = dist[lo + 1]
+        if vb == va:
+            return float(ca)
+        t = (v - va) / (vb - va)
+        return float(ca + t * (cb - ca))
+
+    def slot_probabilities(self, sampler_type: str, weights: List[int]) -> List[float]:
+        """
+        Compute the probability each weighted-list slot receives from the sampler.
+
+        Args:
+            sampler_type: Leaf sampler type string (e.g. 'CELLULAR', 'OPEN_SIMPLEX_2').
+            weights:      Integer weights for each list entry (in YAML order).
+        Returns:
+            List of floats (same length as weights) summing to 1.0.
+        """
+        array_size = sum(weights)
+        if array_size == 0:
+            n = max(1, len(weights))
+            return [1.0 / n] * len(weights)
+
+        dist = self._distributions.get(sampler_type)
+        is_uniform  = (dist is None or dist == self._UNIFORM_TAG)
+        is_constant = (dist == self._CONSTANT_TAG)
+
+        if is_constant:
+            mid_slot = array_size // 2
+            probs = [0.0] * len(weights)
+            cumulative = 0
+            for i, w in enumerate(weights):
+                if cumulative <= mid_slot < cumulative + w:
+                    probs[i] = 1.0
+                    break
+                cumulative += w
+            return probs
+
+        cumulative = 0
+        probs = []
+        for w in weights:
+            v_start = -1.0 + 2.0 * cumulative          / array_size
+            v_end   = -1.0 + 2.0 * (cumulative + w)    / array_size
+            if is_uniform:
+                p = w / array_size
+            else:
+                p = self.cdf(sampler_type, v_end) - self.cdf(sampler_type, v_start)
+            probs.append(max(0.0, p))
+            cumulative += w
+
+        total = sum(probs)
+        if total > 0:
+            probs = [p / total for p in probs]
+        else:
+            probs = [1.0 / len(weights)] * len(weights)
+        return probs
+
+
+# Module-level lazy singleton for SamplerDistribution
+_sampler_dist_instance: Optional[SamplerDistribution] = None
+
+def _get_sampler_dist() -> SamplerDistribution:
+    global _sampler_dist_instance
+    if _sampler_dist_instance is None:
+        _sampler_dist_instance = SamplerDistribution.load(SAMPLER_DIST_CONFIG)
+    return _sampler_dist_instance
+
+
+def _leaf_sampler_type(sampler: Any) -> str:
+    """
+    Walk a sampler config dict to find the innermost non-wrapper type.
+
+    Wrapper types (CACHE, DOMAIN_WARP, FBM, CLAMP, LINEAR, LINEAR_MAP, NORMALIZER)
+    all have a 'sampler' sub-key; the distribution of the output follows that inner
+    sampler.  EXPRESSION and leaf types (CELLULAR, OPEN_SIMPLEX_2, …) are returned
+    as-is.
+    """
+    _WRAPPERS = {"CACHE", "DOMAIN_WARP", "FBM", "CLAMP", "LINEAR", "LINEAR_MAP", "NORMALIZER"}
+    if not isinstance(sampler, dict):
+        return "uniform"
+    t = sampler.get("type", "")
+    if t in _WRAPPERS:
+        inner = sampler.get("sampler")
+        if inner:
+            return _leaf_sampler_type(inner)
+    return t if t else "uniform"
+
+
+def _get_climate_sampler_name(stage: Dict) -> Optional[str]:
+    """
+    Return the named climate sampler called by this stage's EXPRESSION sampler,
+    or None if this is not a climate stage.
+    """
+    sampler = stage.get("sampler", {})
+    if not isinstance(sampler, dict):
+        return None
+    if sampler.get("type") == "EXPRESSION":
+        expr = str(sampler.get("expression", ""))
+        for name in (TEMPERATURE_SAMPLER_NAME, PRECIPITATION_SAMPLER_NAME, ELEVATION_SAMPLER_NAME):
+            if f"{name}(" in expr:
+                return name
+    return None
+
+
+def _is_river_stage(stage: Dict) -> bool:
+    """Return True if the 'from' tag indicates a river replacement stage.
+
+    Matches any tag in RIVER_STAGE_TAGS OR any tag that starts with 'USE_'
+    and contains 'RIVER' (covers USE_PALE_GARDEN_RIVER, USE_MUSHROOM_RIVER, etc.).
+    """
+    for key in ("from", "default-from"):
+        val = stage.get(key, "")
+        if isinstance(val, str):
+            if val in RIVER_STAGE_TAGS:
+                return True
+            # Pattern match: USE_*_RIVER tags produced by the river stage file
+            if val.startswith("USE_") and "RIVER" in val:
+                return True
+    return False
+
+
+def _apply_climate_value(tracker: "ClimateTracker", sampler_name: str,
+                         biome: str, value: float) -> None:
+    """Write a pipeline-derived climate value into the climate tracker."""
+    if sampler_name == TEMPERATURE_SAMPLER_NAME:
+        tracker.apply_temperature_value(biome, value)
+    elif sampler_name == PRECIPITATION_SAMPLER_NAME:
+        tracker.apply_precipitation_value(biome, value)
+    elif sampler_name == ELEVATION_SAMPLER_NAME:
+        tracker.apply_elevation_value(biome, value)
+
+
+def _propagate_climate(tracker: "ClimateTracker",
+                       from_biome: str, to_biome: str) -> None:
+    """
+    Inherit climate context from from_biome to to_biome for any field not yet set.
+
+    Called when a REPLACE/REPLACE_LIST stage transforms biome A into biome B
+    so that B inherits A's temperature/precipitation/elevation values.
+    Existing values on to_biome are preserved (pipeline values take precedence).
+    """
+    from_ctx = tracker.contexts.get(from_biome)
+    if from_ctx is None:
+        return
+    to_ctx = tracker.contexts.get(to_biome, ClimateContext())
+    changed = False
+    if to_ctx.temperature is None and from_ctx.temperature is not None:
+        to_ctx.temperature = from_ctx.temperature
+        changed = True
+    if to_ctx.precipitation is None and from_ctx.precipitation is not None:
+        to_ctx.precipitation = from_ctx.precipitation
+        changed = True
+    if to_ctx.elevation is None and from_ctx.elevation is not None:
+        to_ctx.elevation = from_ctx.elevation
+        changed = True
+    if to_ctx.origin_type is None and from_ctx.origin_type is not None:
+        to_ctx.origin_type = from_ctx.origin_type
+        changed = True
+    if changed:
+        tracker.contexts[to_biome] = to_ctx
+
+
+# =============================================================================
+# Distribution Category
+# =============================================================================
+
+class DistributionCategory(Enum):
+    SURFACE    = "SURFACE"
+    RIVER      = "RIVER"
+    SUBSURFACE = "SUBSURFACE"
 
 
 # =============================================================================
@@ -509,24 +832,62 @@ class ClimateTracker:
             self.lineage[to_biome].append((from_biome, weight))
 
     def apply_temperature(self, biome: str, band_index: int):
-        """Apply temperature band to a biome."""
+        """Apply temperature band to a biome (index-based; prefer apply_temperature_value)."""
         if biome not in self.contexts:
             self.contexts[biome] = ClimateContext()
-        # Normalize to 0-1 range
         self.contexts[biome].temperature = band_index / max(1, len(self.TEMPERATURE_BANDS) - 1)
 
     def apply_precipitation(self, biome: str, band_index: int):
-        """Apply precipitation band to a biome."""
+        """Apply precipitation band to a biome (index-based; prefer apply_precipitation_value)."""
         if biome not in self.contexts:
             self.contexts[biome] = ClimateContext()
         self.contexts[biome].precipitation = band_index / max(1, len(self.PRECIPITATION_BANDS) - 1)
 
     def apply_elevation(self, biome: str, band_index: int, is_ocean: bool = False):
-        """Apply elevation band to a biome."""
+        """Apply elevation band to a biome (index-based; prefer apply_elevation_value)."""
         if biome not in self.contexts:
             self.contexts[biome] = ClimateContext()
         bands = self.OCEAN_ELEVATION_BANDS if is_ocean else self.ELEVATION_BANDS
         self.contexts[biome].elevation = band_index / max(1, len(bands) - 1)
+
+    def apply_temperature_value(self, biome: str, value: float):
+        """Set temperature to a pipeline-derived normalized value (0–1)."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        self.contexts[biome].temperature = value
+
+    def apply_precipitation_value(self, biome: str, value: float):
+        """Set precipitation to a pipeline-derived normalized value (0–1)."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        self.contexts[biome].precipitation = value
+
+    def apply_elevation_value(self, biome: str, value: float):
+        """Set elevation to a pipeline-derived normalized value (0–1)."""
+        if biome not in self.contexts:
+            self.contexts[biome] = ClimateContext()
+        self.contexts[biome].elevation = value
+
+    def apply_default_climate(self, biome_ids: Set[str], default_value: float = 0.5):
+        """
+        For biomes without pipeline-derived climate values, apply a neutral default.
+        The default is 0.5, representing the mean of a uniform sampler on [-1, 1]
+        mapped to [0, 1].
+        """
+        for biome_id in biome_ids:
+            ctx = self.contexts.get(biome_id, ClimateContext())
+            changed = False
+            if ctx.temperature is None:
+                ctx.temperature = default_value
+                changed = True
+            if ctx.precipitation is None:
+                ctx.precipitation = default_value
+                changed = True
+            if ctx.elevation is None:
+                ctx.elevation = default_value
+                changed = True
+            if changed:
+                self.contexts[biome_id] = ctx
 
     def finalize_contexts(self):
         """
@@ -567,135 +928,35 @@ class ClimateTracker:
         new_tracker.lineage = {k: list(v) for k, v in self.lineage.items()}
         return new_tracker
 
-    @staticmethod
-    def infer_climate_from_name(biome_id: str) -> ClimateContext:
-        """
-        Infer climate attributes from biome naming patterns.
-
-        Terra biomes follow naming conventions that indicate climate:
-        - Temperature: polar/ice < boreal/cold < temperate < tropical/hot
-        - Precipitation: desert/arid < steppe < dry < wet/monsoon/rainforest
-        - Elevation: flat < lowlands < midlands < highlands / deep < regular < shallow
-        - Origin: ocean/deep-ocean/shallow-ocean = Ocean, others = Land
-        """
-        name_lower = biome_id.lower().replace('_', '-')
-
-        # Determine origin type (Land vs Ocean)
-        origin_type = None
-        ocean_patterns = [
-            'ocean', 'deep-ocean', 'shallow-ocean', 'sea', 'reef', 'kelp',
-            'depths',  # DEEP_DEPTHS, etc.
-            'abyssal',  # ABYSSAL_ALLEYS, etc.
-            'trench',   # Ocean trenches
-        ]
-        for pattern in ocean_patterns:
-            if pattern in name_lower:
-                origin_type = 'Ocean'
-                break
-        if origin_type is None:
-            origin_type = 'Land'
-
-        # Infer temperature (0 = coldest, 1 = hottest)
-        temperature = None
-        temp_patterns = [
-            # (pattern, normalized_value)
-            ('ice-cap', 0.0), ('polar', 0.05), ('frozen', 0.05),
-            ('tundra', 0.1), ('ice', 0.1), ('icy', 0.1), ('snowy', 0.15),
-            ('boreal', 0.3), ('cold', 0.35), ('taiga', 0.3),
-            ('temperate', 0.5),
-            ('warm', 0.6), ('mediterranean', 0.65),
-            ('hot', 0.75), ('tropical', 0.85), ('jungle', 0.85),
-            ('savanna', 0.8), ('monsoon', 0.85), ('rainforest', 0.9),
-            ('desert', 0.7), ('arid', 0.7),  # Deserts can be hot or cold
-        ]
-        for pattern, value in temp_patterns:
-            if pattern in name_lower:
-                temperature = value
-                break
-
-        # Special case: cold desert
-        if 'cold' in name_lower and 'desert' in name_lower:
-            temperature = 0.25
-
-        # Infer precipitation (0 = driest, 1 = wettest)
-        # More specific patterns must come before general ones (rainforest before forest)
-        precipitation = None
-        precip_patterns = [
-            ('desert', 0.0), ('arid', 0.1),
-            ('steppe', 0.2), ('semi-arid', 0.2), ('dry', 0.25),
-            ('savanna', 0.4), ('grassland', 0.5),
-            ('woodland', 0.55),
-            ('rainforest', 0.95),  # Must come before 'forest'
-            ('forest', 0.6),
-            ('wet', 0.75), ('monsoon', 0.8),
-            ('swamp', 0.9), ('marsh', 0.85), ('bog', 0.85),
-            ('jungle', 0.85),
-        ]
-        for pattern, value in precip_patterns:
-            if pattern in name_lower:
-                precipitation = value
-                break
-
-        # Infer elevation (0 = lowest, 1 = highest)
-        elevation = None
-        elev_patterns = [
-            ('deep', 0.0), ('trench', 0.0),
-            ('shallow', 0.25), ('flat', 0.3), ('lowlands', 0.35),
-            ('midlands', 0.5), ('plains', 0.45),
-            ('highlands', 0.75), ('hills', 0.7), ('mountain', 0.85),
-            ('peak', 0.95), ('alpine', 0.9),
-        ]
-        for pattern, value in elev_patterns:
-            if pattern in name_lower:
-                elevation = value
-                break
-
-        return ClimateContext(
-            origin_type=origin_type,
-            temperature=temperature,
-            precipitation=precipitation,
-            elevation=elevation
-        )
-
-    def infer_all_contexts(self, biome_ids: Set[str]):
-        """
-        Infer climate contexts for all given biomes from their names.
-        Only sets values that haven't been explicitly set.
-        """
-        for biome_id in biome_ids:
-            inferred = self.infer_climate_from_name(biome_id)
-            existing = self.contexts.get(biome_id, ClimateContext())
-
-            # Only use inferred values where existing is None
-            if existing.origin_type is None:
-                existing.origin_type = inferred.origin_type
-            if existing.temperature is None:
-                existing.temperature = inferred.temperature
-            if existing.precipitation is None:
-                existing.precipitation = inferred.precipitation
-            if existing.elevation is None:
-                existing.elevation = inferred.elevation
-
-            self.contexts[biome_id] = existing
+    # infer_climate_from_name() and infer_all_contexts() removed.
+    # Climate values are now derived from the pipeline stage structure:
+    # when a REPLACE_LIST stage uses the temperature/precipitation/elevation
+    # EXPRESSION sampler, the expected band index is computed via CDF and
+    # stored via apply_temperature_value() / apply_precipitation_value() /
+    # apply_elevation_value().  Biomes that don't pass through such a stage
+    # receive the default value (0.5) via apply_default_climate().
 
 
 class BiomeDistribution:
     """Tracks probability distribution of biomes with climate context and origin tracking"""
 
-    # Source biomes that are considered "Ocean" origin
-    OCEAN_SOURCES = {'ocean', 'deep-ocean', 'shallow-ocean'}
-    # Source biomes that are considered "Land" origin
-    LAND_SOURCES = {'land', 'coast', 'mesa', 'crater-lake', 'extinct-volcano', 'island', 'vast-forest'}
+    # Source biomes that are considered "Ocean" / "Land" origin (from constants above)
+    OCEAN_SOURCES = OCEAN_SOURCE_BIOMES
+    LAND_SOURCES  = LAND_SOURCE_BIOMES
 
     def __init__(self):
         self.probabilities: Dict[str, float] = {}
+        self.categories: Dict[str, DistributionCategory] = {}
         self.climate: ClimateTracker = ClimateTracker()
         # Track origin weights: biome_id -> {"Land": weight, "Ocean": weight}
         self.origin_weights: Dict[str, Dict[str, float]] = defaultdict(lambda: {"Land": 0.0, "Ocean": 0.0})
 
-    def set(self, biome: str, prob: float):
+    def set(self, biome: str, prob: float,
+            category: DistributionCategory = DistributionCategory.SURFACE):
         """Set probability for a biome"""
         self.probabilities[biome] = prob
+        if biome not in self.categories:
+            self.categories[biome] = category
 
     def get(self, biome: str) -> float:
         """Get probability for a biome"""
@@ -706,9 +967,16 @@ class BiomeDistribution:
         if biome in self.probabilities:
             del self.probabilities[biome]
 
-    def add(self, biome: str, prob: float):
+    def add(self, biome: str, prob: float,
+            category: DistributionCategory = DistributionCategory.SURFACE):
         """Add probability to a biome (accumulate)"""
         self.probabilities[biome] = self.get(biome) + prob
+        if biome not in self.categories:
+            self.categories[biome] = category
+
+    def get_category(self, biome: str) -> DistributionCategory:
+        """Get the distribution category for a biome."""
+        return self.categories.get(biome, DistributionCategory.SURFACE)
 
     def set_origin(self, biome: str, origin: str, weight: float = 1.0):
         """Set origin weight for a biome"""
@@ -745,6 +1013,7 @@ class BiomeDistribution:
         """Create a copy of this distribution"""
         new_dist = BiomeDistribution()
         new_dist.probabilities = self.probabilities.copy()
+        new_dist.categories = self.categories.copy()
         new_dist.climate = self.climate.copy()
         # Deep copy origin weights
         for biome, weights in self.origin_weights.items():
@@ -765,19 +1034,35 @@ class StageProcessor:
 
     @staticmethod
     def parse_weighted_list(yaml_list: List) -> Dict[str, int]:
-        """Parse a weighted biome list from YAML"""
+        """Parse a weighted biome list from YAML (merges duplicate biome names)."""
         weights = {}
-
         for item in yaml_list:
             if isinstance(item, dict):
                 for biome, weight in item.items():
                     if isinstance(weight, (int, float)):
                         weights[biome] = int(weight)
                     else:
-                        # Weight might be an anchor/alias
                         weights[biome] = 1
-
         return weights
+
+    @staticmethod
+    def parse_weighted_list_ordered(yaml_list: List) -> List[Tuple[str, int]]:
+        """
+        Parse a weighted biome list preserving order and duplicates.
+
+        Unlike parse_weighted_list(), returns [(biome, weight), ...] in YAML order.
+        Duplicate biome IDs are kept as separate entries so that their slot positions
+        (needed for CDF-based probability and climate band computation) are preserved.
+        """
+        result = []
+        for item in yaml_list:
+            if isinstance(item, dict):
+                for biome, weight in item.items():
+                    if isinstance(weight, (int, float)):
+                        result.append((biome, int(weight)))
+                    else:
+                        result.append((biome, 1))
+        return result
 
     @staticmethod
     def process_replace_list(stage: Dict, distribution: BiomeDistribution) -> BiomeDistribution:
@@ -787,26 +1072,64 @@ class StageProcessor:
         A biome matches if its ID equals the identifier OR it has the identifier as a tag.
         """
         new_dist = BiomeDistribution()
+        # Carry forward climate values accumulated by previous stages so that
+        # pass-through biomes and biomes not re-assigned by this stage retain them.
+        new_dist.climate = distribution.climate.copy()
 
         # Get default-from and default-to
         default_from = stage.get('default-from')
-        default_to = stage.get('default-to', [])
-
-        # Parse default weights
-        default_weights = StageProcessor.parse_weighted_list(default_to)
-        total_default_weight = sum(default_weights.values())
+        default_to   = stage.get('default-to', [])
 
         # Get transformation mapping
         to_section = stage.get('to', {})
 
-        # Helper to add biome with origin propagation
-        def add_with_origin(to_biome: str, from_biome: str, prob: float):
-            if to_biome == 'SELF':
-                new_dist.add(from_biome, prob)
-                new_dist.add_origin_from(from_biome, from_biome, prob)
-            else:
-                new_dist.add(to_biome, prob)
-                new_dist.add_origin_from(to_biome, from_biome, prob)
+        # Detect sampler type for CDF-based probability computation
+        sampler_type = _leaf_sampler_type(stage.get('sampler', {}))
+
+        # Detect climate stage (temperature / precipitation / elevation)
+        climate_name = _get_climate_sampler_name(stage)
+
+        # Detect river stage: output biomes other than SELF get RIVER category
+        is_river = _is_river_stage(stage)
+
+        # Pre-compute ordered items + slot probabilities for the default list
+        default_items = StageProcessor.parse_weighted_list_ordered(default_to)
+        default_probs = _get_sampler_dist().slot_probabilities(
+            sampler_type, [w for _, w in default_items])
+        # Aggregate by biome (duplicate biome IDs in the list are merged)
+        default_biome_dist: Dict[str, float] = {}
+        for (to_biome, _), p in zip(default_items, default_probs):
+            default_biome_dist[to_biome] = default_biome_dist.get(to_biome, 0.0) + p
+
+        # Pre-compute climate band values for default list (expected band per biome)
+        default_band_values: Dict[str, float] = {}
+        if climate_name and default_items:
+            n = len(default_items)
+            band_num: Dict[str, float] = {}
+            band_den: Dict[str, float] = {}
+            for i, ((to_biome, _), p) in enumerate(zip(default_items, default_probs)):
+                band_num[to_biome] = band_num.get(to_biome, 0.0) + i * p
+                band_den[to_biome] = band_den.get(to_biome, 0.0) + p
+            for biome in band_den:
+                if band_den[biome] > 0:
+                    default_band_values[biome] = band_num[biome] / band_den[biome] / max(1, n - 1)
+
+        # Helper: add biome with origin and climate propagation
+        def add_with_origin(to_biome: str, from_biome: str, prob: float,
+                            band_value: Optional[float] = None):
+            actual = from_biome if to_biome == 'SELF' else to_biome
+            # River stages: new biomes (not SELF) are RIVER category
+            out_cat = DistributionCategory.RIVER if (is_river and actual != from_biome) \
+                      else distribution.get_category(from_biome)
+            new_dist.add(actual, prob, out_cat)
+            new_dist.add_origin_from(actual, from_biome, prob)
+            # Apply pipeline-derived climate value if this is a named climate stage
+            if climate_name is not None and band_value is not None:
+                _apply_climate_value(new_dist.climate, climate_name, actual, band_value)
+            # Always propagate inherited climate values from predecessor
+            # (non-climate stages inherit T/P/E from the biome being replaced)
+            if actual != from_biome:
+                _propagate_climate(new_dist.climate, from_biome, actual)
 
         # Copy origin weights from source distribution for reference
         for biome, weights in distribution.origin_weights.items():
@@ -819,40 +1142,50 @@ class StageProcessor:
             matched = False
 
             # Check if there's a specific transformation for this biome
-            # Check both direct ID match AND tag matches for each key in to_section
             for to_key, to_list in to_section.items():
                 if BiomeReader.matches_biome_or_tag(to_key, from_biome):
                     matched = True
-                    # Handle shorthand (single biome) vs list
                     if isinstance(to_list, str):
-                        # Shorthand: direct replacement
+                        # Shorthand: direct replacement (no sampler weighting)
                         add_with_origin(to_list, from_biome, from_prob)
                     elif isinstance(to_list, list):
-                        # Weighted list
-                        to_weights = StageProcessor.parse_weighted_list(to_list)
-                        total_weight = sum(to_weights.values())
-
-                        if total_weight > 0:
-                            for to_biome, weight in to_weights.items():
-                                prob = from_prob * (weight / total_weight)
-                                add_with_origin(to_biome, from_biome, prob)
+                        to_items = StageProcessor.parse_weighted_list_ordered(to_list)
+                        to_probs = _get_sampler_dist().slot_probabilities(
+                            sampler_type, [w for _, w in to_items])
+                        # Aggregate by biome
+                        biome_dist: Dict[str, float] = {}
+                        for (tb, _), p in zip(to_items, to_probs):
+                            biome_dist[tb] = biome_dist.get(tb, 0.0) + p
+                        # Compute climate band values for this specific to_list
+                        band_vals: Dict[str, float] = {}
+                        if climate_name and to_items:
+                            n_to = len(to_items)
+                            bnum: Dict[str, float] = {}
+                            bden: Dict[str, float] = {}
+                            for i, ((tb, _), p) in enumerate(zip(to_items, to_probs)):
+                                bnum[tb] = bnum.get(tb, 0.0) + i * p
+                                bden[tb] = bden.get(tb, 0.0) + p
+                            for tb in bden:
+                                if bden[tb] > 0:
+                                    band_vals[tb] = bnum[tb] / bden[tb] / max(1, n_to - 1)
+                        for tb, p in biome_dist.items():
+                            if p > 0:
+                                add_with_origin(tb, from_biome, from_prob * p,
+                                                band_vals.get(tb))
                     break  # Only apply one transformation per biome
 
-            # If no specific match, check default-from (also using tag matching)
+            # If no specific match, check default-from
             if not matched and default_from and BiomeReader.matches_biome_or_tag(default_from, from_biome):
                 matched = True
-                if total_default_weight > 0:
-                    # Apply default transformation
-                    for to_biome, weight in default_weights.items():
-                        prob = from_prob * (weight / total_default_weight)
-                        add_with_origin(to_biome, from_biome, prob)
+                for tb, p in default_biome_dist.items():
+                    if p > 0:
+                        add_with_origin(tb, from_biome, from_prob * p,
+                                        default_band_values.get(tb))
 
             if not matched:
-                # No transformation, pass through
-                # But never pass through literal "SELF"
+                # Pass through (never pass through literal "SELF")
                 if from_biome != 'SELF':
-                    new_dist.add(from_biome, from_prob)
-                    # Preserve origin for pass-through biomes
+                    new_dist.add(from_biome, from_prob, distribution.get_category(from_biome))
                     new_dist.add_origin_from(from_biome, from_biome, from_prob)
 
         return new_dist
@@ -903,29 +1236,46 @@ class StageProcessor:
                     new_dist.add(to_biome, prob)
                     new_dist.add_origin_from(to_biome, matched_biome, prob)
 
-            # Distribute the probability according to 'to' weights
-            # The sampler creates spatial variation in which biome appears where,
-            # but for statistical purposes, the weights determine average distribution
+            # Distribute the probability according to 'to' weights using CDF-based probabilities
+            sampler_type = _leaf_sampler_type(stage.get('sampler', {}))
+            from_cat = new_dist.categories.get(matched_biome, DistributionCategory.SURFACE)
+            is_river = _is_river_stage(stage)
+            out_cat = DistributionCategory.RIVER if is_river else from_cat
+
             if isinstance(to_spec, str):
-                add_with_origin(to_spec, from_prob)
+                actual = matched_biome if to_spec == 'SELF' else to_spec
+                new_dist.add(actual, from_prob, out_cat)
+                new_dist.add_origin_from(actual, matched_biome, from_prob)
+                if actual != matched_biome:
+                    _propagate_climate(new_dist.climate, matched_biome, actual)
             elif isinstance(to_spec, list):
-                to_weights = StageProcessor.parse_weighted_list(to_spec)
-                total_weight = sum(to_weights.values())
-                if total_weight > 0:
-                    for to_biome, weight in to_weights.items():
-                        prob = from_prob * (weight / total_weight)
-                        add_with_origin(to_biome, prob)
+                to_items = StageProcessor.parse_weighted_list_ordered(to_spec)
+                to_probs = _get_sampler_dist().slot_probabilities(
+                    sampler_type, [w for _, w in to_items])
+                biome_dist: Dict[str, float] = {}
+                for (tb, _), p in zip(to_items, to_probs):
+                    biome_dist[tb] = biome_dist.get(tb, 0.0) + p
+                for tb, p in biome_dist.items():
+                    actual = matched_biome if tb == 'SELF' else tb
+                    new_dist.add(actual, from_prob * p, out_cat)
+                    new_dist.add_origin_from(actual, matched_biome, from_prob * p)
+                    if actual != matched_biome:
+                        _propagate_climate(new_dist.climate, matched_biome, actual)
             elif isinstance(to_spec, dict):
-                # Dict format
-                to_weights = {}
-                for k, v in to_spec.items():
-                    if isinstance(v, (int, float)):
-                        to_weights[k] = v
-                total_weight = sum(to_weights.values())
-                if total_weight > 0:
-                    for to_biome, weight in to_weights.items():
-                        prob = from_prob * (weight / total_weight)
-                        add_with_origin(to_biome, prob)
+                # Dict format — treat like an ordered list
+                to_items_d = [(k, v) for k, v in to_spec.items()
+                              if isinstance(v, (int, float))]
+                to_probs_d = _get_sampler_dist().slot_probabilities(
+                    sampler_type, [int(w) for _, w in to_items_d])
+                biome_dist_d: Dict[str, float] = {}
+                for (tb, _), p in zip(to_items_d, to_probs_d):
+                    biome_dist_d[tb] = biome_dist_d.get(tb, 0.0) + p
+                for tb, p in biome_dist_d.items():
+                    actual = matched_biome if tb == 'SELF' else tb
+                    new_dist.add(actual, from_prob * p, out_cat)
+                    new_dist.add_origin_from(actual, matched_biome, from_prob * p)
+                    if actual != matched_biome:
+                        _propagate_climate(new_dist.climate, matched_biome, actual)
 
         return new_dist
 
@@ -1188,6 +1538,7 @@ class BiomeMetadata:
         self.special_caves: bool = False
         self.caverns_land: bool = False
         self.river: str = ""  # 'Desert' | 'Cold' | 'General' | ''
+        self.category: str = "SURFACE"  # 'SURFACE' | 'RIVER' | 'SUBSURFACE'
 
     def set_climate(self, context: ClimateContext):
         """Set climate attributes from a ClimateContext"""
@@ -1223,12 +1574,13 @@ class BiomeMetadata:
             special_caves_str,
             caverns_str,
             self.river or "",
+            self.category,                              # Category: SURFACE/RIVER/SUBSURFACE
             'extrusion' if self.is_extrusion else 'surface',
-            self.origin or "",  # Origin column (derived from pipeline)
-            self.biome_type or "",  # Type column (inferred from name)
-            self.format_climate_value(self.temperature),  # Temperature column
-            self.format_climate_value(self.precipitation),  # Precipitation column
-            self.format_climate_value(self.elevation),  # Elevation column
+            self.origin or "",                          # Origin: Land/Ocean (pipeline-derived)
+            self.biome_type or "",                      # Type: Land/Ocean (name-inferred legacy)
+            self.format_climate_value(self.temperature),
+            self.format_climate_value(self.precipitation),
+            self.format_climate_value(self.elevation),
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
@@ -1695,7 +2047,7 @@ class PresetAnalyzer:
                     distribution = StageProcessor.process_stage(stage_config, distribution)
 
                 # Debug: Show distribution after key stages
-                if 'temperature.yml' in str(stage_ref) or 'set_biomes_in_climates.yml' in str(stage_ref):
+                if 'set_biomes_in_climates' in str(stage_ref):
                     print(f"  After {stage_ref.name}:")
                     print(f"    Total biomes: {len(distribution.probabilities)}")
                     print(f"    Top 5: {distribution.get_top_biomes(5)}")
@@ -1710,7 +2062,8 @@ def generate_csv_output(
     results: Dict[str, BiomeDistribution],
     extrusion_results: Dict[str, ExtrusionDistribution],
     output_path: Path,
-    default_preset: str = "origen2"
+    default_preset: str = "origen2",
+    climate_preset: Optional[str] = None,
 ):
     """
     Generate BiomeTable.csv with percentages and climate data.
@@ -1723,8 +2076,15 @@ def generate_csv_output(
     - Elevation column: normalized elevation value (0=lowest, 1=highest)
     - Percentages: surface biomes sum to 100%, extrusion biomes shown separately
 
-    Climate data is derived from the default preset specified in pack.yml.
+    Climate data is derived from climate_preset (defaults to CLIMATE_PRESET_NAME constant).
+    The pack's active preset (default_preset) is used for category/origin/percentage data.
     """
+    # Determine which preset to use for climate data.
+    # Falls back through: climate_preset arg → CLIMATE_PRESET_NAME constant → default_preset.
+    if climate_preset is None:
+        climate_preset = CLIMATE_PRESET_NAME
+    if climate_preset not in results:
+        climate_preset = default_preset
     print(f"\nGenerating CSV output: {output_path}")
 
     # Get all valid biomes from file system (non-abstract biomes)
@@ -1808,17 +2168,34 @@ def generate_csv_output(
             origin = results[default_preset].get_origin(biome_id)
             metadata.set_origin(origin)
 
+        # Set distribution category from the full-pipeline preset (climate_preset = "origen2")
+        # Using default_preset (ExploreTest) would miss RIVER biomes because ExploreTest
+        # has different/incomplete stages (climate stages commented out, etc.)
+        cat_preset = climate_preset if climate_preset in results else default_preset
+        cat = results[cat_preset].get_category(biome_id)
+        metadata.category = cat.value
+
+        # Override category for extrusion-only biomes
+        if biome_id in extrusion_only_biomes:
+            metadata.category = DistributionCategory.SUBSURFACE.value
+
         biome_metadata_map[display_id] = metadata
 
     # Get sorted list of preset names
     preset_names = sorted(results.keys())
 
-    # Get climate data from the default preset
-    print(f"Using default preset '{default_preset}' for climate data")
-    default_distribution = results.get(default_preset)
-    if default_distribution:
-        # Infer climate for all biomes from their names
-        default_distribution.climate.infer_all_contexts(all_biomes)
+    # Get climate data from the climate preset (may differ from pack's active preset)
+    print(f"Using '{climate_preset}' preset for climate data (T/P/E columns)")
+    climate_distribution = results.get(climate_preset)
+    if climate_distribution:
+        # Fill in 0.5 for any biome that didn't pass through a named climate stage
+        climate_distribution.climate.apply_default_climate(all_biomes)
+        n_nondefault = sum(
+            1 for b in all_biomes
+            if climate_distribution.climate.contexts.get(b) is not None
+            and abs((climate_distribution.climate.contexts[b].temperature or 0.5) - 0.5) > 0.001
+        )
+        print(f"  Biomes with non-default temperature: {n_nondefault} / {len(all_biomes)}")
 
         # Apply climate data to metadata
         for biome_id, metadata in biome_metadata_map.items():
@@ -1829,19 +2206,19 @@ def generate_csv_output(
             elif biome_id.startswith('UNLINKED'):
                 original_id = biome_id[8:]  # Remove 'UNLINKED' prefix (keeps underscore)
 
-            context = default_distribution.climate.get_context(original_id)
+            context = climate_distribution.climate.get_context(original_id)
             metadata.set_climate(context)
     else:
-        print(f"  Warning: Default preset '{default_preset}' not found, climate data unavailable")
+        print(f"  Warning: Climate preset '{climate_preset}' not found, climate data unavailable")
 
     # Write CSV
     with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
-        # Header row - include new biome-derived columns before the existing ones
+        # Header row
         header = [
             'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River',
-            'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'
+            'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'
         ] + preset_names
         writer.writerow(header)
 

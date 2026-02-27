@@ -238,3 +238,6 @@ Cells for large landmass biomes
 Cells for Mainland / island biomes
 Cells for Highlight biomes
 Cells for Ocean biomes
+
+Merge wells to become a spot type?  Or merge them to become something that comes with rifts.
+Make sure rifts do have appropriate boundary from spots.

@@ -2,15 +2,8 @@ stages:
   #Distribute land into large temperature breaks to separate major canyon sections, since canyons changing vegitation mid trench is a little strange.
   - type: REPLACE
     sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 40 
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.005
-      sampler:
-        type: EXPRESSION
-        expression: if(continentalRiverDist(x, z)>=1,temperature(x, z),0)
+      type: EXPRESSION
+      expression: if(((continentalRiverDist(x, z)>=1)&&(continents(x,z)>0.15)),temperature(x, z),0)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}

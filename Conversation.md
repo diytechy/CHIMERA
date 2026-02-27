@@ -203,7 +203,7 @@ Fixes post spot dist:
 
   #########################################
 
-  
+
 - Update wells to use simpler sampler methods instead of concurrent replacements
 - Update rifts to use simpler sampler methods instead of concurrent replacements
 - Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'
@@ -230,3 +230,11 @@ I.
 
 Ocean is Mesa
 
+Cells for spot regions (already present)
+
+
+Cells for Mesa region biomes
+Cells for large landmass biomes
+Cells for Mainland / island biomes
+Cells for Highlight biomes
+Cells for Ocean biomes

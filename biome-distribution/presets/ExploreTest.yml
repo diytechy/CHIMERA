@@ -51,7 +51,7 @@ biomes:
         - << biome-distribution/stages/add_spots.yml:stages
         #
         ##Segment temperature regions for respective canyon valleys / sinkholes
-        - << biome-distribution/stages/special/build_rift_regions_1.yml:stages
+        - << biome-distribution/stages/special/build_rift_regions.yml:stages
         #
         ##Further segment into subzones so canyons are not everywhere.
         #- << biome-distribution/stages/special/build_rift_regions_2.yml:stages
@@ -61,7 +61,7 @@ biomes:
         #
         ##Input: land
         ##Output: sink hole zones
-        - << biome-distribution/stages/special/build_well_regions.yml:stages
+        #- << biome-distribution/stages/special/build_well_regions.yml:stages
         #
         ##Replace outer boundary zones to prevent sink-hole / canyon valley generation back to land.
         #- << biome-distribution/stages/special/return_boundary_to_land.yml:stages

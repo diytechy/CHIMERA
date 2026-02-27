@@ -204,6 +204,55 @@ Fixes post spot dist:
   #########################################
 
 
+
+
+Create a plan to update the "calculate_biome_percentages.py" in C:\Projects\ORIGEN2\ to correctly calculate final biome distributions from expressions and known starting distributions, as it appears what exists today may be using multiple inferences / estimates.
+
+At the top of this file "calculate_biome_percentages.py" record the requirements to the best of your ability based on this prompt and current implementation of the file.
+
+The may require significant refactoring.
+
+Use C:\Projects\Terra and C:\Projects\Tectonic as necessary to have a good understanding of the biome distribution pipeline when redesigning this script.
+
+The pack that is being computed is currently in "C:\Projects\ORIGEN2"
+
+IMPORTANT: Base sampler distributions can be estimated from picture snapshots in "C:\Projects\NoiseTool\Distribution_Ref", where "p25" indicates the upper range of that particular distribution is 0.25.  Since base sampler distribution is critical for accurate results, it may make sense to have a csv / yml or similar configuration describing the the distribution of each base samplers.  (Ex: Just a 2-d interpolated function that expression percentage of hit as a function of input for each base sampler)
+
+There should be minimal "magic" strings or values in this script, ex: "PRECIPITATION_BANDS = ['desert', 'desertBorder'" is identifying implementation specific breaks in the precipitation stage filter, but that isn't guaranteed to stay consistent.
+
+Make sure all magic / key identifiers that are truly necessary are near the top of the file for clarity that the script is looking for implementation specific identifiers that may cause it not to work with some packs.
+
+There are only 3 "named" samplers that need to be tracked during biome distribution, as those need to be populated finally in the biome table: "temperature", "precipitation", and "elevation".  If a biome is not distributed with these measures, the average value of those individual samplers should be used in the final biome table output.
+
+Each biome distribution refers to an inline or base sampler, and that base sampler has either an inherent distribution, or it's distribution can be computed from the expression.  So for each biome distribution stage, the script should:
+
+1. Calculate the distribution of the sampler or expression from -1 to 1.
+
+2. Based on the number of biomes to distribute to, replicate the calculations of Terra / Tectonic to determine what values between -1 and 1 will be used to map regions of the distribution to their newly mapped biome values.  (Ex: If the "to" section includes 2 biomes (BiomeA and BiomeB), then the -1 to 1 assumed region will be broken into 2 equal parts, from -1 to 0, and 0 to 1.  If the sampler is symmetric, this would result in 50% to BiomeA and 50% to BiomeB.  However, if the sampler were something non-symmetric, like "CELLULAR", that same configuration may result in BiomeA receiving 90% and BiomeB receiving 10%).  Note any returned value beyond the -1 to 1 limits are just clamped.
+
+The "resolved_samplers.yml" already breaks down the individual samplers, and may be useful in the process so that sampler hierarchy and linking chain does not need to be performed as a part of "calculate_biome_percentages.py", it may already be implemented that way.
+
+Note "SMOOTH" and "FRACTAL_EXPAND" samplers I assume will not affect distribution percentages.
+
+Note some distribution evaluations may be very difficult given resolution of some of the sampler expressions.  The 
+"BORDER" and "BORDER_LIST" may require special treatment, see if you can find how those distribute a distribution, but for those it may be necessary to track distribution in different categories.  For instance, the river sampler (using DENDRY noise) is a highly complex filter without a clear distribution.  It may be necessary to indicate for certain categories what their distribution is within the category.
+
+I would recommend a category for distribution branch as "SURFACE", "RIVER", "COAST", "SUBSURFACE", which will need special rules / magic values to identify when these distribution stages are occurring.
+
+The initial spot placer in ExploreTest.yml may also be difficult to assess as it is dependent on river sampling.  For this it may be simpler to set that initial distribution according to a special rule (again - defined at the top of the py file for clarity / uniqueness) where the probability of a spot above land is the area of the average spot radius divided by the area of the entire cell (based on frequency config) multiplied by some river survival rate of 70%
+
+Radius based distribution based on cellular noise may also need special consideration.  As the distribution of a value would also be based on the cellular frequency (cell to cell frequency.)
+
+#####################################################
+
+use single cellular mixture for both rifts and wells.
+
+Use cell value at temperature to break cells into cold / warm cell regions.
+
+Use white noise to break each of those into cold rifts / cold wells / return to land.
+
+
+
 - Update wells to use simpler sampler methods instead of concurrent replacements
 - Update rifts to use simpler sampler methods instead of concurrent replacements
 - Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'
@@ -257,40 +306,3 @@ Then island region
 Then biome dispursement
 
 Then
-
-Create a plan to update the "calculate_biome_percentages.py" in C:\Projects\ORIGEN2\ to correctly calculate final biome distributions from expressions and known starting distributions, as it appears what exists today may be using multiple inferences / estimates.
-
-At the top of this file "calculate_biome_percentages.py" record the requirements to the best of your ability based on this prompt and current implementation of the file.
-
-The may require significant refactoring.
-
-Use C:\Projects\Terra and C:\Projects\Tectonic as necessary to have a good understanding of the biome distribution pipeline when redesigning this script.
-
-The pack that is being computed is currently in "C:\Projects\ORIGEN2"
-
-IMPORTANT: Base sampler distributions can be estimated from picture snapshots in "C:\Projects\NoiseTool\Distribution_Ref", where "p25" indicates the upper range of that particular distribution is 0.25.  Since base sampler distribution is critical for accurate results, it may make sense to have a csv / yml or similar configuration describing the the distribution of each base samplers.  (Ex: Just a 2-d interpolated function that expression percentage of hit as a function of input for each base sampler)
-
-There should be minimal "magic" strings or values in this script, ex: "PRECIPITATION_BANDS = ['desert', 'desertBorder'" is identifying implementation specific breaks in the precipitation stage filter, but that isn't guaranteed to stay consistent.
-
-Make sure all magic / key identifiers that are truly necessary are near the top of the file for clarity that the script is looking for implementation specific identifiers that may cause it not to work with some packs.
-
-There are only 3 "named" samplers that need to be tracked during biome distribution, as those need to be populated finally in the biome table: "temperature", "precipitation", and "elevation".  If a biome is not distributed with these measures, the average value of those individual samplers should be used in the final biome table output.
-
-Each biome distribution refers to an inline or base sampler, and that base sampler has either an inherent distribution, or it's distribution can be computed from the expression.  So for each biome distribution stage, the script should:
-
-1. Calculate the distribution of the sampler or expression from -1 to 1.
-
-2. Based on the number of biomes to distribute to, replicate the calculations of Terra / Tectonic to determine what values between -1 and 1 will be used to map regions of the distribution to their newly mapped biome values.  (Ex: If the "to" section includes 2 biomes (BiomeA and BiomeB), then the -1 to 1 assumed region will be broken into 2 equal parts, from -1 to 0, and 0 to 1.  If the sampler is symmetric, this would result in 50% to BiomeA and 50% to BiomeB.  However, if the sampler were something non-symmetric, like "CELLULAR", that same configuration may result in BiomeA receiving 90% and BiomeB receiving 10%).  Note any returned value beyond the -1 to 1 limits are just clamped.
-
-The "resolved_samplers.yml" already breaks down the individual samplers, and may be useful in the process so that sampler hierarchy and linking chain does not need to be performed as a part of "calculate_biome_percentages.py", it may already be implemented that way.
-
-Note "SMOOTH" and "FRACTAL_EXPAND" samplers I assume will not affect distribution percentages.
-
-Note some distribution evaluations may be very difficult given resolution of some of the sampler expressions.  The 
-"BORDER" and "BORDER_LIST" may require special treatment, see if you can find how those distribute a distribution, but for those it may be necessary to track distribution in different categories.  For instance, the river sampler (using DENDRY noise) is a highly complex filter without a clear distribution.  It may be necessary to indicate for certain categories what their distribution is within the category.
-
-I would recommend a category for distribution branch as "SURFACE", "RIVER", "COAST", "SUBSURFACE", which will need special rules / magic values to identify when these distribution stages are occurring.
-
-The initial spot placer in ExploreTest.yml may also be difficult to assess as it is dependent on river sampling.  For this it may be simpler to set that initial distribution according to a special rule (again - defined at the top of the py file for clarity / uniqueness) where the probability of a spot above land is the area of the average spot radius divided by the area of the entire cell (based on frequency config) multiplied by some river survival rate of 70%
-
-Radius based distribution based on cellular noise may also need special consideration.  As the distribution of a value would also be based on the cellular frequency (cell to cell frequency.)

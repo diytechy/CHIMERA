@@ -1,0 +1,19 @@
+riftCell: &riftCell
+  dimensions: 2
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+  salt: 1357
+
+samplers:
+  riftDistFromCenter:
+    <<: *riftCell
+
+  riftRegions:
+    <<: *riftCell
+    return: CellValue
+    
+  riftTemperature:
+    <<: *riftCell
+    return: NoiseLookup
+    lookup: $math/samplers/temperature.yml:samplers.temperature
+    salt-lookup: false

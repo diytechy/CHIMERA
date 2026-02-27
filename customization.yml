@@ -8,6 +8,12 @@ biomeSpread:
   # Increase to make regions larger.
   regionDistance: 900
   
+  # Rift region distance for cells that will contain rifts.
+  riftDistance: 300
+  
+  # Well region distance for cells that will contain wells.
+  wellDistance: 900
+  
   # Basic size of island region features
   # Increase to make regions larger.
   islandDistance: 400

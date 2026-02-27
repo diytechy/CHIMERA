@@ -5,7 +5,7 @@ BaseBiomeCell: &BaseBiomeCell
   distance: Hybrid
 
 # Shared warp layer definitions (used via << merge in samplers below)
-_outerWarp: &outerWarp
+_outerWarpSmall: &outerWarpSmall
   dimensions: 2
   type: DOMAIN_WARP
   amplitude: 20
@@ -13,7 +13,7 @@ _outerWarp: &outerWarp
     type: SIMPLEX
     frequency: 0.02
 
-_midWarp: &midWarp
+_midWarpSmall: &midWarpSmall
   dimensions: 2
   type: DOMAIN_WARP
   amplitude: 60
@@ -21,7 +21,7 @@ _midWarp: &midWarp
     type: OPEN_SIMPLEX_2
     frequency: 0.003
 
-_innerWarp: &innerWarp
+_innerWarpSmall: &innerWarpSmall
   dimensions: 2
   type: DOMAIN_WARP
   amplitude: 300
@@ -32,25 +32,36 @@ _innerWarp: &innerWarp
 
 samplers:
   BiomeShapeLandmassValue:
-    <<: *outerWarp
+    <<: *outerWarpSmall
     sampler:
-      <<: *midWarp
+      <<: *midWarpSmall
       sampler:
-        <<: *innerWarp
+        <<: *innerWarpSmall
         sampler:
           <<: *BaseBiomeCell
           return: CellValue
 
-  BiomeShapeLandmassTemp:
-    <<: *outerWarp
+  BiomeShapeLandmassTemperature:
+    <<: *outerWarpSmall
     sampler:
-      <<: *midWarp
+      <<: *midWarpSmall
       sampler:
-        <<: *innerWarp
+        <<: *innerWarpSmall
         sampler:
           <<: *BaseBiomeCell
           return: NoiseLookup
           lookup: $math/samplers/temperature.yml:samplers.temperature
+          
+  BiomeShapeLandmassPrecipitation:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *BaseBiomeCell
+          return: NoiseLookup
+          lookup: $math/samplers/precipitation.yml:samplers.precipitation
 
 #  BiomeShapeLandmassStandard:
 #    dimensions: 2

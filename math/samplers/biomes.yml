@@ -55,7 +55,6 @@ _innerWarpSmall: &innerWarpSmall
     type: OPEN_SIMPLEX_2
     frequency: 0.0001
 
-
 samplers:
   BiomeShapeLandmassValue:
     <<: *outerWarpSmall
@@ -90,7 +89,6 @@ samplers:
           return: NoiseLookup
           lookup: $math/samplers/precipitation.yml:samplers.precipitation
           salt-lookup: false
-
 
   BiomeShapeHighlandValue:
     <<: *outerWarpSmall

@@ -900,6 +900,28 @@ def validate_expression_samplers(
         walk(config, name)
 
 
+def inject_dendry_defaults(all_samplers: Dict[str, Any]) -> int:
+    """
+    Walk all samplers and inject default properties for DENDRY type samplers.
+
+    Adds 'cachepixels' set to the YAML alias *PerspectiveMultiplier if not
+    already present.
+
+    Returns the number of samplers modified.
+    """
+    # Sentinel value that will be replaced with an unquoted YAML alias in output
+    PERSPECTIVE_ALIAS = "__ALIAS__PerspectiveMultiplier"
+    count = 0
+
+    for name, config in all_samplers.items():
+        if isinstance(config, dict) and config.get('type') == 'DENDRY':
+            if 'cachepixels' not in config:
+                config['cachepixels'] = PERSPECTIVE_ALIAS
+                count += 1
+
+    return count
+
+
 def build_resolved_output(all_samplers: Dict[str, Any],
                           errors: Optional[Set[str]] = None) -> str:
     """
@@ -1035,6 +1057,11 @@ def main():
             resolver.all_functions = resolver.evaluate_constants(resolver.all_functions)
         print(f"  Evaluated {resolver.evaluated_count} expressions", file=sys.stderr)
 
+    # Inject DENDRY defaults (cachepixels)
+    print("\nInjecting DENDRY defaults...", file=sys.stderr)
+    dendry_count = inject_dendry_defaults(resolver.all_samplers)
+    print(f"  Modified {dendry_count} DENDRY sampler(s)", file=sys.stderr)
+
     # Validate expression samplers (missing/unused local sampler declarations)
     print("\nValidating expression samplers...", file=sys.stderr)
     validate_expression_samplers(
@@ -1062,6 +1089,12 @@ def main():
 
     # Assemble complete output (overwrite entirely)
     final_output = 'samplers:\n' + samplers_yaml + functions_yaml
+
+    # Replace DENDRY alias sentinels with unquoted YAML aliases
+    # PyYAML may or may not quote the sentinel, so handle all cases
+    final_output = final_output.replace("'__ALIAS__PerspectiveMultiplier'", '*PerspectiveMultiplier')
+    final_output = final_output.replace('"__ALIAS__PerspectiveMultiplier"', '*PerspectiveMultiplier')
+    final_output = final_output.replace('__ALIAS__PerspectiveMultiplier', '*PerspectiveMultiplier')
 
     # Write output
     output_path = Path(args.output)

@@ -684,26 +684,16 @@ stages:
         - TROPICAL_DEEP_DEPTHS: 1
         - ABYSSAL_ALLEYS: 1
 
-      polar-vast-forest:
-        - POLAR_PALE_GARDEN: 1
       polar-vast-forest-coast:
         - POLAR_PALE_GARDEN_COAST: 1
-      boreal-vast-forest:
-        - PALE_GARDEN: 1
       boreal-vast-forest-coast:
         - PALE_GARDEN_COAST: 1
-      temperate-vast-forest:
-        - PALE_GARDEN: 1
       temperate-vast-forest-coast:
         - PALE_GARDEN_COAST: 1
-      tropical-vast-forest:
-      - ARID_PALE_GARDEN: 1
-      - ORANGE_ARID_PALE_GARDEN: 1
-      - RED_ARID_PALE_GARDEN: 1
       tropical-vast-forest-coast:
-      - ARID_PALE_GARDEN_COAST: 1
-      - ORANGE_ARID_PALE_GARDEN_COAST: 1
-      - RED_ARID_PALE_GARDEN_COAST: 1
+        - ARID_PALE_GARDEN_COAST: 1
+        - ORANGE_ARID_PALE_GARDEN_COAST: 1
+        - RED_ARID_PALE_GARDEN_COAST: 1
 
 
       island-polar-shallow-ocean:
@@ -734,3 +724,14 @@ stages:
       polar-mushroom-coast: POLAR_MUSHROOM_COAST
       tropical-mushroom: TROPICAL_MUSHROOM_FIELDS
       tropical-mushroom-coast: TROPICAL_MUSHROOM_COAST
+
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: pale-garden
+    default-to: PALE_GARDEN
+    to:
+      polar-pale-garden: POLAR_PALE_GARDEN
+      arid-pale-garden: ARID_PALE_GARDEN
+      orange-arid-pale-garden: ORANGE_ARID_PALE_GARDEN
+      red-arid-pale-garden: RED_ARID_PALE_GARDEN

@@ -115,6 +115,51 @@ stages:
         - cold-desert-mesa: *mid
         - cold-desert-mesa: *mildlyWet
         - cold-desert-mesa: *veryWet
+        
+  # =========================================================================
+  # Spot precipitation (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: spotPrecipitation(x, z)
+    default-from: hot-crater-lake
+    default-to:
+      - desert-crater-lake: *desert
+      - desert-crater-lake: *desertBorder
+      - desert-crater-lake: *semiArid
+      - tropical-crater-lake: *mid
+      - tropical-crater-lake: *mildlyWet
+      - tropical-crater-lake: *veryWet
+    to:
+      hot-sinkhole:
+        - desert-sinkhole: *desert
+        - desert-sinkhole: *desertBorder
+        - desert-sinkhole: *semiArid
+        - tropical-sinkhole: *mid
+        - tropical-sinkhole: *mildlyWet
+        - tropical-sinkhole: *veryWet
+      hot-sinkhole-border:
+        - desert-sinkhole-border: *desert
+        - desert-sinkhole-border: *desertBorder
+        - desert-sinkhole-border: *semiArid
+        - tropical-sinkhole-border: *mid
+        - tropical-sinkhole-border: *mildlyWet
+        - tropical-sinkhole-border: *veryWet
+      hot-sinkhole-border-ocean:
+        - desert-sinkhole-border-ocean: *desert
+        - desert-sinkhole-border-ocean: *desertBorder
+        - desert-sinkhole-border-ocean: *semiArid
+        - tropical-sinkhole-border-ocean: *mid
+        - tropical-sinkhole-border-ocean: *mildlyWet
+        - tropical-sinkhole-border-ocean: *veryWet
+      hot-extinct-volcano:
+        - desert-extinct-volcano: *desert
+        - desert-extinct-volcano: *desertBorder
+        - desert-extinct-volcano: *semiArid
+        - tropical-extinct-volcano: *mid
+        - tropical-extinct-volcano: *mildlyWet
+        - tropical-extinct-volcano: *veryWet
       temperate-crater-lake:
         - desert-crater-lake: *desert
         - desert-crater-lake: *desertBorder

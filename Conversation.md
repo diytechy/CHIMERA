@@ -272,12 +272,26 @@ Order:
 
 Now build out formal climate using biome cells?
 
+New issue: How to handle coasts?
 
+- Could split from biomes - more consistent, but also less variation.
+
+- Probably still the right direction.
+
+- How to split between ocean-like "coast" properties and non-ocean?
+
+- How to prevent artifacts due to FRACTAL_EXPAND, is that even necessary? Maybe that should be done before replacing coastlines with specific biomes?
 
 
 - Could set island types according to continental landmass being above the island threshold...
 
 
+
+########################################3
+
+Sea arches sometimes stop abruptly, can they just be placed using cellular approach to ensure a full "arch"/
+
+It makes sense to fill coasts before rivers since that will be a larger effective change, and coasts don't really need to have a transition to rivers anyways.
 
 B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
 

@@ -26,7 +26,8 @@ stages:
         #Lower band is colder, upper band is warmer, white noise salted based on cell value to randomize placement.
         expression: |
           if((riftFarRiverDist(x,z)>200) && (if(riftInRangeOfSpot(x,z)>0,0,1)),
-            if(riftTemperature(x,z)>0,0.55,-0.55)+riftRegions(x,z)/2,
+            if(riftTemperature(x,z)>0,0.55+riftRegions(x,z)/2,
+              if(riftTemperature(x,z)<-0.3,-0.55+riftRegions(x,z)/2,0)),
             0)
         samplers: 
           riftTemperature: $math/samplers/rifts.yml:samplers.riftTemperature

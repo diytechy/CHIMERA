@@ -1,5 +1,5 @@
 stages:
-  - type: REPLACE
+  - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       expression: BiomeShapeLandmassTemperature(x, z)
@@ -37,7 +37,6 @@ stages:
     sampler:
       type: EXPRESSION
       expression: BiomeShapeOceanTemperature(x, z)
-
     from: ocean
     to:
       - polar-ocean: *iceCap

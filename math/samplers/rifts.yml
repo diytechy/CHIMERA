@@ -3,10 +3,19 @@ riftCell: &riftCell
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
   salt: 1357
+  jitter: 0.5
 
 samplers:
   riftDistFromCenter:
     <<: *riftCell
+
+  riftManDistFromCenter:
+    <<: *riftCell
+    distance: Manhattan
+
+  riftHybDistFromCenter:
+    <<: *riftCell
+    distance: Hybrid
 
   riftRegions:
     <<: *riftCell
@@ -17,3 +26,20 @@ samplers:
     return: NoiseLookup
     lookup: $math/samplers/temperature.yml:samplers.temperature
     salt-lookup: false
+
+  riftWellPlacement:
+    dimensions: 2
+    type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
+    amplitude: 60
+    warp:
+      type: FBM
+      octaves: 4
+      gain: 0.3
+      sampler: 
+        type: OPEN_SIMPLEX_2
+        frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+    sampler:
+      type: EXPRESSION
+      expression: if(riftHybDistFromCenter(x,z)<-0.8,1,-1)
+      samplers:
+        riftHybDistFromCenter: $math/samplers/rifts.yml:samplers.riftHybDistFromCenter

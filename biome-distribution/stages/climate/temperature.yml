@@ -72,7 +72,6 @@ stages:
       - hot-mesa: *tropicalWarm
       - hot-mesa: *tropicalHot
 
-      
   - type: REPLACE
     sampler:
       type: EXPRESSION
@@ -99,18 +98,18 @@ stages:
     #NOTE: Defaults here are not actually used.  Just establish replacement listing.
     default-from: land
     default-to:
-      - ice-cap: &iceCap         1
-      - tundra: &tundra         1
-      - boreal-snowy: &borealSnowy    1
-      - boreal-cold: &borealCold     1
-      - boreal-warm: &borealWarm     1
-      - boreal-hot: &borealHot      1
-      - temperate-cold: &temperateCold  1
-      - temperate-warm: &temperateWarm  3
-      - temperate-hot: &temperateHot   2
-      - tropical-savanna-wet: &tropicalCold   1
-      - tropical-monsoon: &tropicalWarm   1
-      - tropical-rainforest: &tropicalHot    4
+      - ice-cap: *iceCap
+      - tundra: *tundra
+      - boreal-snowy: *borealSnowy
+      - boreal-cold: *borealCold
+      - boreal-warm: *borealWarm
+      - boreal-hot: *borealHot
+      - temperate-cold: *temperateCold
+      - temperate-warm: *temperateWarm
+      - temperate-hot: *temperateHot
+      - tropical-savanna-wet: *tropicalCold
+      - tropical-monsoon: *tropicalWarm
+      - tropical-rainforest: *tropicalHot
     to:
       crater-lake:
         - polar-crater-lake: *iceCap
@@ -151,19 +150,6 @@ stages:
         - hot-sinkhole-border: *tropicalCold
         - hot-sinkhole-border: *tropicalWarm
         - hot-sinkhole-border: *tropicalHot
-      sinkhole-border-ocean:
-        - polar-sinkhole-border-ocean: *iceCap
-        - polar-sinkhole-border-ocean: *tundra
-        - boreal-sinkhole-border-ocean: *borealSnowy
-        - boreal-sinkhole-border-ocean: *borealCold
-        - boreal-sinkhole-border-ocean: *borealWarm
-        - boreal-sinkhole-border-ocean: *borealHot
-        - temperate-sinkhole-border-ocean: *temperateCold
-        - temperate-sinkhole-border-ocean: *temperateWarm
-        - temperate-sinkhole-border-ocean: *temperateHot
-        - hot-sinkhole-border-ocean: *tropicalCold
-        - hot-sinkhole-border-ocean: *tropicalWarm
-        - hot-sinkhole-border-ocean: *tropicalHot
       extinct-volcano:
         - polar-extinct-volcano: *iceCap
         - polar-extinct-volcano: *tundra

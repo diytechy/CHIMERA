@@ -23,22 +23,27 @@ stages:
         frequency: 0.002
       sampler:
         type: EXPRESSION
-        #Lower band is colder, upper band is warmer, white noise salted in randomizes placement.
-        expression: floor(temperature(x,z)+noise(x,z)/2+0.5)
+        #Lower band is colder, upper band is warmer, white noise salted based on cell value to randomize placement.
+        expression: |
+          if(riftFarRiverDist(x,z)>200 && if(riftInRangeOfSpot(x,z),0,1),
+            if(temperature(x,z)>0,0.55,-0.55)+noise(x,z)/2,
+            0)
         samplers: 
           temperature: $math/samplers/rifts.yml:samplers.riftTemperature
           noise: $math/samplers/rifts.yml:samplers.riftRegions
+          riftFarRiverDist: $math/samplers/rifts.yml:samplers.riftFarRiverDist
+          riftInRangeOfSpot: $math/samplers/rifts.yml:samplers.riftInRangeOfSpot
     #from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}
       max: 319
     from: _rift_land
     to:
-      #_cold_rift: 0
+      _cold_rift: 1
       _cold_well: 1
-      land: 8
+      land: 5
+      _warm_well: 1
       _warm_rift: 1
-      #_warm_well: 1
 
   - type: REPLACE_LIST
     sampler:
@@ -47,8 +52,10 @@ stages:
       variables:
         canyonStrength: ${customization.yml:biomeSpread.canyons.canyonAmount}
       expression: |
-        min(max(-mask(x,z * 1.3) - canyonStrength, 0) * 18, 1) *
-        max((-abs(base(x,z)) + 0.3) * 2, 0) * (1 / 0.2)
+        (-abs(base(x,z)) + 0.3) * 2 * (1 / 0.2)
+      #  max(-mask(x,z * 1.3) - canyonStrength, 0) * 18
+      #  min(max(-mask(x,z * 1.3) - canyonStrength, 0) * 18, 1) *
+      #  max((-abs(base(x,z)) + 0.3) * 2, 0) * (1 / 0.2)
       samplers:
         base:
           dimensions: 2

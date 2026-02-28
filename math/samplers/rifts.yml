@@ -27,6 +27,18 @@ samplers:
     lookup: $math/samplers/temperature.yml:samplers.temperature
     salt-lookup: false
 
+  riftInRangeOfSpot:
+    <<: *riftCell
+    return: NoiseLookup
+    lookup: $math/samplers/spots.yml:samplers.nearSpot
+    salt-lookup: false
+
+  riftFarRiverDist:
+    <<: *riftCell
+    return: NoiseLookup
+    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+    salt-lookup: false
+
   riftWellPlacement:
     dimensions: 2
     type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
@@ -40,6 +52,6 @@ samplers:
         frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
     sampler:
       type: EXPRESSION
-      expression: if(riftHybDistFromCenter(x,z)<-0.8,1,-1)
+      expression: if(riftHybDistFromCenter(x,z)<-0.7,1,-1)
       samplers:
         riftHybDistFromCenter: $math/samplers/rifts.yml:samplers.riftHybDistFromCenter

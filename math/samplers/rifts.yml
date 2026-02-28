@@ -30,7 +30,7 @@ samplers:
   riftInRangeOfSpot:
     <<: *riftCell
     return: NoiseLookup
-    lookup: $math/samplers/spots.yml:samplers.nearSpot
+    lookup: $math/samplers/spots.yml:samplers.nearSpotRift
     salt-lookup: false
 
   riftFarRiverDist:

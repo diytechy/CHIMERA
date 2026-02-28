@@ -1,6 +1,6 @@
 variables: &variables
   spread: $customization.yml:spot-spread
-
+  riftDistance: $customization.yml:biomeSpread.riftDistance
   largeSpawnRadiusOffset: $customization.yml:large-spot-spawn-radius-offset
 
   biomeBorder: 20
@@ -83,6 +83,19 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+      variables: *variables
+      samplers:
+        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+        
+  nearSpotRift:
+    dimensions: 2
+    type: CACHE
+    exp: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
       variables: *variables
       samplers:
         spotDistance: $math/samplers/spots.yml:samplers.spotDistance

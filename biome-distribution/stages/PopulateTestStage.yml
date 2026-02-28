@@ -11,6 +11,7 @@ stages:
     default-from: coast
     default-to: DESERT
     to:
+      desert: DESERT
       land: DRY_FIR_FIELDS
       ocean: OCEAN
       vast-forest: BLACK_FOREST

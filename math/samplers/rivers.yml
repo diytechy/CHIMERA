@@ -78,7 +78,7 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<0.25), 0,  rawPrecipitation(x, z)*1.5)
+    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<0), 0,  rawPrecipitation(x, z)*1.3)
     samplers:
       rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation
       mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent

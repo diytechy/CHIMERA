@@ -73,3 +73,11 @@ stages:
     from: _ocean_spot
     to:
       BOREAL_MESA: 1
+      
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: desert
+    to:
+      DESERT: 1

@@ -256,6 +256,19 @@ Use white noise to break each of those into cold rifts / cold wells / return to 
 - Update wells to use simpler sampler methods instead of concurrent replacements
 - Update rifts to use simpler sampler methods instead of concurrent replacements
 - Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'
+
+###################################################################3
+
+Set islands, mesas, vast forests, deserts.
+
+IMPORTANT - How does desert probability get placed vs forest in terms of precipitation and temperature?  Need to crosscheck climate distribution fields first.  Maybe just select placement first as a large region, and then populate later... but needs to be in the correct region first so that won't work, need to review climate dist first.
+
+Order:
+1. Islands
+2. Mesa
+3. Deserts and Vast Forests
+
+
 - Could set island types according to continental landmass being above the island threshold...
 
 

@@ -53,25 +53,8 @@ biomes:
         ##Segment temperature regions for respective canyon valleys / sinkholes
         - << biome-distribution/stages/special/build_rift_regions.yml:stages
         #
-        ##Further segment into subzones so canyons are not everywhere.
-        #- << biome-distribution/stages/special/build_rift_regions_2.yml:stages
-        #
-        ##Now actually distribute the canyons
-        #- << biome-distribution/stages/special/build_rift_regions_3.yml:stages
-        #
-        ##Input: land
-        ##Output: sink hole zones
-        #- << biome-distribution/stages/special/build_well_regions.yml:stages
-        #
-        ##Replace outer boundary zones to prevent sink-hole / canyon valley generation back to land.
-        #- << biome-distribution/stages/special/return_boundary_to_land.yml:stages
-        #
-        ##*************************************
-        ##Should sinkholes / canyons be placed after rivers?...
-        ##*************************************
-        #
         ##Output: land / vast-forest / island / ocean / island-coast
-        #- << biome-distribution/stages/Distribute_Major_Regions.yml:stages
+        - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
         
         ###Build out climate regions
         #- << biome-distribution/stages/climate/elevation.yml:stages

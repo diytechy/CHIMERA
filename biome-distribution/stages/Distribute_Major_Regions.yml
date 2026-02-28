@@ -1,42 +1,53 @@
 stages:
 #Create mesa distributions
-  - type: REPLACE_LIST
+  - type: REPLACE
     from: land
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: (mesaPresent(x, z)>0)
+      expression: if(mesaPresent(x, z)>0,1,-1)
     samplers:
       mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent
-    default-from: land
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
-    default-to:
-      SELF: 2
-      mesa: 1
     to:
-      coast:
-        SELF: 2
-        mesa: 1
-#Create vast forest distributions
-  - type: REPLACE_LIST
+      SELF: 1
+      mesa: 1
+#Create island distributions
+  - type: REPLACE
     from: land
     sampler:
       dimensions: 2
-      type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
-      amplitude: 60 
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.002
-      sampler:
-        type: CELLULAR
-        return: CellValue
-        frequency: 1 /  ${customization.yml:biomeSpread.regionDistance}
-    default-from: land
+      type: EXPRESSION
+      expression: islandMask(x, z)
+    samplers:
+      islandMask: $math/samplers/continents.yml:samplers.islandMask
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
-    default-to:
-      vast-forest: 1
-      SELF: 6
     to:
-      coast:
-        vast-forest-coast: 1
-        SELF: 6
+      SELF: 1
+      island: 1
+#Create vast desert distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      #If high temperature and low precipitation, more likely to be desert, otherwise 
+      expression: |
+        if((BiomeShapeLargelandTemperature(x,z)>0.25) && (BiomeShapeLargelandPrecipitation(x,z)<0.0),
+          BiomeShapeLargelandValue(x,z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 2
+      desert: 1
+#Create vast forest distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        BiomeShapeLargelandValue(x,z)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 6
+      vast-forest: 1

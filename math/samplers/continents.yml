@@ -84,15 +84,6 @@ samplers:
     samplers:
       continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
     functions: $math/functions/interpolation.yml:functions
-  islandMask:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(continental_sampler(x,z) < ((island_threshold+land_threshold)/2), 1, -1)
-    variables:
-      island_threshold: $customization.yml:continental-island-threshold
-      land_threshold: $customization.yml:continental-land-threshold
-    samplers:
-      continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
   mnt_and_ocean_valleys:
     dimensions: 2
     type: FBM
@@ -140,6 +131,17 @@ samplers:
           frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
           salt: 200
 
+  islandMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(continental_sampler(x / scale / globalScale, z / scale / globalScale) < ((island_threshold)), 1, -1)
+    variables:
+      island_threshold: $customization.yml:continental-island-threshold
+      land_threshold: $customization.yml:continental-land-threshold
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+    samplers:
+      continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
   continents:
     dimensions: 2
     type: CACHE

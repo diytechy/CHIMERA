@@ -268,6 +268,12 @@ Order:
 2. Mesa
 3. Deserts and Vast Forests
 
+#########################################
+
+Now build out formal climate using biome cells?
+
+
+
 
 - Could set island types according to continental landmass being above the island threshold...
 

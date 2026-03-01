@@ -77,6 +77,14 @@ PRECIPITATION_SAMPLER_NAME = "precipitation"
 ELEVATION_SAMPLER_NAME     = "elevation"
 
 # =============================================================================
+# ELEVATION DETECTION KEYWORDS (for terrain.sampler-2d)
+# =============================================================================
+ELEVATION_KEYWORDS = [
+    "spotBaseElevation",
+    "elevationDetailed",
+]
+
+# =============================================================================
 # DISTRIBUTION CATEGORY RULES  (edit if pack structure changes)
 # =============================================================================
 # Tags on the 'from' biome that indicate a river replacement stage
@@ -1539,6 +1547,7 @@ class BiomeMetadata:
         self.caverns_land: bool = False
         self.river: str = ""  # 'Desert' | 'Cold' | 'General' | ''
         self.category: str = "SURFACE"  # 'SURFACE' | 'RIVER' | 'SUBSURFACE'
+        self.uses_elevation: bool = False  # True if terrain.sampler-2d uses elevation keywords
 
     def set_climate(self, context: ClimateContext):
         """Set climate attributes from a ClimateContext"""
@@ -1565,6 +1574,7 @@ class BiomeMetadata:
         land_caves_str = "True" if self.land_caves else ""
         special_caves_str = "True" if self.special_caves else ""
         caverns_str = "True" if self.caverns_land else ""
+        uses_elevation_str = "True" if self.uses_elevation else ""
 
         row = [
             self.biome_id,
@@ -1581,6 +1591,7 @@ class BiomeMetadata:
             self.format_climate_value(self.temperature),
             self.format_climate_value(self.precipitation),
             self.format_climate_value(self.elevation),
+            uses_elevation_str,
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
@@ -1803,6 +1814,38 @@ class BiomeReader:
                 metadata.color = parent_meta.color
 
     @classmethod
+    def _check_elevation_usage(cls, biome_id: str) -> bool:
+        """Check if biome's terrain.sampler-2d uses elevation keywords"""
+        biome_file = cls.find_biome_file(biome_id)
+        if not biome_file:
+            return False
+        
+        try:
+            with open(biome_file, 'r') as f:
+                data = yaml.safe_load(f)
+                terrain = data.get('terrain', {})
+                sampler_2d = terrain.get('sampler-2d', {})
+                
+                # Check expression field
+                expression = sampler_2d.get('expression', '')
+                if isinstance(expression, str):
+                    for keyword in ELEVATION_KEYWORDS:
+                        if keyword in expression:
+                            return True
+                
+                # If extends, check parent
+                extends = data.get('extends')
+                if extends:
+                    parent_ids = [extends] if isinstance(extends, str) else extends
+                    for parent_id in parent_ids:
+                        if cls._check_elevation_usage(parent_id):
+                            return True
+        except Exception:
+            pass
+        
+        return False
+
+    @classmethod
     def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:
         """Read metadata for a biome and merge properties from parents"""
         # Check metadata cache first
@@ -1849,6 +1892,9 @@ class BiomeReader:
 
         # Resolve VanillaID match
         metadata.vanilla_match = cls._match_vanilla(metadata.vanilla_raw)
+        
+        # Check elevation usage
+        metadata.uses_elevation = cls._check_elevation_usage(biome_id)
 
         cls._metadata_cache[biome_id] = metadata
         return metadata
@@ -2218,7 +2264,7 @@ def generate_csv_output(
         # Header row
         header = [
             'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River',
-            'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation'
+            'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation', 'UsesElevation'
         ] + preset_names
         writer.writerow(header)
 

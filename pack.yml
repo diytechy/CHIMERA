@@ -6,6 +6,7 @@ generator: NOISE_3D
 
 blend:
   terrain:
+    elevation: 2
     defaults:
       distance: 3
       step: 4

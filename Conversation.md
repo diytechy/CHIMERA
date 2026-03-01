@@ -293,21 +293,12 @@ Sea arches sometimes stop abruptly, can they just be placed using cellular appro
 
 It makes sense to fill coasts before rivers since that will be a larger effective change, and coasts don't really need to have a transition to rivers anyways.
 
-B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
-
-C. Need to make sure rivers actually flow up using soul-sand?
-
-D. Need to add all original minecraft biome labels?
-
-E. Verify mesa placement for regions, and consider plains region designation.
 
 F. Fix biome table calculator, use distribution at stages to actually assert distribution per stage.  Can utilize resolved samplers?
 
-G. Increase ore spawn rate via standard ore distributions.
+########################################
 
-H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
-
-I. 
+Really - Need to see what sea archs look like.  If they are immersed in water, they should get placed in ocean.  If not, they should get placed as normal coast, but I'm quite sure they are water in nature.
 
 
 Ocean is Mesa
@@ -321,6 +312,7 @@ Cells for Mainland / island biomes
 Cells for Highlight biomes
 Cells for Ocean biomes
 
+
 Merge wells to become a spot type?  Or merge them to become something that comes with rifts.
 Make sure rifts do have appropriate boundary from spots.
 
@@ -333,6 +325,42 @@ Well should have warp applied.
 Note wells also need to be fixed so they are broken apart by temperature region, likely an issue in the distribution using duplicate labels in the YAML.
 
 The can continue with mesa region
+
+########################################
+
+NOTE: Sea arches do come out from sea... so need to change this sampling.
+
+Should all base elevation come from core elevation function?  Need to update all biomes to have the same base elevation.  In theory should not need to blend.
+
+  - Update all land biomes to have a relevant river replacement tag.
+  - Update all land biomes to have a base elevation from... real life elevation?
+  - Update all water biomes to have base elevation from lowest maybe but this doesn't matter as much.
+
+RIVERS:
+ADD "ocean.sampler" definition to biome to propagate water height down-push.
+ADD "decoration" to perform soul-sand placement at elevation changes?
+How to push sampling up for palette as elevation changes?  To ensure expected basin fill.
+
+
+1. Change sea arches to be cellular only near coast but replace from ocean.
+2. Update for river replacement to include coast-line replacement first.
+
+Note: Still need to investigate.... something.
+
+B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
+
+C. Need to make sure rivers actually flow up using soul-sand?
+
+D. Need to add all original minecraft biome labels?
+
+E. Verify mesa placement for regions, and consider plains region designation.
+
+
+G. Increase ore spawn rate via standard ore distributions.
+
+H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
+
+I. 
 
 Then island region
 

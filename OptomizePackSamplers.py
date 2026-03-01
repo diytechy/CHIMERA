@@ -161,51 +161,38 @@ def count_usages_in_file(data, named_sampler_ids, definition_sites, counter):
 
 
 # ---------------------------------------------------------------------------
-# Phase 2b — Counting stage usages
+# Phase 2b — Text-based usage counting
 # ---------------------------------------------------------------------------
 
-def discover_stage_files():
+def _build_sampler_patterns(sampler_names):
     """
-    Find all YAML files under biome-distribution/ that may reference
-    pack-level samplers in pipeline stage definitions.
+    Build compiled regex patterns for detecting sampler references in text.
+
+    Returns (expr_pattern, ref_pattern) where:
+      - expr_pattern matches expression calls: samplerName(
+      - ref_pattern  matches string cross-file refs: samplers.samplerName
     """
-    stage_dir = PACK_ROOT / "biome-distribution"
-    if not stage_dir.exists():
-        return []
-    return list(stage_dir.rglob("*.yml"))
-
-
-def count_stage_usages(sampler_names, counter):
-    """
-    Scan biome-distribution stage files for references to pack-level samplers.
-
-    Counts two kinds of references:
-      1. Expression function calls: samplerName(x, z) or samplerName(x, y, z)
-      2. String cross-file refs:    $path:samplers.samplerName
-
-    Each unique reference per file is counted (a sampler referenced multiple
-    times in the same file counts multiple times).
-    """
-    stage_files = discover_stage_files()
-    if not stage_files:
-        return 0
-
-    # Build regex patterns for each sampler name
-    # Match name( in expressions — word boundary before, open paren after
+    names = sorted(sampler_names)
     expr_pattern = re.compile(
         r'(?<![a-zA-Z_0-9])(' +
-        '|'.join(re.escape(n) for n in sampler_names) +
+        '|'.join(re.escape(n) for n in names) +
         r')\s*\(',
     )
-    # Match samplers.name in string references
     ref_pattern = re.compile(
         r'samplers\.(' +
-        '|'.join(re.escape(n) for n in sampler_names) +
+        '|'.join(re.escape(n) for n in names) +
         r')(?![a-zA-Z_0-9])',
     )
+    return expr_pattern, ref_pattern
 
+
+def _count_text_refs(file_paths, expr_pattern, ref_pattern, counter):
+    """
+    Scan a list of file paths for sampler references using the given patterns.
+    Accumulates counts into ``counter``.  Returns total matches found.
+    """
     total = 0
-    for path in stage_files:
+    for path in file_paths:
         try:
             text = path.read_text(encoding="utf-8")
         except Exception:
@@ -217,8 +204,44 @@ def count_stage_usages(sampler_names, counter):
         for m in ref_pattern.finditer(text):
             counter[m.group(1)] += 1
             total += 1
-
     return total
+
+
+def _discover_yml_files(*directories):
+    """Return all .yml files under the given directories (relative to PACK_ROOT)."""
+    paths = []
+    for dirname in directories:
+        d = PACK_ROOT / dirname
+        if d.exists():
+            paths.extend(d.rglob("*.yml"))
+    return paths
+
+
+def count_stage_usages(sampler_names, counter):
+    """
+    Scan biome-distribution stage files for references to pack-level samplers.
+
+    Counts two kinds of references:
+      1. Expression function calls: samplerName(x, z) or samplerName(x, y, z)
+      2. String cross-file refs:    $path:samplers.samplerName
+    """
+    files = _discover_yml_files("biome-distribution")
+    if not files or not sampler_names:
+        return 0
+    expr_pat, ref_pat = _build_sampler_patterns(sampler_names)
+    return _count_text_refs(files, expr_pat, ref_pat, counter)
+
+
+def count_biome_usages(sampler_names, counter):
+    """
+    Scan biome definition files (biomes/) and feature files (features/) for
+    references to pack-level samplers in expressions and string refs.
+    """
+    files = _discover_yml_files("biomes", "features")
+    if not files or not sampler_names:
+        return 0
+    expr_pat, ref_pat = _build_sampler_patterns(sampler_names)
+    return _count_text_refs(files, expr_pat, ref_pat, counter)
 
 
 def count_sampler_text_usages(sampler_files, sampler_names, counter):
@@ -228,7 +251,7 @@ def count_sampler_text_usages(sampler_files, sampler_names, counter):
 
     This catches cross-sampler references that aren't YAML aliases — for
     example, EXPRESSION samplers that call other pack-level samplers by
-    name.  Uses the same patterns as count_stage_usages.
+    name.
 
     To avoid false positives from YAML definition keys (e.g.
     ``samplerName:`` at the top of a samplers block), only expression-call
@@ -239,35 +262,9 @@ def count_sampler_text_usages(sampler_files, sampler_names, counter):
     """
     if not sampler_names:
         return 0
-
-    expr_pattern = re.compile(
-        r'(?<![a-zA-Z_0-9])(' +
-        '|'.join(re.escape(n) for n in sorted(sampler_names)) +
-        r')\s*\(',
-    )
-    ref_pattern = re.compile(
-        r'samplers\.(' +
-        '|'.join(re.escape(n) for n in sorted(sampler_names)) +
-        r')(?![a-zA-Z_0-9])',
-    )
-
-    total = 0
-    for _rel_path, abs_path in sampler_files:
-        if not abs_path.exists():
-            continue
-        try:
-            text = abs_path.read_text(encoding="utf-8")
-        except Exception:
-            continue
-
-        for m in expr_pattern.finditer(text):
-            counter[m.group(1)] += 1
-            total += 1
-        for m in ref_pattern.finditer(text):
-            counter[m.group(1)] += 1
-            total += 1
-
-    return total
+    paths = [abs_path for _, abs_path in sampler_files if abs_path.exists()]
+    expr_pat, ref_pat = _build_sampler_patterns(sampler_names)
+    return _count_text_refs(paths, expr_pat, ref_pat, counter)
 
 
 # ---------------------------------------------------------------------------
@@ -449,9 +446,23 @@ def main():
         print("\n  No stage references to pack-level samplers found.")
 
     # ------------------------------------------------------------------
-    # Pass 1c — count text-based usages within sampler files
+    # Pass 1c — count usages in biome/feature definition files
     # ------------------------------------------------------------------
-    print("\n--- Pass 1c: counting expression/ref usages within sampler files ---")
+    print("\n--- Pass 1c: counting usages in biome & feature definitions ---")
+    biome_counts: Counter = Counter()
+    biome_total = count_biome_usages(all_sampler_names, biome_counts)
+
+    if biome_counts:
+        print(f"\n  Biome/feature usage counts ({biome_total} references found):")
+        for name, count in sorted(biome_counts.items(), key=lambda x: -x[1]):
+            print(f"    {name}: {count}")
+    else:
+        print("\n  No biome/feature references to pack-level samplers found.")
+
+    # ------------------------------------------------------------------
+    # Pass 1d — count text-based usages within sampler files
+    # ------------------------------------------------------------------
+    print("\n--- Pass 1d: counting expression/ref usages within sampler files ---")
     sampler_text_counts: Counter = Counter()
     sampler_text_total = count_sampler_text_usages(
         sampler_files, all_sampler_names, sampler_text_counts
@@ -464,25 +475,29 @@ def main():
     else:
         print("\n  No text-based references within sampler files found.")
 
-    # Combine counts for CACHE decisions (alias + stage, as before)
+    # Combine counts for CACHE decisions (alias + stage + biome)
     combined_counts: Counter = Counter()
     combined_counts.update(usage_counts)
     combined_counts.update(stage_counts)
+    combined_counts.update(biome_counts)
 
-    # All-source counts for unused detection (alias + stage + sampler text)
+    # All-source counts for unused detection (all sources)
     all_source_counts: Counter = Counter()
     all_source_counts.update(usage_counts)
     all_source_counts.update(stage_counts)
+    all_source_counts.update(biome_counts)
     all_source_counts.update(sampler_text_counts)
 
     if all_source_counts:
-        print("\n  All-source usage counts (alias + stage + sampler-text):")
+        print("\n  All-source usage counts (alias + stage + biome + sampler-text):")
         for name, count in sorted(all_source_counts.items(), key=lambda x: -x[1]):
             parts = []
             if usage_counts.get(name, 0):
                 parts.append(f"{usage_counts[name]} alias")
             if stage_counts.get(name, 0):
                 parts.append(f"{stage_counts[name]} stage")
+            if biome_counts.get(name, 0):
+                parts.append(f"{biome_counts[name]} biome")
             if sampler_text_counts.get(name, 0):
                 parts.append(f"{sampler_text_counts[name]} text")
             detail = " + ".join(parts)

@@ -4,6 +4,14 @@ author: "Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy"
 
 generator: NOISE_3D
 
+blend:
+  terrain:
+    defaults:
+      distance: 3
+      step: 4
+    no-blend-tags:
+      - subsurface
+
 addons:
   biome-provider-pipeline: "2.+"
   biome-provider-single: "1.+"

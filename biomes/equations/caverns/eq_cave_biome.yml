@@ -2,6 +2,8 @@ id: EQ_CAVE_BIOME
 abstract: true
 type: BIOME
 extends: [ EQ_CARVING_LAND ]
+tags:
+  - subsurface
 
 carving:
   update-palette: true

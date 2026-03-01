@@ -4,10 +4,12 @@ OptomizePackSamplers.py
 
 Optimizes pack-level sampler definition files by:
   1. Discovering all pack sampler files from pack.yml (samplers section).
-  2. Removing YAML anchors from named samplers (only named samplers, not variables).
-  3. Replacing in-file aliases to named samplers with explicit cross-file
+  2. Removing unused named samplers (zero references across alias, stage, and
+     expression-call sources). Variables blocks are preserved.
+  3. Removing YAML anchors from named samplers (only named samplers, not variables).
+  4. Replacing in-file aliases to named samplers with explicit cross-file
      string references (e.g. "$math/samplers/rivers.yml:samplers.riverNoise").
-  4. Wrapping named samplers used more than 3 times (combined across sampler
+  5. Wrapping named samplers used more than 3 times (combined across sampler
      files and biome-distribution stage files) in a CACHE sampler with exp: 2.
      Samplers of type CACHE or DENDRY are excluded from wrapping.
 
@@ -219,6 +221,55 @@ def count_stage_usages(sampler_names, counter):
     return total
 
 
+def count_sampler_text_usages(sampler_files, sampler_names, counter):
+    """
+    Scan sampler file text for expression-based references to other
+    pack-level samplers (e.g. ``otherSampler(x, z)`` inside an expression).
+
+    This catches cross-sampler references that aren't YAML aliases — for
+    example, EXPRESSION samplers that call other pack-level samplers by
+    name.  Uses the same patterns as count_stage_usages.
+
+    To avoid false positives from YAML definition keys (e.g.
+    ``samplerName:`` at the top of a samplers block), only expression-call
+    patterns (``name(``) and string-ref patterns (``samplers.name``) are
+    matched — neither fires on a bare key.
+
+    Returns total number of text references found.
+    """
+    if not sampler_names:
+        return 0
+
+    expr_pattern = re.compile(
+        r'(?<![a-zA-Z_0-9])(' +
+        '|'.join(re.escape(n) for n in sorted(sampler_names)) +
+        r')\s*\(',
+    )
+    ref_pattern = re.compile(
+        r'samplers\.(' +
+        '|'.join(re.escape(n) for n in sorted(sampler_names)) +
+        r')(?![a-zA-Z_0-9])',
+    )
+
+    total = 0
+    for _rel_path, abs_path in sampler_files:
+        if not abs_path.exists():
+            continue
+        try:
+            text = abs_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        for m in expr_pattern.finditer(text):
+            counter[m.group(1)] += 1
+            total += 1
+        for m in ref_pattern.finditer(text):
+            counter[m.group(1)] += 1
+            total += 1
+
+    return total
+
+
 # ---------------------------------------------------------------------------
 # Phase 3 — Transformations
 # ---------------------------------------------------------------------------
@@ -256,6 +307,33 @@ def replace_aliases(data, named_sampler_ids, definition_sites, rel_path):
 
     walk_tree(data, None, None, named_sampler_ids, definition_sites, on_alias)
     return replacements
+
+
+def remove_unused_samplers(data, all_usage_counts, named_sampler_ids):
+    """
+    Remove named samplers that have zero usages across all counted sources
+    (alias references, stage expression calls, and sampler-file text refs).
+
+    Skips keys that are not named samplers (e.g. 'variables' blocks).
+    Returns list of sampler names that were removed.
+    """
+    samplers = data.get("samplers", {})
+    removed = []
+
+    if not isinstance(samplers, CommentedMap):
+        return removed
+
+    # Only consider keys that were identified as named samplers
+    sampler_names_in_file = set(named_sampler_ids.values())
+
+    for name in list(samplers.keys()):
+        if name not in sampler_names_in_file:
+            continue  # not a sampler (e.g. variables block)
+        if all_usage_counts.get(name, 0) == 0:
+            del samplers[name]
+            removed.append(name)
+
+    return removed
 
 
 def apply_cache_wrapping(data, usage_counts):
@@ -370,22 +448,52 @@ def main():
     else:
         print("\n  No stage references to pack-level samplers found.")
 
-    # Combine counts
+    # ------------------------------------------------------------------
+    # Pass 1c — count text-based usages within sampler files
+    # ------------------------------------------------------------------
+    print("\n--- Pass 1c: counting expression/ref usages within sampler files ---")
+    sampler_text_counts: Counter = Counter()
+    sampler_text_total = count_sampler_text_usages(
+        sampler_files, all_sampler_names, sampler_text_counts
+    )
+
+    if sampler_text_counts:
+        print(f"\n  Sampler-file text usage counts ({sampler_text_total} references found):")
+        for name, count in sorted(sampler_text_counts.items(), key=lambda x: -x[1]):
+            print(f"    {name}: {count}")
+    else:
+        print("\n  No text-based references within sampler files found.")
+
+    # Combine counts for CACHE decisions (alias + stage, as before)
     combined_counts: Counter = Counter()
     combined_counts.update(usage_counts)
     combined_counts.update(stage_counts)
 
-    if combined_counts:
-        print("\n  Combined usage counts (samplers + stages):")
-        for name, count in sorted(combined_counts.items(), key=lambda x: -x[1]):
+    # All-source counts for unused detection (alias + stage + sampler text)
+    all_source_counts: Counter = Counter()
+    all_source_counts.update(usage_counts)
+    all_source_counts.update(stage_counts)
+    all_source_counts.update(sampler_text_counts)
+
+    if all_source_counts:
+        print("\n  All-source usage counts (alias + stage + sampler-text):")
+        for name, count in sorted(all_source_counts.items(), key=lambda x: -x[1]):
             parts = []
             if usage_counts.get(name, 0):
                 parts.append(f"{usage_counts[name]} alias")
             if stage_counts.get(name, 0):
                 parts.append(f"{stage_counts[name]} stage")
+            if sampler_text_counts.get(name, 0):
+                parts.append(f"{sampler_text_counts[name]} text")
             detail = " + ".join(parts)
-            flag = f"  <- will CACHE (exp={CACHE_EXP})" if count > CACHE_THRESHOLD else ""
-            print(f"    {name}: {count} ({detail}){flag}")
+            cache_flag = f"  <- will CACHE (exp={CACHE_EXP})" if combined_counts.get(name, 0) > CACHE_THRESHOLD else ""
+            unused_flag = "  <- UNUSED (will remove)" if count == 0 else ""
+            print(f"    {name}: {count} ({detail}){cache_flag}{unused_flag}")
+
+        # Report any samplers with zero usages that aren't in the counter
+        all_names_with_zero = all_sampler_names - set(all_source_counts.keys())
+        for name in sorted(all_names_with_zero):
+            print(f"    {name}: 0  <- UNUSED (will remove)")
     else:
         print("\n  No usages found.")
 
@@ -404,23 +512,28 @@ def main():
 
         print(f"\n  {rel_path}:")
 
-        # Step A — remove anchors from named samplers
+        # Step A — remove unused samplers
+        removed_unused = remove_unused_samplers(data, all_source_counts, named_ids)
+        if removed_unused:
+            print(f"    Unused samplers removed: {removed_unused}")
+
+        # Step B — remove anchors from remaining named samplers
         removed = remove_anchors(data)
         if removed:
             print(f"    Anchors removed: {removed}")
 
-        # Step B — replace aliases with cross-file refs
+        # Step C — replace aliases with cross-file refs
         replacements = replace_aliases(data, named_ids, def_sites, rel_path)
         if replacements:
             for key, ref in replacements:
                 print(f"    Alias replaced: {key!r}  ->  {ref}")
 
-        # Step C — wrap heavily-used samplers in CACHE
+        # Step D — wrap heavily-used samplers in CACHE
         wrapped = apply_cache_wrapping(data, combined_counts)
         if wrapped:
             print(f"    CACHE wrapped (exp={CACHE_EXP}): {wrapped}")
 
-        if not removed and not replacements and not wrapped:
+        if not removed_unused and not removed and not replacements and not wrapped:
             print("    No changes needed.")
 
         # Write back

@@ -104,9 +104,11 @@ samplers:
   continentalRiverElev:
     dimensions: 2
     type: EXPRESSION
-    expression: (continentalDendryRivers(x,1.0,z) * 0.95)
+    expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
     samplers:
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
+    variables:
+      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
   continentalRiverDist:
     dimensions: 2

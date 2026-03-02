@@ -27,6 +27,13 @@ terrain:
       )
       + (simplex2(x/2, z/2)+1)/2 * 10 + maskSmooth(70, -0.15, -0.35, cracks(x, z))
     samplers:
+    
+      erosion:
+        dimensions: 3
+        type: OPEN_SIMPLEX_2
+        frequency: 0.015
+        salt: 2
+
       pillars:
         dimensions: 2
         type: CELLULAR

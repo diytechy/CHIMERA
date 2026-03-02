@@ -1757,9 +1757,10 @@ class BiomeReader:
                 for row in reader:
                     vanilla_id = row.get('Vanilla ID') or row.get('VanillaID') or row.get('vanilla id')
                     if vanilla_id:
-                        cls._vanilla_map[vanilla_id].append(row)
+                        # Normalize: BIOME_JAGGED_PEAKS -> jagged_peaks
+                        normalized = vanilla_id.replace('BIOME_', '').lower()
+                        cls._vanilla_map[normalized].append(row)
         except Exception:
-            # If file not found or parse error, leave map empty
             cls._vanilla_map = defaultdict(list)
 
     @classmethod
@@ -1768,11 +1769,15 @@ class BiomeReader:
         if not vanilla_raw:
             return ""
         cls._load_vanilla_map()
+        # Extract key: minecraft:jagged_peaks -> jagged_peaks
         vanilla_key = vanilla_raw.split(':')[-1] if ':' in vanilla_raw else vanilla_raw
-        matches = cls._vanilla_map.get(vanilla_key, [])
+        # Normalize to lowercase
+        vanilla_key_normalized = vanilla_key.lower()
+        matches = cls._vanilla_map.get(vanilla_key_normalized, [])
         if len(matches) == 0:
             return ""
         if len(matches) == 1:
+            # Return the original key from biome file (e.g., jagged_peaks)
             return vanilla_key
         return "Multiple"
 

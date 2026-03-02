@@ -342,43 +342,68 @@ Need to fix spot elevation?  Or maybe this isn't really possible?  This would ma
 
 Biome fixes:
 
-Found 35 unique land equation files (EQ_*) extended by biomes without UsesElevation flag:
-
-EQ_ALPHA_MOUNTAINS
-EQ_BOG
-EQ_BUTTES
-EQ_BUTTES_ARCHIPELAGO
-EQ_CANYON
-EQ_CARVING_LAND
-EQ_CARVING_OCEAN
-EQ_CAVE_BIOME
-EQ_CELL_MARSH
-EQ_CHASMS
-EQ_CRACKED_FLATS
-EQ_DEEP_OCEAN
-EQ_ERODED_COAST
-EQ_ERODED_MOUNTAINS
+ IN THEORY THE BELOW IS NO LONGER NECESSARY; base has been made relative 
+Add to eq:
+EQ_ALPHA_MOUNTAINS <- May exceed elev, can likely ignore
+EQ_ERODED_MOUNTAINS (Goes to EQ_MOUNTIANS)
 EQ_ERODED_VALLEY_MOUNTAINS
-EQ_FLAT_BUMPY
-EQ_FLAT_ERODED
 EQ_GLACIAL_OVERHANGS
 EQ_HILLS
 EQ_LOWLAND_HILLS
-EQ_MANGROVE_SWAMP
 EQ_MOUNTAIN_SPOTS
-EQ_OCEAN_DEEP
-EQ_OCEAN_SHALLOW
 EQ_PILLARS
-EQ_PLAINS
-EQ_RIVER
 EQ_SMALL_MOUNTAINS
 EQ_SNOWDRIFT_COASTS
-EQ_SWAMP
 EQ_TERRACED_MOUNTAINS
-EQ_TERRACED_MOUNTAINS_RIVER
 EQ_TERRACE_MOUNTAINS
 EQ_TILTED_PLATEAU
+
+Wetlands / lowlands / plain-like / coastal:
+
+EQ_BOG
 EQ_WARPED_WETLANDS
+EQ_SWAMP
+EQ_PLAINS
+EQ_MANGROVE_SWAMP
+EQ_CELL_MARSH
+EQ_FLAT_BUMPY
+EQ_FLAT_ERODED
+EQ_CRACKED_FLATS
+
+Need bump? =>
+
+EQ_BUTTES
+
+
+
+No change required:
+EQ_BUTTES_ARCHIPELAGO (In water)
+EQ_CANYON (Canyon)
+EQ_CARVING_OCEAN (Ocean)
+EQ_OCEAN_DEEP (Ocean)
+EQ_OCEAN_SHALLOW (Ocean)
+
+EQ_CARVING_LAND (Highly complext, would be very hard to mitigate?)
+EQ_CHASMS (Purposeful chasm, should be rare?)
+
+RIVER:
+EQ_TERRACED_MOUNTAINS_RIVER
+EQ_RIVER
+
+
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level varies ±3 blocks with regional terrain elevation so that the river
+  # surface follows the landscape gradient rather than sitting at a fixed Y.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: $meta.yml:ocean-level
+    expression: base + elevation(x, z) * 3
+
+For flat biomes / those that aren't influenced by elevation, could just herp in river elevation for continuity.  By far the easiest option.
+
 
 
 Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.

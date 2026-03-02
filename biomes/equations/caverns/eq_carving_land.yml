@@ -6,8 +6,8 @@ carving:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    variables:
-  
+    variables:  
+    
       carvingThreshold: 0.54 # Higher = less carving
       carvingMinHeight: -63
       carvingMinTaper: 8

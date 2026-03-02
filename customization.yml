@@ -70,6 +70,9 @@ terrain-base-y-level: 65
 # guide and some configs will lower terrain below this point (however not by much).
 # Default: 65
 
+legacy-terrain-base-y-level: 80
+# Special level for legacy terrain, which uses different samplers to drive terrain changes.
+
 terrain-height: 180
 # Number of blocks above the base terrain level that terrain can go do, similarly to
 # terrain-base-y-level this number is also a guide and some configs will produce terrain

@@ -9,7 +9,7 @@ color: $biomes/colors.yml:TEMPERATE_SEA_ARCHES
 vanilla: minecraft:beach
 
 vars: &variables
-  base: 80
+  base: $customization.yml:legacy-terrain-base-y-level
   erosionTop: 100
   erosionMiddle: 65
   erosionBottom: 55

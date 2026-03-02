@@ -11,7 +11,7 @@ colors:
   water: 4501493
   water-fog: 4501493
 vars: &id001
-  base: 80
+  base: $customization.yml:legacy-terrain-base-y-level
   height: 3
 terrain:
   sampler:

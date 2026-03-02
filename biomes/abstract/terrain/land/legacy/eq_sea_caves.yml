@@ -5,7 +5,7 @@ abstract: true
 # Tall plateau with areas near ocean eroded
 
 vars: &variables
-  base: 80
+  base: $customization.yml:legacy-terrain-base-y-level
   erosionTop: 100
   erosionMiddle: 65
   erosionBottom: 55

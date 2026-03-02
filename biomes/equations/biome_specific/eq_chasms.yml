@@ -3,11 +3,11 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 64
+  base: $customization.yml:terrain-base-y-level
 
   erosionStrength: 3
-  erosionTop: 64 + 70
-  erosionBottom: 80
+  erosionTopRise: 70
+  erosionBottomFloor: 15
 
 terrain:
   sampler:
@@ -16,22 +16,17 @@ terrain:
     variables: *variables
     expression: |
       -y + base
-      - if(y<erosionBottom,0,
+      - if(y<(erosionBottomFloor+base),0,
         lerp(y,
-          erosionTop, 0,
-          erosionBottom,
+          (erosionTopRise+base), 0,
+          (erosionBottomFloor+base),
             (min(|erosion(x/2, y, z/2)|/2, lerp(pillars(x,z), -0.97, 0, -0.89, 1)))
-            * (-y+erosionTop)
+            * (-y+(erosionTopRise+base))
             * erosionStrength
         )
       )
       + (simplex2(x/2, z/2)+1)/2 * 10 + maskSmooth(70, -0.15, -0.35, cracks(x, z))
     samplers:
-      erosion:
-        dimensions: 3
-        type: OPEN_SIMPLEX_2
-        frequency: 0.015
-        salt: 2
       pillars:
         dimensions: 2
         type: CELLULAR

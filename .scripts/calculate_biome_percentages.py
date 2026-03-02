@@ -82,6 +82,7 @@ ELEVATION_SAMPLER_NAME     = "elevation"
 ELEVATION_KEYWORDS = [
     "spotBaseElevation",
     "elevationDetailed",
+    "elevation"
 ]
 
 # =============================================================================

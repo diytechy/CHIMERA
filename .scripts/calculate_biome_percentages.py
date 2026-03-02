@@ -82,7 +82,8 @@ ELEVATION_SAMPLER_NAME     = "elevation"
 ELEVATION_KEYWORDS = [
     "spotBaseElevation",
     "elevationDetailed",
-    "elevation"
+    "elevation",
+    "oceanElevation"
 ]
 
 # =============================================================================
@@ -285,9 +286,17 @@ def _get_climate_sampler_name(stage: Dict) -> Optional[str]:
         return None
     if sampler.get("type") == "EXPRESSION":
         expr = str(sampler.get("expression", ""))
+        # Check for direct calls: temperature(x, z)
         for name in (TEMPERATURE_SAMPLER_NAME, PRECIPITATION_SAMPLER_NAME, ELEVATION_SAMPLER_NAME):
             if f"{name}(" in expr:
                 return name
+        # Check for wrapper functions: BiomeShapeLandmassTemperature, spotTemperature, etc.
+        if "Temperature" in expr:
+            return TEMPERATURE_SAMPLER_NAME
+        if "Precipitation" in expr:
+            return PRECIPITATION_SAMPLER_NAME
+        if "Elevation" in expr or "elevation" in expr:
+            return ELEVATION_SAMPLER_NAME
     return None
 
 
@@ -1139,12 +1148,6 @@ class StageProcessor:
             # (non-climate stages inherit T/P/E from the biome being replaced)
             if actual != from_biome:
                 _propagate_climate(new_dist.climate, from_biome, actual)
-
-        # Copy origin weights from source distribution for reference
-        for biome, weights in distribution.origin_weights.items():
-            for origin, weight in weights.items():
-                if weight > 0:
-                    new_dist.origin_weights[biome][origin] = weight
 
         # Process each biome in current distribution
         for from_biome, from_prob in list(distribution.probabilities.items()):

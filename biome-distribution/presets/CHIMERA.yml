@@ -57,9 +57,9 @@ biomes:
         - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
         
         ###Build out climate regions
-        - << biome-distribution/stages/climate/elevation.yml:stages
         - << biome-distribution/stages/climate/temperature.yml:stages
         - << biome-distribution/stages/climate/precipitation.yml:stages
+        - << biome-distribution/stages/climate/elevation.yml:stages
         #
         - << biome-distribution/stages/set_island_types.yml:stages
 #

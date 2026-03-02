@@ -328,6 +328,18 @@ The can continue with mesa region
 
 ########################################
 
+Script fixes:
+Distribution is definitely not working (% wise)
+Minecraft biome IDs are missing
+
+Biome fixes:
+Fix Mesas  - Need to have a non-spot biome definition for mesa?  Or just make sure they all follow the same elevation definition?
+Marshes / Plains
+  - Plains should follow the plain definition format - Maybe this should be based on flatness parameter.
+  - 
+  - Important - Elevation is used to build a filtered value, compared to sampler 3d.  However, since they are additive, elevation still lifts the sampler 3d.
+
+
 NOTE: Sea arches do come out from sea... so need to change this sampling.
 
 Should all base elevation come from core elevation function?  Need to update all biomes to have the same base elevation.  In theory should not need to blend.

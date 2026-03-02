@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * 
+      -y+base+BiomeShapeLandmassBaseOffset(x,z) + height * 
       if (clearingStrength(x,0,z) > clearingOffset, 
         lerp(clearingDepth(x,0,z), -0.8, flatClearings(x, 0, z), -0.45, surfaceOffset(x,z)), 
         surfaceOffset(x,z))

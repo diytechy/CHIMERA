@@ -16,7 +16,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
+      -y+base+BiomeShapeLandmassBaseOffset(x,z)
       + valleyDepth * (clamp(valleys(x,z), valleyCutoffStart, valleyCutoffStart + valleyCutoff) - valleyCutoffStart) * (1 / valleyCutoff)
       + lerp(valleys(x,z), valleyCutoffStart, 0.2, valleyCutoffStart + valleyCutoff, 1) * height * surfaceOffset(x,z)
       - abs(caves(x,y * 1.85,z) * caveStrength) * lerp(y, 65, 0, 70, 1)

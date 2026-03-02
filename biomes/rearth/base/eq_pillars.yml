@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y + base + 10 + noiseBase(x,z) * height, -2, 3)
+      clamp(-y+base+BiomeShapeLandmassBaseOffset(x,z) + 10 + noiseBase(x,z) * height, -2, 3)
       + clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:

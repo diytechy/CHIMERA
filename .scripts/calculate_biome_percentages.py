@@ -106,7 +106,7 @@ BORDER_SCALE_FACTOR  = 0.40   # sqrt(from_prob) multiplier
 # This should be the preset that runs the full climate pipeline
 # (temperature.yml → precipitation.yml → elevation.yml → set_biomes_in_climates.yml).
 # It may differ from the pack's active preset (pack.yml:biomes).
-CLIMATE_PRESET_NAME = "origen2"
+CLIMATE_PRESET_NAME = "CHIMERA"
 
 # =============================================================================
 # PACK-SPECIFIC IDENTIFIERS  (may break on other packs without updating these)

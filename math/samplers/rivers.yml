@@ -141,12 +141,15 @@ samplers:
     samplers:
       RiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
       RiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
+      continents: $math/samplers/continents.yml:samplers.continents
     expression: |
-      if((continental>-0.05  && y<MaxRiverElev),
+      if((continents(x,z)>-0.05 && y<(Base+HeightScale*terrain_base_biome_shift)),
         if((y>Base && y<(Base+HeightScale*terrain_base_biome_shift)),
-          -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0) //<-This will give positive slope near outside edge
-          if(y<Base && y>MinRiverSupp),
-            (1 - ((Base-y)^2/(MinRiverNorm)) -((RiverDist+1)^2/4)), //<- This will give a "bell" to the bottom of the river, assuming most things are not going to generate here, or it will look strange.
-          0),
-        0),
-      0)
+          -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
+          if((y<Base && y>MinRiverSupp),
+            (1 - ((Base-y)^2/(MinRiverNorm)) - ((RiverDist(x,z)+1)^2/4)),
+            0
+          )
+        ),
+        0
+      )

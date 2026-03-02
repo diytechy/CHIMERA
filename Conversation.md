@@ -339,13 +339,11 @@ Distribution is definitely not working (% wise)
 
 Need to fix spot elevation?  Or maybe this isn't really possible?  This would make it much easier to drop spot related comps from mesa.  How does this affect other spot definitions?  Does it affect them at all?  What about volcano regions?
 
-
-Biome fixes:
-
- IN THEORY THE BELOW IS NO LONGER NECESSARY; base has been made relative 
-Add to eq:
-EQ_ALPHA_MOUNTAINS <- May exceed elev, can likely ignore
-EQ_ERODED_MOUNTAINS (Goes to EQ_MOUNTIANS)
+Now for any equation expressions in the following list (each corresponds to a file, for example a single file "eq_alpha_mountains.yml" contains "id: EQ_ALPHA_MOUNTAINS" which relates to the entry below "EQ_ALPHA_MOUNTAINS").  If they contain the expression "-y + base", and base is set to (terrain-base-y-level or legacy-terrain-base-y-level), change the expression from "-y + base" to "-y+base+BiomeShapeLandmassBaseOffset(x,z)" similar to what has already been done in "eq_alpha_mountains.yml".
+ 
+Biomes:
+EQ_ALPHA_MOUNTAINS <- Already modified.
+EQ_ERODED_MOUNTAINS
 EQ_ERODED_VALLEY_MOUNTAINS
 EQ_GLACIAL_OVERHANGS
 EQ_HILLS
@@ -359,7 +357,6 @@ EQ_TERRACE_MOUNTAINS
 EQ_TILTED_PLATEAU
 
 Plane-like:
-
 EQ_PLAINS
 EQ_FLAT_BUMPY
 EQ_FLAT_ERODED
@@ -367,13 +364,11 @@ EQ_CRACKED_FLATS
 EQ_BUTTES
 
 Wetlands / lowlands / plain-like / coastal:
-
 EQ_BOG
 EQ_WARPED_WETLANDS
 EQ_SWAMP
 EQ_MANGROVE_SWAMP
 EQ_CELL_MARSH
-
 
 Need bump? =>
 

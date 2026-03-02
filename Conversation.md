@@ -329,12 +329,53 @@ The can continue with mesa region
 Minecraft biome IDs are missing
 ########################################
 
+Add archipelagos
+NOTE: Sea arches do come out from sea... so need to change this sampling.
+
+################################
+
 Script fixes:
 Distribution is definitely not working (% wise)
 
 Biome fixes:
 
-Add archipelagos
+Found 35 unique land equation files (EQ_*) extended by biomes without UsesElevation flag:
+
+EQ_ALPHA_MOUNTAINS
+EQ_BOG
+EQ_BUTTES
+EQ_BUTTES_ARCHIPELAGO
+EQ_CANYON
+EQ_CARVING_LAND
+EQ_CARVING_OCEAN
+EQ_CAVE_BIOME
+EQ_CELL_MARSH
+EQ_CHASMS
+EQ_CRACKED_FLATS
+EQ_DEEP_OCEAN
+EQ_ERODED_COAST
+EQ_ERODED_MOUNTAINS
+EQ_ERODED_VALLEY_MOUNTAINS
+EQ_FLAT_BUMPY
+EQ_FLAT_ERODED
+EQ_GLACIAL_OVERHANGS
+EQ_HILLS
+EQ_LOWLAND_HILLS
+EQ_MANGROVE_SWAMP
+EQ_MOUNTAIN_SPOTS
+EQ_OCEAN_DEEP
+EQ_OCEAN_SHALLOW
+EQ_PILLARS
+EQ_PLAINS
+EQ_RIVER
+EQ_SMALL_MOUNTAINS
+EQ_SNOWDRIFT_COASTS
+EQ_SWAMP
+EQ_TERRACED_MOUNTAINS
+EQ_TERRACED_MOUNTAINS_RIVER
+EQ_TERRACE_MOUNTAINS
+EQ_TILTED_PLATEAU
+EQ_WARPED_WETLANDS
 
 
 Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.
@@ -345,9 +386,7 @@ Marshes / Plains
   - Plains should follow the plain definition format - Maybe this should be based on flatness parameter.
   - 
   - Important - Elevation is used to build a filtered value, compared to sampler 3d.  However, since they are additive, elevation still lifts the sampler 3d.
-
-
-NOTE: Sea arches do come out from sea... so need to change this sampling.
+  - Marshes should also be permitted to be elevated, and contain a higher water edge value.
 
 Should all base elevation come from core elevation function?  Need to update all biomes to have the same base elevation.  In theory should not need to blend.
 

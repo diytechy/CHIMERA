@@ -51,3 +51,17 @@ stages:
     to:
       SELF: 6
       vast-forest: 1
+  #Create archipelago distributions on ocean.
+  #Only create when close to land.
+  - type: REPLACE
+    from: ocean
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeOceanContinents(x,z)>-0.2,
+          BiomeShapeOceanValue(x,z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 7
+      archipelago-zone: 1

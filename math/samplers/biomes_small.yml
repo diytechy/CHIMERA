@@ -143,3 +143,16 @@ samplers:
           return: NoiseLookup
           lookup: $math/samplers/precipitation.yml:samplers.precipitation
           salt-lookup: false
+
+  BiomeShapeOceanContinents:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: NoiseLookup
+          lookup: $math/samplers/continents.yml:samplers.continents
+          salt-lookup: false
+

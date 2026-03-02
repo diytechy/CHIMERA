@@ -33,12 +33,12 @@ stages:
         - tropical-island: *tropicalWarm
         - tropical-island: *tropicalHot
 
-  - type: REPLACE
+  - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
       expression: BiomeShapeOceanTemperature(x, z)
-    from: ocean
-    to:
+    default-from: ocean
+    default-to:
       - polar-ocean: *iceCap
       - polar-ocean: *tundra
       - boreal-ocean: *borealSnowy
@@ -51,6 +51,20 @@ stages:
       - hot-ocean: *tropicalCold
       - hot-ocean: *tropicalWarm
       - hot-ocean: *tropicalHot
+    to:
+      archipelago-zone:
+        - frozen-archipelago-zone: *iceCap
+        - frozen-archipelago-zone: *tundra
+        - frozen-archipelago-zone: *borealSnowy
+        - archipelago-zone: *borealCold
+        - archipelago-zone: *borealWarm
+        - archipelago-zone: *borealHot
+        - archipelago-zone: *temperateCold
+        - archipelago-zone: *temperateWarm
+        - archipelago-zone: *temperateHot
+        - archipelago-zone: *tropicalCold
+        - archipelago-zone: *tropicalWarm
+        - archipelago-zone: *tropicalHot
 
   - type: REPLACE
     sampler:

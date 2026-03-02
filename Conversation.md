@@ -326,14 +326,21 @@ Note wells also need to be fixed so they are broken apart by temperature region,
 
 The can continue with mesa region
 
+Minecraft biome IDs are missing
 ########################################
 
 Script fixes:
 Distribution is definitely not working (% wise)
-Minecraft biome IDs are missing
 
 Biome fixes:
-Fix Mesas  - Need to have a non-spot biome definition for mesa?  Or just make sure they all follow the same elevation definition?
+
+Add archipelagos
+
+
+Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.
+
+Fix Mesas  - Need to have a non-spot biome definition for mesa?  Or just make sure they all follow the same elevation definition?  Could just fix elevation composition here.
+
 Marshes / Plains
   - Plains should follow the plain definition format - Maybe this should be based on flatness parameter.
   - 

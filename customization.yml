@@ -77,6 +77,12 @@ terrain-base-biome-shift: 0.35
 # How much should biomes be shifted upward according to their position on the continent.
 # Only used for biomes that don't explicitly use an elevation-based sampler.
 
+min-river-support-height: 45
+#How far down should river support be projected
+
+min-river-support-height-norm: 400
+#How to normalize support below ocean level, nominally elliptical (ocean base - support height)^2
+
 terrain-height: 180
 # Number of blocks above the base terrain level that terrain can go do, similarly to
 # terrain-base-y-level this number is also a guide and some configs will produce terrain

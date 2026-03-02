@@ -1,33 +1,11 @@
 stages:
+  # =========================================================================
+  # Landmass biomes (cellular)
+  # =========================================================================
   - type: REPLACE_LIST
     sampler:
-      dimensions: 2
-      type: DOMAIN_WARP
-      amplitude: 20 
-      warp:
-        type: SIMPLEX
-        frequency: 0.02
-      sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 60 
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.003
-        sampler:
-          dimensions: 2
-          type: DOMAIN_WARP
-          amplitude: 300 
-          warp:
-            type: OPEN_SIMPLEX_2
-            frequency: 0.0001
-          sampler:
-            type: CELLULAR
-            return: CellValue
-            frequency: 1 /  (${customization.yml:biomeSpread.cellDistance} * ${customization.yml:variation-scale})
-            salt: 7777
-            jitter: 1.2
-            distance: Hybrid
+      type: EXPRESSION
+      expression: BiomeShapeLandmassValue(x, z)
     default-from: ice-cap-flat
     default-to:
       - ICE_SPIKES: 1
@@ -82,22 +60,7 @@ stages:
       polar-extinct-volcano:
         - COLD_EXTINCT_VOLCANO: 1
 
-      polar-shallow-ocean:
-        - FROZEN_OCEAN: 2
-        - ARCTIC_ARCHES: 1
-        - STONEGATE_SEAS: 1
-      polar-shallow-ocean-midlands:
-        - FROZEN_OCEAN: 1
-        - FROZEN_OCEAN_OVERHANGS: 1
-      polar-ocean:
-        - FROZEN_OCEAN: 1
-        - FROZEN_OCEAN_SLOPES: 1
-        - ICEBERG_OCEAN: 2
-        - ABYSSAL_ALLEYS: 1
-      polar-deep-ocean:
-        - FROZEN_DEEP_OCEAN: 1
-        - FROZEN_DEEP_DEPTHS: 1
-        - ABYSSAL_ALLEYS: 1
+
 
 
       boreal-hot-flat:
@@ -232,36 +195,7 @@ stages:
       boreal-coast-highlands:
         - ROCKY_SEA_CAVES: 1
 
-      boreal-mesa:
-        - BOREAL_MESA: 1
 
-      boreal-crater-lake:
-        - BOREAL_CRATER_LAKE: 1
-
-      boreal-sinkhole:
-        - BOREAL_SINKHOLE: 1
-      boreal-sinkhole-border:
-        - BOREAL_SINKHOLE_BORDER: 1
-      boreal-sinkhole-border-ocean:
-        - COLD_ISLAND_SHALLOWS: 1
-      boreal-extinct-volcano:
-        - BOREAL_EXTINCT_VOLCANO: 1
-
-      boreal-shallow-ocean:
-        - KELP_FOREST_GRAVEL: 2
-        - STONEGATE_SEAS: 1
-      boreal-shallow-ocean-midlands:
-        - COLD_OCEAN: 1
-        - COLD_OCEAN_OVERHANGS: 1
-      boreal-ocean:
-        - COLD_OCEAN: 1
-        - COLD_OCEAN_SLOPES: 1
-        - ICEBERG_OCEAN: 1
-        - ABYSSAL_ALLEYS: 1
-      boreal-deep-ocean:
-        - COLD_DEEP_OCEAN: 1
-        - COLD_DEEP_DEPTHS: 1
-        - ABYSSAL_ALLEYS: 1
 
       temperate-hot-dry-flat:
         - STEPPE: 1
@@ -387,37 +321,7 @@ stages:
       temperate-coast-highlands:
         - TEMPERATE_SEA_ARCHES: 1
 
-      temperate-mesa:
-        - TEMPERATE_MESA: 1
-        - MESA_MONUMENTS: 1
 
-      temperate-crater-lake:
-        - TEMPERATE_CRATER_LAKE: 1
-
-      temperate-sinkhole:
-        - TEMPERATE_SINKHOLE: 1
-      temperate-sinkhole-border:
-        - TEMPERATE_SINKHOLE_BORDER: 1
-      temperate-sinkhole-border-ocean:
-        - ISLAND_SHALLOWS: 1
-      temperate-extinct-volcano:
-        - TEMPERATE_EXTINCT_VOLCANO: 1
-
-      temperate-shallow-ocean:
-        - KELP_FOREST: 2
-        - SEAGRASS_MEADOW: 2
-        - STONEGATE_SEAS: 1
-      temperate-shallow-ocean-midlands:
-        - ROCKY_SHALLOW_OCEAN: 1
-        - OCEAN_OVERHANGS: 1
-      temperate-ocean:
-        - OCEAN: 1
-        - OCEAN_SLOPES: 1
-        - ABYSSAL_ALLEYS: 1
-      temperate-deep-ocean:
-        - DEEP_OCEAN: 1
-        - DEEP_DEPTHS: 1
-        - ABYSSAL_ALLEYS: 1
 
       # Red hot desert
       hot-desert-flat-red:
@@ -539,20 +443,7 @@ stages:
       cold-steppe-highlands:
         - COLD_STEPPE: 1
 
-      cold-desert-mesa:
-        - COLD_DESERT_MESA: 1
 
-      cold-desert-crater-lake:
-        - COLD_CRATER_LAKE: 1
-
-      cold-desert-sinkhole:
-        - COLD_DESERT_SINKHOLE: 1
-      cold-desert-sinkhole-border:
-        - COLD_DESERT_SINKHOLE_BORDER: 1
-      cold-sinkhole-border-ocean:
-        - COLD_ISLAND_SHALLOWS: 1
-      cold-desert-extinct-volcano:
-        - COLD_EXTINCT_VOLCANO: 1
 
       arid-coast-flat:
         - BEACH: 1
@@ -564,21 +455,7 @@ stages:
       arid-coast-highlands:
         - TERRACOTTA_SEA_CAVES: 1
 
-      desert-mesa:
-        - DESERT_MESA: 1
-        - MESA_MONUMENTS: 1
 
-      desert-crater-lake:
-        - DESERT_CRATER_LAKE: 1
-
-      desert-sinkhole:
-        - DESERT_SINKHOLE: 1
-      desert-sinkhole-border:
-        - DESERT_SINKHOLE_BORDER: 1
-      desert-sinkhole-border-ocean:
-        - TROPICAL_ISLAND_SHALLOWS: 1
-      desert-extinct-volcano:
-        - DESERT_EXTINCT_VOLCANO: 1
 
       tropical-rainforest-flat:
         - BAMBOO_JUNGLE: 1
@@ -647,21 +524,63 @@ stages:
       tropical-coast-highlands:
         - LUSH_SEA_CAVES: 1
 
-      tropical-mesa:
-        - TROPICAL_MESA: 1
 
-      tropical-crater-lake:
-        - TROPICAL_CRATER_LAKE: 1
 
-      tropical-sinkhole:
-        - TROPICAL_SINKHOLE: 1
-      tropical-sinkhole-border:
-        - TROPICAL_SINKHOLE_BORDER: 1
-      tropical-sinkhole-border-ocean:
-        - TROPICAL_ISLAND_SHALLOWS: 1
-      tropical-extinct-volcano:
-        - TROPICAL_EXTINCT_VOLCANO: 1
-
+  # =========================================================================
+  # Ocean biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeOceanValue(x, z)
+    default-from: polar-shallow-ocean
+    default-to:
+      - FROZEN_OCEAN: 2
+      - ARCTIC_ARCHES: 1
+      - STONEGATE_SEAS: 1
+    to:
+      polar-shallow-ocean-midlands:
+        - FROZEN_OCEAN: 1
+        - FROZEN_OCEAN_OVERHANGS: 1
+      polar-ocean:
+        - FROZEN_OCEAN: 1
+        - FROZEN_OCEAN_SLOPES: 1
+        - ICEBERG_OCEAN: 2
+        - ABYSSAL_ALLEYS: 1
+      polar-deep-ocean:
+        - FROZEN_DEEP_OCEAN: 1
+        - FROZEN_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+      boreal-shallow-ocean:
+        - KELP_FOREST_GRAVEL: 2
+        - STONEGATE_SEAS: 1
+      boreal-shallow-ocean-midlands:
+        - COLD_OCEAN: 1
+        - COLD_OCEAN_OVERHANGS: 1
+      boreal-ocean:
+        - COLD_OCEAN: 1
+        - COLD_OCEAN_SLOPES: 1
+        - ICEBERG_OCEAN: 1
+        - ABYSSAL_ALLEYS: 1
+      boreal-deep-ocean:
+        - COLD_DEEP_OCEAN: 1
+        - COLD_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+      temperate-shallow-ocean:
+        - KELP_FOREST: 2
+        - SEAGRASS_MEADOW: 2
+        - STONEGATE_SEAS: 1
+      temperate-shallow-ocean-midlands:
+        - ROCKY_SHALLOW_OCEAN: 1
+        - OCEAN_OVERHANGS: 1
+      temperate-ocean:
+        - OCEAN: 1
+        - OCEAN_SLOPES: 1
+        - ABYSSAL_ALLEYS: 1
+      temperate-deep-ocean:
+        - DEEP_OCEAN: 1
+        - DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
       hot-shallow-ocean:
         - SHALLOW_CORAL_OCEAN: 2
         - SEAGRASS_MEADOW: 2
@@ -683,7 +602,64 @@ stages:
         - TROPICAL_DEEP_OCEAN: 1
         - TROPICAL_DEEP_DEPTHS: 1
         - ABYSSAL_ALLEYS: 1
+      island-polar-shallow-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      island-boreal-shallow-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+      island-temperate-shallow-ocean:
+        - ISLAND_SHALLOWS: 1
+      island-hot-shallow-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      frozen-archipelago-zone:
+        - FROZEN_ARCHIPELAGO: 1
+        - ARCTIC_ARCHES: 1
+      archipelago-zone:
+        - ARCHIPELAGO: 1
+        - ROCKY_ARCHIPELAGO: 1
+        - SANDSTONE_ARCHIPELAGO: 1
+        - TEMPERATE_SEA_ARCHES: 1
 
+  # =========================================================================
+  # Mesa biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeMesaValue(x, z)
+    default-from: polar-mesa
+    default-to:
+      - COLD_DESERT_MESA: 1
+    to:
+      boreal-mesa:
+        - BOREAL_MESA: 1
+      temperate-mesa:
+        - TEMPERATE_MESA: 1
+        - MESA_MONUMENTS: 1
+      desert-mesa:
+        - DESERT_MESA: 1
+        - MESA_MONUMENTS: 1
+      cold-desert-mesa:
+        - COLD_DESERT_MESA: 1
+      tropical-mesa:
+        - TROPICAL_MESA: 1
+
+  # =========================================================================
+  # Largeland (vast forest) biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLargelandValue(x, z)
+    default-from: polar-vast-forest
+    default-to:
+      - POLAR_PALE_GARDEN: 1
+    to:
+      boreal-vast-forest:
+        - PALE_GARDEN: 1
+      temperate-vast-forest:
+        - PALE_GARDEN: 1
+      tropical-vast-forest:
+        - arid-pale-garden: 1
       polar-vast-forest-coast:
         - POLAR_PALE_GARDEN_COAST: 1
       boreal-vast-forest-coast:
@@ -695,32 +671,92 @@ stages:
         - ORANGE_ARID_PALE_GARDEN_COAST: 1
         - RED_ARID_PALE_GARDEN_COAST: 1
 
-
-      island-polar-shallow-ocean:
+  # =========================================================================
+  # Spot biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: polar-crater-lake
+    default-to:
+      - COLD_CRATER_LAKE: 1
+    to:
+      boreal-crater-lake:
+        - BOREAL_CRATER_LAKE: 1
+      temperate-crater-lake:
+        - TEMPERATE_CRATER_LAKE: 1
+      tropical-crater-lake:
+        - TROPICAL_CRATER_LAKE: 1
+      desert-crater-lake:
+        - DESERT_CRATER_LAKE: 1
+      cold-desert-crater-lake:
+        - COLD_CRATER_LAKE: 1
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
         - FROZEN_ISLAND_SHALLOWS: 1
-      island-boreal-shallow-ocean:
+      polar-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+      boreal-sinkhole:
+        - BOREAL_SINKHOLE: 1
+      boreal-sinkhole-border:
+        - BOREAL_SINKHOLE_BORDER: 1
+      boreal-sinkhole-border-ocean:
         - COLD_ISLAND_SHALLOWS: 1
-      island-temperate-shallow-ocean:
+      boreal-extinct-volcano:
+        - BOREAL_EXTINCT_VOLCANO: 1
+      temperate-sinkhole:
+        - TEMPERATE_SINKHOLE: 1
+      temperate-sinkhole-border:
+        - TEMPERATE_SINKHOLE_BORDER: 1
+      temperate-sinkhole-border-ocean:
         - ISLAND_SHALLOWS: 1
-      island-hot-shallow-ocean:
+      temperate-extinct-volcano:
+        - TEMPERATE_EXTINCT_VOLCANO: 1
+      hot-crater-lake:
+        - TROPICAL_CRATER_LAKE: 1
+      hot-sinkhole:
+        - TROPICAL_SINKHOLE: 1
+      hot-sinkhole-border:
+        - TROPICAL_SINKHOLE_BORDER: 1
+      hot-sinkhole-border-ocean:
         - TROPICAL_ISLAND_SHALLOWS: 1
-
+      hot-extinct-volcano:
+        - TROPICAL_EXTINCT_VOLCANO: 1
+      tropical-sinkhole:
+        - TROPICAL_SINKHOLE: 1
+      tropical-sinkhole-border:
+        - TROPICAL_SINKHOLE_BORDER: 1
+      tropical-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      tropical-extinct-volcano:
+        - TROPICAL_EXTINCT_VOLCANO: 1
+      desert-sinkhole:
+        - DESERT_SINKHOLE: 1
+      desert-sinkhole-border:
+        - DESERT_SINKHOLE_BORDER: 1
+      desert-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      desert-extinct-volcano:
+        - DESERT_EXTINCT_VOLCANO: 1
+      cold-desert-sinkhole:
+        - COLD_DESERT_SINKHOLE: 1
+      cold-desert-sinkhole-border:
+        - COLD_DESERT_SINKHOLE_BORDER: 1
+      cold-sinkhole-border-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+      cold-desert-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
       live-volcano:
         - ERUPTED_VOLCANO: 1
-
       volcano-coast:
         - BLACK_SAND_BEACH: 1
-        
-        
-      polar-vast-forest:
-        - POLAR_PALE_GARDEN: 1
-      boreal-vast-forest:
-        - PALE_GARDEN: 1
-      temperate-vast-forest:
-        - PALE_GARDEN: 1
-      tropical-vast-forest:
-        - arid-pale-garden: 1
-        
+
+  # =========================================================================
+  # Constant mappings
+  # =========================================================================
   - type: REPLACE_LIST
     sampler:
       type: CONSTANT

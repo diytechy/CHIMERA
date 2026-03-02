@@ -1129,15 +1129,9 @@ class StageProcessor:
             out_cat = DistributionCategory.RIVER if (is_river and actual != from_biome) \
                       else distribution.get_category(from_biome)
             new_dist.add(actual, prob, out_cat)
-            # Set origin based on biome name if it matches known source biomes
-            biome_lower = actual.lower()
-            if biome_lower in BiomeDistribution.OCEAN_SOURCES:
-                new_dist.set_origin(actual, "Ocean", prob)
-            elif biome_lower in BiomeDistribution.LAND_SOURCES:
-                new_dist.set_origin(actual, "Land", prob)
-            else:
-                # Only propagate origin if not a known source biome
-                new_dist.add_origin_from(actual, from_biome, prob)
+            # Propagate origin
+            if actual != from_biome:
+                new_dist.add_origin_from(actual, from_biome)
             # Apply pipeline-derived climate value if this is a named climate stage
             if climate_name is not None and band_value is not None:
                 _apply_climate_value(new_dist.climate, climate_name, actual, band_value)
@@ -1201,7 +1195,7 @@ class StageProcessor:
                 # Pass through (never pass through literal "SELF")
                 if from_biome != 'SELF':
                     new_dist.add(from_biome, from_prob, distribution.get_category(from_biome))
-                    new_dist.add_origin_from(from_biome, from_biome, from_prob)
+                    new_dist.add_origin_from(from_biome, from_biome)
 
         return new_dist
 
@@ -1246,18 +1240,11 @@ class StageProcessor:
             def add_with_origin(to_biome: str, prob: float):
                 if to_biome == 'SELF':
                     new_dist.add(matched_biome, prob)
-                    new_dist.add_origin_from(matched_biome, matched_biome, prob)
+                    if matched_biome in distribution.origins:
+                        new_dist.origins[matched_biome] = distribution.origins[matched_biome]
                 else:
                     new_dist.add(to_biome, prob)
-                    # Set origin based on biome name if it matches known source biomes
-                    biome_lower = to_biome.lower()
-                    if biome_lower in BiomeDistribution.OCEAN_SOURCES:
-                        new_dist.set_origin(to_biome, "Ocean", prob)
-                    elif biome_lower in BiomeDistribution.LAND_SOURCES:
-                        new_dist.set_origin(to_biome, "Land", prob)
-                    else:
-                        # Only propagate origin if not a known source biome
-                        new_dist.add_origin_from(to_biome, matched_biome, prob)
+                    new_dist.add_origin_from(to_biome, matched_biome)
 
             # Distribute the probability according to 'to' weights using CDF-based probabilities
             sampler_type = _leaf_sampler_type(stage.get('sampler', {}))
@@ -1268,7 +1255,7 @@ class StageProcessor:
             if isinstance(to_spec, str):
                 actual = matched_biome if to_spec == 'SELF' else to_spec
                 new_dist.add(actual, from_prob, out_cat)
-                new_dist.add_origin_from(actual, matched_biome, from_prob)
+                new_dist.add_origin_from(actual, matched_biome)
                 if actual != matched_biome:
                     _propagate_climate(new_dist.climate, matched_biome, actual)
             elif isinstance(to_spec, list):
@@ -2001,9 +1988,6 @@ class PresetAnalyzer:
                         dist.set_origin(biome, "Ocean")
                     elif biome_lower in BiomeDistribution.LAND_SOURCES:
                         dist.set_origin(biome, "Land")
-                    else:
-                        # Default to Land for unknown sources
-                        dist.set_origin(biome, "Land", prob)
 
         except Exception as e:
             print(f"Warning: Could not parse source biomes: {e}", file=sys.stderr)

@@ -142,6 +142,31 @@ samplers:
       scale: $customization.yml:continental-scale
     samplers:
       continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
+  continentalScaled:
+    dimensions: 2
+    type: CACHE
+    size: 1
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continental_sampler(x / scale / globalScale, z / scale / globalScale)
+      samplers:
+        continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
+  continentalOffset:
+    dimensions: 2
+    type: CACHE
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(continentalScaled(x,z)>0,
+          min(continentalScaled(x,z),0.5)*land_scale*0.75,
+          max(continentalScaled(x,z),-0.5)*ocean_scale*0.75)
+      samplers:
+        continentalScaled: $math/samplers/continents.yml:samplers.continentalScaled
+      variables:
+        land_scale: $customization.yml:terrain-height
+        ocean_scale: $customization.yml:terrain-ocean-depth
   continents:
     dimensions: 2
     type: CACHE

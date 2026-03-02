@@ -5,7 +5,7 @@ abstract: true
 # Flat plains spotted with large butte spires, reminiscent of Monument Valley.
 
 vars: &variables
-  base: 64
+  base: $customization.yml:terrain-base-y-level
   
   groundHeight: 10
   groundFrequency: 0.8

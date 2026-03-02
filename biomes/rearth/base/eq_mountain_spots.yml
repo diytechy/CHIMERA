@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 100
+  base: $customization.yml:legacy-terrain-base-y-level
   height: 55
   clearingOffset: 0.7 # increasing this will result in more clearings / flat spots
 

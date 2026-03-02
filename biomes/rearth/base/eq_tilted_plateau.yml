@@ -3,8 +3,8 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 71
-  height: 10
+  base: $customization.yml:terrain-base-y-level
+  height: 16
   cellDist: ${customization.yml:biomeSpread.cellDistance}
 
 terrain:

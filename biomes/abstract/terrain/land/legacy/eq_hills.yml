@@ -5,7 +5,7 @@ abstract: true
 # Basic hilly terrain.
 
 vars: &variables
-  base: 70
+  base: $customization.yml:terrain-base-y-level
   height: 35
 
 terrain:
@@ -13,7 +13,7 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y + base
+    expression: -y + base + 5
   sampler-2d:
     dimensions: 2
     type: EXPRESSION

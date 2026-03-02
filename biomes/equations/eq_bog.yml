@@ -4,14 +4,14 @@ abstract: true
 
 
 vars: &variables
-  base: 64
+  base: $customization.yml:terrain-ocean-base-y-level
   
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: ((-((y / base)^2)) + 1) + ((simplex2(x*2, z*2)/4))
+    expression: ((-((y / (base-1))^2)) + 1) + ((simplex2(x*2, z*2)/4))
 
   sampler-2d:
     dimensions: 2

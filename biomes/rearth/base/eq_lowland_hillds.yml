@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 63
+  base: $customization.yml:terrain-base-y-level
   height: 12
   terraceCount: 8
   terraceHeight: 40
@@ -15,7 +15,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + max(height * surfaceOffset(x,z)
+      -y + base + max(height * surfaceOffset(x,z) - 2
       + terrace(max(plateous(x,z) - 0.5, 0) * terraceCount, 999) / terraceCount * terraceHeight,
       paths(x,z) * pathHeight - 1)
     functions:

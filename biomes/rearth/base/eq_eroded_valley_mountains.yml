@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 73
+  base: $customization.yml:legacy-terrain-base-y-level
   height: 25
   valleyDepth: 50
   valleyCutoff: 0.15

@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 75
+  base: $customization.yml:terrain-base-y-level
   height: 13
   pillarHeight: 50
 
@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y + base + noiseBase(x,z) * height, -2, 3)
+      clamp(-y + base + 10 + noiseBase(x,z) * height, -2, 3)
       + clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:

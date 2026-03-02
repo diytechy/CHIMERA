@@ -234,12 +234,115 @@ The "resolved_samplers.yml" already breaks down the individual samplers, and may
 
 Note "SMOOTH" and "FRACTAL_EXPAND" samplers I assume will not affect distribution percentages.
 
-Note some distribution evaluations may be very difficult given resolution of s## Current Task: Update EQ_ files to use BiomeShapeLandmassBaseOffset
+Note some distribution evaluations may be very difficult given resolution of some of the sampler expressions.  The 
+"BORDER" and "BORDER_LIST" may require special treatment, see if you can find how those distribute a distribution, but for those it may be necessary to track distribution in different categories.  For instance, the river sampler (using DENDRY noise) is a highly complex filter without a clear distribution.  It may be necessary to indicate for certain categories what their distribution is within the category.
 
-For equation files in the following list, if they contain "-y + base" where base is set to (terrain-base-y-level or legacy-terrain-base-y-level), change to "-y+base+BiomeShapeLandmassBaseOffset(x,z)" like in eq_alpha_mountains.yml.
+I would recommend a category for distribution branch as "SURFACE", "RIVER", "COAST", "SUBSURFACE", which will need special rules / magic values to identify when these distribution stages are occurring.
 
-**Mountains:**
-EQ_ALPHA_MOUNTAINS <- Already modified
+The initial spot placer in ExploreTest.yml may also be difficult to assess as it is dependent on river sampling.  For this it may be simpler to set that initial distribution according to a special rule (again - defined at the top of the py file for clarity / uniqueness) where the probability of a spot above land is the area of the average spot radius divided by the area of the entire cell (based on frequency config) multiplied by some river survival rate of 70%
+
+Radius based distribution based on cellular noise may also need special consideration.  As the distribution of a value would also be based on the cellular frequency (cell to cell frequency.)
+
+#####################################################
+
+use single cellular mixture for both rifts and wells.
+
+Use cell value at temperature to break cells into cold / warm cell regions.
+
+Use white noise to break each of those into cold rifts / cold wells / return to land.
+
+
+
+- Update wells to use simpler sampler methods instead of concurrent replacements
+- Update rifts to use simpler sampler methods instead of concurrent replacements
+- Update optimization py script to also cache samplers whose samplers are used in biome dist, also ignore DENDRY type samplers and their users since those are inherently cached.'
+
+###################################################################3
+
+Set islands, mesas, vast forests, deserts.
+
+IMPORTANT - How does desert probability get placed vs forest in terms of precipitation and temperature?  Need to crosscheck climate distribution fields first.  Maybe just select placement first as a large region, and then populate later... but needs to be in the correct region first so that won't work, need to review climate dist first.
+
+Order:
+1. Islands
+2. Mesa
+3. Deserts and Vast Forests
+
+#########################################
+
+Now build out formal climate using biome cells?
+
+New issue: How to handle coasts?
+
+- Could split from biomes - more consistent, but also less variation.
+
+- Probably still the right direction.
+
+- How to split between ocean-like "coast" properties and non-ocean?
+
+- How to prevent artifacts due to FRACTAL_EXPAND, is that even necessary? Maybe that should be done before replacing coastlines with specific biomes?
+
+
+- Could set island types according to continental landmass being above the island threshold...
+
+
+
+########################################3
+
+Sea arches sometimes stop abruptly, can they just be placed using cellular approach to ensure a full "arch"/
+
+It makes sense to fill coasts before rivers since that will be a larger effective change, and coasts don't really need to have a transition to rivers anyways.
+
+
+F. Fix biome table calculator, use distribution at stages to actually assert distribution per stage.  Can utilize resolved samplers?
+
+########################################
+
+Really - Need to see what sea archs look like.  If they are immersed in water, they should get placed in ocean.  If not, they should get placed as normal coast, but I'm quite sure they are water in nature.
+
+
+Ocean is Mesa
+
+Cells for spot regions (already present)
+
+
+Cells for Mesa region biomes
+Cells for large landmass biomes
+Cells for Mainland / island biomes
+Cells for Highlight biomes
+Cells for Ocean biomes
+
+
+Merge wells to become a spot type?  Or merge them to become something that comes with rifts.
+Make sure rifts do have appropriate boundary from spots.
+
+Both wells and rifts should evaluate for distance to river and distance to spot within their cell zone centers before placing, this is on top of replacement filtering.
+
+Then domain warp could be applied to rifts again?
+
+Well should have warp applied.
+
+Note wells also need to be fixed so they are broken apart by temperature region, likely an issue in the distribution using duplicate labels in the YAML.
+
+The can continue with mesa region
+
+Minecraft biome IDs are missing
+########################################
+
+Add archipelagos
+NOTE: Sea arches do come out from sea... so need to change this sampling.
+
+################################
+
+Script fixes:
+Distribution is definitely not working (% wise)
+
+Need to fix spot elevation?  Or maybe this isn't really possible?  This would make it much easier to drop spot related comps from mesa.  How does this affect other spot definitions?  Does it affect them at all?  What about volcano regions?
+
+Now for any equation expressions in the following list (each corresponds to a file, for example a single file "eq_alpha_mountains.yml" contains "id: EQ_ALPHA_MOUNTAINS" which relates to the entry below "EQ_ALPHA_MOUNTAINS").  If they contain the terrain sampler expression "-y + base", and base is set to (terrain-base-y-level or legacy-terrain-base-y-level), change the expression from "-y + base" to "-y+base+BiomeShapeLandmassBaseOffset(x,z)" similar to what has already been done in "eq_alpha_mountains.yml".
+ 
+Biomes:
+EQ_ALPHA_MOUNTAINS <- Already modified.
 EQ_ERODED_MOUNTAINS
 EQ_ERODED_VALLEY_MOUNTAINS
 EQ_GLACIAL_OVERHANGS
@@ -253,31 +356,99 @@ EQ_TERRACED_MOUNTAINS
 EQ_TERRACE_MOUNTAINS
 EQ_TILTED_PLATEAU
 
-**Plains:**
+Plane-like:
 EQ_PLAINS
 EQ_FLAT_BUMPY
 EQ_FLAT_ERODED
 EQ_CRACKED_FLATS
 EQ_BUTTES
 
-**Wetlands/Lowlands:**
+Wetlands / lowlands / plain-like / coastal:
 EQ_BOG
 EQ_WARPED_WETLANDS
 EQ_SWAMP
 EQ_MANGROVE_SWAMP
 EQ_CELL_MARSH
 
-**No change required:**
-EQ_BUTTES_ARCHIPELAGO (water), EQ_CANYON, EQ_CARVING_OCEAN, EQ_OCEAN_DEEP, EQ_OCEAN_SHALLOW, EQ_CARVING_LAND (complex), EQ_CHASMS (rare), EQ_TERRACED_MOUNTAINS_RIVER, EQ_RIVER
+Need bump? =>
 
-## Notes
-- For flat biomes not influenced by elevation, use river elevation for continuity
-- Ocean sampler: base + elevation(x, z) * 3
-- Distribution categories: SURFACE, RIVER, COAST, SUBSURFACE
 
-## TODO
-- Fix spot elevation
-- Verify mesa placement
-- Add minecraft biome labels
-- Update river replacement tags
-- Increase ore spawn rates
+
+
+No change required:
+EQ_BUTTES_ARCHIPELAGO (In water)
+EQ_CANYON (Canyon)
+EQ_CARVING_OCEAN (Ocean)
+EQ_OCEAN_DEEP (Ocean)
+EQ_OCEAN_SHALLOW (Ocean)
+
+EQ_CARVING_LAND (Highly complext, would be very hard to mitigate?)
+EQ_CHASMS (Purposeful chasm, should be rare?)
+
+RIVER:
+EQ_TERRACED_MOUNTAINS_RIVER
+EQ_RIVER
+
+
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level varies ±3 blocks with regional terrain elevation so that the river
+  # surface follows the landscape gradient rather than sitting at a fixed Y.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: $meta.yml:ocean-level
+    expression: base + elevation(x, z) * 3
+
+For flat biomes / those that aren't influenced by elevation, could just herp in river elevation for continuity.  By far the easiest option.
+
+
+
+Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.
+
+Fix Mesas  - Need to have a non-spot biome definition for mesa?  Or just make sure they all follow the same elevation definition?  Could just fix elevation composition here.
+
+Marshes / Plains
+  - Plains should follow the plain definition format - Maybe this should be based on flatness parameter.
+  - 
+  - Important - Elevation is used to build a filtered value, compared to sampler 3d.  However, since they are additive, elevation still lifts the sampler 3d.
+  - Marshes should also be permitted to be elevated, and contain a higher water edge value.
+
+Should all base elevation come from core elevation function?  Need to update all biomes to have the same base elevation.  In theory should not need to blend.
+
+  - Update all land biomes to have a relevant river replacement tag.
+  - Update all land biomes to have a base elevation from... real life elevation?
+  - Update all water biomes to have base elevation from lowest maybe but this doesn't matter as much.
+
+RIVERS:
+ADD "ocean.sampler" definition to biome to propagate water height down-push.
+ADD "decoration" to perform soul-sand placement at elevation changes?
+How to push sampling up for palette as elevation changes?  To ensure expected basin fill.
+
+
+1. Change sea arches to be cellular only near coast but replace from ocean.
+2. Update for river replacement to include coast-line replacement first.
+
+Note: Still need to investigate.... something.
+
+B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
+
+C. Need to make sure rivers actually flow up using soul-sand?
+
+D. Need to add all original minecraft biome labels?
+
+E. Verify mesa placement for regions, and consider plains region designation.
+
+
+G. Increase ore spawn rate via standard ore distributions.
+
+H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
+
+I. 
+
+Then island region
+
+Then biome dispursement
+
+Then

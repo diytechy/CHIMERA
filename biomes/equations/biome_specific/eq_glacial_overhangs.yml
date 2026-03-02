@@ -4,7 +4,7 @@ abstract: true
 
 vars: &variables
   
-  base: 60 # Base y level
+  base: $customization.yml:terrain-ocean-base-y-level # Base y level
   groundHeight: 20 # Block height of ground terrain
   
   duneHeight: 15 # Block height of dunes

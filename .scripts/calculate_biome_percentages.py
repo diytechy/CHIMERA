@@ -957,8 +957,8 @@ class BiomeDistribution:
         self.probabilities: Dict[str, float] = {}
         self.categories: Dict[str, DistributionCategory] = {}
         self.climate: ClimateTracker = ClimateTracker()
-        # Track origin weights: biome_id -> {"Land": weight, "Ocean": weight}
-        self.origin_weights: Dict[str, Dict[str, float]] = defaultdict(lambda: {"Land": 0.0, "Ocean": 0.0})
+        # Track origin: biome_id -> "Land" | "Ocean" | "Mixed"
+        self.origins: Dict[str, str] = {}
 
     def set(self, biome: str, prob: float,
             category: DistributionCategory = DistributionCategory.SURFACE):
@@ -987,29 +987,29 @@ class BiomeDistribution:
         """Get the distribution category for a biome."""
         return self.categories.get(biome, DistributionCategory.SURFACE)
 
-    def set_origin(self, biome: str, origin: str, weight: float = 1.0):
-        """Set origin weight for a biome"""
+    def set_origin(self, biome: str, origin: str):
+        """Set origin for a biome"""
         if origin in ("Land", "Ocean"):
-            self.origin_weights[biome][origin] += weight
+            # Check if biome already has a different origin
+            if biome in self.origins and self.origins[biome] != origin:
+                self.origins[biome] = "Mixed"
+            else:
+                self.origins[biome] = origin
 
-    def add_origin_from(self, to_biome: str, from_biome: str, weight: float):
-        """Propagate origin from one biome to another with given weight"""
-        if from_biome in self.origin_weights:
-            for origin, orig_weight in self.origin_weights[from_biome].items():
-                if orig_weight > 0:
-                    # Propagate proportionally
-                    self.origin_weights[to_biome][origin] += weight * orig_weight
+    def add_origin_from(self, to_biome: str, from_biome: str):
+        """Propagate origin from one biome to another"""
+        # Check if from_biome is a known source biome
+        from_lower = from_biome.lower()
+        if from_lower in self.OCEAN_SOURCES:
+            self.set_origin(to_biome, "Ocean")
+        elif from_lower in self.LAND_SOURCES:
+            self.set_origin(to_biome, "Land")
+        elif from_biome in self.origins:
+            self.set_origin(to_biome, self.origins[from_biome])
 
     def get_origin(self, biome: str) -> Optional[str]:
-        """Get the majority origin for a biome based on accumulated weights"""
-        if biome not in self.origin_weights:
-            return None
-        weights = self.origin_weights[biome]
-        land_weight = weights.get("Land", 0.0)
-        ocean_weight = weights.get("Ocean", 0.0)
-        if land_weight == 0 and ocean_weight == 0:
-            return None
-        return "Land" if land_weight >= ocean_weight else "Ocean"
+        """Get the origin for a biome"""
+        return self.origins.get(biome)
 
     def normalize(self):
         """Normalize probabilities to sum to 1.0"""
@@ -1024,9 +1024,7 @@ class BiomeDistribution:
         new_dist.probabilities = self.probabilities.copy()
         new_dist.categories = self.categories.copy()
         new_dist.climate = self.climate.copy()
-        # Deep copy origin weights
-        for biome, weights in self.origin_weights.items():
-            new_dist.origin_weights[biome] = weights.copy()
+        new_dist.origins = self.origins.copy()
         return new_dist
 
     def get_top_biomes(self, n: int = 20) -> List[Tuple[str, float]]:
@@ -1081,9 +1079,9 @@ class StageProcessor:
         A biome matches if its ID equals the identifier OR it has the identifier as a tag.
         """
         new_dist = BiomeDistribution()
-        # Carry forward climate values accumulated by previous stages so that
-        # pass-through biomes and biomes not re-assigned by this stage retain them.
+        # Carry forward climate values and origins
         new_dist.climate = distribution.climate.copy()
+        new_dist.origins = distribution.origins.copy()
 
         # Get default-from and default-to
         default_from = stage.get('default-from')
@@ -1283,7 +1281,7 @@ class StageProcessor:
                 for tb, p in biome_dist.items():
                     actual = matched_biome if tb == 'SELF' else tb
                     new_dist.add(actual, from_prob * p, out_cat)
-                    new_dist.add_origin_from(actual, matched_biome, from_prob * p)
+                    new_dist.add_origin_from(actual, matched_biome)
                     if actual != matched_biome:
                         _propagate_climate(new_dist.climate, matched_biome, actual)
             elif isinstance(to_spec, dict):
@@ -1298,7 +1296,7 @@ class StageProcessor:
                 for tb, p in biome_dist_d.items():
                     actual = matched_biome if tb == 'SELF' else tb
                     new_dist.add(actual, from_prob * p, out_cat)
-                    new_dist.add_origin_from(actual, matched_biome, from_prob * p)
+                    new_dist.add_origin_from(actual, matched_biome)
                     if actual != matched_biome:
                         _propagate_climate(new_dist.climate, matched_biome, actual)
 
@@ -2000,9 +1998,9 @@ class PresetAnalyzer:
                     # Set origin based on source biome type
                     biome_lower = biome.lower()
                     if biome_lower in BiomeDistribution.OCEAN_SOURCES:
-                        dist.set_origin(biome, "Ocean", prob)
+                        dist.set_origin(biome, "Ocean")
                     elif biome_lower in BiomeDistribution.LAND_SOURCES:
-                        dist.set_origin(biome, "Land", prob)
+                        dist.set_origin(biome, "Land")
                     else:
                         # Default to Land for unknown sources
                         dist.set_origin(biome, "Land", prob)
@@ -2271,8 +2269,9 @@ def generate_csv_output(
         # Using default_preset (ExploreTest) would miss RIVER biomes because ExploreTest
         # has different/incomplete stages (climate stages commented out, etc.)
         cat_preset = climate_preset if climate_preset in results else default_preset
-        cat = results[cat_preset].get_category(biome_id)
-        metadata.category = cat.value
+        if cat_preset in results:
+            cat = results[cat_preset].get_category(biome_id)
+            metadata.category = cat.value
 
         # Override category for extrusion-only biomes
         if biome_id in extrusion_only_biomes:

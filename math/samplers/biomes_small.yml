@@ -76,6 +76,27 @@ samplers:
           lookup: $math/samplers/precipitation.yml:samplers.precipitation
           salt-lookup: false
 
+  BiomeShapeLandmassContinents:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup: $math/samplers/continents.yml:samplers.continents
+          salt-lookup: false
+          
+  BiomeShapeLandmassBaseOffset:
+    type: EXPRESSION
+    dimensions: 2
+    expression: max(BiomeShapeLandmassContinents(x,z) * 0.5* land_scale, 0)
+    samplers:
+      BiomeShapeLandmassContinents: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassContinents
+    variables:
+      land_scale: $customization.yml:terrain-height
+
   BiomeShapeHighlandValue:
     <<: *outerWarpSmall
     sampler:

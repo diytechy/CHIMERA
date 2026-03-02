@@ -1131,7 +1131,15 @@ class StageProcessor:
             out_cat = DistributionCategory.RIVER if (is_river and actual != from_biome) \
                       else distribution.get_category(from_biome)
             new_dist.add(actual, prob, out_cat)
-            new_dist.add_origin_from(actual, from_biome, prob)
+            # Set origin based on biome name if it matches known source biomes
+            biome_lower = actual.lower()
+            if biome_lower in BiomeDistribution.OCEAN_SOURCES:
+                new_dist.set_origin(actual, "Ocean", prob)
+            elif biome_lower in BiomeDistribution.LAND_SOURCES:
+                new_dist.set_origin(actual, "Land", prob)
+            else:
+                # Only propagate origin if not a known source biome
+                new_dist.add_origin_from(actual, from_biome, prob)
             # Apply pipeline-derived climate value if this is a named climate stage
             if climate_name is not None and band_value is not None:
                 _apply_climate_value(new_dist.climate, climate_name, actual, band_value)
@@ -1243,7 +1251,15 @@ class StageProcessor:
                     new_dist.add_origin_from(matched_biome, matched_biome, prob)
                 else:
                     new_dist.add(to_biome, prob)
-                    new_dist.add_origin_from(to_biome, matched_biome, prob)
+                    # Set origin based on biome name if it matches known source biomes
+                    biome_lower = to_biome.lower()
+                    if biome_lower in BiomeDistribution.OCEAN_SOURCES:
+                        new_dist.set_origin(to_biome, "Ocean", prob)
+                    elif biome_lower in BiomeDistribution.LAND_SOURCES:
+                        new_dist.set_origin(to_biome, "Land", prob)
+                    else:
+                        # Only propagate origin if not a known source biome
+                        new_dist.add_origin_from(to_biome, matched_biome, prob)
 
             # Distribute the probability according to 'to' weights using CDF-based probabilities
             sampler_type = _leaf_sampler_type(stage.get('sampler', {}))
@@ -1820,6 +1836,41 @@ class BiomeReader:
                 metadata.color = parent_meta.color
 
     @classmethod
+    def _check_elevation_usage_in_config(cls, config: Any) -> bool:
+        """Recursively check if config contains elevation keywords"""
+        if isinstance(config, str):
+            for keyword in ELEVATION_KEYWORDS:
+                if keyword in config:
+                    return True
+        elif isinstance(config, dict):
+            # Check expression field
+            expression = config.get('expression', '')
+            if isinstance(expression, str):
+                for keyword in ELEVATION_KEYWORDS:
+                    if keyword in expression:
+                        return True
+            # Recursively check nested samplers
+            for key in ['sampler', 'samplers', 'warp', 'lookup']:
+                nested = config.get(key)
+                if nested:
+                    if isinstance(nested, dict):
+                        if cls._check_elevation_usage_in_config(nested):
+                            return True
+                        # Check named samplers dict
+                        for v in nested.values():
+                            if cls._check_elevation_usage_in_config(v):
+                                return True
+                    elif isinstance(nested, list):
+                        for item in nested:
+                            if cls._check_elevation_usage_in_config(item):
+                                return True
+        elif isinstance(config, list):
+            for item in config:
+                if cls._check_elevation_usage_in_config(item):
+                    return True
+        return False
+
+    @classmethod
     def _check_elevation_usage(cls, biome_id: str) -> bool:
         """Check if biome's terrain.sampler-2d uses elevation keywords"""
         biome_file = cls.find_biome_file(biome_id)
@@ -1832,12 +1883,8 @@ class BiomeReader:
                 terrain = data.get('terrain', {})
                 sampler_2d = terrain.get('sampler-2d', {})
                 
-                # Check expression field
-                expression = sampler_2d.get('expression', '')
-                if isinstance(expression, str):
-                    for keyword in ELEVATION_KEYWORDS:
-                        if keyword in expression:
-                            return True
+                if cls._check_elevation_usage_in_config(sampler_2d):
+                    return True
                 
                 # If extends, check parent
                 extends = data.get('extends')

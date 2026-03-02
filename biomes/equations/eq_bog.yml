@@ -15,6 +15,7 @@ ocean:
     type: EXPRESSION
     variables:
       offset: 3
+      level: $meta.yml:ocean-level
     expression: min(BiomeShapeLandmassBaseOffset(x, z) - offset,level)
     
 terrain:

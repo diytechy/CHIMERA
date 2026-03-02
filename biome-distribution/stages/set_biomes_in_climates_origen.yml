@@ -613,6 +613,7 @@ stages:
       frozen-archipelago-zone:
         - FROZEN_ARCHIPELAGO: 1
         - ARCTIC_ARCHES: 1
+        - GLACIAL_OVERHANGS: 1
       archipelago-zone:
         - ARCHIPELAGO: 1
         - ROCKY_ARCHIPELAGO: 1

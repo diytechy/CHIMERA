@@ -372,7 +372,18 @@ EQ_CELL_MARSH
 
 Need bump? =>
 
-
+Now for all wetland like biomes below, add an "ocean" definition with a 
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level varies ±3 blocks with regional terrain elevation so that the river
+  # surface follows the landscape gradient rather than sitting at a fixed Y.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      offset: 3
+      ocean_base: $customization:terrain-ocean-base-y-level
+    expression: min(BiomeShapeLandmassBaseOffset(x, z) - offset,ocean_base)
 
 
 No change required:

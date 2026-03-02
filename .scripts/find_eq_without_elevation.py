@@ -5,12 +5,16 @@ from pathlib import Path
 biome_table = Path("C:/Projects/ORIGEN2/.artifacts/BiomeTable.csv")
 biomes_dir = Path("C:/Projects/ORIGEN2/biomes")
 
-# Read biomes without UsesElevation
+# Read biomes without UsesElevation, excluding ocean and subsurface
 biomes_without_elevation = set()
 with open(biome_table, 'r', encoding='utf-8') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        if row.get('UsesElevation', '').strip().lower() != 'true':
+        origin = row.get('Origin', '').strip()
+        source = row.get('Source', '').strip()
+        if row.get('UsesElevation', '').strip().lower() != 'true' and \
+            origin not in ['Ocean', 'Subsurface'] and\
+            source not in ['extrusion', 'Subsurface']:
             biomes_without_elevation.add(row['BiomeID'])
 
 # Find EQ_ files extended by these biomes

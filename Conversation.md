@@ -337,6 +337,9 @@ NOTE: Sea arches do come out from sea... so need to change this sampling.
 Script fixes:
 Distribution is definitely not working (% wise)
 
+Need to fix spot elevation?  Or maybe this isn't really possible?  This would make it much easier to drop spot related comps from mesa.  How does this affect other spot definitions?  Does it affect them at all?  What about volcano regions?
+
+
 Biome fixes:
 
 Found 35 unique land equation files (EQ_*) extended by biomes without UsesElevation flag:

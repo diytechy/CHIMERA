@@ -119,9 +119,9 @@ samplers:
     sampler:
       type: EXPRESSION
       dimensions: 2
-      expression: max(BiomeShapeLandmassContinents(x,z) * offset_scale * land_scale, 0)
+      expression: max(elevation(x,z) * offset_scale * land_scale * 1.5, 0)
       samplers:
-        BiomeShapeLandmassContinents: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassContinents
+        elevation: $math/samplers/elevation.yml:samplers.elevation
       variables:
         land_scale: $customization.yml:terrain-height
         offset_scale: $customization.yml:terrain-base-biome-shift

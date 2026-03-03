@@ -8,7 +8,7 @@ _landmassShape: &landmassShape
   <<: *BaseBiomeCell
   salt: 101
 
-_highlandShape: &highlandShape
+_highlandShape:
   <<: *BaseBiomeCell
   salt: 102
 
@@ -99,7 +99,7 @@ samplers:
           return: Distance
           lookup: $math/samplers/continents.yml:samplers.continents
           salt-lookup: false
-          
+
   BiomeShapeLandmassDistance2:
     <<: *outerWarpSmall
     sampler:
@@ -112,57 +112,19 @@ samplers:
           lookup: $math/samplers/continents.yml:samplers.continents
           salt-lookup: false
 
-  BiomeShapeLandmassBorderDistance:
-    type: EXPRESSION
-    expression: |
-      abs(BiomeShapeLandmassDistance2(x,z)-BiomeShapeLandmassDistance(x,z))
-    samplers:
-      BiomeShapeLandmassDistance: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDistance
-      BiomeShapeLandmassDistance2: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDistance2
-          
   BiomeShapeLandmassBaseOffset:
-    type: EXPRESSION
     dimensions: 2
-    expression: max(BiomeShapeLandmassContinents(x,z) * offset_scale * land_scale, 0)
-    samplers:
-      BiomeShapeLandmassContinents: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassContinents
-    variables:
-      land_scale: $customization.yml:terrain-height
-      offset_scale: $customization.yml:terrain-base-biome-shift
-
-  BiomeShapeHighlandValue:
-    <<: *outerWarpSmall
+    type: CACHE
+    exp: 2
     sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *highlandShape
-          return: CellValue
-
-  BiomeShapeHighlandTemperature:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *highlandShape
-          return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
-          salt-lookup: false
-
-  BiomeShapeHighlandPrecipitation:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *highlandShape
-          return: NoiseLookup
-          lookup: $math/samplers/precipitation.yml:samplers.precipitation
-          salt-lookup: false
+      type: EXPRESSION
+      dimensions: 2
+      expression: max(BiomeShapeLandmassContinents(x,z) * offset_scale * land_scale, 0)
+      samplers:
+        BiomeShapeLandmassContinents: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassContinents
+      variables:
+        land_scale: $customization.yml:terrain-height
+        offset_scale: $customization.yml:terrain-base-biome-shift
 
   BiomeShapeOceanValue:
     <<: *outerWarpSmall
@@ -184,18 +146,6 @@ samplers:
           <<: *oceanShape
           return: NoiseLookup
           lookup: $math/samplers/temperature.yml:samplers.temperature
-          salt-lookup: false
-
-  BiomeShapeOceanPrecipitation:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *oceanShape
-          return: NoiseLookup
-          lookup: $math/samplers/precipitation.yml:samplers.precipitation
           salt-lookup: false
 
   BiomeShapeOceanContinents:

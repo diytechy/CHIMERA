@@ -6,13 +6,6 @@ riftCell: &riftCell
   jitter: 0.5
 
 samplers:
-  riftDistFromCenter:
-    <<: *riftCell
-
-  riftManDistFromCenter:
-    <<: *riftCell
-    distance: Manhattan
-
   riftHybDistFromCenter:
     <<: *riftCell
     distance: Hybrid
@@ -20,7 +13,7 @@ samplers:
   riftRegions:
     <<: *riftCell
     return: CellValue
-    
+
   riftTemperature:
     <<: *riftCell
     return: NoiseLookup
@@ -47,7 +40,7 @@ samplers:
       type: FBM
       octaves: 4
       gain: 0.3
-      sampler: 
+      sampler:
         type: OPEN_SIMPLEX_2
         frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
     sampler:

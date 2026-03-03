@@ -41,39 +41,55 @@ largeCellular: &largeCellular
 samplers:
   spotDistance: # Returns block distance from closest spot center
     dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 7
-    warp:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.015
-    sampler:
-      type: EXPRESSION
-      expression: (noise(x, z)+1)*spread
-      variables: *variables
-      samplers:
-        noise:
-          <<: *smallCellular
-          distance: Euclidean
+    type: CACHE
+    exp: 2
+    sampler:    # Returns block distance from closest spot center
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 7
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.015
+      sampler:
+        type: EXPRESSION
+        expression: (noise(x, z)+1)*spread
+        variables: *variables
+        samplers:
+          noise:
+            <<: *smallCellular
+            distance: Euclidean
 
   spotSizePercent: # Returns a random value between 0 and 1 that determines the size of the spot
     dimensions: 2
-    type: PROBABILITY
-    sampler:
-      <<: *smallCellular
-      return: CellValue
+    type: CACHE
+    exp: 2
+    sampler:       # Returns a random value between 0 and 1 that determines the size of the spot
+      dimensions: 2
+      type: PROBABILITY
+      sampler:
+        <<: *smallCellular
+        return: CellValue
 
   spotRadius: # Returns the radius of the spot in blocks
     dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
-    functions: $math/functions/interpolation.yml:functions
-    variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
+    type: CACHE
+    exp: 2
+    sampler:  # Returns the radius of the spot in blocks
+      dimensions: 2
+      type: EXPRESSION
+      expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
+      functions: $math/functions/interpolation.yml:functions
+      variables: *variables
+      samplers:
+        spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
 
   spotAngle:
-    <<: *smallCellular
-    return: Angle
+    dimensions: 2
+    type: CACHE
+    exp: 2
+    sampler:
+      <<: *smallCellular
+      return: Angle
 
   nearSpot:
     dimensions: 2
@@ -87,7 +103,7 @@ samplers:
       samplers:
         spotDistance: $math/samplers/spots.yml:samplers.spotDistance
         spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-        
+
   nearSpotRift:
     dimensions: 2
     type: CACHE
@@ -183,14 +199,18 @@ samplers:
       spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
 
   spotBaseElevation: # Returns the elevation value at the center of the spot
-    <<: *smallCellular
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: elevation(x, z)
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
+    dimensions: 2
+    type: CACHE
+    exp: 2
+    sampler:         # Returns the elevation value at the center of the spot
+      <<: *smallCellular
+      return: NoiseLookup
+      salt-lookup: false
+      lookup:
+        type: EXPRESSION
+        expression: elevation(x, z)
+        samplers:
+          elevation: $math/samplers/elevation.yml:samplers.elevation
 
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
@@ -224,22 +244,6 @@ samplers:
     samplers:
       spotSizePercent: $math/samplers/spots.yml:samplers.largeSpotSizePercent
 
-  largeSpotAngle:
-    <<: *largeCellular
-    return: Angle
-
-  largeSpotBaseElevation: # Returns the elevation value at the center of the large spot
-    <<: *largeCellular
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: elevation(x, z)
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
-  # ---
-  # Volcano Samplers
-  # ---
   spotEdgeRadiusPercent:
     dimensions: 2
     type: CACHE
@@ -296,27 +300,31 @@ samplers:
 
   volcanoErosion: # Creates streaks from the center of the volcano, emulating erosion
     dimensions: 2
-    type: EXPRESSION
-    expression: |
-      noise(
-        spotDistance(x, z) + spotSizePercent(x, z) * offsetAmplitude,
-        sin(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
-        cos(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
-      )
-    variables:
-      angleFrequency: 150
-      offsetAmplitude: 10000 # Translates sample position per cell so the erosion pattern is unique for each volcano
-    samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotAngle: $math/samplers/spots.yml:samplers.spotAngle
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
-      noise:
-        dimensions: 3
-        type: FBM
-        octaves: 3
-        sampler:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.033
+    type: CACHE
+    exp: 2
+    sampler:      # Creates streaks from the center of the volcano, emulating erosion
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        noise(
+          spotDistance(x, z) + spotSizePercent(x, z) * offsetAmplitude,
+          sin(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
+          cos(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
+        )
+      variables:
+        angleFrequency: 150
+        offsetAmplitude: 10000 # Translates sample position per cell so the erosion pattern is unique for each volcano
+      samplers:
+        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+        spotAngle: $math/samplers/spots.yml:samplers.spotAngle
+        spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
+        noise:
+          dimensions: 3
+          type: FBM
+          octaves: 3
+          sampler:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.033
 
   #spotPlacer: -1 for oceanSpot, 0 for non-spot, 1 for landSpot
   spotPlacer:

@@ -516,50 +516,49 @@ samplers:
 
   elevationDetailed:
     dimensions: 2
-    type: EXPRESSION
-    expression: |
-      herp(continentalRiverDist(x,z),0.1, elevationWithRivers(x,z),1, 
-        noisyelevation(x,z))
-    functions: $math/functions/interpolation.yml:functions
-    variables: *variables
-    samplers:
-      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-      elevationWithRivers: $math/samplers/elevation.yml:samplers.elevationWithRivers
-      noisyelevation:
-        dimensions: 2
-        type: DOMAIN_WARP
-        sampler: $math/samplers/elevation.yml:samplers.elevationWithRivers
+    type: CACHE
+    exp: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        herp(continentalRiverDist(x,z),0.1, elevationWithRivers(x,z),1, 
+          noisyelevation(x,z))
+      functions: $math/functions/interpolation.yml:functions
+      variables: *variables
+      samplers:
+        continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+        elevationWithRivers: $math/samplers/elevation.yml:samplers.elevationWithRivers
+        noisyelevation:
+          dimensions: 2
+          type: DOMAIN_WARP
+          sampler: $math/samplers/elevation.yml:samplers.elevationWithRivers
           # Elevation is warped slightly by white noise, creating a small fuzzy
           # or dithered look to break up perfectly smooth noise. Produces small
           # 1 block divots in terrain, especially apparent on steeper terrain and
           # countours which is good because these areas tend to look too perfect / artifical.
-        amplitude: $customization.yml:elevation-fuzz
-        warp:
-          type: WHITE_NOISE
-          salt: 2394
+          amplitude: $customization.yml:elevation-fuzz
+          warp:
+            type: WHITE_NOISE
+            salt: 2394
 
 
   oceanElevation:
     dimensions: 2
-    type: EXPRESSION
-    expression: |
-      (-1+rawElevation(x, z))
-      * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
-    functions: $math/functions/interpolation.yml:functions
-    variables:
-      continentZero: 0
-      continentFull: -0.8
-      factorContinental: $customization.yml:elevation-factor-continental
-    samplers:
-      rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
-      continents: $math/samplers/continents.yml:samplers.continents
+    type: CACHE
+    exp: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        (-1+rawElevation(x, z))
+        * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+      functions: $math/functions/interpolation.yml:functions
+      variables:
+        continentZero: 0
+        continentFull: -0.8
+        factorContinental: $customization.yml:elevation-factor-continental
+      samplers:
+        rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
+        continents: $math/samplers/continents.yml:samplers.continents
 
-  compositeElevation:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(continents(x, z)>=0, elevationDetailed(x, z), oceanElevation(x, z))
-    samplers:
-      elevationDetailed: $math/samplers/elevation.yml:samplers.elevationDetailed
-      oceanElevation: $math/samplers/elevation.yml:samplers.oceanElevation
-      continents: $math/samplers/continents.yml:samplers.continents

@@ -159,7 +159,7 @@ continental-island-threshold: -0.35
 # to prepare for islands.
 # Default: -0.3
 
-continental-land-threshold: 0.0
+continental-land-threshold: -0.20
 # Threshold the continental_sampler must exceed for standard continents to appear.
 # Higher values result in smaller continents.
 # Default: 0.1

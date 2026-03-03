@@ -1,22 +1,5 @@
 samplers:
   #Determines the variance
-  continental_large_features_allowed_threshold_with_variance:
-    dimensions: 2
-    type: EXPRESSION
-    expression: (applied_threshold_variance(x,z)-0.5)*variance  + nominal_value
-    variables:
-      nominal_value: $customization.yml:continental-large-features-allowed-threshold
-      variance: $customization.yml:continental-large-feature-allowed-threshold-variance
-    samplers:
-      applied_threshold_variance:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          #type: OPEN_SIMPLEX_2
-          type: PERLIN
-          salt: 697.0
-          #frequency: 1/300
-          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
   PeakHeightMultiplierAtPosition:
     dimensions: 2
     type: EXPRESSION
@@ -84,53 +67,6 @@ samplers:
     samplers:
       continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
     functions: $math/functions/interpolation.yml:functions
-  mnt_and_ocean_valleys:
-    dimensions: 2
-    type: FBM
-    octaves: 5
-    lacunarity: 2.2
-    gain: 0.55
-    sampler:
-      type: PERLIN
-      frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
-      salt: 300
-  mountain_gen_region:
-    dimensions: 2
-    type: EXPRESSION
-    expression: sampler(x - 3000, z - 3000)
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-    samplers:
-      sampler:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: (1 / ${customization.yml:continental-mountain-region-allowed-distance})
-          salt: 100
-  mesa_gen_region:
-    dimensions: 2
-    type: EXPRESSION
-    expression: sampler(x - 6000, z - 6000)
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-    samplers:
-      sampler:
-        dimensions: 2
-        type: FBM
-        octaves: 2
-        lacunarity: 2.0
-        gain: 0.4
-        sampler:
-          type: PERLIN
-          frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
-          salt: 200
-
   islandMask:
     dimensions: 2
     type: EXPRESSION
@@ -156,22 +92,6 @@ samplers:
       variables:
         globalScale: $customization.yml:global-scale
         scale: $customization.yml:continental-scale
-
-  continentalOffset:
-    dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        if(continentalScaled(x,z)>0,
-          min(continentalScaled(x,z),0.5)*land_scale*0.75,
-          max(continentalScaled(x,z),-0.5)*ocean_scale*0.75)
-      samplers:
-        continentalScaled: $math/samplers/continents.yml:samplers.continentalScaled
-      variables:
-        land_scale: $customization.yml:terrain-height
-        ocean_scale: $customization.yml:terrain-ocean-depth
 
   continents:
     dimensions: 2

@@ -395,6 +395,8 @@ FROSTCOATED_BOG
   Allow cell elevation based raise
   Double-check ocean level
 
+positiveWhiteNoise is getting removed incorrectly by OptimizePackSamplers.py
+
 Two things, to evaluate variable water placement:
 
 1. Roll cellular elevation of plain-like biomes up near border?  But this might still give discontinuities at borders?  At least it doesn't give floating water that is blocked by stone which looks very strange.

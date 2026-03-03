@@ -27,4 +27,5 @@ terrain:
 
   sampler-2d:
     dimensions: 2
-    expressions: BiomeShapeLandmassDistance(x,z)
+    type: EXPRESSION
+    expression: BiomeShapeLandmassDistance(x,z)

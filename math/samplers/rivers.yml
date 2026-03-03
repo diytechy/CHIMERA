@@ -12,23 +12,6 @@ variables: &variables
   erosionMin: 0
 
 samplers:
-  riverBiomeMap:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(continentalRiverDist(x,z)<0,
-        riverValue,
-        if(continentalRiverDist(x,z)>=1,
-          notRiverValue,
-          borderValue
-        )
-      )
-    variables: *variables
-    functions: $math/functions/interpolation.yml:functions
-    samplers:
-      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-
-  # Assumes sampled with 4 values, quartiles, so return end condition and upper quartile, so borders are considered upper limit when evaluated as two.
   riverSampler:
     dimensions: 2
     type: EXPRESSION
@@ -127,29 +110,4 @@ samplers:
     samplers:
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
 
-      
-  RiverSupportDensity:
-    dimensions: 3
-    type: EXPRESSION
-    variables:
-      Base: $meta.yml:ocean-level
-      HeightScale: $customization.yml:terrain-height
-      MinRiverSupp: $customization.yml:min-river-support-height
-      MinRiverNorm: $customization.yml:min-river-support-height-norm
-      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
-    functions: $math/functions/interpolation.yml:functions
-    samplers:
-      RiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-      RiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
-      continents: $math/samplers/continents.yml:samplers.continents
-    expression: |
-      if((continents(x,z)>-0.05 && y<(Base+HeightScale*terrain_base_biome_shift)),
-        if((y>Base && y<(Base+HeightScale*terrain_base_biome_shift)),
-          -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
-          if((y<Base && y>MinRiverSupp),
-            (1 - ((Base-y)^2/(MinRiverNorm)) - ((RiverDist(x,z)+1)^2/4)),
-            0
-          )
-        ),
-        0
-      )
+

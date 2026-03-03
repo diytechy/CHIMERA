@@ -4,28 +4,15 @@ abstract: true
 
 
 vars: &variables
-  base: $customization.yml:terrain-ocean-base-y-level
+  base: 64
   
-ocean:
-  level: $meta.yml:ocean-level
-  # Water level varies ±3 blocks with regional terrain elevation so that the river
-  # surface follows the landscape gradient rather than sitting at a fixed Y.
-  sampler:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      offset: 3
-      level: $meta.yml:ocean-level
-    expression: max(BiomeShapeLandmassBaseOffset(x, z) - offset,level)
-    
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: ((-((y / (base-1))^2)) + 1) + ((simplex2(x*2, z*2)/4))
+    expression: ((-((y / base)^2)) + 1) + ((simplex2(x*2, z*2)/4))
 
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    expression: BiomeShapeLandmassDistance(x,z)
+    type: CONSTANT

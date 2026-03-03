@@ -385,6 +385,23 @@ ocean:
       ocean_base: $customization:terrain-ocean-base-y-level
     expression: min(BiomeShapeLandmassBaseOffset(x, z) - offset,ocean_base)
 
+######################################3
+
+Outcomme testing:
+
+MUSKEG shows below limit, lift base
+FROSTCOATED_BOG
+  should likely not allow carving.
+  Allow cell elevation based raise
+  Double-check ocean level
+
+Two things, to evaluate variable water placement:
+
+1. Roll cellular elevation of plain-like biomes up near border?  But this might still give discontinuities at borders?  At least it doesn't give floating water that is blocked by stone which looks very strange.
+2. How 
+
+-
+
 
 No change required:
 EQ_BUTTES_ARCHIPELAGO (In water)

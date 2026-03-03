@@ -16,7 +16,7 @@ ocean:
     variables:
       offset: 3
       level: $meta.yml:ocean-level
-    expression: min(BiomeShapeLandmassBaseOffset(x, z) - offset,level)
+    expression: max(BiomeShapeLandmassBaseOffset(x, z) - offset,level)
     
 terrain:
   sampler:
@@ -27,4 +27,4 @@ terrain:
 
   sampler-2d:
     dimensions: 2
-    type: CONSTANT
+    expressions: BiomeShapeLandmassDistance(x,z)

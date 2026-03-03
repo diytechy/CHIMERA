@@ -5,15 +5,19 @@ abstract: true
 terrain:
   sampler:
     dimensions: 3
-    type: LINEAR_HEIGHTMAP
-    base: ${customization.yml:terrain-base-y-level} - 9
+    type: EXPRESSION
+    variables:
+      base: $customization.yml:terrain-base-y-level
+    expression: -y + base - 9 
+    #base: ${customization.yml:terrain-base-y-level} - 9
+    #samplers: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassBaseOffset
 
   sampler-2d:
     dimensions: 2
     type: EXPRESSION
     variables:
       height: 14
-    expression: (noise(x,z)+1)/2 * height
+    expression: (noise(x,z)+1)/2 * height + BiomeShapeLandmassBaseOffset(x,z)
     samplers:
       noise:
         dimensions: 2

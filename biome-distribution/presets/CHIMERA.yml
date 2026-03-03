@@ -42,13 +42,15 @@ biomes:
           from: land
           to:
             - FROSTCOATED_BOG: 1
-            - FROZEN_MARSH: 1
+            #- FROZEN_MARSH: 1
             - MUSKEG: 1
-            - MANGROVE_SWAMP: 1
+            - SWAMP: 1
+            #- MANGROVE_SWAMP: 1
             - ALIEN_MARSH: 1
           sampler:
-            type: EXPRESSION
-            expression: BiomeShapeLandmassValue(x, z)
+            type: CONSTANT
+            #type: EXPRESSION
+            #expression: BiomeShapeLandmassValue(x, z)
         
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far

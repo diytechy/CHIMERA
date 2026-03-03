@@ -87,6 +87,38 @@ samplers:
           return: NoiseLookup
           lookup: $math/samplers/continents.yml:samplers.continents
           salt-lookup: false
+
+  BiomeShapeLandmassDistance:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: Distance
+          lookup: $math/samplers/continents.yml:samplers.continents
+          salt-lookup: false
+          
+  BiomeShapeLandmassDistance2:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: Distance2
+          lookup: $math/samplers/continents.yml:samplers.continents
+          salt-lookup: false
+
+  BiomeShapeLandmassBorderDistance:
+    type: EXPRESSION
+    expression: |
+      abs(BiomeShapeLandmassDistance2(x,z)-BiomeShapeLandmassDistance(x,z))
+    samplers:
+      BiomeShapeLandmassDistance: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDistance
+      BiomeShapeLandmassDistance2: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDistance2
           
   BiomeShapeLandmassBaseOffset:
     type: EXPRESSION

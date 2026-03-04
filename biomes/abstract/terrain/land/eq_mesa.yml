@@ -1,0 +1,15 @@
+id: EQ_MESA
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:terrain-height
+  "<<":
+    - math/samplers/spots.yml:variables
+
+terrain:
+  sampler:
+    type: EXPRESSION
+    expression: -y + base + scale * elevationDetailed(x, z)
+    variables: *variables

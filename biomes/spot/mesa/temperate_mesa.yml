@@ -1,7 +1,7 @@
 id: TEMPERATE_MESA
 type: BIOME
 extends:
-  - EQ_SPOT_MESA
+  - EQ_MESA
   - CARVING_OCEAN
   - BASE
 color: $biomes/colors.yml:TEMPERATE_MESA

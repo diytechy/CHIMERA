@@ -15,6 +15,7 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - TROPICAL_COAST_HIGHLANDS
+- USE_LUKEWARM_RIVER
 palette:
 - SOCOTRA: $meta.yml:top-y
 - << meta.yml:palette-underwater

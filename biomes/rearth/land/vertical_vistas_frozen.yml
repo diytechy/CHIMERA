@@ -14,6 +14,7 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - POLAR_COAST_HIGHLANDS
+- USE_FROZEN_RIVER
 slant:
 - threshold: 0.8
   palette:

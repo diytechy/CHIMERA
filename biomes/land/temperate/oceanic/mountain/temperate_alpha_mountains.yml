@@ -14,6 +14,7 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - TEMPERATE_COAST_HIGHLANDS
+- USE_RIVER
 palette:
 - GRASS: $meta.yml:top-y
 - << meta.yml:palette-underwater

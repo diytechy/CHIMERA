@@ -15,6 +15,7 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - POLAR_COAST_HIGHLANDS
+- USE_FROZEN_RIVER
 ocean:
   palette: FROZEN_OCEAN
 palette:

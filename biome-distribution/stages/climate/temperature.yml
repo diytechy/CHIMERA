@@ -32,6 +32,19 @@ stages:
         - tropical-island: *tropicalCold
         - tropical-island: *tropicalWarm
         - tropical-island: *tropicalHot
+      marshland:
+        - polar-marsh: *iceCap
+        - polar-marsh: *tundra
+        - polar-marsh: *borealSnowy
+        - marsh: *borealCold
+        - marsh: *borealWarm
+        - marsh: *borealHot
+        - marsh: *temperateCold
+        - marsh: *temperateWarm
+        - marsh: *temperateHot
+        - tropical-marsh: *tropicalCold
+        - tropical-marsh: *tropicalWarm
+        - tropical-marsh: *tropicalHot
 
   - type: REPLACE_LIST
     sampler:

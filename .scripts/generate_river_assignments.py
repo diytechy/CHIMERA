@@ -82,9 +82,15 @@ KNOWN_RIVER_TAGS = [
 RIVER_COLUMN_VALUES = {"General", "Cold", "Desert"}
 
 
-def get_all_biome_ids():
-    """Get set of all biome IDs from biome files."""
+def get_all_biome_data():
+    """Get set of all biome IDs and their tags from biome files.
+
+    Returns:
+        ids: set of all biome IDs
+        biome_tags: dict mapping biome_id -> list of tags
+    """
     ids = set()
+    biome_tags = defaultdict(list)
     for f in BIOMES_DIR.rglob("*.yml"):
         try:
             with open(f, "r", encoding="utf-8") as fh:
@@ -93,9 +99,28 @@ def get_all_biome_ids():
                 bid = data.get("id")
                 if bid:
                     ids.add(bid)
+                    tags = data.get("tags", [])
+                    if isinstance(tags, list):
+                        # Merge tags (biome may exist in multiple files)
+                        existing = biome_tags.get(bid, [])
+                        merged = list(dict.fromkeys(existing + tags))
+                        biome_tags[bid] = merged
         except Exception:
             continue
-    return ids
+    return ids, biome_tags
+
+
+def get_existing_river_tags(biome_tags):
+    """Find biomes that already have a river-related tag.
+
+    Returns dict mapping biome_id -> list of river tags found.
+    """
+    river_tag_map = {}
+    for biome_id, tags in biome_tags.items():
+        river_tags = [t for t in tags if "RIVER" in t.upper()]
+        if river_tags:
+            river_tag_map[biome_id] = river_tags
+    return river_tag_map
 
 
 def find_direct_river_match(biome_id, all_biome_ids):
@@ -195,15 +220,20 @@ def main():
     print(f"Reading BiomeTable from {CSV_PATH}")
     print(f"Reading climate config from {CLIMATE_FILE}")
 
-    # Load all biome IDs for river matching
-    all_biome_ids = get_all_biome_ids()
+    # Load all biome IDs and tags for river matching
+    all_biome_ids, biome_tags = get_all_biome_data()
     print(f"Found {len(all_biome_ids)} valid biome IDs")
+
+    # Find biomes with existing river tags in their YAML files
+    existing_river_tags = get_existing_river_tags(biome_tags)
+    print(f"Found {len(existing_river_tags)} biomes with existing river tags in YAML files")
 
     # Parse climate regions
     biome_regions = parse_climate_regions()
     print(f"Found climate placements for {len(biome_regions)} biomes")
 
     # Read and filter CSV
+    already_assigned = []  # biomes that already have river tags (CSV or YAML)
     with open(CSV_PATH, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         qualifying_biomes = []
@@ -229,16 +259,21 @@ def main():
             if category == "SUBSURFACE":
                 continue
 
-            # 4. River column must be empty (no existing river tag)
-            if river_col:
-                continue
-
             # Skip spot sub-biomes (_INNER, _MIDDLE, _OUTER)
             if any(biome_upper.endswith(suffix) for suffix in ("_INNER", "_MIDDLE", "_OUTER")):
                 continue
 
+            # 4. Check for existing river assignment (CSV column OR YAML tags)
+            if river_col:
+                already_assigned.append((biome_id, f"CSV River column: {river_col}"))
+                continue
+            if biome_id in existing_river_tags:
+                already_assigned.append((biome_id, f"YAML tags: {', '.join(existing_river_tags[biome_id])}"))
+                continue
+
             qualifying_biomes.append(row)
 
+    print(f"Biomes already assigned (CSV or YAML): {len(already_assigned)}")
     print(f"Qualifying biomes (no river assigned): {len(qualifying_biomes)}")
 
     # Build assignments
@@ -269,7 +304,7 @@ def main():
     lines.append("## Filters Applied")
     lines.append("- Origin: Land (+ archipelago Ocean biomes)")
     lines.append("- Excluded: River biomes, subsurface/extrusion biomes")
-    lines.append("- Excluded: Biomes that already have a River column value")
+    lines.append("- Excluded: Biomes with existing river assignment (CSV River column OR YAML river tags)")
     lines.append("")
 
     # Group by assignment type
@@ -326,6 +361,18 @@ def main():
         lines.append("|-------|-------|")
         for biome_id, _, _, detail in unknown_assignments:
             lines.append(f"| {biome_id} | {detail} |")
+        lines.append("")
+
+    # Already assigned (for reference)
+    if already_assigned:
+        lines.append("## Already Assigned (Excluded from Above)")
+        lines.append("")
+        lines.append("These biomes already have river tags via CSV River column or YAML tags.")
+        lines.append("")
+        lines.append("| Biome | Source |")
+        lines.append("|-------|--------|")
+        for biome_id, source in sorted(already_assigned):
+            lines.append(f"| {biome_id} | {source} |")
         lines.append("")
 
     output = "\n".join(lines)

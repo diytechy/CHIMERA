@@ -40,19 +40,19 @@ biomes:
             type: EXPRESSION
             expression: continentalDistribution(x, z)
             
-        - type: REPLACE
-          from: land
-          to:
-            - FROSTCOATED_BOG: 1
-            #- FROZEN_MARSH: 1
-            #- MUSKEG: 1
-            # - SWAMP: 1
-            #- MANGROVE_SWAMP: 1
-            - ALIEN_MARSH: 1
-          sampler:
-            #type: CONSTANT
-            type: EXPRESSION
-            expression: BiomeShapeLandmassValue(x, z)
+        #- type: REPLACE
+        #  from: land
+        #  to:
+        #    - FROSTCOATED_BOG: 1
+        #    #- FROZEN_MARSH: 1
+        #    #- MUSKEG: 1
+        #    # - SWAMP: 1
+        #    #- MANGROVE_SWAMP: 1
+        #    - ALIEN_MARSH: 1
+        #  sampler:
+        #    #type: CONSTANT
+        #    type: EXPRESSION
+        #    expression: BiomeShapeLandmassValue(x, z)
         
         #********* This section should only be uncommented to test intermittent distribution before climate
         #Input: All distributions so far

@@ -1,25 +1,37 @@
 samplers:
   simplex:
     dimensions: 2
-    type: FBM
-    octaves: 4
+    type: CACHE
+    exp: 2
     sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.0075
+      dimensions: 2
+      type: FBM
+      octaves: 4
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0075
   simplex2:
     dimensions: 2
-    type: FBM
-    octaves: 4
+    type: CACHE
+    exp: 2
     sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.0075
+      dimensions: 2
+      type: FBM
+      octaves: 4
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0075
   simplex3:
     dimensions: 3
-    type: FBM
-    octaves: 4
+    type: CACHE
+    exp: 2
     sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.0075
+      dimensions: 3
+      type: FBM
+      octaves: 4
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0075
   positiveWhiteNoise:
     dimensions: 2
     type: POSITIVE_WHITE_NOISE

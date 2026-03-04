@@ -244,6 +244,48 @@ def count_biome_usages(sampler_names, counter):
     return _count_text_refs(files, expr_pat, ref_pat, counter)
 
 
+def count_tesf_usages(sampler_names, counter):
+    """
+    Scan .tesf (structure script) files for references to pack-level samplers.
+
+    In .tesf files, samplers are referenced via sampler("samplerName", ...).
+    These usages prevent a sampler from being removed as unused, but are NOT
+    counted toward the CACHE threshold (tesf scripts run rarely and would not
+    benefit from caching).
+
+    Returns total number of references found.
+    """
+    if not sampler_names:
+        return 0
+
+    paths = []
+    structures_dir = PACK_ROOT / "structures"
+    if structures_dir.exists():
+        paths.extend(structures_dir.rglob("*.tesf"))
+
+    if not paths:
+        return 0
+
+    names = sorted(sampler_names)
+    # Match sampler("samplerName" pattern used in .tesf files
+    tesf_pattern = re.compile(
+        r'sampler\s*\(\s*"(' +
+        '|'.join(re.escape(n) for n in names) +
+        r')"',
+    )
+
+    total = 0
+    for path in paths:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        for m in tesf_pattern.finditer(text):
+            counter[m.group(1)] += 1
+            total += 1
+    return total
+
+
 def count_sampler_text_usages(sampler_files, sampler_names, counter):
     """
     Scan sampler file text for expression-based references to other
@@ -475,21 +517,38 @@ def main():
     else:
         print("\n  No text-based references within sampler files found.")
 
+    # ------------------------------------------------------------------
+    # Pass 1e — count usages in .tesf structure script files
+    # ------------------------------------------------------------------
+    print("\n--- Pass 1e: counting usages in .tesf structure scripts ---")
+    tesf_counts: Counter = Counter()
+    tesf_total = count_tesf_usages(all_sampler_names, tesf_counts)
+
+    if tesf_counts:
+        print(f"\n  .tesf usage counts ({tesf_total} references found):")
+        for name, count in sorted(tesf_counts.items(), key=lambda x: -x[1]):
+            print(f"    {name}: {count}")
+    else:
+        print("\n  No .tesf references to pack-level samplers found.")
+
     # Combine counts for CACHE decisions (alias + stage + biome)
+    # Note: tesf counts are excluded — tesf scripts run rarely and don't
+    # benefit from caching.
     combined_counts: Counter = Counter()
     combined_counts.update(usage_counts)
     combined_counts.update(stage_counts)
     combined_counts.update(biome_counts)
 
-    # All-source counts for unused detection (all sources)
+    # All-source counts for unused detection (all sources including tesf)
     all_source_counts: Counter = Counter()
     all_source_counts.update(usage_counts)
     all_source_counts.update(stage_counts)
     all_source_counts.update(biome_counts)
     all_source_counts.update(sampler_text_counts)
+    all_source_counts.update(tesf_counts)
 
     if all_source_counts:
-        print("\n  All-source usage counts (alias + stage + biome + sampler-text):")
+        print("\n  All-source usage counts (alias + stage + biome + sampler-text + tesf):")
         for name, count in sorted(all_source_counts.items(), key=lambda x: -x[1]):
             parts = []
             if usage_counts.get(name, 0):
@@ -500,6 +559,8 @@ def main():
                 parts.append(f"{biome_counts[name]} biome")
             if sampler_text_counts.get(name, 0):
                 parts.append(f"{sampler_text_counts[name]} text")
+            if tesf_counts.get(name, 0):
+                parts.append(f"{tesf_counts[name]} tesf")
             detail = " + ".join(parts)
             cache_flag = f"  <- will CACHE (exp={CACHE_EXP})" if combined_counts.get(name, 0) > CACHE_THRESHOLD else ""
             unused_flag = "  <- UNUSED (will remove)" if count == 0 else ""

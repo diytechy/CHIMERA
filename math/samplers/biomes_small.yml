@@ -88,30 +88,6 @@ samplers:
           lookup: $math/samplers/continents.yml:samplers.continents
           salt-lookup: false
 
-  BiomeShapeLandmassDistance:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *landmassShape
-          return: Distance
-          lookup: $math/samplers/continents.yml:samplers.continents
-          salt-lookup: false
-
-  BiomeShapeLandmassDistance2:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *landmassShape
-          return: Distance2
-          lookup: $math/samplers/continents.yml:samplers.continents
-          salt-lookup: false
-
   BiomeShapeLandmassBaseOffset:
     dimensions: 2
     type: CACHE

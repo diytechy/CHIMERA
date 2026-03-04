@@ -79,20 +79,6 @@ samplers:
     samplers:
       continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
 
-  continentalScaled:
-    dimensions: 2
-    type: CACHE
-    size: 1
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: continental_sampler(x / scale / globalScale, z / scale / globalScale)
-      samplers:
-        continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
-      variables:
-        globalScale: $customization.yml:global-scale
-        scale: $customization.yml:continental-scale
-
   continents:
     dimensions: 2
     type: CACHE

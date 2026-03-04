@@ -27,24 +27,40 @@ These biomes need to be placed in specific climates in `set_biomes_in_climates_o
 
 These should be integrated into coastal distribution, primarily through `fill_coasts.yml`:
 
+Change this method, all non-coastal specific biomes should be tagged with:
+
+arid-coast (with arid-coast-flat, arid-coast, arid-coast-highlands)
+
+boreal-coast (with boreal-coast-flat, boreal-coast, boreal-coast-highlands)
+
+polar-coast (with polar-coast-flat, polar-coast, polar-coast-highlands)
+
+temperate-coast (with temperate-coast-flat, temperate-coast, temperate-coast-highlands)
+
+tropical-coast (with tropical-coast-flat, tropical-coast, tropical-coast-highlands)
+
 ### Temperature-Specific Beaches:
-- **Cold:** SHALE_BEACH, FROZEN_BEACH, SNOWY_SEA_CAVES
-- **Warm/Tropical:** PALM_BEACH, MUDDY_COASTS, TROPICAL_MUSHROOM_COAST, LUSH_SEA_CAVES
+- **Cold:** SHALE_BEACH, FROZEN_BEACH, SNOWY_SEA_CAVES, SNOWDRIFT_COASTS,
+- **Warm/Tropical:** PALM_BEACH, MUDDY_COASTS, TROPICAL_MUSHROOM_COAST, LUSH_SEA_CAVES, BEACH, SHRUB_BEACH, 
 - **Rocky/Mixed:** ROCKY_SEA_CAVES, TERRACOTTA_SEA_CAVES
 
-### Pale Garden Variants (coast):
+### BIOME SPECIFIC COASTS:
 - ARID_PALE_GARDEN_COAST
 - ORANGE_ARID_PALE_GARDEN_COAST
 - PALE_GARDEN_COAST
 - POLAR_PALE_GARDEN_COAST
 - RED_ARID_PALE_GARDEN_COAST
 - POLAR_MUSHROOM_COAST
+- MUSHROOM_COAST
+- POLAR_MUSHROOM_COAST (Special feature for polar regions)
+
+### BIOME SPECIFIC RIVERS:
+
 
 ### Other:
-- BEACH, SHRUB_BEACH, SNOWDRIFT_COASTS, MUSHROOM_COAST
+- BEACH, SHRUB_BEACH, SNOWDRIFT_COASTS, 
 
 
-- POLAR_MUSHROOM_COAST (Special feature for polar regions)
 - PINE_BARRENS (coastal pine forest)
 
 

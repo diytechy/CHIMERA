@@ -30,7 +30,7 @@ extrusions:
       min: -64
       max: 48
   - type: REPLACE
-    from: BIOME:SPRUCE_CAVERNS
+    from: SPRUCE_CAVERNS
     sampler:
       type: CELLULAR
       return: CellValue

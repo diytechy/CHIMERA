@@ -22,6 +22,7 @@ stages:
         - BITTER_HEIGHTS: 1
         - PERMAFROST_CLIFFS: 1
         - FROSTBOUND_CHASMS: 1
+        - FROZEN_SPIRES: 1
 
       tundra-flat:
         - TUNDRA: 2
@@ -218,7 +219,7 @@ stages:
         - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry:
         - CHAPARRAL: 1
-        - MOORLAND: 1=
+        - MOORLAND: 1
         - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
@@ -751,6 +752,3 @@ stages:
     default-to: PALE_GARDEN
     to:
       polar-pale-garden: POLAR_PALE_GARDEN
-      arid-pale-garden: ARID_PALE_GARDEN
-      orange-arid-pale-garden: ORANGE_ARID_PALE_GARDEN
-      red-arid-pale-garden: RED_ARID_PALE_GARDEN

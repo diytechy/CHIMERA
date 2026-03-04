@@ -35,7 +35,6 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | BADLANDS | averaged: arid-coast-flat (67%), arid-coast-highlands (33%) |
 | BADLANDS_BUTTES | averaged: arid-coast-flat (67%), arid-coast-highlands (33%) |
 | CARVING_CREAKS | from hot-desert-white |
-| SNOWY_BADLANDS | averaged: arid-coast-flat (50%), arid-coast-highlands (50%) |
 
 ### boreal-coast-flat (10 biomes)
 
@@ -44,13 +43,13 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | AUTUMNAL_WOODLANDS | from boreal-cold |
 | ENCHANTED_WOODLANDS | from boreal-cold |
 | GLOOMY_GORGE | averaged: boreal-coast-flat (50%), temperate-coast-flat (50%) |
-| PRAIRIE | averaged: boreal-coast-flat (62%), temperate-coast-flat (38%) |
 | SAKURA_WOODLANDS | from boreal-cold |
 | SNOWY_BIRCH_FOREST | from boreal-snowy |
 | SNOWY_PLAINS | from boreal-snowy-flat |
 | SNOWY_TAIGA | from boreal-snowy |
 | STEPPE | averaged: boreal-coast-flat (67%), temperate-coast-flat (33%) |
 | SUNFLOWER_PRAIRIE | averaged: boreal-coast-flat (67%), temperate-coast-flat (33%) |
+| SNOWY_BADLANDS | averaged: arid-coast-flat (50%), arid-coast-highlands (50%) |
 
 ### boreal-coast-highlands (6 biomes)
 
@@ -61,7 +60,6 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | SEARING_TORS | from boreal-snowy-highlands |
 | SNOWY_MOUNTAINS | averaged: boreal-coast-highlands (60%), arid-coast-highlands (40%) |
 | VERTICAL_VISTAS | from boreal-cold-highlands |
-| VERTICAL_VISTAS_WARM | from boreal-warm-highlands |
 
 ### polar-coast-flat (6 biomes)
 
@@ -100,6 +98,7 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | TEMPERATE_OVERPASS | from temperate-hot |
 | VERDANT_VALLEYS | from temperate-hot |
 | WOODED_BUTTES | from temperate-hot |
+| PRAIRIE | averaged: boreal-coast-flat (62%), temperate-coast-flat (38%) |
 
 ### temperate-coast-highlands (4 biomes)
 
@@ -109,6 +108,7 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | DRY_TEMPERATE_WHITE_MOUNTAINS | from temperate-hot-dry-highlands |
 | HIGHLANDS | from temperate-hot-highlands |
 | TEMPERATE_ALPHA_MOUNTAINS | from temperate-hot-highlands |
+| VERTICAL_VISTAS_WARM | from boreal-warm-highlands |
 
 ### tropical-coast-flat (19 biomes)
 

@@ -45,16 +45,6 @@ stages:
         - PERMAFROST_CLIFFS: 1
         - FROSTBOUND_CHASMS: 1
 
-      polar-coast-flat:
-        - FROZEN_BEACH: 2
-        - FROSTY_FINGERS: 1
-        - FRIGID_WASTELANDS: 1
-      polar-coast:
-        - SNOWY_SEA_CAVES: 1
-        - FROSTY_FINGERS: 1
-        - POLAR_PALE_GARDEN_COAST: 1
-      polar-coast-highlands:
-        - SNOWY_SEA_CAVES: 1
       polar-mesa:
         - COLD_DESERT_MESA: 1
 
@@ -211,18 +201,6 @@ stages:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
 
-      boreal-coast-flat:
-        - ROCKY_ARCHIPELAGO: 5
-        - SHALE_BEACH: 1
-        - PINE_BARRENS: 1
-      boreal-coast:
-        - ROCKY_SEA_CAVES: 1
-        - POLAR_PALE_GARDEN_COAST: 1
-      boreal-coast-highlands:
-        - ROCKY_SEA_CAVES: 1
-
-
-
       temperate-hot-dry-flat:
         - STEPPE: 1
         - CHAPARRAL: 1
@@ -339,17 +317,6 @@ stages:
         - TEMPERATE_ALPHA_MOUNTAINS: 1
         - TEMPERATE_MOUNTAINS: 1
         - ROCKY_REFUGE: 1
-
-      temperate-coast-flat:
-        - BEACH: 2
-        - SHRUB_BEACH: 2
-        - PINE_BARRENS: 1
-      temperate-coast:
-        - TEMPERATE_SEA_ARCHES: 1
-      temperate-coast-highlands:
-        - TEMPERATE_SEA_ARCHES: 1
-
-
 
       # Red hot desert
       hot-desert-flat-red:
@@ -473,18 +440,6 @@ stages:
 
 
 
-      arid-coast-flat:
-        - BEACH: 1
-        - ARID_PALE_GARDEN_COAST: 1
-        - ORANGE_ARID_PALE_GARDEN_COAST: 1
-        - RED_ARID_PALE_GARDEN_COAST: 1
-      arid-coast:
-        - SANDSTONE_ARCHIPELAGO: 1
-      arid-coast-highlands:
-        - TERRACOTTA_SEA_CAVES: 1
-
-
-
       tropical-rainforest-flat:
         - BAMBOO_JUNGLE: 1
         - JUNGLE: 1
@@ -541,16 +496,6 @@ stages:
         - OVERGROWN_CLIFFS: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
-
-      tropical-coast-flat:
-        - MUDDY_COASTS: 1
-        - PALM_BEACH: 1
-        - MANGROVE_SWAMP: 1
-      tropical-coast:
-        - LUSH_SEA_CAVES: 1
-        - MANGROVE_SWAMP: 1
-      tropical-coast-highlands:
-        - LUSH_SEA_CAVES: 1
 
   # =========================================================================
   # Ocean biomes (cellular)
@@ -697,17 +642,6 @@ stages:
         - PALE_GARDEN: 1
       tropical-vast-forest:
         - arid-pale-garden: 1
-      polar-vast-forest-coast:
-        - POLAR_PALE_GARDEN_COAST: 1
-      boreal-vast-forest-coast:
-        - PALE_GARDEN_COAST: 1
-      temperate-vast-forest-coast:
-        - PALE_GARDEN_COAST: 1
-      tropical-vast-forest-coast:
-        - ARID_PALE_GARDEN_COAST: 1
-        - ORANGE_ARID_PALE_GARDEN_COAST: 1
-        - RED_ARID_PALE_GARDEN_COAST: 1
-
   # =========================================================================
   # Spot biomes (cellular)
   # =========================================================================
@@ -800,11 +734,8 @@ stages:
     default-from: mushroom
     default-to: MUSHROOM_FIELDS
     to:
-      mushroom-coast: MUSHROOM_COAST
       polar-mushroom: POLAR_MUSHROOM_FIELDS
-      polar-mushroom-coast: POLAR_MUSHROOM_COAST
       tropical-mushroom: TROPICAL_MUSHROOM_FIELDS
-      tropical-mushroom-coast: TROPICAL_MUSHROOM_COAST
 
   - type: REPLACE_LIST
     sampler:

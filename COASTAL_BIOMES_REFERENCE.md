@@ -11,17 +11,14 @@ This document tracks all coastal and coast-adjacent biome definitions extracted 
 | 3 | FRIGID_WASTELANDS | polar-coast-flat | 1 |
 | 4 | SNOWY_SEA_CAVES | polar-coast, polar-coast-highlands | 2 |
 | 5 | POLAR_PALE_GARDEN_COAST | polar-coast, boreal-coast, tropical-vast-forest-coast, polar-vast-forest-coast | 4 |
-| 6 | ROCKY_ARCHIPELAGO | boreal-coast-flat | 1 |
 | 7 | SHALE_BEACH | boreal-coast-flat | 1 |
 | 8 | PINE_BARRENS | boreal-coast-flat, temperate-coast-flat | 2 |
 | 9 | ROCKY_SEA_CAVES | boreal-coast, boreal-coast-highlands | 2 |
 | 10 | BEACH | temperate-coast-flat, arid-coast-flat | 2 |
 | 11 | SHRUB_BEACH | temperate-coast-flat | 1 |
-| 12 | TEMPERATE_SEA_ARCHES | temperate-coast, temperate-coast-highlands | 2 |
 | 13 | ARID_PALE_GARDEN_COAST | arid-coast-flat, tropical-vast-forest-coast | 2 |
 | 14 | ORANGE_ARID_PALE_GARDEN_COAST | arid-coast-flat, tropical-vast-forest-coast | 2 |
 | 15 | RED_ARID_PALE_GARDEN_COAST | arid-coast-flat, tropical-vast-forest-coast | 2 |
-| 16 | SANDSTONE_ARCHIPELAGO | arid-coast | 1 |
 | 17 | TERRACOTTA_SEA_CAVES | arid-coast-highlands | 1 |
 | 18 | MUDDY_COASTS | tropical-coast-flat | 1 |
 | 19 | PALM_BEACH | tropical-coast-flat | 1 |

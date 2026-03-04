@@ -58,10 +58,10 @@ stages:
       - boreal-ocean: *borealCold
       - boreal-ocean: *borealWarm
       - boreal-ocean: *borealHot
-      - temperate-ocean: *temperateCold
-      - temperate-ocean: *temperateWarm
+      - lukewarm-ocean: *temperateCold
+      - lukewarm-ocean: *temperateWarm
       - temperate-ocean: *temperateHot
-      - hot-ocean: *tropicalCold
+      - temperate-ocean: *tropicalCold
       - hot-ocean: *tropicalWarm
       - hot-ocean: *tropicalHot
     to:

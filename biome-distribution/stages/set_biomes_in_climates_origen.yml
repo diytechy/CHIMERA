@@ -549,7 +549,6 @@ stages:
         - FROZEN_OCEAN: 1
         - FROZEN_OCEAN_SLOPES: 1
         - ICEBERG_OCEAN: 2
-        - ABYSSAL_ALLEYS: 1
       polar-deep-ocean:
         - FROZEN_DEEP_OCEAN: 1
         - FROZEN_DEEP_DEPTHS: 1
@@ -564,11 +563,18 @@ stages:
         - COLD_OCEAN: 1
         - COLD_OCEAN_SLOPES: 1
         - ICEBERG_OCEAN: 1
-        - ABYSSAL_ALLEYS: 1
       boreal-deep-ocean:
         - COLD_DEEP_OCEAN: 1
         - COLD_DEEP_DEPTHS: 1
         - ABYSSAL_ALLEYS: 1
+      lukewarm-shallow-ocean:
+        - SUBTROPICAL_OCEAN_SLOPES: 2
+        - SUBTROPICAL_OCEAN_OVERHANGS: 1
+      lukewarm-ocean:
+        - SUBTROPICAL_OCEAN: 1
+      lukewarm-deep-ocean:
+        - SUBTROPICAL_DEEP_OCEAN: 2
+        - SUBTROPICAL_DEEP_DEPTHS: 1
       temperate-shallow-ocean:
         - KELP_FOREST: 2
         - SEAGRASS_MEADOW: 2

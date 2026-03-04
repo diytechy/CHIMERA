@@ -126,17 +126,26 @@ These biomes have river variants or depend on river placement. Many are **Hydrax
 - PERMAFROST_CLIFFS
 - SEARING_TORS
 
-### River Features:
+### Core river variants:
 - BAD_BALCOONIES_RIVER
-- CHILLY_CREEKS (cold river variant in mountain terrain)
-- DRAFTY_STREAMS
 - FROSTBITE_RIVERS
 - MOUNTAIN_RIVER_FROZEN
-- MUSKEG (swamp-like river biome)
+- CHILLY_CREEKS (cold river variant in mountain terrain)
+- DRAFTY_STREAMS
 - PLATEAO_RIVER_INNER, PLATEAO_RIVER_MIDDLE
 - TRAVERTINE_TERRACES, TRAVERTINE_TERRACES_RIVER
 - VERTICAL_JUNGLE_RIVER
-- WINTRY_SEAS, WINTRY_WATERS (frozen river/coast features)
+
+### River Features:
+- MUSKEG (swamp-like river biome)
+
+### Deep ocean
+- WINTRY_SEAS
+
+### Shallow Ocean
+- WINTRY_WATERS (frozen river/coast features)
+
+### Flat / near coast?
 - FROSTY_FINGERS (special river-adjacent)
 
 **Action for Hydraxia Biomes:** All Hydraxia-based woodlands and mountains should be placed in **COLD climates** in `set_biomes_in_climates_origen.yml`. Examples:

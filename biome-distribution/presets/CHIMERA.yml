@@ -98,7 +98,8 @@ biomes:
           sampler:
             type: WHITE_NOISE
 
-        - << biome-distribution/stages/PopulateTestStage.yml:stages
+        #- << biome-distribution/stages/PopulateTestStage.yml:stages
         - << biome-distribution/stages/add_rivers.yml:stages
+        - << biome-distribution/stages/add_trenches.yml:stages
         
 

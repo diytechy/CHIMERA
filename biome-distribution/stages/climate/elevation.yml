@@ -29,6 +29,10 @@ stages:
         - boreal-deep-ocean: 1
         - boreal-ocean: 1
         - boreal-shallow-ocean: 1
+      lukewarm-ocean:
+        - lukewarm-deep-ocean: 1
+        - lukewarm-ocean: 1
+        - lukewarm-shallow-ocean: 1
       temperate-ocean:
         - temperate-deep-ocean: 1
         - temperate-ocean: 1

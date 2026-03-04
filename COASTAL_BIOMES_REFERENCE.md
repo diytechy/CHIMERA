@@ -2,7 +2,7 @@
 
 This document tracks all coastal and coast-adjacent biome definitions extracted from `set_biomes_in_climates_origen.yml` before removal for consolidated coastal biome management.
 
-## Unique Final Coastal Biomes (30 total - minus a few)
+## Unique Final Coastal Biomes (26 total)
 
 | # | Biome Name | Source Definitions | Count |
 |---|---|---|---|
@@ -25,14 +25,10 @@ This document tracks all coastal and coast-adjacent biome definitions extracted 
 | 20 | MANGROVE_SWAMP | tropical-coast-flat, tropical-coast | 2 |
 | 21 | LUSH_SEA_CAVES | tropical-coast, tropical-coast-highlands | 2 |
 | 22 | PALE_GARDEN_COAST | boreal-vast-forest-coast, temperate-vast-forest-coast | 2 |
-| 23 | FROZEN_ISLAND_SHALLOWS | polar-sinkhole-border-ocean | 1 |
-| 24 | COLD_ISLAND_SHALLOWS | boreal-sinkhole-border-ocean, cold-sinkhole-border-ocean | 2 |
-| 25 | ISLAND_SHALLOWS | temperate-sinkhole-border-ocean | 1 |
-| 26 | TROPICAL_ISLAND_SHALLOWS | hot-sinkhole-border-ocean, tropical-sinkhole-border-ocean, desert-sinkhole-border-ocean | 3 |
-| 27 | MUSHROOM_COAST | mushroom-coast | 1 |
-| 28 | POLAR_MUSHROOM_COAST | polar-mushroom-coast | 1 |
-| 29 | TROPICAL_MUSHROOM_COAST | tropical-mushroom-coast | 1 |
-| 30 | BLACK_SAND_BEACH | volcano-coast | 1 |
+| 23 | MUSHROOM_COAST | mushroom-coast | 1 |
+| 24 | POLAR_MUSHROOM_COAST | polar-mushroom-coast | 1 |
+| 25 | TROPICAL_MUSHROOM_COAST | tropical-mushroom-coast | 1 |
+| 26 | BLACK_SAND_BEACH | volcano-coast | 1 |
 
 ## Source Categories
 
@@ -49,15 +45,6 @@ This document tracks all coastal and coast-adjacent biome definitions extracted 
 - temperate-vast-forest-coast
 - tropical-vast-forest-coast
 
-### Sinkhole Border Ocean Definitions (7 total)
-- polar-sinkhole-border-ocean
-- boreal-sinkhole-border-ocean
-- temperate-sinkhole-border-ocean
-- hot-sinkhole-border-ocean
-- tropical-sinkhole-border-ocean
-- desert-sinkhole-border-ocean
-- cold-sinkhole-border-ocean
-
 ### Mushroom Coastal Definitions (3 total)
 - mushroom-coast
 - polar-mushroom-coast
@@ -67,9 +54,9 @@ This document tracks all coastal and coast-adjacent biome definitions extracted 
 - volcano-coast
 
 ## Removed Sections
-The following 30 definitions have been removed from `set_biomes_in_climates_origen.yml`:
+The following definitions have been extracted from `set_biomes_in_climates_origen.yml` (26 coastal + 7 oceanic):
 
-**Removed from Landmass section (lines ~45-60, ~336-345, ~702-715, ~853-865):**
+**Removed from Landmass section (15 coast definitions):**
 1. polar-coast-flat
 2. polar-coast
 3. polar-coast-highlands
@@ -86,13 +73,13 @@ The following 30 definitions have been removed from `set_biomes_in_climates_orig
 14. tropical-coast
 15. tropical-coast-highlands
 
-**Removed from Largeland section:**
+**Removed from Largeland section (4 coast-forest definitions):**
 16. polar-vast-forest-coast
 17. boreal-vast-forest-coast
 18. temperate-vast-forest-coast
 19. tropical-vast-forest-coast
 
-**Removed from Spot biomes section (sinkhole-border-ocean variants):**
+**Removed from Spot biomes section (7 sinkhole-border-ocean → oceanic island shallows):**
 20. polar-sinkhole-border-ocean
 21. boreal-sinkhole-border-ocean
 22. temperate-sinkhole-border-ocean
@@ -100,31 +87,46 @@ The following 30 definitions have been removed from `set_biomes_in_climates_orig
 24. tropical-sinkhole-border-ocean
 25. desert-sinkhole-border-ocean
 26. cold-sinkhole-border-ocean
+
+**Removed from Spot biomes section (1 volcano-coast definition):**
 27. volcano-coast
 
-**Removed from Constant mappings section:**
+**Removed from Constant mappings section (3 mushroom-coast definitions):**
 28. mushroom-coast
 29. polar-mushroom-coast
 30. tropical-mushroom-coast
 
-## Biomes Still Present in set_biomes_in_climates_origen.yml (10 total)
+## Oceanic "Shallows" Biomes - To Be Injected Elsewhere (4 total)
+
+These biomes contain "SHALLOWS" in their name and are oceanic rather than coastal. They should be managed in ocean/island configuration files, not coastal distributions:
+
+| # | Biome Name | Current Locations | Purpose |
+|---|---|---|---|
+| 1 | FROZEN_ISLAND_SHALLOWS | island-polar-shallow-ocean, polar-sinkhole-border-ocean (spot section) | Cold island ocean transitions |
+| 2 | COLD_ISLAND_SHALLOWS | island-boreal-shallow-ocean, boreal-sinkhole-border-ocean (spot section) | Boreal island ocean transitions |
+| 3 | ISLAND_SHALLOWS | island-temperate-shallow-ocean, temperate-sinkhole-border-ocean (spot section) | Temperate island ocean transitions |
+| 4 | TROPICAL_ISLAND_SHALLOWS | island-hot-shallow-ocean, hot/tropical/desert-sinkhole-border-ocean (spot section) | Tropical island ocean transitions |
+
+**Note:** These biomes serve dual purposes:
+- Primary: Island-specific shallow ocean zones (island-X-shallow-ocean)
+- Secondary: Sinkhole-border-ocean transitions in spot biomes section
+
+They should remain in the ocean biome configuration and spot biemes sections, NOT in coastal distributions.
+
+## Biomes Still Present in set_biomes_in_climates_origen.yml (6 true coastal biomes)
 
 These coastal biomes are still found in the main configuration file in other sections (not removed):
 
 | # | Biome Name | Location in File |
 |---|---|---|
 | 1 | FRIGID_WASTELANDS | tundra-flat section |
-| 3 | FROZEN_ISLAND_SHALLOWS | island-polar-shallow-ocean, polar-sinkhole-border (spot section), polar-sinkhole (landmass section) |
-| 4 | COLD_ISLAND_SHALLOWS | island-boreal-shallow-ocean, boreal-sinkhole-border (spot), cold-sinkhole-border (spot) |
-| 5 | ISLAND_SHALLOWS | island-temperate-shallow-ocean, temperate-sinkhole-border (spot) |
-| 6 | TROPICAL_ISLAND_SHALLOWS | island-hot-shallow-ocean, hot-sinkhole-border (spot), tropical-sinkhole-border (spot), desert-sinkhole-border (spot) |
-| 7 | BLACK_SAND_BEACH | volcano-coast (spot biomes section) |
-| 8 | PALE_GARDEN | boreal-vast-forest, temperate-vast-forest (largeland section) |
-| 9 | POLAR_PALE_GARDEN | polar-vast-forest (largeland section) |
-| 10 | ARID_PALE_GARDEN, ORANGE_ARID_PALE_GARDEN, RED_ARID_PALE_GARDEN | constant mappings section |
+| 2 | ROCKY_ARCHIPELAGO | archipelago-zone section |
+| 3 | BLACK_SAND_BEACH | volcano-coast (spot biomes section) |
+| 4 | PALE_GARDEN | boreal-vast-forest, temperate-vast-forest (largeland section) |
+| 5 | POLAR_PALE_GARDEN | polar-vast-forest (largeland section) |
+| 6 | ARID_PALE_GARDEN, ORANGE_ARID_PALE_GARDEN, RED_ARID_PALE_GARDEN | constant mappings section |
 
 **Important Note:** These biomes are still in the file because they serve dual purposes:
-- **Island shallow biomes** are used in island-specific ocean zones AND sinkhole-border-ocean transitions
 - **BLACK_SAND_BEACH** is used for volcano-coast spots
 - **PALE_GARDEN variants** are used in largeland (vast forest) biomes
 - **FRIGID_WASTELANDS** appears in tundra-flat

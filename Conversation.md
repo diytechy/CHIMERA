@@ -356,14 +356,14 @@ EQ_TERRACED_MOUNTAINS
 EQ_TERRACE_MOUNTAINS
 EQ_TILTED_PLATEAU
 
-Plane-like:
-EQ_PLAINS
+Plane-like (Moderate to dry)
+EQ_PLAINS 
 EQ_FLAT_BUMPY
 EQ_FLAT_ERODED
 EQ_CRACKED_FLATS
 EQ_BUTTES
 
-Wetlands / lowlands / plain-like / coastal:
+Wetlands / lowlands / plain-like / coastal (Precipitous)
 EQ_BOG
 EQ_WARPED_WETLANDS
 EQ_SWAMP
@@ -394,6 +394,13 @@ FROSTCOATED_BOG
   should likely not allow carving.
   Allow cell elevation based raise
   Double-check ocean level
+
+Given open pond sections, variable water height ponds will look very very strange.  Will now plan to place swamp-like biomes only at the edge of continents, and not dynamically affect water flow.
+
+Thus to-do is:
+
+1. Revert all low-lying biomes that contain water (remove elevation offset).
+2. 
 
 positiveWhiteNoise is getting removed incorrectly by OptimizePackSamplers.py
 

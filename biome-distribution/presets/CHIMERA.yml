@@ -24,9 +24,11 @@ biomes:
         sampler:
           type: EXPRESSION
           expression: spotPlacer(x, z)
+        #Note ocean and land spots are always at end, the "20" here is just to give approximate 
+        #distribution, but weather 20, 200, or 1 for non_spots, the same result will be yielded.
         biomes:
           _ocean_spot: 1
-          _non_spot: 1
+          _non_spot: 20
           _land_spot: 1
       stages:
         - type: REPLACE

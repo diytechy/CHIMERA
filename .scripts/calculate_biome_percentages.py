@@ -264,6 +264,9 @@ def _leaf_sampler_type(sampler: Any) -> str:
     all have a 'sampler' sub-key; the distribution of the output follows that inner
     sampler.  EXPRESSION and leaf types (CELLULAR, OPEN_SIMPLEX_2, …) are returned
     as-is.
+
+    Special case: CELLULAR with return: CellValue produces hash-based values that
+    are effectively uniform, unlike the default distance-based output.
     """
     _WRAPPERS = {"CACHE", "DOMAIN_WARP", "FBM", "CLAMP", "LINEAR", "LINEAR_MAP", "NORMALIZER"}
     if not isinstance(sampler, dict):
@@ -273,6 +276,9 @@ def _leaf_sampler_type(sampler: Any) -> str:
         inner = sampler.get("sampler")
         if inner:
             return _leaf_sampler_type(inner)
+    # CELLULAR with CellValue return uses hash-based output (uniform distribution)
+    if t == "CELLULAR" and sampler.get("return") == "CellValue":
+        return "uniform"
     return t if t else "uniform"
 
 

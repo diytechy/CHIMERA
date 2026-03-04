@@ -4,6 +4,69 @@
 This document analyzes all **138 biomes** currently at 0% distribution in the CHIMERA pack and provides specific recommendations for how to integrate each into the pack.
 
 **Total Biomes to Process: 138**
+## Category 7: SPECIALIZED BIOMES REQUIRING CLIMATE PLACEMENT (28 biomes)
+
+These biomes need to be placed in specific climates in `set_biomes_in_climates_origen.yml`:
+
+### COLD CLIMATE - Polar/Glacier Variants:
+- POLAR_PALE_GARDEN (use in vast-forest categories)
+- SINKHOLE_FOREST (temperate/forested sinkhole area)
+
+### HOT/WARM CLIMATE - Pale Garden Variants (Arid):
+- ARID_PALE_GARDEN
+- ORANGE_ARID_PALE_GARDEN
+- RED_ARID_PALE_GARDEN
+
+*These pale garden biomes should likely be placed in special vast-forest categories similar to PALE_GARDEN placement, but in appropriate temperature zones.*
+
+### Mushroom Biomes:
+- MUSHROOM_FIELDS
+
+
+## Category 3: COASTAL BIOMES (19 biomes)
+
+These should be integrated into coastal distribution, primarily through `fill_coasts.yml`:
+
+### Temperature-Specific Beaches:
+- **Cold:** SHALE_BEACH, FROZEN_BEACH, SNOWY_SEA_CAVES
+- **Warm/Tropical:** PALM_BEACH, MUDDY_COASTS, TROPICAL_MUSHROOM_COAST, LUSH_SEA_CAVES
+- **Rocky/Mixed:** ROCKY_SEA_CAVES, TERRACOTTA_SEA_CAVES
+
+### Pale Garden Variants (coast):
+- ARID_PALE_GARDEN_COAST
+- ORANGE_ARID_PALE_GARDEN_COAST
+- PALE_GARDEN_COAST
+- POLAR_PALE_GARDEN_COAST
+- RED_ARID_PALE_GARDEN_COAST
+- POLAR_MUSHROOM_COAST
+
+### Other:
+- BEACH, SHRUB_BEACH, SNOWDRIFT_COASTS, MUSHROOM_COAST
+
+
+- POLAR_MUSHROOM_COAST (Special feature for polar regions)
+- PINE_BARRENS (coastal pine forest)
+
+
+**Action:** These require additions to `fill_coasts.yml` to be placed in appropriate temperature zones. Structure them similarly to existing entries:
+```yaml
+- type: REPLACE
+  from: coast_small_cold
+  to:
+    SHALE_BEACH: X
+    FROZEN_BEACH: Y
+```
+
+### Core river variants:
+- BAD_BALCOONIES_RIVER
+- FROSTBITE_RIVERS
+- MOUNTAIN_RIVER_FROZEN
+- CHILLY_CREEKS (cold river variant in mountain terrain)
+- DRAFTY_STREAMS
+- PLATEAO_RIVER_INNER, PLATEAO_RIVER_MIDDLE
+- TRAVERTINE_TERRACES, TRAVERTINE_TERRACES_RIVER
+- VERTICAL_JUNGLE_RIVER
+
 
 ---
 
@@ -41,34 +104,6 @@ These biomes are part of special terrain generation features (crater lakes, sink
 
 ---
 
-## Category 3: COASTAL BIOMES (19 biomes)
-
-These should be integrated into coastal distribution, primarily through `fill_coasts.yml`:
-
-### Temperature-Specific Beaches:
-- **Cold:** SHALE_BEACH, FROZEN_BEACH, SNOWY_SEA_CAVES
-- **Warm/Tropical:** PALM_BEACH, MUDDY_COASTS, TROPICAL_MUSHROOM_COAST, LUSH_SEA_CAVES
-- **Rocky/Mixed:** ROCKY_SEA_CAVES, TERRACOTTA_SEA_CAVES
-
-### Pale Garden Variants (coast):
-- ARID_PALE_GARDEN_COAST
-- ORANGE_ARID_PALE_GARDEN_COAST
-- PALE_GARDEN_COAST
-- POLAR_PALE_GARDEN_COAST
-- RED_ARID_PALE_GARDEN_COAST
-- POLAR_MUSHROOM_COAST
-
-### Other:
-- BEACH, SHRUB_BEACH, SNOWDRIFT_COASTS, MUSHROOM_COAST
-
-**Action:** These require additions to `fill_coasts.yml` to be placed in appropriate temperature zones. Structure them similarly to existing entries:
-```yaml
-- type: REPLACE
-  from: coast_small_cold
-  to:
-    SHALE_BEACH: X
-    FROZEN_BEACH: Y
-```
 
 ---
 
@@ -105,7 +140,10 @@ These biomes have river variants or depend on river placement. Many are **Hydrax
 - POLAR_PALE_GARDEN_RIVER
 - RED_ARID_PALE_GARDEN_RIVER
 
-### Hydraxia Woodlands/Mountain Biomes (all COLD):
+### Hydraxia Woodlands/Mountain Biomes (all COLD - COMPLETED):
+
+Now distribute the following biomes into either tundra, boreal-snowy, or boreal-cold
+
 - AUTUMNAL_WOODLANDS
 - BIRCH_WOODLANDS
 - DARK_OAK_WOODLANDS
@@ -119,25 +157,18 @@ These biomes have river variants or depend on river placement. Many are **Hydrax
 - SUGAR_PINE_WOODLANDS
 
 ### Hydraxia Highland Biomes (all COLD):
-- BITTER_HEIGHTS
-- FIR_HIGHLANDS
-- FRIGID_WASTELANDS
-- LAVENDER_FIELDS
-- PERMAFROST_CLIFFS
-- SEARING_TORS
+- BITTER_HEIGHTS (Polar)
+- FIR_HIGHLANDS (Boreal)
+- PERMAFROST_CLIFFS (Polar)
+- SEARING_TORS (Boreal)
 
-### Core river variants:
-- BAD_BALCOONIES_RIVER
-- FROSTBITE_RIVERS
-- MOUNTAIN_RIVER_FROZEN
-- CHILLY_CREEKS (cold river variant in mountain terrain)
-- DRAFTY_STREAMS
-- PLATEAO_RIVER_INNER, PLATEAO_RIVER_MIDDLE
-- TRAVERTINE_TERRACES, TRAVERTINE_TERRACES_RIVER
-- VERTICAL_JUNGLE_RIVER
+### Hydraxia flats:
+- FRIGID_WASTELANDS (Set)
+- LAVENDER_FIELDS (Set)
 
 ### River Features:
 - MUSKEG (swamp-like river biome)
+
 
 ### Deep ocean
 - WINTRY_SEAS
@@ -161,7 +192,7 @@ These biomes have river variants or depend on river placement. Many are **Hydrax
 
 These are extrusion/cavern biomes and are **NOT** for surface placement:
 
-### Hydraxia Caverns (all COLD):
+### Hydraxia Caverns (all COLD - SHOULD INHERIT FROM OTHERS):
 - ACACIA_CAVERNS
 - AUTUMNAL_CAVERNS
 - BIRCH_CAVERNS
@@ -172,7 +203,7 @@ These are extrusion/cavern biomes and are **NOT** for surface placement:
 - OAK_CAVERNS
 - SAKURA_CAVERNS
 
-### Surface Caverns:
+### Surface Caverns (SHOULD ALL BE COMPLETE NOW):
 - MUSHROOM_CAVES
 - RESIN_ROOTS
 - FROSTBOUND_CHASMS
@@ -181,25 +212,6 @@ These are extrusion/cavern biomes and are **NOT** for surface placement:
 
 ---
 
-## Category 7: SPECIALIZED BIOMES REQUIRING CLIMATE PLACEMENT (28 biomes)
-
-These biomes need to be placed in specific climates in `set_biomes_in_climates_origen.yml`:
-
-### COLD CLIMATE - Polar/Glacier Variants:
-- POLAR_PALE_GARDEN (use in vast-forest categories)
-- SINKHOLE_FOREST (temperate/forested sinkhole area)
-
-### HOT/WARM CLIMATE - Pale Garden Variants (Arid):
-- ARID_PALE_GARDEN
-- ORANGE_ARID_PALE_GARDEN
-- RED_ARID_PALE_GARDEN
-
-*These pale garden biomes should likely be placed in special vast-forest categories similar to PALE_GARDEN placement, but in appropriate temperature zones.*
-
-### Mushroom Biomes:
-- MUSHROOM_FIELDS
-- POLAR_MUSHROOM_COAST (Special feature for polar regions)
-- PINE_BARRENS (coastal pine forest)
 
 ### Unknown/Special:
 - YELLOWSTONE (likely a special feature biome)

@@ -19,12 +19,17 @@ stages:
         - ICE_CAPS: 4
         - SNOWY_SPIRES: 2
         - BARE_BOULDERFIELDS: 1
+        - BITTER_HEIGHTS: 1
+        - PERMAFROST_CLIFFS: 1
+        - FROSTBOUND_CHASMS: 1
       ice-cap-mesa:
         - ARCTIC_MESA: 1
 
       tundra-flat:
         - TUNDRA: 2
         - TUNDRA_TRACKS: 1
+        - FRIGID_WASTELANDS: 1
+        - MUSKEG: 1
       tundra:
         - TUNDRA: 2
         - SNOWY_TUFF_MOUNTAINS: 1
@@ -36,10 +41,14 @@ stages:
         - ALPINE_ASCENDANCY: 2
         - SNOWY_SPIRES: 1
         - BARE_BOULDERFIELDS: 1
+        - BITTER_HEIGHTS: 1
+        - PERMAFROST_CLIFFS: 1
+        - FROSTBOUND_CHASMS: 1
 
       polar-coast-flat:
         - FROZEN_BEACH: 2
         - FROSTY_FINGERS: 1
+        - FRIGID_WASTELANDS: 1
       polar-coast:
         - SNOWY_SEA_CAVES: 1
         - FROSTY_FINGERS: 1
@@ -108,6 +117,7 @@ stages:
         - maple-groves: 1
         - TAIGA_CLEARING: 1
         - FIR_FIELDS: 1
+        - LAVENDER_FIELDS: 2
       boreal-cold:
         - TAIGA_CLEARING: 1
         - TAIGA: 2
@@ -115,6 +125,15 @@ stages:
         - maple-groves: 1
         - BLACK_FOREST: 1
         - GLOOMY_GORGE: 1
+        - AUTUMNAL_WOODLANDS: 1
+        - BIRCH_WOODLANDS: 1
+        - DARK_OAK_WOODLANDS: 1
+        - ENCHANTED_WOODLANDS: 1
+        - MAPLE_WOODLANDS: 1
+        - OAK_WOODLANDS: 1
+        - REDWOOD_WOODLANDS: 1
+        - SAKURA_WOODLANDS: 1
+        - SUGAR_PINE_WOODLANDS: 1
       boreal-cold-highlands:
         - MOUNTAINS: 1
         - ROCKY_REFUGE: 1
@@ -130,12 +149,16 @@ stages:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1
         - FROZEN_FUNGI: 1
+        - SPRUCE_WOODLANDS: 1
+        - ICEBOUND_JUNGLE: 1
       boreal-snowy-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
         - MOUNTAIN_MIRRORS: 1
         - ALPINE_ASCENDANCY: 1
         - BARE_BOULDERFIELDS: 1
+        - FIR_HIGHLANDS: 1
+        - SEARING_TORS: 1
 
       boreal-hot-dry-flat:
         - PRAIRIE: 1
@@ -545,6 +568,7 @@ stages:
       polar-shallow-ocean-midlands:
         - FROZEN_OCEAN: 1
         - FROZEN_OCEAN_OVERHANGS: 1
+        - WINTRY_WATERS: 1
       polar-ocean:
         - FROZEN_OCEAN: 1
         - FROZEN_OCEAN_SLOPES: 1
@@ -553,12 +577,14 @@ stages:
         - FROZEN_DEEP_OCEAN: 1
         - FROZEN_DEEP_DEPTHS: 1
         - ABYSSAL_ALLEYS: 1
+        - WINTRY_SEAS: 1
       boreal-shallow-ocean:
         - KELP_FOREST_GRAVEL: 2
         - STONEGATE_SEAS: 1
       boreal-shallow-ocean-midlands:
         - COLD_OCEAN: 1
         - COLD_OCEAN_OVERHANGS: 1
+        - WINTRY_WATERS: 1
       boreal-ocean:
         - COLD_OCEAN: 1
         - COLD_OCEAN_SLOPES: 1
@@ -567,6 +593,7 @@ stages:
         - COLD_DEEP_OCEAN: 1
         - COLD_DEEP_DEPTHS: 1
         - ABYSSAL_ALLEYS: 1
+        - WINTRY_SEAS: 1
       lukewarm-shallow-ocean:
         - SUBTROPICAL_OCEAN_SLOPES: 2
         - SUBTROPICAL_OCEAN_OVERHANGS: 1

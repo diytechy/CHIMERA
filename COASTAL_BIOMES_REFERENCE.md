@@ -2,7 +2,7 @@
 
 This document tracks all coastal and coast-adjacent biome definitions extracted from `set_biomes_in_climates_origen.yml` before removal for consolidated coastal biome management.
 
-## Unique Final Coastal Biomes (30 total)
+## Unique Final Coastal Biomes (30 total - minus a few)
 
 | # | Biome Name | Source Definitions | Count |
 |---|---|---|---|
@@ -107,8 +107,32 @@ The following 30 definitions have been removed from `set_biomes_in_climates_orig
 29. polar-mushroom-coast
 30. tropical-mushroom-coast
 
+## Biomes Still Present in set_biomes_in_climates_origen.yml (10 total)
+
+These coastal biomes are still found in the main configuration file in other sections (not removed):
+
+| # | Biome Name | Location in File |
+|---|---|---|
+| 1 | FRIGID_WASTELANDS | tundra-flat section |
+| 3 | FROZEN_ISLAND_SHALLOWS | island-polar-shallow-ocean, polar-sinkhole-border (spot section), polar-sinkhole (landmass section) |
+| 4 | COLD_ISLAND_SHALLOWS | island-boreal-shallow-ocean, boreal-sinkhole-border (spot), cold-sinkhole-border (spot) |
+| 5 | ISLAND_SHALLOWS | island-temperate-shallow-ocean, temperate-sinkhole-border (spot) |
+| 6 | TROPICAL_ISLAND_SHALLOWS | island-hot-shallow-ocean, hot-sinkhole-border (spot), tropical-sinkhole-border (spot), desert-sinkhole-border (spot) |
+| 7 | BLACK_SAND_BEACH | volcano-coast (spot biomes section) |
+| 8 | PALE_GARDEN | boreal-vast-forest, temperate-vast-forest (largeland section) |
+| 9 | POLAR_PALE_GARDEN | polar-vast-forest (largeland section) |
+| 10 | ARID_PALE_GARDEN, ORANGE_ARID_PALE_GARDEN, RED_ARID_PALE_GARDEN | constant mappings section |
+
+**Important Note:** These biomes are still in the file because they serve dual purposes:
+- **Island shallow biomes** are used in island-specific ocean zones AND sinkhole-border-ocean transitions
+- **BLACK_SAND_BEACH** is used for volcano-coast spots
+- **PALE_GARDEN variants** are used in largeland (vast forest) biomes
+- **FRIGID_WASTELANDS** appears in tundra-flat
+- **ROCKY_ARCHIPELAGO** is in archipelago zones
+
 ## Next Steps
-- Create `fill_coasts.yml` or similar file to consolidate coastal biome distribution
+- Create `fill_coasts.yml` or similar file to consolidate pure coastal biome distribution (the 17 biomes not found in main config)
 - Organize by temperature gradient (polar → arid/hot)
 - Group by elevation (flat, midlands, highlands)
 - Consider island-specific variants for archipelago distribution
+- Note: Island shallow biomes and volcano-coast biomes should remain in spot biomes section

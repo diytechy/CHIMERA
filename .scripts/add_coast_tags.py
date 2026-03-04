@@ -1,0 +1,130 @@
+import yaml
+from pathlib import Path
+
+# Coast assignments from document
+coast_assignments = {
+    # Direct matches
+    'ARID_PALE_GARDEN': 'ARID_PALE_GARDEN_COAST',
+    'MUSHROOM_FIELDS': 'MUSHROOM_COAST',
+    'ORANGE_ARID_PALE_GARDEN': 'ORANGE_ARID_PALE_GARDEN_COAST',
+    'PALE_GARDEN': 'PALE_GARDEN_COAST',
+    'POLAR_MUSHROOM_FIELDS': 'POLAR_MUSHROOM_COAST',
+    'POLAR_PALE_GARDEN': 'POLAR_PALE_GARDEN_COAST',
+    'RED_ARID_PALE_GARDEN': 'RED_ARID_PALE_GARDEN_COAST',
+    'TROPICAL_MUSHROOM_FIELDS': 'TROPICAL_MUSHROOM_COAST',
+    # arid-coast-flat
+    'ARID_SPIKES': 'ARID_COAST_FLAT',
+    'BADLANDS': 'ARID_COAST_FLAT',
+    'BADLANDS_BUTTES': 'ARID_COAST_FLAT',
+    'CARVING_CREAKS': 'ARID_COAST_FLAT',
+    # boreal-coast-flat
+    'AUTUMNAL_WOODLANDS': 'BOREAL_COAST_FLAT',
+    'ENCHANTED_WOODLANDS': 'BOREAL_COAST_FLAT',
+    'GLOOMY_GORGE': 'BOREAL_COAST_FLAT',
+    'SAKURA_WOODLANDS': 'BOREAL_COAST_FLAT',
+    'SNOWY_BIRCH_FOREST': 'BOREAL_COAST_FLAT',
+    'SNOWY_PLAINS': 'BOREAL_COAST_FLAT',
+    'SNOWY_TAIGA': 'BOREAL_COAST_FLAT',
+    'STEPPE': 'BOREAL_COAST_FLAT',
+    'SUNFLOWER_PRAIRIE': 'BOREAL_COAST_FLAT',
+    'SNOWY_BADLANDS': 'BOREAL_COAST_FLAT',
+    # boreal-coast-highlands
+    'MONTANE_FOREST': 'BOREAL_COAST_HIGHLANDS',
+    'MOUNTAINS': 'BOREAL_COAST_HIGHLANDS',
+    'SEARING_TORS': 'BOREAL_COAST_HIGHLANDS',
+    'SNOWY_MOUNTAINS': 'BOREAL_COAST_HIGHLANDS',
+    'VERTICAL_VISTAS': 'BOREAL_COAST_HIGHLANDS',
+    # polar-coast-flat
+    'COLD_EXTINCT_VOLCANO': 'POLAR_COAST_FLAT',
+    'FROZEN_FUNGI': 'POLAR_COAST_FLAT',
+    'ICE_SPIKES': 'POLAR_COAST_FLAT',
+    'LAND_GLACIER': 'POLAR_COAST_FLAT',
+    'SNOWY_TUFF_MOUNTAINS': 'POLAR_COAST_FLAT',
+    'TUNDRA': 'POLAR_COAST_FLAT',
+    # polar-coast-highlands
+    'ALPINE_ASCENDANCY': 'POLAR_COAST_HIGHLANDS',
+    'FROSTBOUND_CHASMS': 'POLAR_COAST_HIGHLANDS',
+    'FROZEN_SPIRES': 'POLAR_COAST_HIGHLANDS',
+    'ICE_CAPS': 'POLAR_COAST_HIGHLANDS',
+    'MOUNTAIN_MIRRORS': 'POLAR_COAST_HIGHLANDS',
+    'SNOWY_BLACKSTONE_MOUNTAINS': 'POLAR_COAST_HIGHLANDS',
+    'SNOWY_SPIRES': 'POLAR_COAST_HIGHLANDS',
+    'VERTICAL_VISTAS_FROZEN': 'POLAR_COAST_HIGHLANDS',
+    # temperate-coast-flat
+    'DARK_FOREST': 'TEMPERATE_COAST_FLAT',
+    'OAK_SAVANNA': 'TEMPERATE_COAST_FLAT',
+    'PALM_FOREST': 'TEMPERATE_COAST_FLAT',
+    'ROCKY_GRASSLAND': 'TEMPERATE_COAST_FLAT',
+    'SAKURA_STREAMS': 'TEMPERATE_COAST_FLAT',
+    'TEMPERATE_GRASSLAND': 'TEMPERATE_COAST_FLAT',
+    'TEMPERATE_OVERPASS': 'TEMPERATE_COAST_FLAT',
+    'VERDANT_VALLEYS': 'TEMPERATE_COAST_FLAT',
+    'WOODED_BUTTES': 'TEMPERATE_COAST_FLAT',
+    'PRAIRIE': 'TEMPERATE_COAST_FLAT',
+    # temperate-coast-highlands
+    'DRY_TEMPERATE_MOUNTAINS': 'TEMPERATE_COAST_HIGHLANDS',
+    'DRY_TEMPERATE_WHITE_MOUNTAINS': 'TEMPERATE_COAST_HIGHLANDS',
+    'HIGHLANDS': 'TEMPERATE_COAST_HIGHLANDS',
+    'TEMPERATE_ALPHA_MOUNTAINS': 'TEMPERATE_COAST_HIGHLANDS',
+    'VERTICAL_VISTAS_WARM': 'TEMPERATE_COAST_HIGHLANDS',
+    # tropical-coast-flat
+    'BADLANDS_BALCONIES': 'TROPICAL_COAST_FLAT',
+    'BAMBOO_BASIN': 'TROPICAL_COAST_FLAT',
+    'BAMBOO_JUNGLE': 'TROPICAL_COAST_FLAT',
+    'CANOPY_CASCADES': 'TROPICAL_COAST_FLAT',
+    'CLOUD_FOREST': 'TROPICAL_COAST_FLAT',
+    'DRY_WOODLANDS': 'TROPICAL_COAST_FLAT',
+    'GRASS_SAVANNA': 'TROPICAL_COAST_FLAT',
+    'JUNGLE': 'TROPICAL_COAST_FLAT',
+    'LUSH_LOOPS': 'TROPICAL_COAST_FLAT',
+    'MONSOON_FOREST': 'TROPICAL_COAST_FLAT',
+    'OVERGROWN_CLIFFS': 'TROPICAL_COAST_FLAT',
+    'ROCKY_JUNGLE': 'TROPICAL_COAST_FLAT',
+    'SAVANNA': 'TROPICAL_COAST_FLAT',
+    'SCARLET_SANCTUARY': 'TROPICAL_COAST_FLAT',
+    'TAR_PITS': 'TROPICAL_COAST_FLAT',
+    'TROPICAL_EXTINCT_VOLCANO': 'TROPICAL_COAST_FLAT',
+    'TROPICAL_MESA': 'TROPICAL_COAST_FLAT',
+    'TROPICAL_RAINFOREST': 'TROPICAL_COAST_FLAT',
+    'WET_SAVANNA': 'TROPICAL_COAST_FLAT',
+    # tropical-coast-highlands
+    'DIKSAM_PLATEAU': 'TROPICAL_COAST_HIGHLANDS',
+    'ORANGE_XERIC_MOUNTAINS': 'TROPICAL_COAST_HIGHLANDS',
+    'RED_XERIC_MOUNTAINS': 'TROPICAL_COAST_HIGHLANDS',
+    'SAVANNA_OVERHANGS': 'TROPICAL_COAST_HIGHLANDS',
+    'XERIC_MOUNTAINS': 'TROPICAL_COAST_HIGHLANDS',
+}
+
+biomes_dir = Path("C:/Projects/ORIGEN2/biomes")
+updated = 0
+not_found = []
+
+for biome_id, coast_tag in coast_assignments.items():
+    # Find biome file
+    biome_files = list(biomes_dir.rglob(f"*{biome_id.lower()}*.yml"))
+    
+    if not biome_files:
+        not_found.append(biome_id)
+        continue
+    
+    biome_file = biome_files[0]
+    
+    with open(biome_file, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+    
+    # Add coast tag
+    if 'tags' not in data:
+        data['tags'] = []
+    
+    if coast_tag not in data['tags']:
+        data['tags'].append(coast_tag)
+    
+    with open(biome_file, 'w', encoding='utf-8') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    updated += 1
+    print(f"Updated {biome_id}: added {coast_tag}")
+
+print(f"\nTotal updated: {updated}")
+if not_found:
+    print(f"Not found: {', '.join(not_found)}")

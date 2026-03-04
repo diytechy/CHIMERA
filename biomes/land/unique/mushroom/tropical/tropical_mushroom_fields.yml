@@ -12,6 +12,7 @@ tags:
 - USE_MUSHROOM_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
+- TROPICAL_MUSHROOM_COAST
 palette:
 - MYCELIUM: $meta.yml:top-y
 - << meta.yml:palette-underwater

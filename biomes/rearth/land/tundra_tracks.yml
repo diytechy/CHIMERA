@@ -17,6 +17,7 @@ tags:
 - USE_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
+- POLAR_COAST_FLAT
 palette:
 - GRASS_SNOW_MIX: 319
 - BLOCK:minecraft:blue_ice: 62

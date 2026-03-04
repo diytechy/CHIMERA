@@ -9,6 +9,7 @@ tags:
 - USE_LOOPS_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
+- TROPICAL_COAST_FLAT
 colors:
   grass: 3850003
   foliage: 43543

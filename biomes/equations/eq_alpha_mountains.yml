@@ -1,18 +1,17 @@
 id: EQ_ALPHA_MOUNTAINS
 type: BIOME
 abstract: true
-
-vars: &variables
+vars: &id001
   base: $customization.yml:legacy-terrain-base-y-level
   height: 140
   blobStrength: 30
-
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    expression: -y + base + BiomeShapeLandmassBaseOffset(x,z) + (noise(x, z)+1)/2 * height + (noise3(x, y*3, z)+1)/2 * blobStrength
-    variables: *variables
+    expression: -y + base + BiomeShapeLandmassBaseOffset(x,z) + (noise(x, z)+1)/2
+      * height + (noise3(x, y*3, z)+1)/2 * blobStrength
+    variables: *id001
     samplers:
       noise:
         dimensions: 2
@@ -25,3 +24,5 @@ terrain:
         dimensions: 3
         type: OPEN_SIMPLEX_2
         frequency: 0.018
+tags:
+- BOREAL_COAST_HIGHLANDS

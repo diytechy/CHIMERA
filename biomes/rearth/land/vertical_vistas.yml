@@ -13,6 +13,7 @@ colors:
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES
+- BOREAL_COAST_HIGHLANDS
 slant:
 - threshold: 0.8
   palette:

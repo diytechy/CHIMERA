@@ -1,42 +1,42 @@
 id: AUTUMNAL_WOODLANDS
 type: BIOME
-extends: [ EQ_HILLS, BASE_HYDRAXIA, EQ_CARVING_LAND, HYDRAXIA_ORES_GOLD ]
+extends:
+- EQ_HILLS
+- BASE_HYDRAXIA
+- EQ_CARVING_LAND
+- HYDRAXIA_ORES_GOLD
 vanilla: minecraft:snowy_taiga
-
 colors:
-  grass: 0xffb280
-  foliage: 0xff6a19
-
+  grass: 16757376
+  foliage: 16738841
 palette:
-  - GRASS: 319
-  - RIVER_BANK: 64
-  - RIVER_MUD: 61
-  - << palettes/rock_layers.yml:palette
-
+- GRASS: 319
+- RIVER_BANK: 64
+- RIVER_MUD: 61
+- << palettes/rock_layers.yml:palette
 slant:
-  - threshold: 3.5
-    palette:
-      - GRANITE_SLANT: 319
-      - << palettes/rock_layers.yml:palette
-
+- threshold: 3.5
+  palette:
+  - GRANITE_SLANT: 319
+  - << palettes/rock_layers.yml:palette
 features:
   landforms:
-    - BOULDERS
-    - SMALL_BOULDER_PATCHES
-    - AUTUMNAL_BUSHES
+  - BOULDERS
+  - SMALL_BOULDER_PATCHES
+  - AUTUMNAL_BUSHES
   flora:
-    - GRASS
-    - TALL_GRASS
-    - FERNS
-    - PUMPKIN_PATCHES
+  - GRASS
+  - TALL_GRASS
+  - FERNS
+  - PUMPKIN_PATCHES
   trees:
-    - AUTUMNAL_TREES
+  - AUTUMNAL_TREES
   snow:
-    - SNOW_LAYERS
-    - SNOW_LAYERS_SINGLE_MODERATE
-    - TREE_SNOW
+  - SNOW_LAYERS
+  - SNOW_LAYERS_SINGLE_MODERATE
+  - TREE_SNOW
   entities:
-    - COMMON_MOBS
-    
+  - COMMON_MOBS
 tags:
-  - CAVERNS_LAND
+- CAVERNS_LAND
+- BOREAL_COAST_FLAT

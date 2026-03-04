@@ -1650,10 +1650,12 @@ class BiomeReader:
                             if not is_abstract:
                                 cls._valid_biomes.add(biome_id)
 
-                            # Extract tags
+                            # Extract tags (merge if biome ID already seen from another file)
                             tags = data.get('tags', [])
                             if isinstance(tags, list):
-                                cls._biome_tags[biome_id] = tags
+                                existing = cls._biome_tags.get(biome_id, [])
+                                merged = list(dict.fromkeys(existing + tags))  # preserve order, dedupe
+                                cls._biome_tags[biome_id] = merged
                                 # Build reverse index: tag -> biomes
                                 for tag in tags:
                                     cls._tag_index[tag].add(biome_id)

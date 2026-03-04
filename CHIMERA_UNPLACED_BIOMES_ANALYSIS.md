@@ -27,17 +27,20 @@ These biomes need to be placed in specific climates in `set_biomes_in_climates_o
 
 These should be integrated into coastal distribution, primarily through `fill_coasts.yml`:
 
-Change this method, all non-coastal specific biomes should be tagged with:
+Change this method, 
 
-arid-coast (with arid-coast-flat, arid-coast, arid-coast-highlands)
+All non-coastal specific biomes should be tagged with a property so they can be replaced to an appropriate coastal region:
 
-boreal-coast (with boreal-coast-flat, boreal-coast, boreal-coast-highlands)
-
-polar-coast (with polar-coast-flat, polar-coast, polar-coast-highlands)
-
-temperate-coast (with temperate-coast-flat, temperate-coast, temperate-coast-highlands)
-
-tropical-coast (with tropical-coast-flat, tropical-coast, tropical-coast-highlands)
+with arid-coast-flat
+arid-coast-highlands
+with boreal-coast-flat
+boreal-coast-highlands
+polar-coast-flat
+polar-coast-highlands
+temperate-coast-flat
+temperate-coast-highlands
+tropical-coast-flat
+tropical-coast-highlands
 
 ### Temperature-Specific Beaches:
 - **Cold:** SHALE_BEACH, FROZEN_BEACH, SNOWY_SEA_CAVES, SNOWDRIFT_COASTS,

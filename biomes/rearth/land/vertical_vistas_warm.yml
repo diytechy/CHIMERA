@@ -1,4 +1,4 @@
-id: VERTICAL_VISTAS
+id: VERTICAL_VISTAS_WARM
 type: BIOME
 vanilla: minecraft:windswept_hills
 color: $biomes/colors.yml:BAMBOO_JUNGLE
@@ -18,15 +18,11 @@ slant:
   palette:
   - BLOCK:minecraft:stone: 319
 palette:
-- GRASS_SNOW_MIX: 319
+- STONY_GRASS: 319
 - GRASS_SANDY_VARIATION: 150
 - SAND: 65
 - << meta.yml:palette-bottom
 features:
-  preprocessors:
-  - POWDER_SNOW_DEPOSITS
-  slabs:
-  - SNOW_LAYERS
   trees:
   - SPARSE_BIRCH_TREES
   flora:

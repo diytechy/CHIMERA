@@ -1,4 +1,4 @@
-id: VERTICAL_VISTAS
+id: VERTICAL_VISTAS_FROZEN
 type: BIOME
 vanilla: minecraft:windswept_hills
 color: $biomes/colors.yml:BAMBOO_JUNGLE

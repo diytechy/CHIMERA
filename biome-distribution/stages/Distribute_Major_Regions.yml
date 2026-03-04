@@ -65,3 +65,17 @@ stages:
     to:
       SELF: 7
       archipelago-zone: 1
+  #Create marsh distributions on land.
+  #Only create when close to ocean.
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if((BiomeShapeLandmassContinents(x,z)<0.2 && BiomeShapeLandmassPrecipitation(x,z)>0.1),
+          BiomeShapeLandmassValue(x,z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 7
+      marshland: 1

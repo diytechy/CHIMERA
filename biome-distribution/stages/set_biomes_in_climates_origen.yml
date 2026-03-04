@@ -524,7 +524,20 @@ stages:
       tropical-coast-highlands:
         - LUSH_SEA_CAVES: 1
 
-
+      #Marshlands
+      polar-marsh:
+        - FROSTCOATED_BOG: 1
+        - FROZEN_MARSH: 1
+      marsh:
+        - WARPED_WETLANDS: 1
+        - MARSH: 1
+        - SWAMP: 1
+        - WET_SAVANNA: 1
+      tropical-marsh:
+        - ALIEN_MARSH: 1
+        - MANGROVE_SWAMP: 2
+        - WET_SAVANNA: 2
+        - TROPICAL_FLOODPLAIN: 2
 
   # =========================================================================
   # Ocean biomes (cellular)

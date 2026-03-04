@@ -62,7 +62,6 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | SAKURA_WOODLANDS | from boreal-cold |
 | SUNFLOWER_PRAIRIE | averaged: USE_COLD_RIVER (67%), USE_RIVER (33%) |
 | VERTICAL_VISTAS | averaged: USE_COLD_RIVER (50%), USE_FROZEN_RIVER (50%) |
-| VERTICAL_VISTAS_WARM | from boreal-warm-highlands |
 
 ### USE_DESERT_RIVER (1 biomes)
 
@@ -80,6 +79,7 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 | ICE_CAPS | from ice-cap-highlands |
 | SEARING_TORS | from boreal-snowy-highlands |
 | VERTICAL_VISTAS_FROZEN | from tundra-highlands |
+| POLAR_MUSHROOM_COAST | No climate region found |
 
 ### USE_LUKEWARM_RIVER (3 biomes)
 
@@ -95,26 +95,26 @@ Generated from BiomeTable.csv and set_biomes_in_climates_origen.yml
 |-------|-----------|
 | SAKURA_STREAMS | from temperate-hot |
 | TEMPERATE_ALPHA_MOUNTAINS | from temperate-hot-highlands |
+| MUSHROOM_COAST | No climate region found |
+| PALE_GARDEN_COAST | No climate region found |
+| VERTICAL_VISTAS_WARM | from boreal-warm-highlands |
 
 ### USE_TROPICAL_RIVER (1 biomes)
 
 | Biome | Reasoning |
 |-------|-----------|
 | BAMBOO_BASIN | from tropical-monsoon-flat |
+| TROPICAL_MUSHROOM_COAST | No climate region found |
 
 ## Unknown (No Climate Region Found)
 
 | Biome | Notes |
 |-------|-------|
 | ICY_INCISIONS | No climate region found |
-| MUSHROOM_COAST | No climate region found |
-| PALE_GARDEN_COAST | No climate region found |
-| POLAR_MUSHROOM_COAST | No climate region found |
 | SANDY_SPLITS | No climate region found |
 | SECLUDED_VALLEY | No climate region found |
 | SINKHOLE_FROZEN | No climate region found |
 | SINKHOLE_JUNGLE | No climate region found |
-| TROPICAL_MUSHROOM_COAST | No climate region found |
 
 ## Already Assigned (Excluded from Above)
 

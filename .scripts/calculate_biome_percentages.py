@@ -1569,6 +1569,7 @@ class BiomeMetadata:
         self.vanilla_raw: Optional[str] = None  # raw 'vanilla' value from YAML (e.g., 'minecraft:jungle')
         self.vanilla_match: str = ""  # Matched 'Vanilla ID' or 'Multiple' or blank
         self.tags: List[str] = []  # merged tags from extends chain
+        self._has_own_tags: bool = False  # True if biome YAML defines its own 'tags' key
         self.land_caves: bool = False
         self.special_caves: bool = False
         self.caverns_land: bool = False
@@ -1834,10 +1835,14 @@ class BiomeReader:
             # Recurse first to gather parent's inherited properties
             cls._merge_extends(parent_id, parent_meta, visited)
 
-            # Merge tags (union) - child's tags should override but presence is additive
-            parent_tags = getattr(parent_meta, 'tags', [])
-            combined_tags = list(dict.fromkeys((parent_tags or []) + (metadata.tags or [])))
-            metadata.tags = combined_tags
+            # Terra extends: parameters from parent are only used if NOT already
+            # defined in the child config.  If the child defines 'tags', the
+            # parent's tags are ignored entirely (no union/merge).
+            if not metadata._has_own_tags:
+                parent_tags = getattr(parent_meta, 'tags', [])
+                if parent_tags:
+                    metadata.tags = list(parent_tags)
+                    metadata._has_own_tags = parent_meta._has_own_tags
 
             # Merge vanilla_raw if child doesn't have it
             if not metadata.vanilla_raw and parent_meta.vanilla_raw:
@@ -1933,6 +1938,8 @@ class BiomeReader:
                 metadata.vanilla_raw = data.get('vanilla')
                 # Start with tags found on this file
                 metadata.tags = cls.get_biome_tags(biome_id)
+                # Track whether this biome defines its own 'tags' key
+                metadata._has_own_tags = 'tags' in data
         except Exception as e:
             print(f"Warning: Could not read metadata for {biome_id}: {e}", file=sys.stderr)
 
@@ -1945,13 +1952,22 @@ class BiomeReader:
         metadata.special_caves = 'SPECIAL_CAVES' in tags_set
         metadata.caverns_land = 'CAVERNS_LAND' in tags_set
 
-        # River precedence: Desert > Cold > General
-        if 'USE_DESERT_RIVER' in tags_set:
-            metadata.river = 'Desert'
-        elif 'USE_COLD_RIVER' in tags_set:
-            metadata.river = 'Cold'
-        elif 'USE_RIVER' in tags_set:
-            metadata.river = 'General'
+        # River detection: any tag starting with USE_ and containing RIVER
+        river_tags = [t for t in tags_set if t.startswith('USE_') and 'RIVER' in t]
+        if river_tags:
+            # Categorize: Desert > Cold > Frozen > Lukewarm > Tropical > General
+            if any('DESERT' in t for t in river_tags):
+                metadata.river = 'Desert'
+            elif any('COLD' in t for t in river_tags):
+                metadata.river = 'Cold'
+            elif any('FROZEN' in t or 'GLACIER' in t for t in river_tags):
+                metadata.river = 'Frozen'
+            elif any('LUKEWARM' in t for t in river_tags):
+                metadata.river = 'Lukewarm'
+            elif any('TROPICAL' in t for t in river_tags):
+                metadata.river = 'Tropical'
+            else:
+                metadata.river = 'General'
         else:
             metadata.river = ''
 

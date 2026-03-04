@@ -11,7 +11,7 @@ colors:
   water: 937679
   water-fog: 12638463
 tags:
-- USE_PLATEAU_INNER_RIVER
+- USE_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
 vars: $biomes/rearth/land/plateao_middle.yml:vars

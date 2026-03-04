@@ -38,3 +38,6 @@ structures:
     - general_sherman_tree_procedural: 1
     - giant_sequoia_tree_procedural: 50
     - sequoia_tree_procedural: 10
+
+tags:
+- USE_COLD_RIVER

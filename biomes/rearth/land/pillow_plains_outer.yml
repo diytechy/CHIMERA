@@ -6,7 +6,7 @@ extends:
 - CARVING_LAND
 - BASE
 tags:
-- USE_RIVER
+- USE_COLD_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
 colors:

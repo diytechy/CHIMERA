@@ -492,6 +492,26 @@ Note, the following appear to be biome specific coasts, but there may be others:
 - POLAR_MUSHROOM_COAST
 
 
+######################################################
+
+
+Now create a list of all biomes in BiomeTable.csv that have the following properties:
+ 1. that are of a land type (origin) or archipelago
+ 2. are not rivers (indicated in extends or river column)
+ 3. That don't already have a river replacement tag defined (Can be determined by seeing a field / text in the "river" column of the csv table)
+ 
+And for each biome, determine what river biome or river tag they should have and list both the biome and the corresponding river in a separate document for review:
+
+If they have a direct river match (Usually the biome ID followed by _RIVER, ex: ARID_PALE_GARDEN -> ARID_PALE_GARDEN_RIVER), that should always be used.
+
+If there is not a direct match, estimate the river tag to associate based on how the biome is set in "set_biomes_in_climates_origen.yml", consider averaging if the biome crosses multiple regions, knowing the climate chain that leads to this (temperature -> precipitation -> elevation)
+
+Putting a high preference on temperature
+
+River  tags can be referenced in "add_rivers.yml"
+
+I will review this final list of Biomes and their prospective river biomes / river tags for accuracy before updating the respective files.
+
 
 Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.
 

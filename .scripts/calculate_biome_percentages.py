@@ -2456,22 +2456,24 @@ def main():
     print("They should be fully resolved through REPLACE stages or removed.")
     print()
 
-    distribution_biomes = set()
-    for distribution in results.values():
-        distribution_biomes.update(distribution.probabilities.keys())
+    # Only check the core climate preset for unresolved biomes
+    climate_distribution = results.get(CLIMATE_PRESET_NAME)
+    if climate_distribution is None:
+        print(f"  Skipped — climate preset '{CLIMATE_PRESET_NAME}' not found in results.")
+        unresolved_found = False
+    else:
+        distribution_biomes = set(climate_distribution.probabilities.keys())
 
-    unresolved_found = False
-    for biome_id in sorted(distribution_biomes):
-        # Check if biome is not valid and not the special 'SELF' keyword
-        if biome_id not in valid_biomes and biome_id != 'SELF':
-            unresolved_found = True
-            # Show which presets have this biome
-            preset_info = []
-            for preset_name, distribution in results.items():
-                prob = distribution.get(biome_id)
-                if prob > 0:
-                    preset_info.append(f"{preset_name}: {prob:.4%}")
-            print(f"  {biome_id}: {', '.join(preset_info)}")
+        unresolved_found = False
+        for biome_id in sorted(distribution_biomes):
+            # Check if biome is not valid and not the special 'SELF' keyword
+            if biome_id not in valid_biomes and biome_id != 'SELF':
+                prob = climate_distribution.get(biome_id)
+                # Skip intermediates that are never triggered (0% probability)
+                if prob <= 0:
+                    continue
+                unresolved_found = True
+                print(f"  {biome_id} ({prob:.4%})")
 
     if not unresolved_found:
         print("  None - all biomes properly resolved!")

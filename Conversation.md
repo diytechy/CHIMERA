@@ -426,6 +426,20 @@ RIVER:
 EQ_TERRACED_MOUNTAINS_RIVER
 EQ_RIVER
 
+#############################################
+
+I would like to prepare to integrate remaining biomes into the CHIMERA pack that are from other packs, but to do this I need to pull respective unplaced biome into an appropriate location.
+
+Create a list of all biomes in the current BiomeTable.csv that are currently 0% in CHIMERA and for each biome make a recommendation for how to insert them into CHIMERA:
+
+1. If they appear to be a generic biome (biome names like "Variant" and "LAND_" and "COAST_") and thus should not be placed.
+2. If they are apart of a special biome that hasn't been completed yet (like "sinkhole" or "crater_lake")
+3. If they appear to be coastal biome (name like "beach", "coast", or are referenced in fill_coasts.yml.
+4. If they appear to be oceanic biomes, which will be addressed later.
+5. If they appear to be a biome that would border a river (eg: CHILLY_CREEKS), as they may need special treatment.
+5. Otherwise, what category they should go into in "Set_biomes_in_climates_origen.yml", considering their terrain sampler base height (which corresponds to flat or highland regions)
+
+Note: Hydraxia based biomes are always cold-climate.  "C:\Projects\origen" contains the original origen pack, "C:\Projects\Hydraxia2" contains the updated Hydraxia pack, and "C:\Projects\TerraOverworldConfig" contains the current Terra overworld config, these  may all be useful references.
 
 ocean:
   level: $meta.yml:ocean-level
@@ -489,3 +503,89 @@ Then island region
 Then biome dispursement
 
 Then
+
+---
+
+# CHIMERA Pack - 0% Biomes Integration Analysis (March 3, 2026)
+
+## Summary
+Analyzed all **138 biomes** currently at 0% distribution in CHIMERA and categorized them by integration strategy.
+
+**Analysis Documents Created:**
+1. [CHIMERA_UNPLACED_BIOMES_ANALYSIS.md](CHIMERA_UNPLACED_BIOMES_ANALYSIS.md) - High-level categorization and strategy
+2. [CHIMERA_UNPLACED_BIOMES_DETAILED_REFERENCE.md](CHIMERA_UNPLACED_BIOMES_DETAILED_REFERENCE.md) - Complete biome-by-biome reference table
+
+## Distribution by Category
+
+| Category | Count | Action |
+|----------|-------|--------|
+| Generic Placeholders (do not place) | 29 | Skip entirely |
+| Special Features (incomplete) | 7 | Wait for crater lake/sinkhole system |
+| Coastal Biomes | 19 | Add to `fill_coasts.yml` |
+| Oceanic (trenches/vents) | 21 | Add to ocean sections in `set_biomes_in_climates_origen.yml` |
+| River-Bordering (mostly Hydraxia) | 34 | Integrate Hydraxia to cold climates + river variants |
+| Subsurface/Caverns | 12 | Already handled in subsurface config |
+| Other/Specialized | 28 | Add to appropriate climate categories |
+
+## Key Findings
+
+### 1. Hydraxia Biomes (18 unique biomes)
+All Hydraxia-based biomes (marked by `BASE_HYDRAXIA` in Extends field) are **COLD CLIMATE** and should be placed in:
+- boreal-snowy-flat/highlands
+- boreal-cold-flat/highlands  
+- boreal-warm-dry (some variants)
+
+Examples: BIRCH_WOODLANDS, MAPLE_WOODLANDS, SAKURA_WOODLANDS, etc.
+
+### 2. Pale Garden Variants (6 biomes)
+Special vast-forest placeholders that need integration:
+- ARID_PALE_GARDEN (hot/warm climate)
+- ORANGE_ARID_PALE_GARDEN (hot/warm climate)
+- POLAR_PALE_GARDEN (cold/polar climate)
+- RED_ARID_PALE_GARDEN (hot/warm climate)
+- PALE_GARDEN (boreal/temperate)
+- Plus 3 coast variants
+
+### 3. Subtropical Open Water (9 biomes)
+NEW ocean temperature zone not yet present:
+- SUBTROPICAL_OCEAN (and variants: overhangs, slopes, trenches)
+- SUBTROPICAL_DEEP_OCEAN (and vents/trenches)
+- SUBTROPICAL_DEEP_DEPTHS
+- These may require adding new subtropical ocean categories to `set_biomes_in_climates_origen.yml`
+
+### 4. River-Bordering Complications
+34 biomes have river connections or dependencies:
+- Many are Hydraxia woodlands that border rivers
+- Some are special river features (CHILLY_CREEKS, DRAFTY_STREAMS)
+- Some are pale garden river variants
+- Some need integration into existing river systems
+
+## Integration Priority
+
+### HIGH (Implement First)
+1. Coastal biomes → `fill_coasts.yml` (straightforward temperature-based)
+2. Hydraxia biomes → `set_biomes_in_climates_origen.yml` cold sections
+
+### MEDIUM (Implement Second)
+1. Ocean biomes → Ocean sections in `set_biomes_in_climates_origen.yml`
+2. River variants → River biome sections
+3. Specialized biomes → Appropriate climate regions
+
+### LOW (Later)
+1. Special features → Revisit when crater lake/sinkhole systems complete
+2. Generic placeholders → Ignore entirely
+
+## Notes for Implementation
+
+1. **Elevation Always 0.5** - All 138 biomes have elevation=0.5, suggesting they all fit in "flat" regions of their climates. Verify this assumption against actual biome definitions.
+
+2. **Source Distribution** - Most are "surface" source; 13 are "extrusion" (subsurface). Extrusion biomes should not appear in this analysis (likely already handled).
+
+3. **Temperature Clues** - Biome names provide climate hints:
+   - COLD/FROZEN/SNOWY/BOREAL/ARCTIC/POLAR → Cold climate
+   - HOT/TROPICAL/WARM/DESERT → Hot/warm climate
+   - TEMPERATE/FOREST → Temperate climate
+
+4. **Hydraxia Override** - If Extends contains `BASE_HYDRAXIA`, biome is ALWAYS cold, regardless of name.
+
+5. **River Values** - Biomes with non-empty "River" column or river-related names need special handling similar to existing river biomes in CHIMERA.

@@ -85,7 +85,7 @@ stages:
       expression: BiomeShapeMesaTemperature(x, z)
     from: mesa
     to:
-      - polar-mesa: *iceCap
+      - ice-cap-mesa: *iceCap
       - polar-mesa: *tundra
       - boreal-mesa: *borealSnowy
       - boreal-mesa: *borealCold

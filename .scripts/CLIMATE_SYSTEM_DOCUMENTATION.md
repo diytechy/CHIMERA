@@ -56,7 +56,7 @@ These base zones are then applied to different terrain types using aliases:
 ```yaml
 to:
   mesa:
-    - polar-mesa: *iceCap
+    - arctic-mesa: *iceCap
     - polar-mesa: *tundra
     - boreal-mesa: *borealSnowy
     - boreal-mesa: *borealCold

@@ -19,6 +19,8 @@ stages:
         - ICE_CAPS: 4
         - SNOWY_SPIRES: 2
         - BARE_BOULDERFIELDS: 1
+      ice-cap-mesa:
+        - ARCTIC_MESA: 1
 
       tundra-flat:
         - TUNDRA: 2
@@ -44,7 +46,6 @@ stages:
         - POLAR_PALE_GARDEN_COAST: 1
       polar-coast-highlands:
         - SNOWY_SEA_CAVES: 1
-
       polar-mesa:
         - COLD_DESERT_MESA: 1
 

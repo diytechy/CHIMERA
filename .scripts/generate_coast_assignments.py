@@ -30,21 +30,30 @@ OUTPUT_PATH = PACK_ROOT / ".artifacts" / "CoastAssignments.md"
 
 WETLAND_KEYWORDS = ["BOG", "WETLANDS", "SWAMP", "MARSH"]
 
-# Map climate region prefixes to coast categories
-# The climate chain is: temperature -> precipitation -> elevation
-# Region names in the YAML follow patterns like:
-#   hot-{precip}-{elev}, warm-{precip}-{elev}, temperate-{precip}-{elev}, etc.
-TEMPERATURE_TO_COAST = {
-    "hot": "tropical",
-    "warm": "tropical",      # warm tropics
-    "lukewarm": "temperate",
-    "temperate": "temperate",
-    "cool": "boreal",
-    "cold": "boreal",
-    "frozen": "polar",
-    "polar": "polar",
-    "ice": "polar",
-}
+# Map the leading temperature zone prefix of climate region keys to coast categories.
+# The climate pipeline is: temperature -> precipitation -> elevation
+# Region keys from temperature.yml:
+#   ice-cap, tundra, boreal-{snowy,cold,warm,hot}, temperate-{cold,warm,hot},
+#   tropical-{savanna-wet,savanna-dry,monsoon,rainforest},
+#   hot-{desert,steppe}, cold-{desert,steppe}
+# Prefix matching is done longest-first so "ice-cap" beats "ice".
+TEMPERATURE_PREFIX_TO_COAST = [
+    # (prefix, coast_type)  — checked in order, first match wins
+    ("ice-cap",              "polar"),
+    ("tundra",               "polar"),
+    ("boreal",               "boreal"),
+    ("temperate",            "temperate"),
+    ("tropical",             "tropical"),
+    ("hot-desert",           "arid"),
+    ("hot-steppe",           "tropical"),
+    ("hot",                  "tropical"),
+    ("cold-desert",          "arid"),
+    ("cold-steppe",          "boreal"),
+    ("cold",                 "boreal"),
+    ("lukewarm",             "temperate"),
+    ("polar",                "polar"),
+    ("frozen",               "polar"),
+]
 
 ELEVATION_TO_SUFFIX = {
     "flat": "flat",
@@ -146,29 +155,27 @@ def parse_climate_regions():
 def infer_coast_from_region(region_key):
     """
     Infer coast category from a climate region key.
-    Region keys look like: hot-shallow-ocean-midlands, temperate-forest-highlands, etc.
-    For land biomes they follow temperature-precipitation-elevation patterns.
+
+    The first segment of the region key is the temperature zone from the
+    pipeline.  This is the primary determinant of coast type.  Elevation
+    (flat vs highlands) is determined from the last segment if present.
     """
-    parts = region_key.lower().split("-")
+    key_lower = region_key.lower()
 
-    # Determine temperature -> coast type
+    # Determine temperature -> coast type via prefix matching
     coast_type = None
-    for part in parts:
-        if part in TEMPERATURE_TO_COAST:
-            coast_type = TEMPERATURE_TO_COAST[part]
+    for prefix, ct in TEMPERATURE_PREFIX_TO_COAST:
+        if key_lower.startswith(prefix):
+            coast_type = ct
             break
-
-    # Check for arid indicators
-    arid_keywords = ["arid", "desert", "dry", "semi"]
-    if any(kw in region_key.lower() for kw in arid_keywords):
-        coast_type = "arid"
 
     if coast_type is None:
         coast_type = "temperate"  # fallback
 
-    # Determine elevation
+    # Determine elevation from the last segment(s)
+    parts = key_lower.split("-")
     elevation = "flat"  # default
-    for part in parts:
+    for part in reversed(parts):
         if part in ELEVATION_TO_SUFFIX:
             elevation = ELEVATION_TO_SUFFIX[part]
             break

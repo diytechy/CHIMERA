@@ -123,6 +123,8 @@ stages:
         - SNOWY_MEADOW: 2
         - SNOWY_PLAINS: 1
         - WHITE_WALLOWS: 1
+        - FROSTCOATED_BOG: 1
+        - FROZEN_MARSH: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1
@@ -262,6 +264,9 @@ stages:
         - _pillow_plains: 1
         - _secluded_valleys: 1
         - ALIEN_MARSH: 1
+        - WARPED_WETLANDS: 1
+        - MARSH: 1
+        - SWAMP: 1
       temperate-warm:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
@@ -523,21 +528,6 @@ stages:
         - MANGROVE_SWAMP: 1
       tropical-coast-highlands:
         - LUSH_SEA_CAVES: 1
-
-      #Marshlands
-      polar-marsh:
-        - FROSTCOATED_BOG: 1
-        - FROZEN_MARSH: 1
-      marsh:
-        - WARPED_WETLANDS: 1
-        - MARSH: 1
-        - SWAMP: 1
-        - WET_SAVANNA: 1
-      tropical-marsh:
-        - ALIEN_MARSH: 1
-        - MANGROVE_SWAMP: 2
-        - WET_SAVANNA: 2
-        - TROPICAL_FLOODPLAIN: 2
 
   # =========================================================================
   # Ocean biomes (cellular)

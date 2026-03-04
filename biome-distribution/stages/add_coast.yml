@@ -37,3 +37,37 @@ stages:
       TROPICAL_MUSHROOM_FIELDS:
         - TROPICAL_MUSHROOM_COAST: *coastalWeight
         - SELF: *notCoast
+      BOREAL_COAST_FLAT:
+      - SHALE_BEACH: 2
+      - PINE_BARRENS: 2
+      - SELF: 4
+      ARID_COAST_FLAT:
+      - BEACH: 1
+      - ARID_PALE_GARDEN_COAST: 1
+      - ORANGE_ARID_PALE_GARDEN_COAST: 1
+      - RED_ARID_PALE_GARDEN_COAST: 1
+      - SELF: 4
+      BOREAL_COAST_HIGHLANDS:
+      - ROCKY_SEA_CAVES: 4
+      - SELF: 4
+      POLAR_COAST_FLAT:
+      - FROZEN_BEACH: 2
+      - FROSTY_FINGERS: 1
+      - FRIGID_WASTELANDS: 1
+      - SELF: 4
+      POLAR_COAST_HIGHLANDS:
+      - SNOWY_SEA_CAVES: 4
+      - SELF: 4
+      TEMPERATE_COAST_FLAT:
+      - BEACH: 2
+      - SHRUB_BEACH: 1
+      - PINE_BARRENS: 1
+      - SELF: 4
+      TROPICAL_COAST_FLAT:
+      - MUDDY_COASTS: 2
+      - PALM_BEACH: 1
+      - MANGROVE_SWAMP: 1
+      - SELF: 4
+      TROPICAL_COAST_HIGHLANDS:
+      - LUSH_SEA_CAVES: 4
+      - SELF: 4

@@ -17,5 +17,23 @@ stages:
       - ARID_PALE_GARDEN_COAST: &coastalWeight 5
     to:
       ORANGE_ARID_PALE_GARDEN:
-      - ORANGE_ARID_PALE_GARDEN_COAST: *coastalWeight
-      - SELF: *notCoast
+        - ORANGE_ARID_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      PALE_GARDEN:
+        - PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      POLAR_PALE_GARDEN:
+        - POLAR_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      RED_ARID_PALE_GARDEN:
+        - RED_ARID_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      MUSHROOM_FIELDS:
+        - MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast
+      POLAR_MUSHROOM_FIELDS:
+        - POLAR_MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast
+      TROPICAL_MUSHROOM_FIELDS:
+        - TROPICAL_MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast

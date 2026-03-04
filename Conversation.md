@@ -469,7 +469,7 @@ And for each biome, determine what sort of coast they should have and list both 
 
 If they have a direct coastal match (Usually the biome ID followed by _COAST, ex: ARID_PALE_GARDEN -> ARID_PALE_GARDEN_COAST), that should always be used.
 
-If there is not a direct match, based on how that biome is set in "set_biomes_in_climates_origen.yml", set a similar coastal type assuming the following are available:
+If there is not a direct match, estimate the coastal catagory to assocciate based on how the biome is set in "set_biomes_in_climates_origen.yml", consider averaging if the biome crosses multiple regions, knowing the climate chain that leads to this (temperature -> precipitation -> elevation)
 arid-coast-flat
 arid-coast-highlands
 boreal-coast-flat
@@ -489,7 +489,7 @@ Note, the following appear to be biome specific coasts, but there may be others:
 - RED_ARID_PALE_GARDEN_COAST
 - POLAR_MUSHROOM_COAST
 - MUSHROOM_COAST
-- POLAR_MUSHROOM_COAST (Special feature for polar regions)
+- POLAR_MUSHROOM_COAST
 
 
 

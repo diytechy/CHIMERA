@@ -22,8 +22,6 @@ stages:
         - BITTER_HEIGHTS: 1
         - PERMAFROST_CLIFFS: 1
         - FROSTBOUND_CHASMS: 1
-      ice-cap-mesa:
-        - ARCTIC_MESA: 1
 
       tundra-flat:
         - TUNDRA: 2
@@ -220,8 +218,7 @@ stages:
         - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry:
         - CHAPARRAL: 1
-        - MOORLAND: 1
-        - PALM_FOREST: 1
+        - MOORLAND: 1=
         - TEMPERATE_GRASSLAND: 1
       temperate-warm-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
@@ -496,6 +493,14 @@ stages:
         - OVERGROWN_CLIFFS: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
+      polar-island:
+        - POLAR_MUSHROOM_FIELDS: 1
+        #- FROSTY_FINGERS: 1
+      island:
+        - MUSHROOM_FIELDS: 1
+      tropical-island:
+        - TROPICAL_MUSHROOM_FIELDS: 1
+        #- PALM_FOREST: 1
 
   # =========================================================================
   # Ocean biomes (cellular)
@@ -612,6 +617,8 @@ stages:
     default-to:
       - COLD_DESERT_MESA: 1
     to:
+      ice-cap-mesa:
+        - ARCTIC_MESA: 1
       boreal-mesa:
         - BOREAL_MESA: 1
       temperate-mesa:

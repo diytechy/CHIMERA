@@ -441,6 +441,10 @@ Create a list of all biomes in the current BiomeTable.csv that are currently 0% 
 
 Note: Hydraxia based biomes are always cold-climate.  "C:\Projects\origen" contains the original origen pack, "C:\Projects\Hydraxia2" contains the updated Hydraxia pack, and "C:\Projects\TerraOverworldConfig" contains the current Terra overworld config, these  may all be useful references.
 
+######## Will need to remove all coastal definitions from set, since that should be done as a part of a replacement stage.  Probably best to do it at the same time as the rivers?
+
+1. Remove all coastal definitions, 
+
 ocean:
   level: $meta.yml:ocean-level
   # Water level varies ±3 blocks with regional terrain elevation so that the river

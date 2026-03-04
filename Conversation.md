@@ -458,6 +458,39 @@ ocean:
 
 For flat biomes / those that aren't influenced by elevation, could just herp in river elevation for continuity.  By far the easiest option.
 
+##############
+
+Now create a list of all biomes in BiomeTable.csv that have the following properties:
+ 1. that are of a land type (origin)
+ 2. are not rivers (indicated in extends or river column)
+ 3. That are not wetland types (extends includes BOG, WETLANDS, SWAMP, MARSH)
+ 
+And for each biome, determine what sort of coast they should have and list both the biome and the corresponding coast in a separate document for review:
+
+If they have a direct coastal match (Usually the biome ID followed by _COAST, ex: ARID_PALE_GARDEN -> ARID_PALE_GARDEN_COAST), that should always be used.
+
+If there is not a direct match, based on how that biome is set in "set_biomes_in_climates_origen.yml", set a similar coastal type assuming the following are available:
+arid-coast-flat
+arid-coast-highlands
+boreal-coast-flat
+boreal-coast-highlands
+polar-coast-flat
+polar-coast-highlands
+temperate-coast-flat
+temperate-coast-highlands
+tropical-coast-flat
+tropical-coast-highlands
+
+Note, the following appear to be biome specific coasts, but there may be others:
+- ARID_PALE_GARDEN_COAST
+- ORANGE_ARID_PALE_GARDEN_COAST
+- PALE_GARDEN_COAST
+- POLAR_PALE_GARDEN_COAST
+- RED_ARID_PALE_GARDEN_COAST
+- POLAR_MUSHROOM_COAST
+- MUSHROOM_COAST
+- POLAR_MUSHROOM_COAST (Special feature for polar regions)
+
 
 
 Make sure vanilla ID types (ocean / land) correctly correlate to CHIMERA biome type.

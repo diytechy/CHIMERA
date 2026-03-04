@@ -135,6 +135,7 @@ stages:
         - WHITE_WALLOWS: 1
         - FROSTCOATED_BOG: 1
         - FROZEN_MARSH: 1
+        - SNOWSWEPT_MEADOWS: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1

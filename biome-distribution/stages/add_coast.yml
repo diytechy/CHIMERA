@@ -3,104 +3,13 @@ stages:
   - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
-      expression: continentBorder(x, z)
-    default-from: ocean
+      #Expand range to nominal -1 to 1
+      expression: (continents(x, z)*2-1)
+    default-from: ARID_PALE_GARDEN
     default-to:
-      - SELF: 1
-      - coast: 1
+      - ARID_PALE_GARDEN_COAST: &coastalWeight 5
+      - SELF: &notCoast 95
     to:
-      land:
-      - SELF: 1
-      - land-sea-border: 1
-#Border from ocean, ensure there is always a border.
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: land
-    to: land-sea-border
-#Border from coast, ensure there is always a border.
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: coast
-    replace: land
-    to: land-sea-border
-#Border from internal border, give additional buffer, may be able to be removed.
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: land-sea-border
-    replace: land
-    to: land-sea-border
-#Break apart ocean, temporary for coast variation.
-  - type: REPLACE
-    sampler:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.001
-      salt: 9000
-    from: ocean
-    to:
-      ocean: 1
-      o2: 3
-      o3: 5
-      o4: 3
-      o5: 1
-#Border iterations for coastal variation.
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: coast
-    to: ocean
-  - type: REPLACE
-    sampler:
-      type: CONSTANT
-    from: o2
-    to: ocean
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: coast
-    to: ocean
-  - type: REPLACE
-    sampler:
-      type: CONSTANT
-    from: o3
-    to: ocean
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: coast
-    to: ocean
-  - type: REPLACE
-    sampler:
-      type: CONSTANT
-    from: o4
-    to: ocean
-  - type: BORDER
-    sampler:
-      type: CONSTANT
-    from: ocean
-    replace: coast
-    to: ocean
-  - type: REPLACE
-    sampler:
-      type: CONSTANT
-    from: o5
-    to: ocean
-#Break apart ocean, temporary for coast variation.
-#  - type: REPLACE
-#    sampler:
-#      type: OPEN_SIMPLEX_2
-#      frequency: 0.001
-#      salt: 9000
-#    from: ocean
-#    to:
-#      ocean: 1
-#      o2: 3
-#      o3: 5
-#      o4: 3
-#      o5: 1
+      ORANGE_ARID_PALE_GARDEN:
+      - ORANGE_ARID_PALE_GARDEN_COAST: *coastalWeight
+      - SELF: *notCoast

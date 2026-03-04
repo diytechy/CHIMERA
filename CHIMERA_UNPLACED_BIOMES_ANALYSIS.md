@@ -31,9 +31,9 @@ Change this method,
 
 All non-coastal specific biomes should be tagged with a property so they can be replaced to an appropriate coastal region:
 
-with arid-coast-flat
+arid-coast-flat
 arid-coast-highlands
-with boreal-coast-flat
+boreal-coast-flat
 boreal-coast-highlands
 polar-coast-flat
 polar-coast-highlands

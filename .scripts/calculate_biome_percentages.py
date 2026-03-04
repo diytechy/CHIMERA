@@ -1427,18 +1427,28 @@ class ExtrusionDistribution:
         """Get all biomes that come from extrusions"""
         return set(self.extrusion_biomes.keys())
 
-    def calculate_percentage(self, biome_id: str, surface_distribution: BiomeDistribution) -> float:
+    def calculate_percentage(self, biome_id: str, surface_distribution: BiomeDistribution,
+                             _visited: Optional[Set[str]] = None) -> float:
         """
         Calculate the effective percentage for an extrusion biome.
 
         For 'ALL' parent: percentage = weight_fraction (applies uniformly)
         For specific parent/tag: percentage = sum(matching_biome_pcts) * weight_fraction
 
+        Chained extrusions: If the parent biome is itself an extrusion (not in the
+        surface distribution), recursively resolve its extrusion percentage.
+
         Tag matching: If parent is a tag (e.g., LAND_CAVES), we sum the probabilities
         of all surface biomes that have that tag.
         """
         if biome_id not in self.extrusion_biomes:
             return 0.0
+
+        if _visited is None:
+            _visited = set()
+        if biome_id in _visited:
+            return 0.0  # prevent infinite recursion
+        _visited.add(biome_id)
 
         total_pct = 0.0
         for parent_identifier, weight_fraction, _ in self.extrusion_biomes[biome_id]:
@@ -1453,6 +1463,12 @@ class ExtrusionDistribution:
                 for surface_biome in surface_distribution.probabilities.keys():
                     if BiomeReader.matches_biome_or_tag(parent_identifier, surface_biome):
                         matching_pct += surface_distribution.get(surface_biome)
+
+                # If parent has no surface presence, check if it's a chained extrusion
+                if matching_pct == 0.0 and parent_identifier in self.extrusion_biomes:
+                    matching_pct = self.calculate_percentage(
+                        parent_identifier, surface_distribution, _visited
+                    )
 
                 total_pct += matching_pct * weight_fraction
 

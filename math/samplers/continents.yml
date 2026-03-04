@@ -70,7 +70,7 @@ samplers:
   islandMask:
     dimensions: 2
     type: EXPRESSION
-    expression: if(continental_sampler(x / scale / globalScale, z / scale / globalScale) < ((island_threshold)), 1, -1)
+    expression: if(continental_sampler(x / scale / globalScale, z / scale / globalScale) < ((island_threshold-0.5)/2), 1, -1)
     variables:
       island_threshold: $customization.yml:continental-island-threshold
       land_threshold: $customization.yml:continental-land-threshold

@@ -102,7 +102,7 @@ stages:
     sampler:
       type: EXPRESSION
       expression: BiomeShapeLargelandTemperature(x, z)
-    from: forest
+    from: vast-forest
     to:
       - polar-vast-forest: *iceCap
       - polar-vast-forest: *tundra

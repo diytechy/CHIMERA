@@ -72,7 +72,7 @@ These should be integrated into coastal distribution, primarily through `fill_co
 
 ---
 
-## Category 4: OCEANIC BIOMES (21 biomes)
+## Category 4: OCEANIC BIOMES (21 biomes) - COMPLETE
 
 These are deep ocean variants (trenches, vents, submarine features) that are **addressed later** in ocean biome distribution:
 

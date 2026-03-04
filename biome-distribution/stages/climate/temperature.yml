@@ -176,6 +176,19 @@ stages:
         - hot-sinkhole-border: *tropicalCold
         - hot-sinkhole-border: *tropicalWarm
         - hot-sinkhole-border: *tropicalHot
+      sinkhole-border-ocean:
+        - polar-sinkhole-border-ocean: *iceCap
+        - polar-sinkhole-border-ocean: *tundra
+        - boreal-sinkhole-border-ocean: *borealSnowy
+        - boreal-sinkhole-border-ocean: *borealCold
+        - boreal-sinkhole-border-ocean: *borealWarm
+        - boreal-sinkhole-border-ocean: *borealHot
+        - temperate-sinkhole-border-ocean: *temperateCold
+        - temperate-sinkhole-border-ocean: *temperateWarm
+        - temperate-sinkhole-border-ocean: *temperateHot
+        - hot-sinkhole-border-ocean: *tropicalCold
+        - hot-sinkhole-border-ocean: *tropicalWarm
+        - hot-sinkhole-border-ocean: *tropicalHot
       extinct-volcano:
         - polar-extinct-volcano: *iceCap
         - polar-extinct-volcano: *tundra

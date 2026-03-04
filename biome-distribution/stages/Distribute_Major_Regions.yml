@@ -38,7 +38,7 @@ stages:
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
       SELF: 2
-      desert: 1
+      hot-desert: 1
 #Create vast forest distributions
   - type: REPLACE
     from: land

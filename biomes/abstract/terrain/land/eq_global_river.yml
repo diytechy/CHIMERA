@@ -3,7 +3,8 @@ type: BIOME
 abstract: true
 
 variables: &variables
-  base: $customization.yml:terrain-base-y-level
+  #base: $customization.yml:terrain-base-y-level
+  base: 95
   scale: $customization.yml:terrain-height
 
   depth: 0.11

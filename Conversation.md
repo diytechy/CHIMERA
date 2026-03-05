@@ -642,7 +642,9 @@ B. Need to make sure river support builds out under variable height river.
 
 #Drafted under continentalRiverSupportDensity
 
-
+- Reduce support / contain water funciton by 1.
+- Somehow need to perform errosion much closer to river, but not clear what's currently causing errosion.  Detailed elevation function?  Filtering on top of it?
+- 
 
 C. Need to make sure rivers actually flow up using soul-sand?
 

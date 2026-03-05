@@ -10,7 +10,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:deepslate-top} - 7
-        max: ${meta.yml:ocean-level} + 2
+        max: ${meta.yml:ocean-level} + 1
       pattern:
         type: MATCH_AIR
         offset: 0

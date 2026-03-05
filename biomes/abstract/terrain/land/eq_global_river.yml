@@ -19,8 +19,8 @@ ocean:
     dimensions: 2
     type: EXPRESSION
     variables:
-      base: $meta.yml:ocean-level
-    expression: base + continentalRiverBlockElevChange(x, z)
+      olevel: $meta.yml:ocean-level
+    expression: olevel + continentalRiverBlockElevChange(x, z)
 
 terrain:
   sampler:
@@ -28,7 +28,7 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base -
+      -y + base + 20 -
       erode(
         base,
         elevation(x, z),

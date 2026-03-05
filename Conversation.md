@@ -658,6 +658,13 @@ ocean:
     expression: base + elevation(x, z) * 3
 
 
+Land carving still seems aggressive
+
+Definitely not getting consistent river gen... not seeing any branches, not seeing interconnected lvl 0,  Maybe issue with tags not replacing for river biomes?
+
+Rivers go in and then just... stop.  Might be issue with density override function, issue with river branching computations, or issue with something else????
+
+
 D. Need to add all original minecraft biome labels?
 
 E. Verify mesa placement for regions, and consider plains region designation.

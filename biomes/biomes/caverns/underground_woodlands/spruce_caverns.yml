@@ -25,3 +25,7 @@ features:
     - SPRUCE_TREES_DENSE_CAVERNS
   entites:
     - BATS
+    
+tags:
+- SPRUCE_CAVERNS
+- subsurface

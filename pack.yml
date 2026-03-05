@@ -82,7 +82,8 @@ preset-single-debug-biome: TEMPERATE_GRASSLAND
 
 terrain:
   min-density:
-    sampler: <noise sampler>      # Min-density sampler (default: none/zero = disabled)
+    #sampler: <noise sampler>      # Min-density sampler (default: none/zero = disabled)
+    sampler: $math/samplers/rivers.yml:samplers.continentalRiverSupportDensity
     smooth: false            # Use smooth-min blending instead of hard max (default: false)
     smooth-k: 1.0                 # Smooth-min factor; higher = smoother transition (default: 1.0)
     skip-tags:                    # Biome tags that opt OUT of min-density enforcement

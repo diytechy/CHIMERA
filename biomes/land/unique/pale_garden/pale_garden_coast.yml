@@ -4,7 +4,6 @@ extends:
 - EQ_FLAT_ERODED
 - CARVING_OCEAN
 - PALE_GARDEN
-- USE_PALE_GARDEN_RIVER
 color: $biomes/colors.yml:PALE_GARDEN_COAST
 vanilla: minecraft:pale_garden
 slant:
@@ -15,3 +14,4 @@ slant:
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES
+- USE_PALE_GARDEN_RIVER

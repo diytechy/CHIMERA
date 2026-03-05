@@ -631,7 +631,17 @@ NEXT:
 
 A: Make sure all bogs / wetlands do not have land carving enabled.
 
+Remove "EQ_CARVING_LAND" from all biomes that also have any properties that appear to be wetlands / lowlands / plain-like / coastal, which can be identified by any biome having any of the following extends:
+EQ_BOG
+EQ_WARPED_WETLANDS
+EQ_SWAMP
+EQ_MANGROVE_SWAMP
+EQ_CELL_MARSH
+
 B. Need to make sure river support builds out under variable height river.
+
+#Drafted under continentalRiverSupportDensity
+
 
 
 C. Need to make sure rivers actually flow up using soul-sand?

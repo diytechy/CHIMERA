@@ -11,6 +11,17 @@ variables: &variables
   ceilingBase: 0.1
   ceilingHeight: 0.17
 
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level varies ±3 blocks with regional terrain elevation so that the river
+  # surface follows the landscape gradient rather than sitting at a fixed Y.
+  sampler:
+    dimensions: 2s
+    type: EXPRESSION
+    variables:
+      base: $meta.yml:ocean-level
+    expression: base + continentalRiverElev(x, z)
+
 terrain:
   sampler:
     type: EXPRESSION

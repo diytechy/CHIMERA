@@ -664,6 +664,9 @@ Definitely not getting consistent river gen... not seeing any branches, not seei
 
 Rivers go in and then just... stop.  Might be issue with density override function, issue with river branching computations, or issue with something else????
 
+Theory:
+1. MinDensity function isn't raising terrain because the sampler is not actually multiplied by the terrain scaler (effectively always 0)
+2. River erosion... might be working for L0, but not clear why it's not working for L1+, maybe a different function getting referenced?
 
 D. Need to add all original minecraft biome labels?
 

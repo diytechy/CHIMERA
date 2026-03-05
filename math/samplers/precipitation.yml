@@ -25,7 +25,7 @@ samplers:
   precipitation:
     dimensions: 2
     type: EXPRESSION
-    expression: lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))
+    expression: lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))+2
     functions: $math/functions/interpolation.yml:functions
     variables:
       oceanThreshold: $customization.yml:precipitation-ocean-threshold

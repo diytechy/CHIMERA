@@ -20,7 +20,7 @@ ocean:
     type: EXPRESSION
     variables:
       base: $meta.yml:ocean-level
-    expression: base + continentalRiverElev(x, z)
+    expression: base + continentalRiverBlockElevChange(x, z)
 
 terrain:
   sampler:

@@ -445,16 +445,6 @@ Note: Hydraxia based biomes are always cold-climate.  "C:\Projects\origen" conta
 
 1. Remove all coastal definitions, 
 
-ocean:
-  level: $meta.yml:ocean-level
-  # Water level varies ±3 blocks with regional terrain elevation so that the river
-  # surface follows the landscape gradient rather than sitting at a fixed Y.
-  sampler:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      base: $meta.yml:ocean-level
-    expression: base + elevation(x, z) * 3
 
 For flat biomes / those that aren't influenced by elevation, could just herp in river elevation for continuity.  By far the easiest option.
 
@@ -542,18 +532,7 @@ Note: Still need to investigate.... something.
 
 B. Need to make sure rivers can go over all terrain for continuity?  Need to utilize "land" tag?
 
-C. Need to make sure rivers actually flow up using soul-sand?
 
-D. Need to add all original minecraft biome labels?
-
-E. Verify mesa placement for regions, and consider plains region designation.
-
-
-G. Increase ore spawn rate via standard ore distributions.
-
-H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
-
-I. 
 
 Then island region
 
@@ -646,3 +625,36 @@ NEW ocean temperature zone not yet present:
 4. **Hydraxia Override** - If Extends contains `BASE_HYDRAXIA`, biome is ALWAYS cold, regardless of name.
 
 5. **River Values** - Biomes with non-empty "River" column or river-related names need special handling similar to existing river biomes in CHIMERA.
+
+#########################################################
+NEXT:
+
+A: Make sure all bogs / wetlands do not have land carving enabled.
+
+B. Need to make sure river support builds out under variable height river.
+
+
+C. Need to make sure rivers actually flow up using soul-sand?
+
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level varies ±3 blocks with regional terrain elevation so that the river
+  # surface follows the landscape gradient rather than sitting at a fixed Y.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: $meta.yml:ocean-level
+    expression: base + elevation(x, z) * 3
+
+
+D. Need to add all original minecraft biome labels?
+
+E. Verify mesa placement for regions, and consider plains region designation.
+
+
+G. Increase ore spawn rate via standard ore distributions.
+
+H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
+
+I. 

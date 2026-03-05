@@ -80,6 +80,14 @@ preset-single-debug-biome: TEMPERATE_GRASSLAND
 # it out by prepending it with #, this is useful if you want
 # something like a world without ores.
 
+terrain:
+  min-density:
+    sampler: <noise sampler>      # Min-density sampler (default: none/zero = disabled)
+    smooth: false            # Use smooth-min blending instead of hard max (default: false)
+    smooth-k: 1.0                 # Smooth-min factor; higher = smoother transition (default: 1.0)
+    skip-tags:                    # Biome tags that opt OUT of min-density enforcement
+      - OCEAN
+
 stages:
   # Used to generate lava at the bottom of the world.
   # NOTE - This key must only be defined in biomes/abstract/base.yml

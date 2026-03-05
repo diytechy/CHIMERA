@@ -111,3 +111,30 @@ samplers:
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
 
 
+  continentalRiverSupportDensity:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      Base: $meta.yml:ocean-level
+      MaxRiverElev: 40
+      MinRiverSupp: $customization.yml:min-river-support-height
+      MinRiverSuppNorm: $customization.yml:min-river-support-height-norm
+    functions: $math/functions/interpolation.yml:functions
+    samplers:
+      RiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      RiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
+      continents: $math/samplers/continents.yml:samplers.continents
+    expression: |
+      if((continents(x,z)>-0.05 && y<MaxRiverElev),
+        if(y>Base,
+          -y+Base+herp(RiverDist(x,z),0,RiverElev(x,z),1,0),
+          if((y<Base && y>MinRiverSupp),
+            if(RiverDist(x,z)<1,
+              1 - ((Base-y)^2/MinRiverSuppNorm) - ((RiverDist(x,z)+1)^2/4),
+              0
+            ),
+            0
+          )
+        ),
+        0
+      )

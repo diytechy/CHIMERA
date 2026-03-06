@@ -273,10 +273,24 @@ stages:
     sampler: *riverSampler
   # 
   - type: REPLACE
-    from: USE_DRAFTY_STREAMS
+    from: USE_DRAFTY_STREAM_RIVER
     to:
       - SELF: 1
-      - DRAFTY_STREAMS: 1
+      - DRAFTY_STREAM_RIVER: 1
+    sampler: *riverSampler
+  # 
+  - type: REPLACE
+    from: USE_FROSTBITE_RIVERS
+    to:
+      - SELF: 1
+      - FROSTBITE_RIVERS: 1
+    sampler: *riverSampler
+  # 
+  - type: REPLACE
+    from: USE_CHILLY_CREEK_RIVER
+    to:
+      - SELF: 1
+      - CHILLY_CREEK_RIVER: 1
     sampler: *riverSampler
   # 
   - type: REPLACE

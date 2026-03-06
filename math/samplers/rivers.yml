@@ -98,11 +98,12 @@ samplers:
   continentalRiverBlockElevChange:
     dimensions: 2
     type: EXPRESSION
-    expression: floor((continentalRiverElev(x,z) * scale))
+    expression: floor(max(continentalRiverElev(x,z),elevationTerraced(x,z))* scale)
     #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:
       continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
+      elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
     variables:
       scale: $customization.yml:terrain-height
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift

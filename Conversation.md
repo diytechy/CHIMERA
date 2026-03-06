@@ -682,6 +682,26 @@ Icy incision didn't seem to work?
 
 B. Need to make sure river support builds out under variable height river.
 
+
+###########################
+
+Correct Hydraxia related:
+
+Replace the current river tags with USE_FROSTBITE_RIVERS for the following biomes:
+	FROZEN_SPIRES
+	SEARING_TORS
+	ARCTIC_MESA
+	PERMAFROST_CLIFFS
+	
+Replace the current river tags with USE_CHILLY_CREEK_RIVER for the following biomes:
+	SUGAR_PINE_WOODLANDS
+	REDWOOD_WOODLANDS
+	ICEBOUND_JUNGLE
+
+All other biomes with BASE_HYDRAXIA in name and already has a river tag that is not USE_CHILLY_CREEK_RIVER or USE_FROSTBITE_RIVERS, replace the current river tag with:
+USE_DRAFTY_STREAM_RIVER
+
+
 #Drafted under continentalRiverSupportDensity
 
 - Reduce support / contain water funciton by 1.

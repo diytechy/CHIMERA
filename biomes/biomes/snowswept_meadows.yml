@@ -1,30 +1,29 @@
 id: SNOWSWEPT_MEADOWS
 type: BIOME
-extends: [ BASE_HYDRAXIA, EQ_PLAINS, EQ_CARVING_LAND ]
-
+extends:
+- BASE_HYDRAXIA
+- EQ_PLAINS
+- EQ_CARVING_LAND
 vanilla: minecraft:snowy_plains
-
 palette:
-  - SNOWY_GRASS: 319
-  - RIVER_BANK: 61
-  - << palettes/rock_layers.yml:palette
-  
+- SNOWY_GRASS: 319
+- RIVER_BANK: 61
+- << palettes/rock_layers.yml:palette
 features:
   landforms:
-    - BOULDERS
-    - SMALL_BOULDER_PATCHES
-    - STONE_SPIKES
+  - BOULDERS
+  - SMALL_BOULDER_PATCHES
+  - STONE_SPIKES
   trees:
-    - OAK_TREES_RARE
+  - OAK_TREES_RARE
   snow:
-    - SNOW_LAYERS
-    - SNOW_LAYERS_SINGLE
-    - TREE_SNOW
+  - SNOW_LAYERS
+  - SNOW_LAYERS_SINGLE
+  - TREE_SNOW
   entities:
-    - COMMON_MOBS
-    - HORSES
-    
+  - COMMON_MOBS
+  - HORSES
 tags:
-  - CAVERNS_LAND
-  - USE_RIVER
-  - POLAR_COAST_FLAT
+- CAVERNS_LAND
+- USE_DRAFTY_STREAM_RIVER
+- POLAR_COAST_FLAT

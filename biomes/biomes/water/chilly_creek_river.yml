@@ -1,4 +1,4 @@
-id: CHILLY_CREEKS #for mountain biomes
+id: CHILLY_CREEK_RIVER #for mountain biomes
 type: BIOME
 extends: [ EQ_TERRACED_MOUNTAINS_RIVER, EQ_CARVING_OCEAN, BASE_HYDRAXIA, DEPOSITS_RIVER ]
 

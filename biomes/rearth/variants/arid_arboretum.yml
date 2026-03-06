@@ -5,6 +5,7 @@ extends: [ CARVING_LAND, BASE ]
 
 tags:
   - USE_RIVER
+  - ARID_COAST_FLAT
 
 
 vars: &variables

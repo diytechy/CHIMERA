@@ -7,6 +7,7 @@ extends:
 vanilla: minecraft:dark_forest
 color: $biomes/colors.yml:DARK_FOREST
 tags:
+- TEMPERATE_COAST_FLAT
 - USE_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES

@@ -10,6 +10,7 @@ tags:
 - USE_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
+- BOREAL_COAST_FLAT
 colors:
   grass: 8828803
   foliage: 6857828

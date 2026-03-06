@@ -4,7 +4,7 @@ extends:
   - EQ_GLOBAL_RIVER
   - CARVING_OCEAN
   - DESERT
-color: $biomes/colors.yml:DESERT_RIVERcolor: $biomes/colors.yml:DESERT_RIVER
+color: $biomes/colors.yml:DESERT_RIVER
 features:
   flora:
   - CACTUS_SPARSE

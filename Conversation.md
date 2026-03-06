@@ -703,7 +703,7 @@ USE_DRAFTY_STREAM_RIVER
 
 ##########################################################
 
-For each river (biome extends "EQ_GLOBAL_RIVER") if it does not have a "features" section, copy it into the respective biome file from the first "extends" entry that does have a "features" section, and then add postprocessor (or add to the existing postprocessor field) with the following information:
+Create a script that for each river biome (biome extends "EQ_GLOBAL_RIVER") if it does not have a "features" section, copy it into the respective biome file from the first "extends" entry that does have a "features" section, and then add postprocessor (or add to the existing postprocessor field) with the following information:
   postprocessors:
   - RIVER_SOULSAND
 

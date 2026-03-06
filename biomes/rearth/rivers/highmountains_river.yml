@@ -67,7 +67,6 @@ terrain:
             type: OPEN_SIMPLEX_2
             frequency: 0.03
           spikes: *spikes # Use same noise from ceiling spikes
-          spikes: *id002
 features:
   river-decoration:
   - CEILING_ICICLES

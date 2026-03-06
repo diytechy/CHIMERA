@@ -77,7 +77,6 @@ slant:
       - BLOCK:minecraft:ice: 319
       - << palettes/rock_layers.yml:palette
       
-  - << palettes/rock_layers.yml:palette
 features:
   landforms:
   - ICE_PILLARS_CEILING

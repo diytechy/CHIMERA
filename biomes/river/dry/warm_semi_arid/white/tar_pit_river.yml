@@ -4,7 +4,7 @@ extends:
   - EQ_GLOBAL_RIVER
   - CARVING_OCEAN
   - TAR_PITS
-color: $biomes/colors.yml:TAR_PIT_RIVERcolor: $biomes/colors.yml:TAR_PIT_RIVER
+color: $biomes/colors.yml:TAR_PIT_RIVER
 features:
   flora:
   - GRASS

@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: ${customization.yml:terrain-base-y-level} + 30
+  base: ${customization.yml:terrain-base-y-level} + 5
   scale: ${customization.yml:terrain-height}/2
   "<<":
     - math/samplers/spots.yml:variables

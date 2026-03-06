@@ -5,9 +5,6 @@ extends:
   - CARVING_OCEAN
   - BASE
   - DESERT
+  - BORDER_SINKHOLE_EXTEND
 color: $biomes/colors.yml:DESERT_SINKHOLE_BORDER
 
-vanilla: minecraft:plains
-
-tags:
-  - SINKHOLE

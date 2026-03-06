@@ -1,0 +1,28 @@
+id: RIVER_SOULSAND
+type: FEATURE
+
+distributor:
+  type: "YES"
+
+#Method:
+  #Block is solid
+  #Above block is water
+  #Adjacent river block height is > current river block height.
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:sinkhole-ocean-level} -15
+    max: $CUSTOMIZATION.yml:terrain-height
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: 0
+      - type: MATCH
+        blocks: BLOCK:minecraft:water
+        offset: +1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:soulsand

@@ -638,19 +638,7 @@ EQ_SWAMP
 EQ_MANGROVE_SWAMP
 EQ_CELL_MARSH
 
-
-
 Sinkholes don't appear to be working?  Don't go down far enough to fill?
-
-B. Need to make sure river support builds out under variable height river.
-
-#Drafted under continentalRiverSupportDensity
-
-- Reduce support / contain water funciton by 1.
-- Somehow need to perform errosion much closer to river, but not clear what's currently causing errosion.  Detailed elevation function?  Filtering on top of it?
-- 
-
-C. Need to make sure rivers actually flow up using soul-sand?
 
 ocean:
   level: $meta.yml:ocean-level
@@ -669,6 +657,28 @@ Land carving still seems aggressive
 Definitely not getting consistent river gen... not seeing any branches, not seeing interconnected lvl 0,  Maybe issue with tags not replacing for river biomes?
 
 Rivers go in and then just... stop.  Might be issue with density override function, issue with river branching computations, or issue with something else????
+
+#########################
+
+Latest test:
+Rivers are rising better / more tightly, but two issues:
+1. Coast is not smooth compared to previous appearance (transition issues), might need to put max on target height density, it might be herping up to max elev due to river sampler response?
+2. Rivers are intersecting ocean, might be due to previous filtering.
+3. Oak Forest / Broadleaf Forest / Timberland... none appear to have coastal replacement?
+
+Next:
+Complete features\world_features\river_soulsand.yml
+Fix river sampler to give more smooth transition, maybe expands size.
+Rivers should allow all subsurface caves
+Still confused about that vine fault showing up.
+Icy incision didn't seem to work?
+
+B. Need to make sure river support builds out under variable height river.
+
+#Drafted under continentalRiverSupportDensity
+
+- Reduce support / contain water funciton by 1.
+- Somehow need to perform errosion much closer to river, but not clear what's currently causing errosion.  Detailed elevation function?  Filtering on top of it?
 
 Theory:
 1. MinDensity function isn't raising terrain because the sampler is not actually multiplied by the terrain scaler (effectively always 0)

@@ -20,7 +20,7 @@ palette:
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
 tags:
-- LAND_CAVES
+- ICE_CAVES
 
 features:
   slabs:

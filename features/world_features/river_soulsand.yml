@@ -23,7 +23,7 @@ locator:
         - type: MATCH_SOLID
           offset: 0
         - type: MATCH
-          block: BLOCK:minecraft:water
+          block: minecraft:water
           offset: +1
   - type: SAMPLER
     samplers: 
@@ -36,4 +36,4 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: BLOCK:minecraft:soulsand
+  structures: BLOCK:minecraft:soul_sand

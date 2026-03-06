@@ -3,8 +3,7 @@ type: BIOME
 abstract: true
 
 variables: &variables
-  #base: $customization.yml:terrain-base-y-level
-  base: 95
+  base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
 
   depth: 0.11
@@ -29,7 +28,7 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base + 20 -
+      -y + base -
       erode(
         base,
         elevation(x, z),

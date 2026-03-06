@@ -1604,6 +1604,8 @@ class BiomeMetadata:
         caverns_str = "True" if self.caverns_land else ""
         uses_elevation_str = "True" if self.uses_elevation else ""
 
+        tags_str = str(self.tags) if self.tags else ""
+
         row = [
             self.biome_id,
             extends_str,
@@ -1612,6 +1614,7 @@ class BiomeMetadata:
             special_caves_str,
             caverns_str,
             self.river or "",
+            tags_str,
             self.category,                              # Category: SURFACE/RIVER/SUBSURFACE
             'extrusion' if self.is_extrusion else 'surface',
             self.origin or "",                          # Origin: Land/Ocean (pipeline-derived)
@@ -2342,7 +2345,7 @@ def generate_csv_output(
 
         # Header row
         header = [
-            'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River',
+            'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River', 'Tags',
             'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation', 'UsesElevation'
         ] + preset_names
         writer.writerow(header)

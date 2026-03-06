@@ -21,6 +21,7 @@ locator:
       - type: MATCH
         blocks: BLOCK:minecraft:water
         offset: +1
+      
 
 structures:
   distribution:

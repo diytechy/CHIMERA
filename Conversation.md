@@ -450,16 +450,17 @@ For flat biomes / those that aren't influenced by elevation, could just herp in 
 
 ##############
 
-Now create a list of all biomes in BiomeTable.csv that have the following properties:
+It looks like there are still some land biomes that do not have coastal tags.  Create a list of all biomes in BiomeTable.csv that have the following properties:
  1. that are of a land type (origin)
  2. are not rivers (indicated in extends or river column)
  3. That are not wetland types (extends includes BOG, WETLANDS, SWAMP, MARSH)
+ 4. Are not themselves coasts (Set in a "to" section of "add_coasts.yml")
  
 And for each biome, determine what sort of coast they should have and list both the biome and the corresponding coast in a separate document for review:
 
 If they have a direct coastal match (Usually the biome ID followed by _COAST, ex: ARID_PALE_GARDEN -> ARID_PALE_GARDEN_COAST), that should always be used.
 
-If there is not a direct match, estimate the coastal catagory to assocciate based on how the biome is set in "set_biomes_in_climates_origen.yml", consider averaging if the biome crosses multiple regions, knowing the climate chain that leads to this (temperature -> precipitation -> elevation)
+If there is not a direct match, estimate the coastal category to associate based on how the biome is set in "set_biomes_in_climates_origen.yml", consider averaging if the biome crosses multiple regions, knowing the climate chain that leads to this (temperature -> precipitation -> elevation)
 arid-coast-flat
 arid-coast-highlands
 boreal-coast-flat
@@ -470,6 +471,8 @@ temperate-coast-flat
 temperate-coast-highlands
 tropical-coast-flat
 tropical-coast-highlands
+
+Note any biomes including "PALE_GARDEN" and "MUSHROOM" can be ignored since they have biome specific replacement in "add_coast.yml"
 
 Note, the following appear to be biome specific coasts, but there may be others:
 - ARID_PALE_GARDEN_COAST
@@ -664,7 +667,11 @@ Latest test:
 Rivers are rising better / more tightly, but two issues:
 1. Coast is not smooth compared to previous appearance (transition issues), might need to put max on target height density, it might be herping up to max elev due to river sampler response?
 2. Rivers are intersecting ocean, might be due to previous filtering.
+
+Misc:
 3. Oak Forest / Broadleaf Forest / Timberland... none appear to have coastal replacement?
+
+Sakura Streams
 
 Next:
 Complete features\world_features\river_soulsand.yml

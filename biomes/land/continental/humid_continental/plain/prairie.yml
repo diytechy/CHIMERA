@@ -9,7 +9,7 @@ color: $biomes/colors.yml:PRAIRIE
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES
-- USE_RIVER_TEMPERATE_MARSH
+- USE_COLD_RIVER
 - TEMPERATE_COAST_FLAT
 vanilla: minecraft:meadow
 colors:

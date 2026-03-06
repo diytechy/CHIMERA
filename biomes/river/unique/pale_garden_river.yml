@@ -9,3 +9,10 @@ color: $biomes/colors.yml:PALE_GARDEN_RIVER
 vanilla: minecraft:river
 tags:
 - PALE_GARDEN_COAST
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  postprocessors:
+  - RIVER_SOULSAND
+postprocessors:
+- RIVER_SOULSAND

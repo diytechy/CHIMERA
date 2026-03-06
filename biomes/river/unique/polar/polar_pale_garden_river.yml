@@ -29,5 +29,6 @@ features:
   postprocessors:
   - TREE_SNOW
   - BLEND_SNOW
+  - RIVER_SOULSAND
 tags:
 - POLAR_PALE_GARDEN_COAST

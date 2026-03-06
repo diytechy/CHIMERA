@@ -147,7 +147,6 @@ stages:
   - id: underwater-flora
     type: FEATURE
   - id: sculk
-  
     type: FEATURE
 
   # Used for small features placed on the surface like tall grass and vines.

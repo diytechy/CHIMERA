@@ -701,6 +701,11 @@ Replace the current river tags with USE_CHILLY_CREEK_RIVER for the following bio
 All other biomes with BASE_HYDRAXIA in name and already has a river tag that is not USE_CHILLY_CREEK_RIVER or USE_FROSTBITE_RIVERS, replace the current river tag with:
 USE_DRAFTY_STREAM_RIVER
 
+##########################################################
+
+For each river (biome extends "EQ_GLOBAL_RIVER") if it does not have a "features" section, copy it into the respective biome file from the first "extends" entry that does have a "features" section, and then add postprocessor (or add to the existing postprocessor field) with the following information:
+  postprocessors:
+  - RIVER_SOULSAND
 
 #Drafted under continentalRiverSupportDensity
 

@@ -32,9 +32,12 @@ colors:
   water: 0x0084ff
   water-fog: 0x0084ff
 
+  water-fog: 34047
 features:
   flora:
-    - SUGAR_CANE
-    - OAK_BUSHES
-    - FIREFLY_BUSH
-    - GRASS
+  - SUGAR_CANE
+  - OAK_BUSHES
+  - FIREFLY_BUSH
+  - GRASS
+  postprocessors:
+  - RIVER_SOULSAND

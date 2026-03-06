@@ -12,3 +12,20 @@ colors:
   water-fog: 3319192
 tags:
 - ARID_PALE_GARDEN_COAST
+features:
+  flora:
+  - GRASS
+  - PALE_MOSS_CARPET
+  - EYEBLOSSOM_PATCH
+  - CAVE_GLOW_LICHEN
+  - CACTUS_SPARSE
+  - DEAD_BUSHES
+  - DRY_GRASS
+  trees:
+  - DEAD_PALE_FOREST_TREES
+  - DENSE_FALLEN_PALE_OAK_TREES
+  - PALE_OAK_BUSHES
+  landforms:
+  - PALE_MOSSY_BOULDERS
+  postprocessors:
+  - RIVER_SOULSAND

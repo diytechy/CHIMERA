@@ -5,3 +5,11 @@ extends:
   - CARVING_OCEAN
   - ORANGE_DESERT
 color: $biomes/colors.yml:ORANGE_DESERT_RIVER
+features:
+  structures:
+  - MOB_ROOMS
+  - SPARSE_FOSSILS
+  flora:
+  - DRY_GRASS
+  postprocessors:
+  - RIVER_SOULSAND

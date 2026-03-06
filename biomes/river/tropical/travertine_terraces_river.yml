@@ -8,4 +8,9 @@ extends:
   - TRAVERTINE_TERRACES
 color: $biomes/colors.yml:TRAVERTINE_TERRACES_RIVER
 
-vanilla: minecraft:river
+vanilla: minecraft:rivervanilla: minecraft:river
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  postprocessors:
+  - RIVER_SOULSAND

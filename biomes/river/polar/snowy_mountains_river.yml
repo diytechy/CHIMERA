@@ -8,3 +8,9 @@ extends:
 color: $biomes/colors.yml:SNOWY_MOUNTAINS_RIVER
 tags:
 - BOREAL_COAST_HIGHLANDS
+features:
+  river-decoration:
+  - CEILING_ICICLES
+  - CLAY_DEPOSITS
+  postprocessors:
+  - RIVER_SOULSAND

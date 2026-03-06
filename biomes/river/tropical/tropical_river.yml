@@ -32,8 +32,11 @@ colors:
   water: 0x02b0e5
   water-fog: 0x0686ca
 
+  water-fog: 427722
 features:
   flora:
-    - SUGAR_CANE
-    - GRASS
-    - SEA_PICKLES
+  - SUGAR_CANE
+  - GRASS
+  - SEA_PICKLES
+  postprocessors:
+  - RIVER_SOULSAND

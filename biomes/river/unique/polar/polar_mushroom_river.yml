@@ -10,19 +10,19 @@ extends:
 color: $biomes/colors.yml:POLAR_MUSHROOM_RIVER
 
 vanilla: minecraft:frozen_river
-
 features:
   flora:
-    - SMALL_MUSHROOMS
+  - SMALL_MUSHROOMS
   trees:
-    - MUSHROOM_DISK_PATCHES
-    - LARGE_MUSHROOMS
+  - MUSHROOM_DISK_PATCHES
+  - LARGE_MUSHROOMS
   processors:
-    - SNOW_FOREST_LAYERS
+  - SNOW_FOREST_LAYERS
   preprocessors:
-    - POWDER_SNOW_DEPOSITS
-    - ICE_COASTLINE
+  - POWDER_SNOW_DEPOSITS
+  - ICE_COASTLINE
   postprocessors:
-    - TREE_SNOW
-    - BLEND_SNOW
-    - CEILING_ICICLES
+  - TREE_SNOW
+  - BLEND_SNOW
+  - CEILING_ICICLES
+  - RIVER_SOULSAND

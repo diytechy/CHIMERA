@@ -7,3 +7,9 @@ extends:
 color: $biomes/colors.yml:BADLANDS_RIVER
 tags:
 - ARID_COAST_FLAT
+features:
+  flora:
+  - CACTUS_SPARSE
+  - DRY_GRASS
+  postprocessors:
+  - RIVER_SOULSAND

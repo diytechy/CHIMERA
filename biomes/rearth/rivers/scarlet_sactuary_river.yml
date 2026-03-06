@@ -67,3 +67,12 @@ terrain:
             type: OPEN_SIMPLEX_2
             frequency: 0.03
           spikes: *spikes # Use same noise from ceiling spikes
+          spikes: *id002
+features:
+  flora:
+  - SUGAR_CANE
+  - OAK_BUSHES
+  - FIREFLY_BUSH
+  - GRASS
+  postprocessors:
+  - RIVER_SOULSAND

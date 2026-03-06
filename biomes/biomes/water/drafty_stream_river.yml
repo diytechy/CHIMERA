@@ -15,13 +15,13 @@ slant:
       - BLOCK:minecraft:stone: 319
       - << palettes/rock_layers.yml:palette
   
+  - << palettes/rock_layers.yml:palette
 features:
   flora:
-    - SUGAR_CANE
+  - SUGAR_CANE
   postplacement:
-    - SNOW_LAYERS
-    - TREE_SNOW
-    - SNOW_LAYERS_SINGLE
+  - SNOW_LAYERS
+  - TREE_SNOW
   entities:
     - TURTLES
     

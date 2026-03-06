@@ -7,4 +7,9 @@ extends:
   - SWAMP
 color: $biomes/colors.yml:SWAMP_RIVER
 
-vanilla: minecraft:river
+vanilla: minecraft:rivervanilla: minecraft:river
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  postprocessors:
+  - RIVER_SOULSAND

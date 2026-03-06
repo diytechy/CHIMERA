@@ -11,4 +11,13 @@ colors:
   grass: 0x8ab689
   foliage: 0x6da36b
   water: 0x007bf7
-  water-fog: 0x007bf7
+  water-fog: 0x007bf7  water-fog: 31735
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  - MOUNTAIN_RIVER_DRIPSTONE_DEPOSITS
+  - MOUNTAIN_RIVER_POINTED_DRIPSTONE
+  - LARGE_CEILING_VINES
+  - MOUNTAIN_RIVER_GLOW_LICHEN
+  postprocessors:
+  - RIVER_SOULSAND

@@ -32,9 +32,12 @@ colors:
   water: 0x007bf7
   water-fog: 0x007bf7
 
+  water-fog: 31735
 features:
   flora:
-    - FERNS
-    - GRASS
+  - FERNS
+  - GRASS
   landforms:
-    - RIVER_BOULDERS
+  - RIVER_BOULDERS
+  postprocessors:
+  - RIVER_SOULSAND

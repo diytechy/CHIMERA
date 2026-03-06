@@ -7,4 +7,9 @@ extends:
   - MUSHROOM_FIELDS
 color: $biomes/colors.yml:MUSHROOM_RIVER
 
-vanilla: minecraft:river
+vanilla: minecraft:rivervanilla: minecraft:river
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  postprocessors:
+  - RIVER_SOULSAND

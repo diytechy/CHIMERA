@@ -11,7 +11,7 @@ layers:
       - minecraft:stone: 2
       - minecraft:sandstone: 4
       - minecraft:water: 2
-    layers: 3
+    layers: 4
   - materials:
       - minecraft:stone: 1
       - minecraft:blue_terracotta: 1

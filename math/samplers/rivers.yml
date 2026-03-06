@@ -98,7 +98,7 @@ samplers:
   continentalRiverBlockElevChange:
     dimensions: 2
     type: EXPRESSION
-    expression: (continentalRiverElev(x,z) * scale)
+    expression: floor((continentalRiverElev(x,z) * scale))
     #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:
       continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
@@ -106,6 +106,21 @@ samplers:
     variables:
       scale: $customization.yml:terrain-height
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
+
+  continentalRiverBlockElevShift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        max(abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x+1,z)),
+          abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x-1,z))),
+        max(abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x,z+1)),
+          abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x,z-1)))
+      )
+    #expression: continentalDendryRivers(x,1.0,z)*scale
+    samplers:
+      continentalRiverBlockElevChange: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevChange
+
 
   continentalRiverDist:
     dimensions: 2

@@ -15,6 +15,7 @@ tags:
 - USE_JUNGLE_VISTA_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
+- TROPICAL_COAST_HIGHLANDS
 palette:
 - GRASS: $meta.yml:top-y
 - SAND: ${meta.yml:ocean-level} + 2

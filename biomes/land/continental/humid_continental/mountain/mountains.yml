@@ -12,6 +12,7 @@ tags:
 - DEEP_DARK
 - LAND_CAVES
 - SPECIAL_CAVES
+- TEMPERATE_COAST_HIGHLANDS
 vanilla: minecraft:windswept_hills
 colors:
   grass: 9090697

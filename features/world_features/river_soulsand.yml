@@ -5,21 +5,23 @@ distributor:
   type: "YES"
 
 #Method:
-  #Block is solid
-  #Above block is water
-  #Adjacent river block height is > current river block height.
+  #Block is solid AND
+  #Above block is water AND
+  #Water surface changes height:
+    #A. For the first air block above the water surface an adjacent block next to the air is water.
+    #B. The continentalRiverBlockElevChange sampler changes between current block position and adjacent.
 locator:
   type: PATTERN
   range:
     min: ${meta.yml:sinkhole-ocean-level} -15
-    max: $CUSTOMIZATION.yml:terrain-height
+    max: ${customization.yml:terrain-height}
   pattern:
     type: AND
     patterns:
       - type: MATCH_SOLID
         offset: 0
       - type: MATCH
-        blocks: BLOCK:minecraft:water
+        block: BLOCK:minecraft:water
         offset: +1
       
 

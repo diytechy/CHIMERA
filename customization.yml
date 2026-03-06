@@ -91,6 +91,9 @@ terrain-height: 180
 # clipping.
 # Default: 230
 
+origen-terrain-height: 100
+# Terrain height for origen / rearth specific biomes that were designed before the height increase.
+
 terrain-ocean-base-y-level: 60
 # The base ocean terrain y level, generally the highest level for terrain for ocean biomes.
 # Default 60

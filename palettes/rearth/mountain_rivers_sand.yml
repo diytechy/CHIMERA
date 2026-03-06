@@ -10,7 +10,7 @@ layers:
   - materials:
       - minecraft:sand: 2
       - minecraft:sand: 4
-      - minecraft:water: 1
+      - minecraft:water: 2
     layers: 2
   - materials:
       - minecraft:stone: 1

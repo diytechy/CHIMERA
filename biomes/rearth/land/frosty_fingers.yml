@@ -11,7 +11,7 @@ tags:
 - SPECIAL_CAVES
 variables: &id001
   base: $customization.yml:terrain-base-y-level
-  scale: $customization.yml:terrain-height
+  scale: $customization.yml:origen-terrain-height
   duneFactor: 0.4
   duneStart: 0
   duneEnd: 0.8

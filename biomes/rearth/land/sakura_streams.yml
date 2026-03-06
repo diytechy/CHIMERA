@@ -11,8 +11,8 @@ colors:
   water: 6141935
 vars: &id001
   base: 67
-  height: 60
-  variation: 27
+  height: 36
+  variation: 23
 terrain:
   sampler:
     dimensions: 3

@@ -638,6 +638,10 @@ EQ_SWAMP
 EQ_MANGROVE_SWAMP
 EQ_CELL_MARSH
 
+
+
+Sinkholes don't appear to be working?  Don't go down far enough to fill?
+
 B. Need to make sure river support builds out under variable height river.
 
 #Drafted under continentalRiverSupportDensity

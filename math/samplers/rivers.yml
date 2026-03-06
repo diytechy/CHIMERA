@@ -87,8 +87,8 @@ samplers:
   continentalRiverElev:
     dimensions: 2
     type: EXPRESSION
-    #expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
-    expression: elevationTerraced(x,z)
+    expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
+    #expression: elevationTerraced(x,z)
     samplers:
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
       elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
@@ -98,8 +98,8 @@ samplers:
   continentalRiverBlockElevChange:
     dimensions: 2
     type: EXPRESSION
-    #expression: (continentalRiverElev(x,z) * scale)
-    expression: continentalDendryRivers(x,1.0,z)*scale
+    expression: (continentalRiverElev(x,z) * scale)
+    #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:
       continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
       continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers

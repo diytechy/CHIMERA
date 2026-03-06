@@ -23,23 +23,28 @@ ocean:
     expression: olevel + continentalRiverBlockElevChange(x, z)
 
 terrain:
+  # Creates erosion carving down near river.
+  # 2d sampler provides constant y value of intercept, 
+  # so this should constantly provide -y value + erosion (negative)
+  # to reduce density and block fill below river for water to fill.
   sampler:
     type: EXPRESSION
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base -
-      erode(
-        base,
-        elevation(x, z),
+      -y + base + continentalRiverBlockElevChange(x,z)-
+      (erode(
+        base + continentalRiverBlockElevChange(x,z),
+        elevationWithRivers(x, z),
         scale,
-        (y - base) / scale,
+        (y - base + continentalRiverBlockElevChange(x,z)) / scale,
         depth - ((1 + depthVariation(x,z)) * depthVariation),
         ceilingBase,
         ceilingHeight,
         ceilingSpikes(x, z) * -0.1,
         herp(openings(x, z), 0.3, 0, 0.6, 1)
-      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) *
+      herp(continentalRiverDist(x,z), -0.4, 1, -0.2, 0))
     samplers:
       erosionStrengthVariation: # Used to roughen up the walls
         dimensions: 3
@@ -90,6 +95,7 @@ terrain:
           "<<":
             - math/functions/interpolation.yml:functions
   
+  # Will always return y value for surface
   sampler-2d:
     type: EXPRESSION
     expression: scale * elevationDetailed(x, z)

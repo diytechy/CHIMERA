@@ -41,3 +41,4 @@ features:
   - RIVER_BOULDERS
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

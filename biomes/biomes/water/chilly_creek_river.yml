@@ -103,3 +103,4 @@ features:
   - TREE_SNOW
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

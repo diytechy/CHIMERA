@@ -28,3 +28,4 @@ features:
   - PALE_MOSSY_BOULDERS
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

@@ -22,3 +22,4 @@ features:
   - DEAD_TREES_SPARSE
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

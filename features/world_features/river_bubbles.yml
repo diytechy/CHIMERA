@@ -1,0 +1,33 @@
+id: RIVER_BUBBLES
+type: FEATURE
+
+distributor:
+  type: "YES"
+
+#Method:
+  #Block is solid AND
+  #Above block is water AND
+  #Water surface changes height:
+    #A. For the first air block above the water surface an adjacent block next to the air is water.
+    #B. The continentalRiverBlockElevChange sampler changes between current block position and adjacent.
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level} -25
+    max: ${customization.yml:terrain-height}
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH
+        block: minecraft:water
+        offset: 0
+      - type: MATCH
+        block: minecraft:soul_sand
+        offset:
+          min: -20
+          max: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:bubble_column[drag=false]

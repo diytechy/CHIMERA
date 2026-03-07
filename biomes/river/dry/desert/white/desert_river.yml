@@ -16,3 +16,4 @@ features:
   - SPARSE_FOSSILS
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

@@ -26,6 +26,7 @@ features:
     - SEAGRASS
     - SEA_PICKLES
     - RIVER_SOULSAND
+    - RIVER_BUBBLES
     
 colors:
   grass: 0xcfffe4

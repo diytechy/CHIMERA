@@ -75,3 +75,4 @@ features:
   - GRASS
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

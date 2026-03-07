@@ -17,3 +17,4 @@ features:
   - SPARSE_FALLEN_PALM_TREES
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_BUBBLES

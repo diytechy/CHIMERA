@@ -11,4 +11,3 @@ features:
     - MOUNTAIN_RIVER_GLOW_LICHEN
   postprocessors:
     - RIVER_SOULSAND
-    - RIVER_BUBBLES

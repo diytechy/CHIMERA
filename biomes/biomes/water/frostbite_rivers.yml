@@ -84,4 +84,3 @@ features:
   - SNOW_LAYERS
   postprocessors:
   - RIVER_SOULSAND
-  - RIVER_BUBBLES

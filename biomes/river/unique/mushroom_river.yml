@@ -13,4 +13,3 @@ features:
   - CLAY_DEPOSITS
   postprocessors:
   - RIVER_SOULSAND
-  - RIVER_BUBBLES

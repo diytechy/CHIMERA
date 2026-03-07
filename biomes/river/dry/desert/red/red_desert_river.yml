@@ -14,4 +14,3 @@ features:
   - DRY_GRASS
   postprocessors:
   - RIVER_SOULSAND
-  - RIVER_BUBBLES

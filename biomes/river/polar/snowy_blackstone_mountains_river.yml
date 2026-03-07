@@ -6,8 +6,6 @@ extends:
 - CARVING_OCEAN
 - SNOWY_BLACKSTONE_MOUNTAINS
 color: $biomes/colors.yml:SNOWY_BLACKSTONE_MOUNTAINS_RIVER
-tags:
-- POLAR_COAST_HIGHLANDS
 features:
   river-decoration:
   - CEILING_ICICLES

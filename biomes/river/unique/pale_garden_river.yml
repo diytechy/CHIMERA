@@ -14,5 +14,3 @@ features:
   - CLAY_DEPOSITS
   postprocessors:
   - RIVER_SOULSAND
-postprocessors:
-- RIVER_SOULSAND

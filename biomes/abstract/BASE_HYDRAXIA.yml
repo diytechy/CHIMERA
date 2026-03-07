@@ -19,10 +19,13 @@ features:
     - CONTAIN_FLOATING_WATER
     - CAVE_GLOW_LICHEN
     - TEXTURED_STONE_SLANT
+    - CAVE_ENTRANCES
+    - CAVE_CARVERS
   underwater-flora:
     - KELP
     - SEAGRASS
     - SEA_PICKLES
+    - RIVER_SOULSAND
     
 colors:
   grass: 0xcfffe4

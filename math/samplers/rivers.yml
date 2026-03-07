@@ -113,10 +113,10 @@ samplers:
     type: EXPRESSION
     expression: |
       max(
-        max(abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x+1,z)),
-          abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x-1,z))),
-        max(abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x,z+1)),
-          abs(continentalRiverBlockElevChange(x,z) - continentalRiverBlockElevChange(x,z-1)))
+        max(abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x+1,z)),
+          abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x-1,z))),
+        max(abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z+1)),
+          abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1)))
       )
     #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:

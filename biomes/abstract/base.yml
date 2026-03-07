@@ -32,6 +32,5 @@ features:
     - CLINGING_KELP
     - SEAGRASS
     - SPARSE_SEAGRASS
-    - RIVER_SOULSAND
   structures:
     - MOB_ROOMS

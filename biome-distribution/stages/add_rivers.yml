@@ -126,12 +126,13 @@ stages:
       - TAR_PIT_RIVER: 1
     sampler: *riverSampler
   # Regular rivers with temperate marshes
+  # SUPPRESSED - Only marshes directly get a river replacement, no need to bound other biomes with marshland which
+  # forces elevation change.
   - type: REPLACE
     from: USE_RIVER_TEMPERATE_MARSH
     to:
       - SELF: 1
-      - MARSH: 1
-      - RIVER: 2
+      - RIVER: 1
     sampler: *riverSampler
   # Pale Garden rivers
   - type: REPLACE

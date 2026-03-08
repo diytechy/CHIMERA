@@ -1,15 +1,16 @@
 id: RIVER_SOULSAND
 type: FEATURE
 
-distributor:
-  type: "YES"
-
 #distributor:
-#  type: SAMPLER
-#  sampler:
-#    type: EXPRESSION
-#    expression: |
-#      continentalRiverBlockElevShift(x,z)
+#  type: "YES"
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: |
+      1-continentalRiverBlockElevShift(x,z)
+  threshold: 0.5
 
 #Method:
   #Block is solid AND

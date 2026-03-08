@@ -1,0 +1,28 @@
+
+/mv create <name> <environment> [--seed <seed> --generator <generator[:id]> --world-type <worldtype> --adjust-spawn --no-structures --biome <biome> --generator-settings <json>]
+
+/mv create CHIMERA NORMAL --seed 1 --generator Terra:CHIMERA
+
+
+/mv create CHIMERA NORMAL --seed 1 --generator Terra:CHIMERA
+
+ --no-adjust-spawn
+
+
+ ############
+
+ What worked:
+
+ /mvcreate EXPLORE normal -g Terra:OVERWORLD --no-adjust-spawn --seed 1
+
+ /mvcreate CHIMERA normal -g Terra:CHIMERA --no-adjust-spawn --seed 1
+
+ Note the server will report errors at the origin chunk as it tries to search for viable stronghold locations:
+
+ [16:05:05 ERROR]: Server thread dump (Look for plugins here before reporting to Paper!):
+[16:05:05 ERROR]: Chunk wait task info below: 
+[16:05:05 ERROR]: Chunk wait: [( 10,10) in 'EXPLORE2']
+[16:05:05 ERROR]: Chunk holder: NewChunkHolder{world=EXPLORE2, chunkX=10, chunkZ=10, entityChunkFromDisk=false, lastChunkCompletion={chunk_class=net.minecraft.world.level.chunk.ProtoChunk,status=minecraft:initialize_light}, currentGenStatus=minecraft:initialize_light, requestedGenStatus=minecraft:full, generationTask=null, generationTaskStatus=null, priority=BLOCKING, priorityLocked=false, neighbourRequestedPriority=null, effective_priority=BLOCKING, oldTicketLevel=33, currentTicketLevel=33, totalNeighboursUsingThisChunk=4, fullNeighbourChunksLoadedBitset=0, currentChunkStatus=INACCESSIBLE, pendingChunkStatus=INACCESSIBLE, is_unload_safe=ticket_level, killed=false}
+[16:05:05 ERROR]: ------------------------------
+
+This is what consumes most bandwidth.

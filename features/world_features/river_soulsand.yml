@@ -4,6 +4,13 @@ type: FEATURE
 distributor:
   type: "YES"
 
+#distributor:
+#  type: SAMPLER
+#  sampler:
+#    type: EXPRESSION
+#    expression: |
+#      continentalRiverBlockElevShift(x,z)
+
 #Method:
   #Block is solid AND
   #Above block is water AND
@@ -24,36 +31,6 @@ locator:
         block: minecraft:water
         offset: 1
 
-#  type: PATTERN
-#  range:
-#  pattern:
-#    type: AND
-#    patterns:
-#      - type: MATCH_SOLID
-#        offset: 0
-#      - type: MATCH_AIR
-#        offset: 1
-  #- type: SAMPLER
-  #  samplers: 
-  #  - type: EXPRESSION
-  #    expression: continentalRiverBlockElevShift(x,z)
-  #    samplers:
-  #      continentalRiverBlockElevShift: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevShift
-
-
- # type: AND
- # locators:
- #   - type: RANDOM
- #     height: &range
- #       min: -52
- #       max: 316
- #     amount: 1
- #     salt: 234678
- #   - type: PATTERN
- #     range: *range
- #     pattern:
- #       type: MATCH_AIR
- #       offset: 0 
 structures:
   distribution:
     type: CONSTANT

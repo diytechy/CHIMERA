@@ -18,7 +18,7 @@ samplers:
     expression: |
       if(continentalRiverDist(x,z)>=1,
         -1,
-        if(continentalRiverDist(x,z)<=0,
+        if(continentalRiverDist(x,z)<=0.33,
           1,
           -0.25
         )
@@ -98,7 +98,7 @@ samplers:
   continentalRiverBlockElevChange:
     dimensions: 2
     type: EXPRESSION
-    expression: floor(max(continentalRiverElev(x,z),elevationTerraced(x,z))* scale)
+    expression: floor(continentalRiverElev(x,z))* scale
     #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:
       continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
@@ -113,10 +113,10 @@ samplers:
     type: EXPRESSION
     expression: |
       max(
-        max(abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x+1,z)),
-          abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x-1,z))),
-        max(abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z+1)),
-          abs(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1)))
+        max(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x+1,z),
+          continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x-1,z)),
+        max(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z+1),
+          continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1))
       )
     #expression: continentalDendryRivers(x,1.0,z)*scale
     samplers:

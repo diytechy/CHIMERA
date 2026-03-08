@@ -703,6 +703,10 @@ USE_DRAFTY_STREAM_RIVER
 
 ##########################################################
 
+SOULSAND placement is broken?  <- Need to see if this is due to distributor?
+
+
+
 Create a script that for each river biome (biome extends "EQ_GLOBAL_RIVER") if it does not have a "features" section, copy it into the respective biome file from the first "extends" entry that does have a "features" section, and then add postprocessor (or add to the existing postprocessor field) with the following information:
   postprocessors:
   - RIVER_SOULSAND
@@ -726,3 +730,8 @@ G. Increase ore spawn rate via standard ore distributions.
 H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
 
 I. 
+
+Coordinates to check:
+
+-95, -218 <- Appears to be river, but is just sand... river not eroded enough?
+-250, -270 <- Edge of river in ocean, why wasn't elevation dropped to 0?

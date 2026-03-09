@@ -43,14 +43,19 @@ _innerWarpSmall: &innerWarpSmall
 
 samplers:
   BiomeShapeLandmassValue:
-    <<: *outerWarpSmall
+    dimensions: 2
+    type: CACHE
+    int: true
+    resolution: 2
     sampler:
-      <<: *midWarpSmall
+      <<: *outerWarpSmall
       sampler:
-        <<: *innerWarpSmall
+        <<: *midWarpSmall
         sampler:
-          <<: *landmassShape
-          return: CellValue
+          <<: *innerWarpSmall
+          sampler:
+            <<: *landmassShape
+            return: CellValue
 
   BiomeShapeLandmassTemperature:
     <<: *outerWarpSmall
@@ -91,7 +96,6 @@ samplers:
   BiomeShapeLandmassBaseOffset:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       type: EXPRESSION
       dimensions: 2
@@ -102,6 +106,8 @@ samplers:
         land_scale: $customization.yml:terrain-height
         offset_scale: $customization.yml:terrain-base-biome-shift
 
+    int: true
+    resolution: 2
   BiomeShapeOceanValue:
     <<: *outerWarpSmall
     sampler:

@@ -42,7 +42,6 @@ samplers:
   spotDistance: # Returns block distance from closest spot center
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:    # Returns block distance from closest spot center
       dimensions: 2
       type: DOMAIN_WARP
@@ -59,10 +58,11 @@ samplers:
             <<: *smallCellular
             distance: Euclidean
 
+    int: true
+    resolution: 2
   spotSizePercent: # Returns a random value between 0 and 1 that determines the size of the spot
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:       # Returns a random value between 0 and 1 that determines the size of the spot
       dimensions: 2
       type: PROBABILITY
@@ -70,10 +70,11 @@ samplers:
         <<: *smallCellular
         return: CellValue
 
+    int: true
+    resolution: 2
   spotRadius: # Returns the radius of the spot in blocks
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:  # Returns the radius of the spot in blocks
       dimensions: 2
       type: EXPRESSION
@@ -83,39 +84,34 @@ samplers:
       samplers:
         spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
 
+    int: true
+    resolution: 2
   spotAngle:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       <<: *smallCellular
       return: Angle
 
+    int: true
+    resolution: 2
   nearSpot:
     dimensions: 2
-    type: CACHE
-    exp: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
-      variables: *variables
-      samplers:
-        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+    variables: *variables
+    samplers:
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
 
   nearSpotRift:
     dimensions: 2
-    type: CACHE
-    exp: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
-      variables: *variables
-      samplers:
-        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
+    variables: *variables
+    samplers:
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
 
   spotCenterRiverDistFar:
     <<: *smallCellular
@@ -123,45 +119,34 @@ samplers:
     lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
 
   spotApproxRiverDist:
-    dimensions: 2
-    type: CACHE
-    sampler:
-      <<: *smallCellular
-      return: NoiseLookup
-      salt-lookup: false
-      lookup:
-        type: EXPRESSION
-        expression: spotCenterRiverDistFar(x, z)
-        samplers:
-          spotCenterRiverDistFar: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: spotCenterRiverDistFar(x, z)
+      samplers:
+        spotCenterRiverDistFar: $math/samplers/spots.yml:samplers.spotCenterRiverDistFar
 
   spotTemperature:
-    dimensions: 2
-    type: CACHE
-    size: 1
-    sampler:
-      <<: *smallCellular
-      return: NoiseLookup
-      salt-lookup: false
-      lookup:
-        type: EXPRESSION
-        expression: temperature(x, z)
-        samplers:
-          temperature: $math/samplers/temperature.yml:samplers.temperature
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: temperature(x, z)
+      samplers:
+        temperature: $math/samplers/temperature.yml:samplers.temperature
 
   spotPrecipitation:
-    dimensions: 2
-    type: CACHE
-    size: 1
-    sampler:
-      <<: *smallCellular
-      return: NoiseLookup
-      salt-lookup: false
-      lookup:
-        type: EXPRESSION
-        expression: precipitation(x, z)
-        samplers:
-          precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: precipitation(x, z)
+      samplers:
+        precipitation: $math/samplers/precipitation.yml:samplers.precipitation
 
   spotCenterNotNearRiver:
     dimensions: 2
@@ -171,17 +156,14 @@ samplers:
       spotApproxRiverDist: $math/samplers/spots.yml:samplers.spotApproxRiverDist
 
   spotCenterContinents:
-    dimensions: 2
-    type: CACHE
-    sampler:
-      <<: *smallCellular
-      return: NoiseLookup
-      salt-lookup: false
-      lookup:
-        type: EXPRESSION
-        expression: continents(x, z)
-        samplers:
-          continents: $math/samplers/continents.yml:samplers.continents
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: continents(x, z)
+      samplers:
+        continents: $math/samplers/continents.yml:samplers.continents
 
   spotCenterOnOcean:
     dimensions: 2
@@ -201,7 +183,6 @@ samplers:
   spotBaseElevation: # Returns the elevation value at the center of the spot
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:         # Returns the elevation value at the center of the spot
       <<: *smallCellular
       return: NoiseLookup
@@ -212,6 +193,8 @@ samplers:
         samplers:
           elevation: $math/samplers/elevation.yml:samplers.elevation
 
+    int: true
+    resolution: 2
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
     type: DOMAIN_WARP
@@ -247,7 +230,6 @@ samplers:
   spotEdgeRadiusPercent:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       <<: *smallCellular
       return: NoiseLookup
@@ -264,6 +246,8 @@ samplers:
             arguments: [x]
             expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
+    int: true
+    resolution: 2
   spotEdgeRadius:
     dimensions: 2
     type: EXPRESSION
@@ -301,7 +285,6 @@ samplers:
   volcanoErosion: # Creates streaks from the center of the volcano, emulating erosion
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:      # Creates streaks from the center of the volcano, emulating erosion
       dimensions: 2
       type: EXPRESSION
@@ -327,6 +310,8 @@ samplers:
             frequency: 0.033
 
   #spotPlacer: -1 for oceanSpot, 0 for non-spot, 1 for landSpot
+    int: true
+    resolution: 2
   spotPlacer:
     dimensions: 2
     type: EXPRESSION

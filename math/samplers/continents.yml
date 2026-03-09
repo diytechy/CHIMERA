@@ -19,25 +19,23 @@ samplers:
   #   Low frequency = very large features (continents, major landmasses).
   #   Used as base terrain and for coastal rolloff calculation.
   continental_sampler:
-    dimensions: 2
-    type: CACHE
-    sampler:
-      type: EXPRESSION
-      expression: sampler(x - 100000, z - 100000)
-      samplers:
+    type: EXPRESSION
+    expression: sampler(x - 100000, z - 100000)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
         sampler:
-          dimensions: 2
-          type: TRANSLATE
-          x: 10000
-          z: 10000
+          type: FBM
+          gain: 0.7
+          octaves: 3
+          lacunarity: 1.8121866
           sampler:
-            type: FBM
-            gain: 0.7
-            octaves: 3
-            lacunarity: 1.8121866
-            sampler:
-              type: PERLIN
-              frequency: (1 / ${customization.yml:continental-baseline-distance})
+            type: PERLIN
+            frequency: (1 / ${customization.yml:continental-baseline-distance})
+    dimensions: 2
   continental_landmass:
     dimensions: 2
     type: EXPRESSION
@@ -110,84 +108,47 @@ samplers:
               salt: 1
               frequency: (1/5000)
 
+    int: true
+    resolution: 2
   blotSpots:
     dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
-          spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
-          -1)
+    type: EXPRESSION
+    expression: |
+      if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
+        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
+        -1)
 
-      variables:
-        globalScale: $customization.yml:global-scale
-        spotContinentalFactor: 0.3
-      samplers:
-        spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-        spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-        spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-        continents: $math/samplers/continents.yml:samplers.continents
-        spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
-        spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
+    variables:
+      globalScale: $customization.yml:global-scale
+      spotContinentalFactor: 0.3
+    samplers:
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      continents: $math/samplers/continents.yml:samplers.continents
+      spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
+      spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
 
   continentsWithSpots:
     dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        max(
-          continents(x, z),
-          blotSpots(x,z))
-      samplers:
-        blotSpots: $math/samplers/continents.yml:samplers.blotSpots
-        continents: $math/samplers/continents.yml:samplers.continents
+    type: EXPRESSION
+    expression: |
+      max(
+        continents(x, z),
+        blotSpots(x,z))
+    samplers:
+      blotSpots: $math/samplers/continents.yml:samplers.blotSpots
+      continents: $math/samplers/continents.yml:samplers.continents
 
   continentalDistribution:
     dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
-      samplers:
-        continentsWithSpots: $math/samplers/continents.yml:samplers.continentsWithSpots
+    type: EXPRESSION
+    expression: |
+      if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
+    samplers:
+      continentsWithSpots: $math/samplers/continents.yml:samplers.continentsWithSpots
 
 
 
 ############# UNUSED ##############
 
-  continentBorder:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(inRange(continents(x, z), -threshold, threshold),
-        if(continentsEdge((x-width)/width, (z-width)/width) != 0, 1, -1),
-        -1
-      )
-    variables: &continentBorderVariables
-      width: ${customization.yml:continental-coast-width} * ${customization.yml:global-scale}
-      threshold: $customization.yml:continental-coast-width
-    functions:
-      inRange:
-        arguments:
-        - x
-        - lower
-        - upper
-        expression: x >= lower && x <= upper
-    samplers:
-      continents: $math/samplers/continents.yml:samplers.continents
-      continentsEdge:
-        dimensions: 2
-        type: KERNEL
-        kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
-        sampler:
-          type: EXPRESSION
-          expression: continents(x*width, z*width) > 0
-          variables: *continentBorderVariables
-          samplers:
-            continents: $math/samplers/continents.yml:samplers.continents

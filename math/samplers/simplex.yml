@@ -2,7 +2,6 @@ samplers:
   simplex:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: FBM
@@ -10,10 +9,11 @@ samplers:
       sampler:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
+    int: true
+    resolution: 2
   simplex2:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: FBM
@@ -21,10 +21,11 @@ samplers:
       sampler:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
+    int: true
+    resolution: 2
   simplex3:
     dimensions: 3
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 3
       type: FBM
@@ -32,6 +33,8 @@ samplers:
       sampler:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
+    int: true
+    resolution: 2
   positiveWhiteNoise:
     dimensions: 2
     type: POSITIVE_WHITE_NOISE

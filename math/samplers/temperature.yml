@@ -26,7 +26,6 @@ samplers:
   temperature:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -38,3 +37,5 @@ samplers:
       samplers:
         elevation: $math/samplers/elevation.yml:samplers.elevation
         rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature
+    int: true
+    resolution: 2

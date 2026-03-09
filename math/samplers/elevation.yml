@@ -121,31 +121,23 @@ samplers:
 
   mesaMask:
     dimensions: 2
-    type: CACHE
-    exp: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: max(min((sampler(x - 6000, z - 6000)-mesa_threshold)/(0.6-mesa_threshold), continents(x, z)),0)
+    type: EXPRESSION
+    expression: max(min((sampler(x - 6000, z - 6000)-mesa_threshold)/(0.6-mesa_threshold), continents(x, z)),0)
     #2.75-mesa_threshold
-      variables:
-        mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
-      samplers:
-        continents: $math/samplers/continents.yml:samplers.continents
-        sampler: $math/samplers/elevation.yml:samplers.mesaMaskRaw
+    variables:
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    samplers:
+      continents: $math/samplers/continents.yml:samplers.continents
+      sampler: $math/samplers/elevation.yml:samplers.mesaMaskRaw
 
   mesaPresent:
     dimensions: 2
-    type: CACHE
-    exp: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: mesaMask(x,z)>(1/(MaxNMesSteps*2))
-      variables:
-        MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
-      samplers:
-        mesaMask: $math/samplers/elevation.yml:samplers.mesaMask
+    type: EXPRESSION
+    expression: mesaMask(x,z)>(1/(MaxNMesSteps*2))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+    samplers:
+      mesaMask: $math/samplers/elevation.yml:samplers.mesaMask
 
   # Defines a very slow rolling peak height, primarily intended to impact mesa height so tops are not perfectly flat.
   PeakHeightMultiplierAtPosition:
@@ -363,7 +355,6 @@ samplers:
   elevation:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -386,6 +377,8 @@ samplers:
 
   # Now place mesas into elevation.
   # Blend the floor and nominal step height based on the distance to ramp from step to step.
+    int: true
+    resolution: 2
   elevation_with_mesas:
     dimensions: 2
     type: EXPRESSION
@@ -517,7 +510,6 @@ samplers:
   elevationDetailed:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -543,10 +535,11 @@ samplers:
             salt: 2394
 
 
+    int: true
+    resolution: 2
   oceanElevation:
     dimensions: 2
     type: CACHE
-    exp: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -562,3 +555,5 @@ samplers:
         rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
         continents: $math/samplers/continents.yml:samplers.continents
 
+    int: true
+    resolution: 2

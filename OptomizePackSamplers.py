@@ -19,6 +19,7 @@ Usage:
 """
 
 import re
+import csv
 from pathlib import Path
 from collections import Counter
 from ruamel.yaml import YAML
@@ -26,8 +27,8 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 PACK_ROOT = Path(__file__).parent
 PACK_YML = PACK_ROOT / "pack.yml"
-CACHE_EXP = 2
-CACHE_THRESHOLD = 3  # wrap in CACHE if used strictly more than this many times
+CACHE_THRESHOLD = 3        # wrap in CACHE if combined usages exceed this value
+PIPELINE_RESOLUTION = 2    # must match the pack biome pipeline 'resolution:' value
 
 
 # ---------------------------------------------------------------------------
@@ -309,6 +310,40 @@ def count_sampler_text_usages(sampler_files, sampler_names, counter):
     return _count_text_refs(paths, expr_pat, ref_pat, counter)
 
 
+def write_usage_csv(all_sampler_names, stage_counts, biome_counts, alias_counts,
+                    combined_counts, output_path):
+    """
+    Write a CSV file containing sampler usage statistics.
+    Columns: sampler, stage, biome, alias, combined, will_cache
+    Sorted by combined usage descending.
+    """
+    rows = []
+    for name in all_sampler_names:
+        stage = stage_counts.get(name, 0)
+        biome = biome_counts.get(name, 0)
+        alias = alias_counts.get(name, 0)
+        combined = combined_counts.get(name, 0)
+        will_cache = "TRUE" if combined > CACHE_THRESHOLD else "FALSE"
+        rows.append({
+            "sampler": name,
+            "stage": stage,
+            "biome": biome,
+            "alias": alias,
+            "combined": combined,
+            "will_cache": will_cache,
+        })
+
+    # Sort by combined usage descending
+    rows.sort(key=lambda r: -r["combined"])
+
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["sampler", "stage", "biome", "alias", "combined", "will_cache"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"\nUsage table written to: {output_path}")
+
+
 # ---------------------------------------------------------------------------
 # Phase 3 — Transformations
 # ---------------------------------------------------------------------------
@@ -375,11 +410,84 @@ def remove_unused_samplers(data, all_usage_counts, named_sampler_ids):
     return removed
 
 
-def apply_cache_wrapping(data, usage_counts):
+def unwrap_underused_cache_samplers(data, combined_counts):
+    """
+    Remove CACHE wrappers from samplers that do not exceed the usage threshold.
+    For each CACHE sampler with combined_counts[name] <= CACHE_THRESHOLD,
+    replace it with its inner sampler definition.
+    Returns list of unwrapped sampler names.
+    """
+    samplers = data.get("samplers", {})
+    unwrapped = []
+
+    if not isinstance(samplers, CommentedMap):
+        return unwrapped
+
+    for name in list(samplers.keys()):
+        sampler_def = samplers[name]
+        if not isinstance(sampler_def, CommentedMap):
+            continue
+
+        # Only process CACHE samplers
+        if sampler_def.get("type") != "CACHE":
+            continue
+
+        # Check if it exceeds threshold
+        if combined_counts.get(name, 0) > CACHE_THRESHOLD:
+            continue  # Keep this CACHE sampler
+
+        # Unwrap: replace with the inner sampler
+        inner_sampler = sampler_def.get("sampler")
+        if inner_sampler is not None:
+            # If the inner sampler doesn't have dimensions, use the CACHE wrapper's dimensions
+            if isinstance(inner_sampler, CommentedMap):
+                if "dimensions" not in inner_sampler:
+                    inner_sampler["dimensions"] = sampler_def.get("dimensions", 2)
+            samplers[name] = inner_sampler
+            unwrapped.append(name)
+
+    return unwrapped
+
+
+def update_existing_cache_samplers(data, pipeline_resolution):
+    """
+    Update all existing CACHE samplers to the new Terra API format:
+    - Remove 'exp' field (use Terra dimension defaults)
+    - Set 'int' to true
+    - Set 'resolution' to pipeline_resolution
+    Returns list of updated sampler names.
+    """
+    samplers = data.get("samplers", {})
+    updated = []
+
+    if not isinstance(samplers, CommentedMap):
+        return updated
+
+    for name, sampler_def in samplers.items():
+        if not isinstance(sampler_def, CommentedMap):
+            continue
+
+        if sampler_def.get("type") != "CACHE":
+            continue
+
+        # Remove exp field if present
+        if "exp" in sampler_def:
+            del sampler_def["exp"]
+
+        # Set new fields
+        sampler_def["int"] = True
+        sampler_def["resolution"] = pipeline_resolution
+        updated.append(name)
+
+    return updated
+
+
+def apply_cache_wrapping(data, usage_counts, pipeline_resolution):
     """
     For each named sampler used more than CACHE_THRESHOLD times (across all
-    files), wrap its definition in a CACHE sampler with exp: CACHE_EXP.
-    Skips samplers whose top-level type is already CACHE.
+    files), wrap its definition in a CACHE sampler with int: true and
+    resolution: pipeline_resolution. Skips samplers whose top-level type is
+    already CACHE (they are handled by update_existing_cache_samplers).
     Returns list of sampler names that were wrapped.
     """
     samplers = data.get("samplers", {})
@@ -396,7 +504,7 @@ def apply_cache_wrapping(data, usage_counts):
         if not isinstance(original, CommentedMap):
             continue
 
-        # Skip if already a CACHE sampler
+        # Skip if already a CACHE sampler (will be handled by update_existing_cache_samplers)
         if original.get("type") == "CACHE":
             print(f"    (skipping {name!r}: already CACHE)")
             continue
@@ -411,7 +519,8 @@ def apply_cache_wrapping(data, usage_counts):
         cache_wrapper = CommentedMap()
         cache_wrapper["dimensions"] = dims
         cache_wrapper["type"] = "CACHE"
-        cache_wrapper["exp"] = CACHE_EXP
+        cache_wrapper["int"] = True
+        cache_wrapper["resolution"] = pipeline_resolution
         cache_wrapper["sampler"] = original
 
         samplers[name] = cache_wrapper
@@ -562,7 +671,7 @@ def main():
             if tesf_counts.get(name, 0):
                 parts.append(f"{tesf_counts[name]} tesf")
             detail = " + ".join(parts)
-            cache_flag = f"  <- will CACHE (exp={CACHE_EXP})" if combined_counts.get(name, 0) > CACHE_THRESHOLD else ""
+            cache_flag = f"  <- will CACHE" if combined_counts.get(name, 0) > CACHE_THRESHOLD else ""
             unused_flag = "  <- UNUSED (will remove)" if count == 0 else ""
             print(f"    {name}: {count} ({detail}){cache_flag}{unused_flag}")
 
@@ -572,6 +681,13 @@ def main():
             print(f"    {name}: 0  <- UNUSED (will remove)")
     else:
         print("\n  No usages found.")
+
+    # ------------------------------------------------------------------
+    # Write usage CSV
+    # ------------------------------------------------------------------
+    csv_path = PACK_ROOT / "sampler_usage.csv"
+    write_usage_csv(all_sampler_names, stage_counts, biome_counts, usage_counts,
+                    combined_counts, csv_path)
 
     # ------------------------------------------------------------------
     # Pass 2 — apply transformations
@@ -604,12 +720,22 @@ def main():
             for key, ref in replacements:
                 print(f"    Alias replaced: {key!r}  ->  {ref}")
 
-        # Step D — wrap heavily-used samplers in CACHE
-        wrapped = apply_cache_wrapping(data, combined_counts)
-        if wrapped:
-            print(f"    CACHE wrapped (exp={CACHE_EXP}): {wrapped}")
+        # Step D — unwrap CACHE samplers below threshold
+        unwrapped = unwrap_underused_cache_samplers(data, combined_counts)
+        if unwrapped:
+            print(f"    CACHE unwrapped (below threshold): {unwrapped}")
 
-        if not removed_unused and not removed and not replacements and not wrapped:
+        # Step E — update existing CACHE samplers to new format
+        updated_caches = update_existing_cache_samplers(data, PIPELINE_RESOLUTION)
+        if updated_caches:
+            print(f"    CACHE samplers updated (int=true, resolution={PIPELINE_RESOLUTION}): {updated_caches}")
+
+        # Step F — wrap heavily-used samplers in CACHE
+        wrapped = apply_cache_wrapping(data, combined_counts, PIPELINE_RESOLUTION)
+        if wrapped:
+            print(f"    CACHE wrapped (int=true, resolution={PIPELINE_RESOLUTION}): {wrapped}")
+
+        if not removed_unused and not removed and not replacements and not unwrapped and not updated_caches and not wrapped:
             print("    No changes needed.")
 
         # Write back

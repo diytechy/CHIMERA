@@ -28,7 +28,6 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 PACK_ROOT = Path(__file__).parent
 PACK_YML = PACK_ROOT / "pack.yml"
 CACHE_THRESHOLD = 3        # wrap in CACHE if combined usages exceed this value
-PIPELINE_RESOLUTION = 2    # must match the pack biome pipeline 'resolution:' value
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +76,57 @@ def discover_sampler_files():
         abs_path = PACK_ROOT / file_part
         result.append((file_part, abs_path))
     return result
+
+
+def discover_pipeline_resolution():
+    """
+    Detect the biome pipeline resolution from the active preset in pack.yml.
+
+    Reads the 'biomes' key (e.g. "$biome-distribution/presets/CHIMERA.yml:biomes"),
+    loads the referenced preset file, and extracts provider.resolution.
+    Returns the resolution value, or 1 as a fallback.
+    """
+    data = load_yaml(PACK_YML)
+    biomes_ref = data.get("biomes")
+
+    if not isinstance(biomes_ref, str) or not biomes_ref.startswith("$"):
+        print("  WARNING: Could not parse biomes reference from pack.yml, using resolution=1")
+        return 1
+
+    # Parse "$biome-distribution/presets/CHIMERA.yml:biomes"
+    ref_body = biomes_ref[1:]  # strip leading $
+    parts = ref_body.split(":")
+    if len(parts) < 2:
+        print(f"  WARNING: Unexpected biomes ref format: {biomes_ref}, using resolution=1")
+        return 1
+
+    preset_file = PACK_ROOT / parts[0]
+    key_path = parts[1].split(".")  # e.g. ["biomes"]
+
+    if not preset_file.exists():
+        print(f"  WARNING: Preset file not found: {preset_file}, using resolution=1")
+        return 1
+
+    preset_data = load_yaml(preset_file)
+
+    # Navigate to the referenced key (e.g. biomes)
+    node = preset_data
+    for key in key_path:
+        if isinstance(node, CommentedMap) and key in node:
+            node = node[key]
+        else:
+            print(f"  WARNING: Key '{key}' not found in preset, using resolution=1")
+            return 1
+
+    # Navigate into provider.resolution
+    if isinstance(node, CommentedMap):
+        provider = node.get("provider", {})
+        if isinstance(provider, CommentedMap):
+            resolution = provider.get("resolution", 1)
+            return int(resolution)
+
+    print("  WARNING: Could not find provider.resolution in preset, using resolution=1")
+    return 1
 
 
 # ---------------------------------------------------------------------------
@@ -208,6 +258,80 @@ def _count_text_refs(file_paths, expr_pattern, ref_pattern, counter):
     return total
 
 
+def _count_yaml_tree_refs(node, expr_pat, ref_pat, counter, visited):
+    """
+    Walk a parsed YAML tree and count sampler references in all string values.
+
+    Handles YAML aliases correctly: when a node is encountered that has already
+    been visited (same Python object = YAML alias), its string values are still
+    counted as a separate usage, but its children are not recursed into (they
+    were already counted at the anchor definition site).
+
+    This ensures that YAML alias references like ``*riverSampler`` each count
+    as a separate sampler usage even though they share the same underlying object.
+    """
+    total = 0
+
+    if isinstance(node, CommentedMap):
+        node_id = id(node)
+        is_alias = node_id in visited
+
+        # Count string values at this level
+        for _, v in node.items():
+            if isinstance(v, str):
+                for m in expr_pat.finditer(v):
+                    counter[m.group(1)] += 1
+                    total += 1
+                for m in ref_pat.finditer(v):
+                    counter[m.group(1)] += 1
+                    total += 1
+
+        if not is_alias:
+            visited.add(node_id)
+            # Recurse into children
+            for _, v in node.items():
+                if isinstance(v, (CommentedMap, CommentedSeq)):
+                    total += _count_yaml_tree_refs(v, expr_pat, ref_pat, counter, visited)
+
+    elif isinstance(node, CommentedSeq):
+        node_id = id(node)
+        is_alias = node_id in visited
+
+        for item in node:
+            if isinstance(item, str):
+                for m in expr_pat.finditer(item):
+                    counter[m.group(1)] += 1
+                    total += 1
+                for m in ref_pat.finditer(item):
+                    counter[m.group(1)] += 1
+                    total += 1
+
+        if not is_alias:
+            visited.add(node_id)
+            for item in node:
+                if isinstance(item, (CommentedMap, CommentedSeq)):
+                    total += _count_yaml_tree_refs(item, expr_pat, ref_pat, counter, visited)
+
+    return total
+
+
+def _count_yaml_file_refs(file_paths, expr_pattern, ref_pattern, counter):
+    """
+    Parse YAML files and count sampler references by walking the resolved tree.
+    Unlike _count_text_refs, this correctly counts YAML alias references as
+    separate usages.
+    """
+    total = 0
+    for path in file_paths:
+        try:
+            data = load_yaml(path)
+        except Exception:
+            continue
+        if data is not None:
+            total += _count_yaml_tree_refs(data, expr_pattern, ref_pattern, counter, set())
+    return total
+
+
 def _discover_yml_files(*directories):
     """Return all .yml files under the given directories (relative to PACK_ROOT)."""
     paths = []
@@ -222,6 +346,9 @@ def count_stage_usages(sampler_names, counter):
     """
     Scan biome-distribution stage files for references to pack-level samplers.
 
+    Parses YAML and walks the resolved tree to correctly count YAML alias
+    references (e.g. *riverSampler used 30+ times in add_rivers.yml).
+
     Counts two kinds of references:
       1. Expression function calls: samplerName(x, z) or samplerName(x, y, z)
       2. String cross-file refs:    $path:samplers.samplerName
@@ -230,19 +357,22 @@ def count_stage_usages(sampler_names, counter):
     if not files or not sampler_names:
         return 0
     expr_pat, ref_pat = _build_sampler_patterns(sampler_names)
-    return _count_text_refs(files, expr_pat, ref_pat, counter)
+    return _count_yaml_file_refs(files, expr_pat, ref_pat, counter)
 
 
 def count_biome_usages(sampler_names, counter):
     """
     Scan biome definition files (biomes/) and feature files (features/) for
     references to pack-level samplers in expressions and string refs.
+
+    Parses YAML and walks the resolved tree to correctly count YAML alias
+    references as separate usages.
     """
     files = _discover_yml_files("biomes", "features")
     if not files or not sampler_names:
         return 0
     expr_pat, ref_pat = _build_sampler_patterns(sampler_names)
-    return _count_text_refs(files, expr_pat, ref_pat, counter)
+    return _count_yaml_file_refs(files, expr_pat, ref_pat, counter)
 
 
 def count_tesf_usages(sampler_names, counter):
@@ -537,6 +667,9 @@ def main():
     print(f"Pack root : {PACK_ROOT}")
     print(f"Pack file : {PACK_YML}")
 
+    pipeline_resolution = discover_pipeline_resolution()
+    print(f"Pipeline resolution: {pipeline_resolution}")
+
     sampler_files = discover_sampler_files()
     if not sampler_files:
         print("No sampler files found in pack.yml. Exiting.")
@@ -726,14 +859,14 @@ def main():
             print(f"    CACHE unwrapped (below threshold): {unwrapped}")
 
         # Step E — update existing CACHE samplers to new format
-        updated_caches = update_existing_cache_samplers(data, PIPELINE_RESOLUTION)
+        updated_caches = update_existing_cache_samplers(data, pipeline_resolution)
         if updated_caches:
-            print(f"    CACHE samplers updated (int=true, resolution={PIPELINE_RESOLUTION}): {updated_caches}")
+            print(f"    CACHE samplers updated (int=true, resolution={pipeline_resolution}): {updated_caches}")
 
         # Step F — wrap heavily-used samplers in CACHE
-        wrapped = apply_cache_wrapping(data, combined_counts, PIPELINE_RESOLUTION)
+        wrapped = apply_cache_wrapping(data, combined_counts, pipeline_resolution)
         if wrapped:
-            print(f"    CACHE wrapped (int=true, resolution={PIPELINE_RESOLUTION}): {wrapped}")
+            print(f"    CACHE wrapped (int=true, resolution={pipeline_resolution}): {wrapped}")
 
         if not removed_unused and not removed and not replacements and not unwrapped and not updated_caches and not wrapped:
             print("    No changes needed.")

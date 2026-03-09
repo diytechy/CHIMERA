@@ -79,28 +79,33 @@ samplers:
 
   trenchSampler:
     dimensions: 2
-    type: EXPRESSION
-    expression: segment(trenchBiomeMap(x, z), trenchValue, borderValue, (elevation(x, z) < lowlandsThreshold) && (borderMask(x, z) < borderMaskThreshold))
-    variables:
-      trenchValue: $math/samplers/trenches.yml:variables.trenchValue
-      borderValue: $math/samplers/trenches.yml:variables.borderValue
-      borderMaskThreshold: 0.2
-      lowlandsThreshold: $customization.yml:elevation-lowlands-threshold
-    functions:
-      segment:
-        arguments:
+    type: CACHE
+    int: true
+    resolution: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: segment(trenchBiomeMap(x, z), trenchValue, borderValue, (elevation(x, z) < lowlandsThreshold) && (borderMask(x, z) < borderMaskThreshold))
+      variables:
+        trenchValue: $math/samplers/trenches.yml:variables.trenchValue
+        borderValue: $math/samplers/trenches.yml:variables.borderValue
+        borderMaskThreshold: 0.2
+        lowlandsThreshold: $customization.yml:elevation-lowlands-threshold
+      functions:
+        segment:
+          arguments:
           - trench
           - trenchValue
           - borderValue
           - borderPredicate
-        expression: if(trench <= trenchValue, 1, if((trench <= borderValue) && borderPredicate, -0.4, -1))
-    samplers:
-      trenchBiomeMap: $math/samplers/trenches.yml:samplers.trenchBiomeMap
-      elevation: $math/samplers/elevation.yml:samplers.elevation
-      borderMask:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: OPEN_SIMPLEX_2
-          salt: 4812
-          frequency: 0.003
+          expression: if(trench <= trenchValue, 1, if((trench <= borderValue) && borderPredicate, -0.4, -1))
+      samplers:
+        trenchBiomeMap: $math/samplers/trenches.yml:samplers.trenchBiomeMap
+        elevation: $math/samplers/elevation.yml:samplers.elevation
+        borderMask:
+          dimensions: 2
+          type: PROBABILITY
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 4812
+            frequency: 0.003

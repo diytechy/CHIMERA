@@ -67,7 +67,7 @@ extrusions:
       - SELF: 3
       - ANCIENT_CAVES: 1
     range:
-      min: $meta.yml:bottom-y
+      min: $meta.yml:bedrock-top
       max: $meta.yml:deepslate-top
 
   - type: REPLACE

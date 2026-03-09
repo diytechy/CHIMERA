@@ -8,12 +8,13 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: |
-      1-continentalRiverBlockElevShift(x,z)
+    expression: continentalRiverBlockElevShift(x,z)*0
+    #expression: |
+    #  1-continentalRiverBlockElevShift(x,z)
     samplers:
       continentalRiverBlockElevShift: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevShift
   #threshold: 0.5
-  threshold: 1.1
+  threshold: 100.0
 
 #Method:
   #Block is solid AND

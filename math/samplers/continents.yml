@@ -107,7 +107,6 @@ samplers:
               type: OPEN_SIMPLEX_2
               salt: 1
               frequency: (1/5000)
-
     int: true
     resolution: 2
   blotSpots:

@@ -8,13 +8,13 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: continentalRiverBlockElevShift(x,z)*0
+    expression: if(continentalRiverBlockElevShift(x,z),-1,1)
     #expression: |
     #  1-continentalRiverBlockElevShift(x,z)
     samplers:
       continentalRiverBlockElevShift: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevShift
   #threshold: 0.5
-  threshold: 100.0
+  threshold: 0.0
 
 #Method:
   #Block is solid AND
@@ -40,3 +40,5 @@ structures:
   distribution:
     type: CONSTANT
   structures: BLOCK:minecraft:soul_sand
+
+  

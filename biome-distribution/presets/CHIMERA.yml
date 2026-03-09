@@ -13,6 +13,7 @@ biomes:
   provider:
     type: PIPELINE
     resolution: 2
+    y-resolution: 8
     blend:
       amplitude: 3
       sampler:

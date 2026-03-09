@@ -1,6 +1,6 @@
 id: ICY_INCISIONS
 type: BIOME
-extends: [ EQ_CANYON, CARVING_LAND, BASE ]
+extends: [ EQ_CANYON, BASE ]
 vanilla: minecraft:dripstone_caves
 color: $biomes/colors.yml:FROZEN_ARCHIPELAGO
 

@@ -40,11 +40,11 @@ stages:
       max: 319
     from: _rift_land
     to:
-      _cold_rift: 1
+      _cold_rift: 2
       _cold_well: 4
-      land: 16
+      land: 11
       _warm_well: 3
-      _warm_rift: 1
+      _warm_rift: 2
 
   - type: REPLACE_LIST
     sampler:
@@ -61,11 +61,11 @@ stages:
         base:
           dimensions: 2
           type: OPEN_SIMPLEX_2S
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance} * 1
+          frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 1
         mask:
           dimensions: 2
           type: CELLULAR
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance} * 0.15
+          frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 0.15
           seed: 23456345
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}

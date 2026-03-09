@@ -1,6 +1,6 @@
 id: SANDY_SPLITS
 type: BIOME
-extends: [ EQ_CANYON, CARVING_LAND, BASE ]
+extends: [ EQ_CANYON, BASE ]
 vanilla: minecraft:lush_caves
 color: $biomes/colors.yml:JUNGLE
 

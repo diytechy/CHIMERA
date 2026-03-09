@@ -1,9 +1,3 @@
-trenchSampler: &trenchSampler
-  type: EXPRESSION
-  expression: trenchSampler(x, z)
-  samplers:
-    trenchSampler: $math/samplers/trenches.yml:samplers.trenchSampler
-
 variationSampler: &variationSampler
   type: CELLULAR
   return: CellValue
@@ -23,7 +17,7 @@ stages:
       DEEP_DEPTHS:
         - SELF: 1
         - DEEP_DEPTHS_TRENCH: 1
-    sampler: *trenchSampler
+    sampler: $math/samplers/trenches.yml:samplers.trenchSampler
   - type: REPLACE_LIST
     default-from: USE_COLD_TRENCH
     default-to:
@@ -33,7 +27,7 @@ stages:
       COLD_DEEP_DEPTHS:
         - SELF: 1
         - COLD_DEEP_DEPTHS_TRENCH: 1
-    sampler: *trenchSampler
+    sampler: $math/samplers/trenches.yml:samplers.trenchSampler
   - type: REPLACE_LIST
     default-from: USE_FROZEN_TRENCH
     default-to:
@@ -43,7 +37,7 @@ stages:
       FROZEN_DEEP_DEPTHS:
         - SELF: 1
         - FROZEN_DEEP_DEPTHS_TRENCH: 1
-    sampler: *trenchSampler
+    sampler: $math/samplers/trenches.yml:samplers.trenchSampler
   - type: REPLACE_LIST
     default-from: USE_TROPICAL_TRENCH
     default-to:
@@ -53,7 +47,7 @@ stages:
       TROPICAL_DEEP_DEPTHS:
         - SELF: 1
         - TROPICAL_DEEP_DEPTHS_TRENCH: 1
-    sampler: *trenchSampler
+    sampler: $math/samplers/trenches.yml:samplers.trenchSampler
   - type: REPLACE_LIST
     default-from: USE_SUBTROPICAL_TRENCH
     default-to:
@@ -63,7 +57,7 @@ stages:
       SUBTROPICAL_DEEP_DEPTHS:
         - SELF: 1
         - SUBTROPICAL_DEEP_DEPTHS_TRENCH: 1
-    sampler: *trenchSampler
+    sampler: $math/samplers/trenches.yml:samplers.trenchSampler
   - type: REPLACE
     from: USE_CORAL_TRENCH
     to:

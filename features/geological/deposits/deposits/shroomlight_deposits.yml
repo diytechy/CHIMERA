@@ -1,0 +1,24 @@
+id: SHROOMLIGHT_DEPOSITS
+type: FEATURE
+
+anchors:
+  - &densityThreshold 1/256 * ${features/geological/deposits/distribution.yml:shroomlight.averageCountPerChunk} # Divide by 16^2 to get % per column
+  - &salt $features/geological/deposits/distribution.yml:shroomlight.salt
+  - &range $features/geological/deposits/distribution.yml:shroomlight.range
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: *salt
+  threshold: *densityThreshold
+
+locator:
+  type: RANDOM
+  amount: 1
+  height: *range
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: SHROOMLIGHT_DEPOSIT

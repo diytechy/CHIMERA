@@ -120,8 +120,11 @@ samplers:
         <<: *innerWarpSmall
         sampler:
           <<: *oceanShape
-          return: CellValue
-          salt: 8117
+          return: NoiseLookup
+          lookup:
+            type: WHITE_NOISE
+            salt: 4233
+          salt-lookup: false
 
   BiomeShapeOceanTemperature:
     <<: *outerWarpSmall

@@ -23,6 +23,8 @@ slant:
       - TERRACOTTA_CANYON_HIGH: 319
       - TERRACOTTA_CANYON: 55
       - << meta.yml:palette-bottom
+tags:
+- BORDER_LAND_CAVES
 
 features:
   landforms:

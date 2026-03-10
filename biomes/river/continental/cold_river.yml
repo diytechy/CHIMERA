@@ -33,6 +33,8 @@ colors:
   water-fog: 0x007bf7
 
   water-fog: 31735
+tags:
+- LAND_CAVES
 features:
   flora:
   - FERNS

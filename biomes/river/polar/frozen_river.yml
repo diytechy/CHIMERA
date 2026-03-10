@@ -25,6 +25,8 @@ slant:
       - << meta.yml:palette-slant-generic
       - << meta.yml:palette-underwater
       - << meta.yml:palette-bottom
+tags:
+- LAND_CAVES
 features:
   slabs:
   - SNOW_LAYERS

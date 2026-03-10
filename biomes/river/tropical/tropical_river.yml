@@ -32,6 +32,8 @@ colors:
   water: 0x02b0e5
   water-fog: 0x0686ca
 
+tags:
+- LAND_CAVES
 features:
   flora:
   - SUGAR_CANE

@@ -25,6 +25,8 @@ slant:
     palette:
       - BLOCK:minecraft:stone: $meta.yml:top-y
       - << meta.yml:palette-bottom
+tags:
+- LAND_CAVES
 features:
   flora:
   - SUGAR_CANE

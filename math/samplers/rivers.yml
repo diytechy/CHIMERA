@@ -108,7 +108,7 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: floor(continentalRiverElev(x,z))* scale
+      expression: floor(continentalRiverElev(x,z)* scale)
     #expression: continentalDendryRivers(x,1.0,z)*scale
       samplers:
         continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev

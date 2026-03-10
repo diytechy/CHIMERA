@@ -19,7 +19,7 @@ extrusions:
       #Default case is >0, which puts half of the samples below 0.
       expression: if(BiomeShapeOceanValue(x,z)>0,max((BiomeShapeOceanTemperature(x,z)+1)/2+BiomeShapeOceanValue(x,z)*0.3,0),-1)
     to:
-      - SELF: 112
+      - SELF: 110
       - ICE_CAVES: 3
       - ICE_MUSHROOM_CAVES: 1
       - FROSTED_CAVERNS: 2
@@ -56,7 +56,7 @@ extrusions:
       - OAK_CAVERNS: 3
       - SAKURA_CAVERNS: 2
       - SPRUCE_CAVERNS: 2
-      - HONEY_GROTTO: 3
+      - HONEY_GROTTO: 1
       - OVERGROWN_DUGOUT: 3
       - SANDY_CHAMBERS: 2
       - SUBTERRANEAN_MESA: 2
@@ -82,7 +82,7 @@ extrusions:
       type: EXPRESSION
       expression: if(BiomeShapeOceanValue(x,z)>0,max((BiomeShapeOceanTemperature(x,z)+1)/2+BiomeShapeOceanValue(x,z)*0.3,0),-1)
     to:
-      - SELF: 112
+      - SELF: 110
       - ICE_CAVES: 3
       - ICE_MUSHROOM_CAVES: 1
       - FROSTED_CAVERNS: 2
@@ -119,7 +119,7 @@ extrusions:
       - OAK_CAVERNS: 3
       - SAKURA_CAVERNS: 2
       - SPRUCE_CAVERNS: 2
-      - HONEY_GROTTO: 3
+      - HONEY_GROTTO: 1
       - OVERGROWN_DUGOUT: 3
       - SANDY_CHAMBERS: 2
       - SUBTERRANEAN_MESA: 2

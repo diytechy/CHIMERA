@@ -6,6 +6,7 @@ ocean-level: 62
 sinkhole-ocean-level: 40
 deepslate-top: 7     # Y level where deepslate begins to replace stone
 deepslate-bottom: -7 # Y level where all stone is replaced by deepslate
+cave-bottom: -40    # Y level where caves stop generating
 bedrock-top: -60     # Y level where deepslate starts to be replaced by bedrock
 bottom-y: -64
 

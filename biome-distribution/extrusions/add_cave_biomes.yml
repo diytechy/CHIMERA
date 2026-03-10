@@ -14,47 +14,56 @@ extrusions:
     from: LAND_CAVES
     sampler:
       type: EXPRESSION
-      expression: BiomeShapeOceanTemperature(x,z)+BiomeShapeOceanValue(x,z)*0.7
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: if(BiomeShapeOceanValue(x,z)>0,max((BiomeShapeOceanTemperature(x,z)+1)/2+BiomeShapeOceanValue(x,z)*0.3,0),-1)
     to:
-      - _cold_caves: &ColdCaveDist 1
-      - _norm_caves: &NormCaveDist 15
-      - _warm_caves: &WarmCaveDist 1
+      - SELF: &SelfCaveDist 17
+      - ICE_CAVES: &ColdCaveDist 1
+      - LUSH_CAVERNS: &NormCaveDist 15
+      - TROPICAL_MUSHROOM_CAVES: &WarmCaveDist 1
     range:
-      min: $meta.yml:deepslate-bottom
+      min: $meta.yml:cave-bottom
       max: ${meta.yml:ocean-level} - 13
       
   - type: REPLACE
-    from: CAVERNS
+    from: CAVERNS_LAND
     sampler:
       type: EXPRESSION
-      expression: BiomeShapeOceanTemperature(x,z)+BiomeShapeOceanValue(x,z)*0.7
+      expression: if(BiomeShapeOceanValue(x,z)>0,max((BiomeShapeOceanTemperature(x,z)+1)/2+BiomeShapeOceanValue(x,z)*0.3,0),-1)
     to:
-      - _cold_caves: *ColdCaveDist
-      - _norm_caves: *NormCaveDist
-      - _warm_caves: *WarmCaveDist
+      - SELF: *SelfCaveDist
+      - ICE_CAVES: *ColdCaveDist
+      - LUSH_CAVERNS: *NormCaveDist
+      - TROPICAL_MUSHROOM_CAVES: *WarmCaveDist
     range:
-      min: $meta.yml:deepslate-bottom
+      min: $meta.yml:cave-bottom
       max: ${meta.yml:ocean-level} - 13
 
   - type: REPLACE
-    from: _cold_caves
+    from: ICE_CAVES
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:ocean-level} - 13
     sampler:
       type: EXPRESSION
       expression: BiomeShapeOceanValue(x,z)
     to:
-      - SELF: 6
       - ICE_CAVES: 3
       - ICE_MUSHROOM_CAVES: 1
       - FROSTED_CAVERNS: 2
       - FROZEN_CAVERNS: 1
 
   - type: REPLACE
-    from: _warm_caves
+    from: TROPICAL_MUSHROOM_CAVES
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:ocean-level} - 13
     sampler:
       type: EXPRESSION
       expression: BiomeShapeOceanValue(x,z)
     to:
-      - SELF: 6
       - TROPICAL_MUSHROOM_CAVES: 1
       - JUNGLE_CAVES: 3
       - MAGMA_CAVERNS: 2
@@ -62,12 +71,14 @@ extrusions:
       - MOLTEN_PASSAGES: 2
 
   - type: REPLACE
-    from: _norm_caves
+    from: LUSH_CAVERNS
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:ocean-level} - 13
     sampler:
       type: EXPRESSION
       expression: BiomeShapeOceanValue(x,z)
     to:
-      - SELF: 30
       - SPIDER_CAVES: 1
       - ANCIENT_CAVES: 2
       - RESIN_ROOTS: 3

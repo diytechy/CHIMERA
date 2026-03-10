@@ -32,9 +32,6 @@ samplers:
     type: EXPRESSION
     expression: "|trenchNoise(x*trenchFrequency, z*trenchFrequency)|"
     variables: *variables
-    samplers:
-      trenchNoise: $math/samplers/trenches.yml:samplers.trenchNoise
-
   trenchBiomeMap:
     dimensions: 2
     type: EXPRESSION

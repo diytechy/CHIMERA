@@ -30,6 +30,3 @@ samplers:
     variables:
       oceanThreshold: $customization.yml:precipitation-ocean-threshold
       landThreshold: $customization.yml:precipitation-land-threshold
-    samplers:
-      rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation
-      continents: $math/samplers/continents.yml:samplers.continents

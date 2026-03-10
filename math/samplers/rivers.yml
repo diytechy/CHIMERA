@@ -67,12 +67,6 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<0), 0,  rawPrecipitation(x, z)*1.3)
-    samplers:
-      rawPrecipitation: $math/samplers/precipitation.yml:samplers.rawPrecipitation
-      mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent
-      continents: $math/samplers/continents.yml:samplers.continents
-      precipitation: $math/samplers/precipitation.yml:samplers.precipitation
-
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
@@ -94,9 +88,6 @@ samplers:
     type: EXPRESSION
     expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
     #expression: elevationTerraced(x,z)
-    samplers:
-      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
-      elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
     variables:
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
@@ -129,25 +120,13 @@ samplers:
           continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1))
       )
     #expression: continentalDendryRivers(x,1.0,z)*scale
-    samplers:
-      continentalRiverBlockElevChange: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevChange
-
-
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
     #expression: if(continents(x,z)>-0.1, continentalDendryRivers(x,0.0,z), 1.0)
     expression: herp(continents(x,z),-0.05,1.0,0.0,continentalDendryRivers(x,0.0,z))
     functions: $math/functions/interpolation.yml:functions
-    samplers:
-      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
-      continents: $math/samplers/continents.yml:samplers.continents
-
   continentalRiverDistFarGrid:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,-1.0,z)
-    samplers:
-      continentalDendryRivers: $math/samplers/rivers.yml:samplers.continentalDendryRivers
-
-

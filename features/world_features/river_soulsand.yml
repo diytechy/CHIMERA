@@ -14,7 +14,7 @@ distributor:
     samplers:
       continentalRiverBlockElevShift: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevShift
   #threshold: 0.5
-  threshold: 0.0
+  #threshold: 0.0
 
 #Method:
   #Block is solid AND
@@ -39,6 +39,8 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: BLOCK:minecraft:soul_sand
+  #NOTE: The plugin "BubblesOnChunkGen" is needed to convert blue concrete to soulsand
+  #This method is used to ensure the tick update occurs and actually produces a bubble column.
+  structures: BLOCK:minecraft:blue_concrete
 
   

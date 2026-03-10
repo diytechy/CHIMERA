@@ -5,8 +5,6 @@ extends:
 - CARVING_OCEAN
 - ORANGE_XERIC_MOUNTAINS
 color: $biomes/colors.yml:ORANGE_XERIC_MOUNTAINS_RIVER
-tags:
-- TROPICAL_COAST_HIGHLANDS
 features:
   flora:
   - GRASS

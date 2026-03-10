@@ -6,8 +6,6 @@ extends:
 - CARVING_OCEAN
 - LAND_GLACIER
 color: $biomes/colors.yml:LAND_GLACIER_RIVER
-tags:
-- POLAR_COAST_FLAT
 features:
   river-decoration:
   - CEILING_ICICLES

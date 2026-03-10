@@ -5,8 +5,6 @@ extends:
 - CARVING_OCEAN
 - BADLANDS
 color: $biomes/colors.yml:BADLANDS_RIVER
-tags:
-- ARID_COAST_FLAT
 features:
   flora:
   - CACTUS_SPARSE

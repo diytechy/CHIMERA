@@ -10,8 +10,6 @@ vanilla: minecraft:river
 colors:
   water: 3319192
   water-fog: 3319192
-tags:
-- RED_ARID_PALE_GARDEN_COAST
 features:
   preprocessors:
   - INFESTED_DEPOSITS_PALE

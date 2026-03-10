@@ -737,3 +737,8 @@ Coordinates to check:
 
 -95, -218 <- Appears to be river, but is just sand... river not eroded enough?
 -250, -270 <- Edge of river in ocean, why wasn't elevation dropped to 0?
+
+-463, -444 <- What's happening here that's causing floating part above river?
+caverns:
+
+Issue is verdent river?

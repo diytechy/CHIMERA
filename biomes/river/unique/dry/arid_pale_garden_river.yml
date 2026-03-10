@@ -4,14 +4,12 @@ extends:
 - ENVIRONMENT_LAND_DRY_WARM_SEMI_ARID
 - EQ_GLOBAL_RIVER
 - CARVING_OCEAN
-- ARID_PALE_GARDEN_COAST
+- ARID_PALE_GARDEN
 color: $biomes/colors.yml:ARID_PALE_GARDEN_RIVER
 vanilla: minecraft:river
 colors:
   water: 3319192
   water-fog: 3319192
-tags:
-- ARID_PALE_GARDEN_COAST
 features:
   flora:
   - GRASS

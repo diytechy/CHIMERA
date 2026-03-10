@@ -97,14 +97,19 @@ samplers:
     int: true
     resolution: 2
   BiomeShapeOceanValue:
-    <<: *outerWarpSmall
+    dimensions: 2
+    type: CACHE
+    int: true
+    resolution: 2
     sampler:
-      <<: *midWarpSmall
+      <<: *outerWarpSmall
       sampler:
-        <<: *innerWarpSmall
+        <<: *midWarpSmall
         sampler:
-          <<: *oceanShape
-          return: CellValue
+          <<: *innerWarpSmall
+          sampler:
+            <<: *oceanShape
+            return: CellValue
 
   BiomeShapeOceanTemperature:
     <<: *outerWarpSmall

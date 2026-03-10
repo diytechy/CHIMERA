@@ -109,10 +109,6 @@ samplers:
     type: EXPRESSION
     expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
     variables: *variables
-    samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup
@@ -152,9 +148,6 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if(spotApproxRiverDist(x,z)>150,1,0)
-    samplers:
-      spotApproxRiverDist: $math/samplers/spots.yml:samplers.spotApproxRiverDist
-
   spotCenterContinents:
     <<: *smallCellular
     return: NoiseLookup
@@ -169,17 +162,10 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if(spotCenterContinents(x,z)<-0.1,1,0)
-    samplers:
-      spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
-
   spotCenterOnLand:
     dimensions: 2
     type: EXPRESSION
     expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
-    samplers:
-      spotCenterNotNearRiver: $math/samplers/spots.yml:samplers.spotCenterNotNearRiver
-      spotCenterContinents: $math/samplers/spots.yml:samplers.spotCenterContinents
-
   spotBaseElevation: # Returns the elevation value at the center of the spot
     dimensions: 2
     type: CACHE
@@ -224,9 +210,6 @@ samplers:
     expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.largeSpotSizePercent
-
   spotEdgeRadiusPercent:
     dimensions: 2
     type: CACHE
@@ -254,9 +237,6 @@ samplers:
     expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotEdgeRadiusPercent: $math/samplers/spots.yml:samplers.spotEdgeRadiusPercent
-
   volcanoActivity:
     <<: *smallCellular
     return: NoiseLookup
@@ -270,18 +250,12 @@ samplers:
     expression: lerp(spotSizePercent(x, z), 0, volcanoMinCenterDepth, 1, volcanoMaxCenterDepth)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
-
   prismaticCenterDepth:
     dimensions: 2
     type: EXPRESSION
     expression: lerp(spotSizePercent(x, z), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
-
   volcanoErosion: # Creates streaks from the center of the volcano, emulating erosion
     dimensions: 2
     type: CACHE
@@ -319,9 +293,4 @@ samplers:
       if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
         if(spotCenterOnOcean(x,z), -1.0,
           if(spotCenterOnLand(x,z), 1.0, 0.0)),0.0)
-    samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-      spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
     variables: $math/samplers/spots.yml:variables

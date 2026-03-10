@@ -62,8 +62,6 @@ samplers:
       lake_threshold: $customization.yml:continental-lake-threshold
       max_island_ratio: $customization.yml:continental-max-island-ratio
       max_lake_ratio: $customization.yml:continental-max-lake-ratio
-    samplers:
-      continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
     functions: $math/functions/interpolation.yml:functions
   islandMask:
     dimensions: 2
@@ -74,9 +72,6 @@ samplers:
       land_threshold: $customization.yml:continental-land-threshold
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:continental-scale
-    samplers:
-      continental_sampler: $math/samplers/continents.yml:samplers.continental_sampler
-
   continents:
     dimensions: 2
     type: CACHE
@@ -122,12 +117,6 @@ samplers:
       spotContinentalFactor: 0.3
     samplers:
       spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-      continents: $math/samplers/continents.yml:samplers.continents
-      spotCenterOnLand: $math/samplers/spots.yml:samplers.spotCenterOnLand
-      spotCenterOnOcean: $math/samplers/spots.yml:samplers.spotCenterOnOcean
-
   continentsWithSpots:
     dimensions: 2
     type: EXPRESSION
@@ -135,19 +124,8 @@ samplers:
       max(
         continents(x, z),
         blotSpots(x,z))
-    samplers:
-      blotSpots: $math/samplers/continents.yml:samplers.blotSpots
-      continents: $math/samplers/continents.yml:samplers.continents
-
   continentalDistribution:
     dimensions: 2
     type: EXPRESSION
     expression: |
       if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
-    samplers:
-      continentsWithSpots: $math/samplers/continents.yml:samplers.continentsWithSpots
-
-
-
-############# UNUSED ##############
-

@@ -27,7 +27,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 PACK_ROOT = Path(__file__).parent
 PACK_YML = PACK_ROOT / "pack.yml"
-CACHE_THRESHOLD = 100        # wrap in CACHE if combined usages exceed this value
+CACHE_THRESHOLD = 3        # wrap in CACHE if combined usages exceed this value
 
 
 # ---------------------------------------------------------------------------
@@ -612,6 +612,67 @@ def update_existing_cache_samplers(data, pipeline_resolution):
     return updated
 
 
+def remove_redundant_local_samplers(data, all_sampler_names):
+    """
+    Remove local sampler entries from EXPRESSION / EXPRESSION_NORMALIZER samplers
+    when those entries are `$` references to pack-level samplers.
+
+    With deferred expression compilation, expressions can resolve pack-level
+    samplers from the global registry at first evaluation time. Local `$`
+    references that duplicate pack-level samplers create separate instances
+    and defeat cache sharing.
+
+    Only removes entries where:
+      - The local sampler value is a string starting with '$'
+      - The referenced sampler name (after 'samplers.') exists in the set of
+        all pack-level sampler names
+
+    Returns list of (sampler_name, removed_key, removed_ref) tuples.
+    """
+    samplers = data.get("samplers", {})
+    removed = []
+
+    if not isinstance(samplers, CommentedMap):
+        return removed
+
+    for name, sampler_def in samplers.items():
+        if not isinstance(sampler_def, CommentedMap):
+            continue
+
+        sampler_type = sampler_def.get("type")
+        if sampler_type not in ("EXPRESSION", "EXPRESSION_NORMALIZER"):
+            continue
+
+        local_samplers = sampler_def.get("samplers")
+        if not isinstance(local_samplers, CommentedMap):
+            continue
+
+        keys_to_remove = []
+        for local_key, local_val in local_samplers.items():
+            if not isinstance(local_val, str) or not local_val.startswith("$"):
+                continue
+
+            # Extract the referenced sampler name from e.g.
+            # "$math/samplers/elevation.yml:samplers.mountainMask"
+            ref_body = local_val[1:]  # strip leading $
+            if ":samplers." not in ref_body:
+                continue
+
+            ref_sampler_name = ref_body.split(":samplers.")[-1]
+            if ref_sampler_name in all_sampler_names:
+                keys_to_remove.append((local_key, local_val))
+
+        for local_key, local_val in keys_to_remove:
+            del local_samplers[local_key]
+            removed.append((name, local_key, local_val))
+
+        # If the local samplers map is now empty, remove the key entirely
+        if isinstance(local_samplers, CommentedMap) and len(local_samplers) == 0:
+            del sampler_def["samplers"]
+
+    return removed
+
+
 def apply_cache_wrapping(data, usage_counts, pipeline_resolution):
     """
     For each named sampler used more than CACHE_THRESHOLD times (across all
@@ -853,22 +914,29 @@ def main():
             for key, ref in replacements:
                 print(f"    Alias replaced: {key!r}  ->  {ref}")
 
-        # Step D — unwrap CACHE samplers below threshold
+        # Step D — remove redundant local sampler $ references
+        redundant = remove_redundant_local_samplers(data, all_sampler_names)
+        if redundant:
+            print(f"    Redundant local samplers removed ({len(redundant)}):")
+            for sampler_name, local_key, ref in redundant:
+                print(f"      {sampler_name}.samplers.{local_key}: {ref}")
+
+        # Step E — unwrap CACHE samplers below threshold
         unwrapped = unwrap_underused_cache_samplers(data, combined_counts)
         if unwrapped:
             print(f"    CACHE unwrapped (below threshold): {unwrapped}")
 
-        # Step E — update existing CACHE samplers to new format
+        # Step F — update existing CACHE samplers to new format
         updated_caches = update_existing_cache_samplers(data, pipeline_resolution)
         if updated_caches:
             print(f"    CACHE samplers updated (int=true, resolution={pipeline_resolution}): {updated_caches}")
 
-        # Step F — wrap heavily-used samplers in CACHE
+        # Step G — wrap heavily-used samplers in CACHE
         wrapped = apply_cache_wrapping(data, combined_counts, pipeline_resolution)
         if wrapped:
             print(f"    CACHE wrapped (int=true, resolution={pipeline_resolution}): {wrapped}")
 
-        if not removed_unused and not removed and not replacements and not unwrapped and not updated_caches and not wrapped:
+        if not removed_unused and not removed and not replacements and not redundant and not unwrapped and not updated_caches and not wrapped:
             print("    No changes needed.")
 
         # Write back

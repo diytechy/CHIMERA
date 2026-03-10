@@ -96,6 +96,7 @@ samplers:
 
     int: true
     resolution: 2
+
   BiomeShapeOceanValue:
     dimensions: 2
     type: CACHE
@@ -110,6 +111,17 @@ samplers:
           sampler:
             <<: *oceanShape
             return: CellValue
+            
+  BiomeShapeOceanValue2:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: CellValue
+          salt: 8117
 
   BiomeShapeOceanTemperature:
     <<: *outerWarpSmall

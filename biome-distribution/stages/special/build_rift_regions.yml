@@ -54,6 +54,8 @@ stages:
         canyonStrength: ${customization.yml:biomeSpread.canyons.canyonAmount}
       expression: |
         (-abs(base(x,z)) + 0.3) * 2 * (1 / 0.2)
+      #  min(max(-mask(x,z * 1.3) - canyonStrength, 0) * 18, 1) *
+      #  max((-abs(base(x,z)) + 0.3) * 2, 0) * (1 / 0.2)
       #  max(-mask(x,z * 1.3) - canyonStrength, 0) * 18
       #  min(max(-mask(x,z * 1.3) - canyonStrength, 0) * 18, 1) *
       #  max((-abs(base(x,z)) + 0.3) * 2, 0) * (1 / 0.2)

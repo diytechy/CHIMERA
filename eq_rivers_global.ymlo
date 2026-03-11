@@ -11,40 +11,16 @@ variables: &variables
   ceilingBase: 0.1
   ceilingHeight: 0.17
 
-  # River channel controls (continentalRiverDist ranges: -1=center, 0=edge, +1=far)
-  riverBedDepth: 8     # Blocks carved below surface at river center (must be > base - ocean level = 5)
-  riverInner: -0.3     # Dist where flat riverbed ends and bank roll begins
-  riverOuter: -0.05    # Dist where carving reaches 0 (more negative = narrower visible river)
-
-ocean:
-  level: $meta.yml:ocean-level
-  # Water level rises with the river's regional elevation so rivers at higher
-  # terrain still have water in them.
-  sampler:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      olevel: $meta.yml:ocean-level
-    expression: olevel + continentalRiverBlockElevChange(x, z)
-
 terrain:
-  # Two-stage approach:
-  #   1. The 2D sampler (elevationDetailed → elevationWithRivers) provides a smooth
-  #      hermite roll from normal terrain down to the river's regional elevation.
-  #      This handles the broad valley shape and ensures bed height rises with
-  #      continentalRiverBlockElevChange.
-  #   2. The 3D sampler carves the actual river channel below water level using a
-  #      narrow hermite band controlled by riverEdge (→ continentalRiverBlockDist).
-  #      Cave erosion is faded near the river to prevent caves breaking into the bed.
   sampler:
     type: EXPRESSION
     dimensions: 3
     variables: *variables
     expression: |
       -y + base -
-      (erode(
+      erode(
         base,
-        elevationWithRivers(x, z),
+        elevation(x, z),
         scale,
         (y - base) / scale,
         depth - ((1 + depthVariation(x,z)) * depthVariation),
@@ -52,9 +28,7 @@ terrain:
         ceilingHeight,
         ceilingSpikes(x, z) * -0.1,
         herp(openings(x, z), 0.3, 0, 0.6, 1)
-      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) *
-      herp(continentalRiverDist(x,z), riverInner, 0, 0.15, 1)) -
-      riverBedDepth * herp(continentalRiverDist(x,z), riverInner, 1, riverOuter, 0)
+      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
     samplers:
       erosionStrengthVariation: # Used to roughen up the walls
         dimensions: 3
@@ -105,7 +79,6 @@ terrain:
           "<<":
             - math/functions/interpolation.yml:functions
   
-  # Will always return y value for surface
   sampler-2d:
     type: EXPRESSION
     expression: scale * elevationDetailed(x, z)

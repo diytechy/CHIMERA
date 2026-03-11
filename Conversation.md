@@ -713,6 +713,12 @@ Create a script that for each river biome (biome extends "EQ_GLOBAL_RIVER") if i
   postprocessors:
   - RIVER_SOULSAND
 
+  ################################################
+
+Note that "eq_rivers_global.ymlo" has the original river equation the sets river height.  I have attempted to modify this in "biomes\abstract\terrain\land\eq_global_river.yml", and while the general average height does appear to increase near the outside of the river terrain heigght, the bed height is NOT increasing (I would expect them to increase together), and the elevation near the edge where the river actually is present (river distance = 0) there is a very aggressive drop off instead of a smooth roll into the river and down to the riverbed.  Using "C:\Projects\Terra\TerrainGenerationPipeline.md" for reference, can you design updates to the current eq_global_river.yml file so that it is more smooth rolling to the edge of the river edge (which is achieved in the original river equation), but also so that the river height raises (continentalRiverBlockElevChange is the raise in river height), and that the river is more narrow (Restricted with continentalRiverBlockDist).
+
+It might make sense to just set elevation to the river height offset to get the terrain height to the right position and then carve the actual river bed after that.
+
 #Drafted under continentalRiverSupportDensity
 
 - Reduce support / contain water funciton by 1.

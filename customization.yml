@@ -40,7 +40,7 @@ biomeSpread:
 
   canyons:
     minY: 25 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
-    canyonAmount: 0.93 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
+    canyonAmount: 0.0 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
 
 # This file provides various general options for configuring this config pack.
 # The options are specific to this config pack (and are not general to Terra as a whole!)

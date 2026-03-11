@@ -3,15 +3,18 @@ type: BIOME
 abstract: true
 
 variables: &variables
-  base: $customization.yml:terrain-base-y-level
-  scale: $customization.yml:terrain-height
+  base: $customization.yml:terrain-base-y-level   # 65
+  scale: $customization.yml:terrain-height         # 180
 
-  depth: 0.11
-  depthVariation: 0.05
-  ceilingBase: 0.1
-  ceilingHeight: 0.17
+  # --- Cave erosion parameters (block units) ---
+  # Cave floor: how far below base the cave floor sits
+  floorDepthBlocks: 20          # ~y45 (was depth: 0.11 → 0.11*180≈20)
+  floorVariationBlocks: 9       # Floor varies ±9 blocks with noise (was depthVariation: 0.05 → 0.05*180=9)
+  # Cave ceiling: where the ceiling transition zone starts and how tall it is
+  ceilingStartBlocks: 18        # Ceiling begins 18 blocks above base → ~y83 (was ceilingBase: 0.1 → 0.1*180=18)
+  ceilingTransitionBlocks: 31   # Ceiling fades over 31 blocks → ends ~y114 (was ceilingHeight: 0.17 → 0.17*180≈31)
 
-  # River channel controls (continentalRiverDist ranges: -1=center, 0=edge, +1=far)
+  # --- River channel controls (continentalRiverDist: -1=center, 0=edge, +1=far) ---
   riverBedDepth: 8     # Blocks carved below surface at river center (must be > base - ocean level = 5)
   riverInner: -0.3     # Dist where flat riverbed ends and bank roll begins
   riverOuter: -0.05    # Dist where carving reaches 0 (more negative = narrower visible river)
@@ -28,6 +31,10 @@ ocean:
     expression: olevel + continentalRiverBlockElevChange(x, z)
 
 terrain:
+  blend:
+    distance: 2     # 0 = disabled (sharp edges)
+    step: 3
+    weight: 1.0
   # Two-stage approach:
   #   1. The 2D sampler (elevationDetailed → elevationWithRivers) provides a smooth
   #      hermite roll from normal terrain down to the river's regional elevation.
@@ -47,9 +54,9 @@ terrain:
         elevationWithRivers(x, z),
         scale,
         (y - base) / scale,
-        depth - ((1 + depthVariation(x,z)) * depthVariation),
-        ceilingBase,
-        ceilingHeight,
+        (floorDepthBlocks - ((1 + depthVariation(x,z)) * floorVariationBlocks)) / scale,
+        ceilingStartBlocks / scale,
+        ceilingTransitionBlocks / scale,
         ceilingSpikes(x, z) * -0.1,
         herp(openings(x, z), 0.3, 0, 0.6, 1)
       ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) *
@@ -91,19 +98,78 @@ terrain:
           frequency: 0.005
           salt: 9
     functions:
+      # ──────────────────────────────────────────────────────────────────────
+      # erode() — Carves a cave-like void into the terrain.
+      #
+      # All y/depth/ceiling values are NORMALIZED (0-1 of scale).
+      # The function returns a positive value where terrain should be removed.
+      #
+      # Two independent controls shape the cave:
+      #
+      #   FLOOR (caveFloor):
+      #     Prevents erosion below a depth limit.
+      #     At y <= -depth (e.g. y45): erosion = 0 → solid floor
+      #     At y >= 0      (e.g. y65): erosion = full → open cave
+      #     Between: hermite transition (rounded cave floor)
+      #
+      #   CEILING (caveCeiling):
+      #     Creates an overhanging roof that caps the cave.
+      #     At y < ceilingBase (e.g. y83):  erosion = FULL (open cave)
+      #     At y > ceilingBase+ceilingHeight (e.g. y114): erosion = 0 → solid cap
+      #     Between: hermite transition (rounded cave ceiling)
+      #
+      #     The ceiling position is shifted by:
+      #       - ceilingOffset: noise-driven spikes that create stalactite shapes
+      #       - surfaceOpenings: at low elevations (<0.4), the ceiling opens up,
+      #         allowing the cave to breach the surface (river valleys, ravines)
+      #
+      #   The FULL erosion value is: -y + base + elevation*scale
+      #     This equals the distance from current y to the terrain surface,
+      #     guaranteeing that any "fully eroded" point becomes air regardless
+      #     of how deep below the surface it is.
+      #
+      # Combined (floor × ceiling):
+      #   y < floor depth:  solid (floor wins, erosion=0)
+      #   floor → ceilingBase: open cave (both allow full erosion)
+      #   ceilingBase → ceilingBase+ceilingHeight: ceiling transition
+      #   above ceiling: solid cap (ceiling wins, erosion=0)
+      # ──────────────────────────────────────────────────────────────────────
       erode:
         arguments: [ base, elevation, scale, y, depth, ceilingBase, ceilingHeight, ceilingOffset, ceilingOpenings ]
         expression: |
-          herp(y,
-            -depth, 0,
-            0, herp(y - ceilingOffset - herp(elevation, 0.4, ceilingOpenings, 0.6, 0), 
-              ceilingBase, -y+base+elevation*scale,
-              ceilingBase + ceilingHeight, 0
-            )
-          )
+          caveFloor(y, depth,
+            caveCeiling(y, base, elevation, scale, ceilingBase, ceilingHeight, ceilingOffset,
+              surfaceOpenings(elevation, ceilingOpenings)))
         functions:
           "<<":
             - math/functions/interpolation.yml:functions
+
+          # How much the ceiling shifts down at low elevations, allowing caves
+          # to open to the surface. Returns 0-1 (ceilingOpenings value).
+          #   elevation <= 0.4: full opening (= ceilingOpenings)
+          #   elevation >= 0.6: no opening (= 0)
+          surfaceOpenings:
+            arguments: [ elevation, ceilingOpenings ]
+            expression: herp(elevation, 0.4, ceilingOpenings, 0.6, 0)
+
+          # Ceiling shaper — returns the erosion amount above the cave floor.
+          # Transitions from full erosion (below ceilingBase) to 0 (above
+          # ceilingBase + ceilingHeight). The "full erosion" value is the
+          # distance-to-surface (-y + base + elevation*scale), ensuring
+          # complete block removal in the open cave zone.
+          caveCeiling:
+            arguments: [ y, base, elevation, scale, ceilingBase, ceilingHeight, ceilingOffset, openingShift ]
+            expression: |
+              herp(y - ceilingOffset - openingShift,
+                ceilingBase, -y + base + elevation * scale,
+                ceilingBase + ceilingHeight, 0)
+
+          # Floor limiter — prevents erosion below the depth limit.
+          # Wraps the ceiling result: at y <= -depth, returns 0 (solid floor).
+          # At y >= 0, passes through the ceiling erosion value unchanged.
+          caveFloor:
+            arguments: [ y, depth, ceilingErosion ]
+            expression: herp(y, -depth, 0, 0, ceilingErosion)
   
   # Will always return y value for surface
   sampler-2d:

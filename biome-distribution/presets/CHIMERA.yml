@@ -14,7 +14,7 @@ biomes:
     resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
     y-resolution: 8
     blend:
-      amplitude: 3
+      amplitude: 6
       sampler:
         type: OPEN_SIMPLEX_2
         frequency: 0.02
@@ -87,9 +87,9 @@ biomes:
         # ========================================
         # SMOOTHING PASSES
         # ========================================
-        - type: FRACTAL_EXPAND
-          sampler:
-            type: WHITE_NOISE
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
 
         
         - type: SMOOTH

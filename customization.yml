@@ -391,9 +391,9 @@ river-max-width: 20
 
 minimum-continental-river-width: 12
 # Minimum width of continental rivers in blocks.
-# Default: 10
+# Default: 12
 
-maximum-continental-river-width: 20
+maximum-continental-river-width: 25
 # Maximum width of continental rivers in blocks.
 # Default: 30
 

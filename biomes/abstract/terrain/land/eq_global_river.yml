@@ -15,8 +15,8 @@ variables: &variables
   #   At center (dist=-1): threshold = 40 blocks overhead → enclosed
   # Result: shallow rivers fully open, moderate rivers open at center with
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
-  enclosedThresholdEdge: 20       # Delta (blocks) to count as enclosed at river edge (dist=0)
-  enclosedThresholdCenter: 20     # Additional delta threshold at river center (dist=-1)
+  enclosedThresholdEdge: 25       # Delta (blocks) to count as enclosed at river edge (dist=0)
+  enclosedThresholdCenter: 5      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
   enclosedTransitionBlocks: 10    # Hermite blend width between open/enclosed modes (blocks)
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────────
@@ -179,7 +179,7 @@ terrain:
                      openingsDeltaShallow, openingsDeltaDeep ]
         expression: |
           lerp(
-            delta - (enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist)),
+            delta - (enclosedThresholdEdge + enclosedThresholdCenter * (riverDist)),
             0,                    delta * herp(riverDist, openChannelInner, 1, openChannelOuter, 0),
             enclosedTransitionBlocks, enclosedCavity(
               delta, riverDist, ceilingOffset, ceilingOpenings,

@@ -739,6 +739,23 @@ Theory:
 1. MinDensity function isn't raising terrain because the sampler is not actually multiplied by the terrain scaler (effectively always 0)
 2. River erosion... might be working for L0, but not clear why it's not working for L1+, maybe a different function getting referenced?
 
+
+#################################################
+
+Strange artifacts at VERDANT_RIVER <- Likely due to a different river equation.
+  - Need to update all rivers to use global river equation.
+
+-873, -7 <- Floating amethyst in sky
+	CRYSTALLINE_CAVERNS is causing this artifact
+  - Need to see what is driving creation of these structures.
+
+Need to resolve subsurface biomes mixing?  Not clear why this... likely due to sampler lookup issue.
+  - Check cellular lookup, can be verified without rerunning mc.
+
+Might need to do some smoothing to mitigate some artifacts, but rivers are starting to look solid.
+  - 
+
+
 D. Need to add all original minecraft biome labels?
 
 E. Verify mesa placement for regions, and consider plains region designation.

@@ -21,6 +21,6 @@ features:
   landforms:
     - CALCITE_CAVERN_SPIKE
     - AMETHYST_PILLAR
-    - FLOATING_AMETHYST
+    #- FLOATING_AMETHYST
   flora:
     - AMETHYST_CLUSTERS

@@ -20,6 +20,11 @@ blend:
       min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
       max: 270   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
 
+carving:
+  resolution:
+    horizontal: 2  # 4 is default
+    vertical: 2    # default
+
 addons:
   biome-provider-pipeline: "2.+"
   biome-provider-single: "1.+"

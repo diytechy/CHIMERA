@@ -44,6 +44,8 @@ terrain:
   #   2. The 3D sampler carves the actual river channel below water level using a
   #      narrow hermite band controlled by riverEdge (→ continentalRiverBlockDist).
   #      Cave erosion is faded near the river to prevent caves breaking into the bed.
+  
+    #expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
   sampler:
     type: EXPRESSION
     dimensions: 3
@@ -187,4 +189,5 @@ terrain:
     type: EXPRESSION
     #Make sure general surface is above riverbed leading up to river.
     expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
+    #expression:
     variables: *variables

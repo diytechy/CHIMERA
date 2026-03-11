@@ -5,18 +5,32 @@ anchors:
   - &densityThreshold 1/256 * ${features/geological/deposits/distribution.yml:shroomlight.averageCountPerChunk} # Divide by 16^2 to get % per column
   - &salt $features/geological/deposits/distribution.yml:shroomlight.salt
   - &range $features/geological/deposits/distribution.yml:shroomlight.range
+  - &min $features/geological/deposits/distribution.yml:shroomlight.range.min
+  - &max $features/geological/deposits/distribution.yml:shroomlight.range.max
 
 distributor:
   type: SAMPLER
   sampler:
     type: POSITIVE_WHITE_NOISE
     salt: *salt
+    frequency: 1.0
   threshold: *densityThreshold
 
 locator:
-  type: RANDOM
-  amount: 1
-  height: *range
+  type: SAMPLER_3D
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: if(y>min && y<max, placement(x,y,z)>0.95, 0)
+    variables:
+      min: *min
+      max: *max
+    samplers:
+      placement:
+        dimensions: 3
+        type: POSITIVE_WHITE_NOISE
+        frequency: 1.0
+        salt: *salt
 
 structures:
   distribution:

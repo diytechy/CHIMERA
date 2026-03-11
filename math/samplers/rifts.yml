@@ -48,3 +48,19 @@ samplers:
       expression: if(riftHybDistFromCenter(x,z)<-0.7,1,-1)
       samplers:
         riftHybDistFromCenter: $math/samplers/rifts.yml:samplers.riftHybDistFromCenter
+        
+  riftCanyon:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      (-abs(base(x,z)) + 0.3) * 2 * (1 / 0.2)
+    samplers:
+      base:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2S
+        frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 1
+      mask:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 0.15
+        seed: 23456345

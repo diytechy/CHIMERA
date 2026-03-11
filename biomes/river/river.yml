@@ -32,7 +32,6 @@ colors:
   water: 0x0084ff
   water-fog: 0x0084ff
 
-  water-fog: 34047
 tags:
 - LAND_CAVES
 features:

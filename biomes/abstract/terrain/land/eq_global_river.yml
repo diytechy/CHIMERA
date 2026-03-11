@@ -33,8 +33,8 @@ ocean:
 
 terrain:
   blend:
-    distance: 2     # 0 = disabled (sharp edges)
-    step: 3
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 4
     weight: 1.0
   # Two-stage approach:
   #   1. The 2D sampler (elevationDetailed → elevationWithRivers) provides a smooth
@@ -49,7 +49,7 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base -
+      -y + base + continentalRiverBlockElevChange(x, z) -
       (erode(
         y,
         base + continentalRiverBlockElevChange(x, z),
@@ -185,5 +185,6 @@ terrain:
   # Will always return y value for surface
   sampler-2d:
     type: EXPRESSION
-    expression: scale * elevationDetailed(x, z)
+    #Make sure general surface is above riverbed leading up to river.
+    expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
     variables: *variables

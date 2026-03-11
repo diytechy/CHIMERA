@@ -139,6 +139,7 @@ samplers:
     #expression: if(continents(x,z)>-0.1, continentalDendryRivers(x,0.0,z), 1.0)
     expression: herp(continents(x,z),-0.05,1.0,0.0,continentalDendryRivers(x,0.0,z))
     functions: $math/functions/interpolation.yml:functions
+    
   continentalRiverDistFarGrid:
     dimensions: 2
     type: EXPRESSION

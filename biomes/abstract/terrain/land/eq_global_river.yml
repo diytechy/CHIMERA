@@ -60,7 +60,7 @@ ocean:
     type: EXPRESSION
     variables:
       olevel: $meta.yml:ocean-level
-    expression: if(continentalRiverBlockDist(x,z)<0,olevel + continentalRiverBlockElevChange(x, z), olevel)
+    expression: if(continentalRiverDist(x,z)<0,olevel + continentalRiverBlockElevChange(x, z), olevel)
 
 terrain:
   blend:
@@ -90,11 +90,23 @@ terrain:
         max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)),
         continentalRiverDist(x, z),
         ceilingSpikes(x, z) * -ceilingSpikeAmplitude,
-        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale
+        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
+        enclosedTransitionBlocks,
+        enclosedThresholdEdge,
+        enclosedThresholdCenter,
+        openChannelInner,
+        openChannelOuter,
+        enclosedWallFade,
+        ceilingStartBlocks,
+        ceilingTransitionBlocks,
+        openingsDeltaShallow,
+        openingsDeltaDeep
       ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) -
       bedDepth(
         continentalRiverDist(x, z),
-        depthVariation(x, z)
+        depthVariation(x, z),
+        riverBedDepth,
+        riverBedVariation
       )
     samplers:
       erosionStrengthVariation: # Used to roughen up the walls
@@ -136,97 +148,77 @@ terrain:
         - math/functions/interpolation.yml:functions
 
       # ──────────────────────────────────────────────────────────────────────
-      # cavity(delta, riverDist, ceilingOffset, ceilingOpenings)
+      # cavity(delta, riverDist, ceilingOffset, ceilingOpenings,
+      #         enclosedTransitionBlocks, enclosedThresholdEdge,
+      #         enclosedThresholdCenter, openChannelInner, openChannelOuter,
+      #         enclosedWallFade, ceilingStartBlocks, ceilingTransitionBlocks,
+      #         openingsDeltaShallow, openingsDeltaDeep)
       #
       # Removes blocks ABOVE the river bank to create the void the river
       # flows through. Returns erosion depth in blocks (0 = no carve).
       #
-      # Inputs:
-      #   delta           Blocks from detailed terrain surface down to river
-      #                   bank. 0 = bank is at surface, large = deep underground.
-      #   riverDist       Continental river distance: -1 = center, 0 = edge.
-      #   ceilingOffset   Noise-driven stalactite texture (blocks, from spikes).
-      #   ceilingOpenings Noise-driven opening shift (blocks, forces caves open).
+      # Blends between two modes using enclosedFactor:
+      #   enclosedFactor = delta - (enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist))
+      #   enclosedFactor <= 0:                    fully open channel
+      #   enclosedFactor >= enclosedTransition:   fully enclosed cave
+      #   Between:                                linear blend
       #
-      # Blends between two modes based on enclosure:
+      #   OPEN (enclosedFactor <= 0):
+      #     Full delta carved, faded from openChannelInner to openChannelOuter.
+      #     Creates valley walls rolling from terrain surface to bank level.
       #
-      #   OPEN (enclosedFactor = 0):
-      #     Full delta is carved. The erosion ramps on from openChannelOuter
-      #     to openChannelInner, creating valley walls that roll smoothly
-      #     from terrain height down to the bank level.
-      #
-      #   ENCLOSED (enclosedFactor = 1):
-      #     A ceiling of rock is preserved above the river. The cave void
-      #     is delta minus ceiling thickness. Cave walls fade to solid at
-      #     the river boundary (enclosedWallFade).
-      #
-      # The enclosure threshold varies with river position:
-      #   threshold = enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist)
-      # so the open zone widens at the river center and narrows at the edges.
+      #   ENCLOSED (enclosedFactor >= enclosedTransitionBlocks):
+      #     delta minus ceiling thickness. Cave walls fade at the river
+      #     boundary. See enclosedCavity for ceiling details.
       # ──────────────────────────────────────────────────────────────────────
       cavity:
-        arguments: [ delta, riverDist, ceilingOffset, ceilingOpenings ]
-        variables: *variables
+        arguments: [ delta, riverDist, ceilingOffset, ceilingOpenings,
+                     enclosedTransitionBlocks, enclosedThresholdEdge,
+                     enclosedThresholdCenter, openChannelInner, openChannelOuter,
+                     enclosedWallFade, ceilingStartBlocks, ceilingTransitionBlocks,
+                     openingsDeltaShallow, openingsDeltaDeep ]
         expression: |
           lerp(
-            enclosedFactor(delta, riverDist),
-            0, openCavity(delta, riverDist),
-            enclosedTransitionBlocks, enclosedCavity(delta, riverDist, ceilingOffset, ceilingOpenings)
+            delta - (enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist)),
+            0,                    delta * herp(riverDist, openChannelInner, 1, openChannelOuter, 0),
+            enclosedTransitionBlocks, enclosedCavity(
+              delta, riverDist, ceilingOffset, ceilingOpenings,
+              enclosedWallFade, ceilingStartBlocks, ceilingTransitionBlocks,
+              openingsDeltaShallow, openingsDeltaDeep
+            )
           )
         functions:
           "<<":
             - math/functions/interpolation.yml:functions
 
-          # ── Enclosure detection ───────────────────────────────────────────
-          # Returns delta minus the enclosure threshold for this river position.
-          # Positive = enclosed (delta exceeds threshold), negative = open.
-          # Used as the 't' input to the lerp that blends open/enclosed modes.
-          enclosedFactor:
-            arguments: [ delta, riverDist ]
-            variables: *variables
-            expression: |
-              delta - (enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist))
-
-          # ── Open channel mode ─────────────────────────────────────────────
-          # Carves the full delta height as a surface valley.
-          # Erosion ramps from 0 at openChannelOuter to full at openChannelInner,
-          # creating smooth valley walls that roll from terrain surface to bank.
-          # Between openChannelOuter and the river edge (dist=0), no cavity
-          # erosion occurs — only the bed (separate term) shapes the channel.
-          openCavity:
-            arguments: [ delta, riverDist ]
-            variables: *variables
-            expression: |
-              delta * herp(riverDist, openChannelInner, 1, openChannelOuter, 0)
-            functions:
-              "<<":
-                - math/functions/interpolation.yml:functions
-
           # ── Enclosed cave mode ────────────────────────────────────────────
           # Carves delta minus ceiling thickness, preserving a rock roof.
           # The cave void spans the full river width and fades to solid at
-          # the river boundary over enclosedWallFade distance.
-          # Ceiling thickness grows with delta depth (shallow = thin/no roof,
-          # deep = full ceilingStartBlocks-thick roof).
+          # the river boundary over enclosedWallFade dist units.
+          # Ceiling thickness grows with delta (shallow = no roof,
+          # deep = ceilingStartBlocks-thick roof).
           enclosedCavity:
-            arguments: [ delta, riverDist, ceilingOffset, ceilingOpenings ]
-            variables: *variables
+            arguments: [ delta, riverDist, ceilingOffset, ceilingOpenings,
+                         enclosedWallFade, ceilingStartBlocks, ceilingTransitionBlocks,
+                         openingsDeltaShallow, openingsDeltaDeep ]
             expression: |
-              max(0, delta - caveCeiling(delta, ceilingOffset,
-                surfaceOpenings(delta, ceilingOpenings)))
+              max(0, delta - caveCeiling(
+                delta, ceilingOffset,
+                surfaceOpenings(delta, ceilingOpenings, openingsDeltaShallow, openingsDeltaDeep),
+                ceilingStartBlocks, ceilingTransitionBlocks
+              ))
               * herp(riverDist, -enclosedWallFade, 1, 0, 0)
             functions:
               "<<":
                 - math/functions/interpolation.yml:functions
 
               # Returns ceiling THICKNESS (blocks of rock preserved above river).
-              # 0 = no ceiling (thin overburden), ceilingStartBlocks = full roof.
+              # 0 = no ceiling, ceilingStartBlocks = full roof.
               # ceilingOffset (stalactite noise) and openingShift (opening noise)
-              # reduce the effective delta, making it easier for the cave to
-              # remain open in noisy areas.
+              # reduce the effective delta, making the cave easier to stay open.
               caveCeiling:
-                arguments: [ delta, ceilingOffset, openingShift ]
-                variables: *variables
+                arguments: [ delta, ceilingOffset, openingShift,
+                             ceilingStartBlocks, ceilingTransitionBlocks ]
                 expression: |
                   herp(delta - ceilingOffset - openingShift,
                     ceilingStartBlocks, 0,
@@ -235,13 +227,12 @@ terrain:
                   "<<":
                     - math/functions/interpolation.yml:functions
 
-              # Returns the opening shift for shallow deltas. At shallow depths
-              # (delta < openingsDeltaShallow), openings noise can force the cave
-              # open. At deep depths (delta > openingsDeltaDeep), no effect.
+              # Returns the opening shift for shallow deltas.
+              # At delta < openingsDeltaShallow: openings noise is fully active.
+              # At delta > openingsDeltaDeep: no effect.
               # Returns 0 to ceilingOpenings (blocks).
               surfaceOpenings:
-                arguments: [ delta, ceilingOpenings ]
-                variables: *variables
+                arguments: [ delta, ceilingOpenings, openingsDeltaShallow, openingsDeltaDeep ]
                 expression: |
                   herp(delta, openingsDeltaShallow, ceilingOpenings, openingsDeltaDeep, 0)
                 functions:
@@ -249,7 +240,7 @@ terrain:
                     - math/functions/interpolation.yml:functions
 
       # ──────────────────────────────────────────────────────────────────────
-      # bedDepth(riverDist, variation)
+      # bedDepth(riverDist, variation, riverBedDepth, riverBedVariation)
       #
       # Carves the riverbed BELOW the bank height. Always present regardless
       # of whether the river is enclosed or open.
@@ -260,16 +251,9 @@ terrain:
       #
       # Depth varies per-column with noise so some river stretches are
       # deeper than others, all shaped by the same elliptical profile.
-      #
-      # Inputs:
-      #   riverDist   Continental river distance: -1 = center, 0 = edge.
-      #   variation   Depth variation noise (-1 to 1), from depthVariation sampler.
-      #
-      # Returns: bed depth in blocks (0 outside river, max at center).
       # ──────────────────────────────────────────────────────────────────────
       bedDepth:
-        arguments: [ riverDist, variation ]
-        variables: *variables
+        arguments: [ riverDist, variation, riverBedDepth, riverBedVariation ]
         expression: |
           max(0, 1 - (riverDist + 1)^2)
           * (riverBedDepth + variation * riverBedVariation)

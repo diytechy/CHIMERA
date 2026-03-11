@@ -11,7 +11,7 @@ biomes:
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
   provider:
     type: PIPELINE
-    resolution: 2
+    resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
     y-resolution: 8
     blend:
       amplitude: 3

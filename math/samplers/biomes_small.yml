@@ -1,7 +1,7 @@
 BaseBiomeCell: &BaseBiomeCell
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-  jitter: 1.2
+  jitter: 0.9
   distance: Hybrid
 
 _landmassShape: &landmassShape

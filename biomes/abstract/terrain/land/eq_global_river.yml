@@ -8,8 +8,8 @@ variables: &variables
 
   # --- Cave erosion parameters (block units) ---
   # Cave floor: how far below base the cave floor sits
-  floorDepthBlocks: 20          # ~y45 (was depth: 0.11 → 0.11*180≈20)
-  floorVariationBlocks: 9       # Floor varies ±9 blocks with noise (was depthVariation: 0.05 → 0.05*180=9)
+  floorDepthBlocks: 10          # ~y45 (was depth: 0.11 → 0.11*180≈20)
+  floorVariationBlocks: 4       # Floor varies ±9 blocks with noise (was depthVariation: 0.05 → 0.05*180=9)
   # Cave ceiling: where the ceiling transition zone starts and how tall it is
   ceilingStartBlocks: 18        # Ceiling begins 18 blocks above base → ~y83 (was ceilingBase: 0.1 → 0.1*180=18)
   ceilingTransitionBlocks: 31   # Ceiling fades over 31 blocks → ends ~y114 (was ceilingHeight: 0.17 → 0.17*180≈31)
@@ -29,13 +29,13 @@ ocean:
     type: EXPRESSION
     variables:
       olevel: $meta.yml:ocean-level
-    expression: olevel + continentalRiverBlockElevChange(x, z)
+    expression: if(continentalRiverBlockDist(x,z)<0,olevel + continentalRiverBlockElevChange(x, z), olevel)
 
 terrain:
-  #blend:
-  #  distance: 3     # 0 = disabled (sharp edges)
-  #  step: 4
-  #  weight: 1.0
+  blend:
+    distance: 2     # 0 = disabled (sharp edges)
+    step: 3
+    weight: 3.0
   # Two-stage approach:
   #   1. The 2D sampler (elevationDetailed → elevationWithRivers) provides a smooth
   #      hermite roll from normal terrain down to the river's regional elevation.
@@ -54,8 +54,8 @@ terrain:
       -y + base -
       (erode(
         y,
-        base + continentalRiverBlockElevChange(x, z),
-        elevationWithRivers(x, z) * scale - continentalRiverBlockElevChange(x, z),
+        base,
+        continentalRiverBlockElevChange(x, z),
         floorDepthBlocks - ((1 + depthVariation(x,z)) * floorVariationBlocks),
         ceilingStartBlocks,
         ceilingTransitionBlocks,

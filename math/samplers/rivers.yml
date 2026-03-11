@@ -109,6 +109,19 @@ samplers:
         scale: $customization.yml:terrain-height
         terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
+
+  minimumRiverBankHeight:
+    dimensions: 2
+    type: CACHE
+    int: true
+    resolution: 2
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
+      variables:
+        scale: $customization.yml:terrain-height
+
   continentalRiverBlockElevShift:
     dimensions: 2
     type: EXPRESSION

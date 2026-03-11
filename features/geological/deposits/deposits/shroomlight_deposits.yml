@@ -4,7 +4,7 @@ type: FEATURE
 anchors:
   - &densityThreshold 1/256 * ${features/geological/deposits/distribution.yml:shroomlight.averageCountPerChunk} # Divide by 16^2 to get % per column
   - &salt $features/geological/deposits/distribution.yml:shroomlight.salt
-  - &range $features/geological/deposits/distribution.yml:shroomlight.range
+  #- &range $features/geological/deposits/distribution.yml:shroomlight.range
   - &min $features/geological/deposits/distribution.yml:shroomlight.range.min
   - &max $features/geological/deposits/distribution.yml:shroomlight.range.max
 

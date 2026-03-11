@@ -724,6 +724,17 @@ It might make sense to just set elevation to the river height offset to get the 
 - Reduce support / contain water funciton by 1.
 - Somehow need to perform errosion much closer to river, but not clear what's currently causing errosion.  Detailed elevation function?  Filtering on top of it?
 
+
+Plan some more refactoring here.
+
+1. The ceiling erosion looks okay.
+2. Erosion to the river bed is still needed, it should not have been removed.  The delta height gives the distance down to the river bank, but further erosion is necessary no matter what to erode empty space for the river to flow in.
+3. Break the expression further apart, erosion should occur in two different ways based on if the river is enclosed or not:
+A. Determine if the river is enclosed based on it's delta.  If delta>(20-20*River Dist {so a range from 20 to 40}), then the river can be considered enclosed.  (There is a lot of material above the river that can be retained in a ceiling)
+B. When enclosed, the erode function should work the same way it does today for the ceiling, but only up until the rivers edge (RiverDist<0>), and the river bed should have an elliptical-like rolloff that rolls up to the edge off the enclosed cave wall.  (1 - (RiverDist+1)^2)*MaxBedDepth
+C. When not enclosed, the ceiling wouldn't exist at all, and instead all blocks above the bed height should be herped from some river distance (RiverDist = -0.6) to the river edge (RiverDist = -0.2), and continue to create cavities down to the river bank through the entire height.
+D. There should be no magic numbers in the functions or expressions, they should all be named variables for easy tuning, but comments should be substantial to relay context given the complexity of this sampler.
+
 Theory:
 1. MinDensity function isn't raising terrain because the sampler is not actually multiplied by the terrain scaler (effectively always 0)
 2. River erosion... might be working for L0, but not clear why it's not working for L1+, maybe a different function getting referenced?

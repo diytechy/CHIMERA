@@ -32,10 +32,10 @@ ocean:
     expression: olevel + continentalRiverBlockElevChange(x, z)
 
 terrain:
-  blend:
-    distance: 3     # 0 = disabled (sharp edges)
-    step: 4
-    weight: 1.0
+  #blend:
+  #  distance: 3     # 0 = disabled (sharp edges)
+  #  step: 4
+  #  weight: 1.0
   # Two-stage approach:
   #   1. The 2D sampler (elevationDetailed → elevationWithRivers) provides a smooth
   #      hermite roll from normal terrain down to the river's regional elevation.
@@ -49,7 +49,7 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base + continentalRiverBlockElevChange(x, z) -
+      -y + base -
       (erode(
         y,
         base + continentalRiverBlockElevChange(x, z),

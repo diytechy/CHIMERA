@@ -23,7 +23,7 @@ samplers:
       expression: |
         if(continentalRiverDist(x,z)>=1,
           -1,
-          if(continentalRiverDist(x,z)<=0.3,
+          if(continentalRiverDist(x,z)<=0.4,
             1,
             -0.25
           )
@@ -66,7 +66,8 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<0), 0,  rawPrecipitation(x, z)*1.3)
+    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
+ 
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
@@ -118,7 +119,10 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
+      #Bump up 2 blocks to attempt to prevent water from being above the river banks, which can cause visual and gameplay issues.
+      #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
+      #which is very high.
+      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)+2))
       variables:
         scale: $customization.yml:terrain-height
 

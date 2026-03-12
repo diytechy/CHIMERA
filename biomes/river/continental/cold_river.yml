@@ -39,7 +39,7 @@ features:
   flora:
   - FERNS
   - GRASS
+  processors:
+  - RIVER_SOULSAND
   landforms:
   - RIVER_BOULDERS
-  postprocessors:
-  - RIVER_SOULSAND

@@ -39,5 +39,5 @@ features:
   - SUGAR_CANE
   - GRASS
   - SEA_PICKLES
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

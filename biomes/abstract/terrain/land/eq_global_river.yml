@@ -16,7 +16,7 @@ variables: &variables
   # Result: shallow rivers fully open, moderate rivers open at center with
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
   enclosedThresholdEdge: 25       # Delta (blocks) to count as enclosed at river edge (dist=0)
-  enclosedThresholdCenter: 5      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
+  enclosedThresholdCenter: 10      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
   enclosedTransitionBlocks: 10    # Hermite blend width between open/enclosed modes (blocks)
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────────
@@ -48,7 +48,7 @@ variables: &variables
   #   max depth at center (dist=-1), rolls to 0 at edge (dist=0).
   # depthVariation noise adds per-column variation so some stretches are
   # deeper than others, all scaled by the same elliptical profile.
-  riverBedDepth: 8                # Base bed depth at river center (blocks)
+  riverBedDepth: 11               # Base bed depth at river center (blocks)
   riverBedVariation: 4            # Max additional bed depth from noise (blocks)
 
 ocean:
@@ -65,7 +65,7 @@ ocean:
 terrain:
   blend:
     distance: 2     # 0 = disabled (sharp edges)
-    step: 3
+    step: 2
     weight: 3.0
   # Two-term erosion approach:
   #

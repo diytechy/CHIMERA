@@ -12,5 +12,5 @@ features:
   - SPARSE_FOSSILS
   flora:
   - DRY_GRASS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

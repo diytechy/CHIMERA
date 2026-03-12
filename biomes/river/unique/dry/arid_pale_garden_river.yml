@@ -25,5 +25,5 @@ features:
   - PALE_OAK_BUSHES
   landforms:
   - PALE_MOSSY_BOULDERS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

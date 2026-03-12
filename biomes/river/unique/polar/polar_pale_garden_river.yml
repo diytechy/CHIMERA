@@ -22,6 +22,7 @@ features:
   landforms:
   - PALE_MOSSY_BOULDERS
   processors:
+  - RIVER_SOULSAND
   - SNOW_FOREST_LAYERS
   preprocessors:
   - POWDER_SNOW_DEPOSITS
@@ -29,4 +30,3 @@ features:
   postprocessors:
   - TREE_SNOW
   - BLEND_SNOW
-  - RIVER_SOULSAND

@@ -18,6 +18,7 @@ features:
   - LARGE_MUSHROOMS
   processors:
   - SNOW_FOREST_LAYERS
+  - RIVER_SOULSAND
   preprocessors:
   - POWDER_SNOW_DEPOSITS
   - ICE_COASTLINE
@@ -25,4 +26,3 @@ features:
   - TREE_SNOW
   - BLEND_SNOW
   - CEILING_ICICLES
-  - RIVER_SOULSAND

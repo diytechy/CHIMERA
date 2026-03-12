@@ -20,5 +20,5 @@ features:
   - SPARSE_FALLEN_NORMAL_DARK_OAK_TREES
   - MESQUITE_TREES
   - DEAD_TREES_SPARSE
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

@@ -15,5 +15,5 @@ features:
   - PALM_TREES
   - MESQUITE_TREES
   - SPARSE_FALLEN_PALM_TREES
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

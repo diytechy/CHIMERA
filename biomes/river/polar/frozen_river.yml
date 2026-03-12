@@ -32,6 +32,8 @@ features:
   - SNOW_LAYERS
   preprocessors:
   - ICE_COASTLINE
+  processors:
+  - RIVER_SOULSAND
   postprocessors:
   - TREE_SNOW
   - BLEND_SNOW

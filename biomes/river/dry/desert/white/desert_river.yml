@@ -14,5 +14,5 @@ features:
   - MOB_ROOMS
   - DESERT_WELLS
   - SPARSE_FOSSILS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

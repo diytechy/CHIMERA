@@ -9,5 +9,5 @@ features:
   flora:
   - CACTUS_SPARSE
   - DRY_GRASS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

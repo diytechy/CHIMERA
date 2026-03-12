@@ -31,5 +31,5 @@ features:
   flora:
   - SUGAR_CANE
   - GRASS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

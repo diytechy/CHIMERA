@@ -776,3 +776,15 @@ Coordinates to check:
 caverns:
 
 Issue is verdent river?
+
+#########################
+
+What's happening at -1119, 27?  It looks like land mass is covering the river.
+What's happening at -1076, 145?  Rivers banks are vertical?
+
+3 fixes:
+
+Make sure height above bank is knocked out?  Might not be occuring?
+Add 4 bit level to river dendry output.
+Add 4 bit distance to increase in quantized elevation.
+Still no grow litchen

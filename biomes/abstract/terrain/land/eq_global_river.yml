@@ -48,7 +48,7 @@ variables: &variables
   #   max depth at center (dist=-1), rolls to 0 at edge (dist=0).
   # depthVariation noise adds per-column variation so some stretches are
   # deeper than others, all scaled by the same elliptical profile.
-  riverBedDepth: 11               # Base bed depth at river center (blocks)
+  riverBedDepth: 8                # Base bed depth at river center (blocks)
   riverBedVariation: 4            # Max additional bed depth from noise (blocks)
 
 ocean:
@@ -86,22 +86,6 @@ terrain:
     variables: *variables
     expression: |
       -y + base -
-      cavity(
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)),
-        continentalRiverDist(x, z),
-        ceilingSpikes(x, z) * -ceilingSpikeAmplitude,
-        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
-        enclosedTransitionBlocks,
-        enclosedThresholdEdge,
-        enclosedThresholdCenter,
-        openChannelInner,
-        openChannelOuter,
-        enclosedWallFade,
-        ceilingStartBlocks,
-        ceilingTransitionBlocks,
-        openingsDeltaShallow,
-        openingsDeltaDeep
-      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) -
       bedDepth(
         continentalRiverDist(x, z),
         depthVariation(x, z),

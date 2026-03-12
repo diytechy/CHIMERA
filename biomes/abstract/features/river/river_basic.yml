@@ -5,3 +5,4 @@ abstract: true
 features:
   river-decoration:
     - CLAY_DEPOSITS
+    - MOUNTAIN_RIVER_GLOW_LICHEN

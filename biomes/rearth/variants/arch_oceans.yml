@@ -105,6 +105,8 @@ features:
   underwater-flora:
     - LARGE_CEILING_VINES
     - LARGE_LEAF_VINES_RIVER_CAVE
+  river-decoration:
+    - MOUNTAIN_RIVER_GLOW_LICHEN
   flora:
     - LARGE_LEAF_VINES
     - SMALL_DRIPLEAF

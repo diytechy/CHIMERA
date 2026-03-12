@@ -309,6 +309,7 @@ samplers:
   # Blend the floor and nominal step height based on the distance to ramp from step to step.
     int: true
     resolution: 2
+
   elevation_with_mesas:
     dimensions: 2
     type: EXPRESSION
@@ -422,6 +423,8 @@ samplers:
   elevationDetailed:
     dimensions: 2
     type: CACHE
+    int: true
+    resolution: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -448,11 +451,11 @@ samplers:
             salt: 2394
 
 
-    int: true
-    resolution: 2
   oceanElevation:
     dimensions: 2
     type: CACHE
+    int: true
+    resolution: 2
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -467,6 +470,3 @@ samplers:
       samplers:
         rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
         continents: $math/samplers/continents.yml:samplers.continents
-
-    int: true
-    resolution: 2

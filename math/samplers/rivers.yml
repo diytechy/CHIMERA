@@ -66,7 +66,7 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.0||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
+    expression: if((continents(x, z)<=0.2||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
  
   continentalDendryRivers:
     dimensions: 3
@@ -122,7 +122,7 @@ samplers:
       #Bump up 2 blocks to attempt to prevent water from being above the river banks, which can cause visual and gameplay issues.
       #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
       #which is very high.
-      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)+2))
+      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
       variables:
         scale: $customization.yml:terrain-height
 
@@ -148,3 +148,30 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,-1.0,z)
+      
+  RiverSupportDensity:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      Base: $meta.yml:ocean-level
+      HeightScale: $customization.yml:terrain-height
+      MinRiverSupp: $customization.yml:min-river-support-height
+      MinRiverNorm: $customization.yml:min-river-support-height-norm
+      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
+      riverBedDepth: $biomes/abstract/terrain/land/eq_global_river.yml:variables.riverBedDepth
+    functions: $math/functions/interpolation.yml:functions
+    samplers:
+      RiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      RiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
+      continents: $math/samplers/continents.yml:samplers.continents
+    expression: |
+      if((continents(x,z)>-0.05 && y<(Base+HeightScale*terrain_base_biome_shift)),
+        if((y>Base && y<(Base+HeightScale*terrain_base_biome_shift)),
+          -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
+          if((y<Base && y>MinRiverSupp),
+            (1 - ((Base-y)^2/(MinRiverNorm)) - ((RiverDist(x,z)+1)^2/4)),
+            0
+          )
+        ),
+        0
+      )

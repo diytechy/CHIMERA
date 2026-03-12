@@ -4,7 +4,7 @@ extends:
 - RIVER_BASIC
 - EQ_GLOBAL_RIVER
 - CARVING_OCEAN
-- PALE_GARDEN
+- PALE_GARDEN_COAST
 color: $biomes/colors.yml:PALE_GARDEN_RIVER
 vanilla: minecraft:river
 features:

@@ -2601,7 +2601,7 @@ samplers:
     expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
     samplers: {}
     variables:
-      terrain_base_biome_shift: 0.35
+      terrain_base_biome_shift: 0.5
   BiomeShapeLandmassDistance:
     dimensions: 2
     type: DOMAIN_WARP

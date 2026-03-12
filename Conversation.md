@@ -763,7 +763,7 @@ E. Verify mesa placement for regions, and consider plains region designation.
 
 G. Increase ore spawn rate via standard ore distributions.
 
-H. Don't have direct biome boundaries on temperature / precipitation.  Use cellular evaluation at center to place.
+H. Need to update river samplers to use global eq or reference parent func with new global.... or redesign global.  Haven't confirmed it's functionality yet.
 
 I. 
 

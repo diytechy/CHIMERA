@@ -17,7 +17,7 @@ extrusions:
       #If above the distribution threshold, set it to an actual biome, else keep current self.
       #Actual distribution weight must match selected threshold.
       #Default case is >0, which puts half of the samples below 0.
-      expression: if((BiomeShapeOceanValue(x,z)<0.5)&&(BiomeShapeOceanValue(x,z)>-0.5),(BiomeShapeOceanTemperature(x,z)/2)+BiomeShapeOceanValue2(x,z)*0.3,-1)
+      expression: &exp if((BiomeShapeOceanValue(x,z)<0.5)&&(BiomeShapeOceanValue(x,z)>-0.5),max(((BiomeShapeOceanTemperature(x,z)+1)/2)+BiomeShapeOceanValue(x,z)*0.3,0),-1)
     to:
       - SELF: 110
       - ICE_CAVES: 3
@@ -80,7 +80,7 @@ extrusions:
     from: CAVERNS_LAND
     sampler:
       type: EXPRESSION
-      expression: if(BiomeShapeOceanValue(x,z)>0,max((BiomeShapeOceanTemperature(x,z)+1)/2+BiomeShapeOceanValue2(x,z)*0.3,0),-1)
+      expression: *exp
     to:
       - SELF: 110
       - ICE_CAVES: 3

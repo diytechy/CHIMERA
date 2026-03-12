@@ -70,5 +70,5 @@ terrain:
 features:
   river-decoration:
   - CLAY_DEPOSITS
-  postprocessors:
+  processors:
   - RIVER_SOULSAND

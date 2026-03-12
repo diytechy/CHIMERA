@@ -200,7 +200,7 @@ river-dripstone:
   salt: 2952
   range:
     min: 75
-    max: 85
+    max: 185
 
 powdersnow:
   averageCountPerChunk: 1

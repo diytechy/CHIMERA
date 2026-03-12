@@ -35,10 +35,12 @@ colors:
 tags:
 - LAND_CAVES
 features:
+  preprocessors:
+  - RIVER_SOULSAND
   flora:
   - SUGAR_CANE
   - OAK_BUSHES
   - FIREFLY_BUSH
   - GRASS
-  postprocessors:
-  - RIVER_SOULSAND
+  #postprocessors:
+  #- RIVER_SOULSAND

@@ -6,3 +6,5 @@ features:
   river-decoration:
     - CEILING_ICICLES
     - CLAY_DEPOSITS
+  processors:
+  - RIVER_SOULSAND

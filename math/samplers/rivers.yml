@@ -162,11 +162,21 @@ samplers:
     functions: $math/functions/interpolation.yml:functions
     samplers:
       RiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-      RiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
-      continents: $math/samplers/continents.yml:samplers.continents
+      RiverElev: 
+        type: EXPRESSION
+        expression: Base+continentalRiverBlockElevChange(x,z)
+      RiverBedElev: 
+        type: EXPRESSION
+        expression: Base+continentalRiverBlockElevChange(x,z) - riverBedDepth
+        #Ratio up to minimum river bank is (y-RiverBedElev)/riverBedDepth
+        #Goal is to maintain a maximum 2 block rise over 1 block run
+        #to suppress slope activation pallette change, in general should not be exposed.
+        #Note since River distance does not give block distance, we can only approximate.
+        #This will yield lower / more fades slopes on wider rivers, but in general all this should
+        #be masked by the actual biome evaluation functions.
     expression: |
-      if((continents(x,z)>-0.05 && y<(Base+HeightScale*terrain_base_biome_shift)),
-        if((y>Base && y<(Base+HeightScale*terrain_base_biome_shift)),
+      if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
+        if((y>RiverBedElev(x,z)),
           -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
           if((y<Base && y>MinRiverSupp),
             (1 - ((Base-y)^2/(MinRiverNorm)) - ((RiverDist(x,z)+1)^2/4)),

@@ -67,6 +67,9 @@ river-terrain-variables: &rtv
   riverBedDepth: &riverBedDepth 8                # Base bed depth at river center (blocks)
   riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
+  # ─── Biome activation ──────────────────────────────────────────
+  riverBiomeActivationThreshold: *riverBiomeActivationThreshold
+
 samplers:
   riverSampler:
     dimensions: 2
@@ -379,27 +382,17 @@ samplers:
       "<<":
         - math/functions/interpolation.yml:functions
 
-  # Removes blocks ABOVE the river bank to create the void the river
-  # flows through. Blends between two modes:
-  #   OPEN:     Full delta carved, faded from openChannelInner to openChannelOuter.
-  #   ENCLOSED: delta minus ceiling thickness. Cave walls fade at boundary.
-  cavity:
+  # Returns how enclosed the river is at a given (x,z).
+  #   <= 0:                        fully open (surface valley)
+  #   >= enclosedTransitionBlocks:  fully enclosed (cave)
+  #   Between:                      transition zone (lerp blend)
+  riverEnclosedFactor:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
     expression: |
-      lerp(
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
-          - (enclosedThresholdEdge + enclosedThresholdCenter * continentalRiverDist(x, z)),
-        0,
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
-          * herp(continentalRiverDist(x, z), openChannelInner, 1, openChannelOuter, 0),
-        enclosedTransitionBlocks,
-        enclosedCavity(x, z)
-      )
-    functions:
-      "<<":
-        - math/functions/interpolation.yml:functions
+      max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
+        - (enclosedThresholdEdge + enclosedThresholdCenter * continentalRiverDist(x, z))
 
   # Carves the riverbed BELOW the bank height. Always present regardless
   # of whether the river is enclosed or open.
@@ -413,17 +406,36 @@ samplers:
       * (riverBedDepthAtLevel(x,z) + depthVariation(x, z) * riverBedVariation)
 
   # ─── River terrain sampler ─────────────────────────────────────────
-  # Composes cavity and bedDepth with erosion variation.
-  # The 2D sampler sets the nominal surface to minimumRiverBankHeight.
-  # These two terms carve below that surface to form the river channel.
+  # Split into upper/lower by bank height, with enclosure detection:
+  #   Case 1 (y <= bank): Riverbed erosion via bedDepth
+  #   Case 2 (y > bank, enclosed): Cave void via enclosedCavity
+  #   Case 3 (y > bank, open): Valley walls herp from terrain to bank
+  # Cases 2 & 3 blend smoothly via lerp over enclosedTransitionBlocks.
   riverTerrainSampler:
     type: EXPRESSION
     dimensions: 3
     variables: *rtv
     expression: |
-      -y + base
-      - cavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
-      - bedDepth(x, z)
+      if(y <= base + minimumRiverBankHeight(x, z),
+        // ── Case 1: Riverbed ──
+        -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
+
+        // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        lerp(riverEnclosedFactor(x, z),
+          0,
+          // Case 3: Open valley — herp from terrain down to bank
+          -y + base + herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
+            riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
+          enclosedTransitionBlocks,
+          // Case 2: Enclosed cave — carve void, ceiling preserved by blending
+          -y + base + minimumRiverBankHeight(x, z)
+            - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+        )
+      )
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
 
 RiverSupportDensity:
   dimensions: 3

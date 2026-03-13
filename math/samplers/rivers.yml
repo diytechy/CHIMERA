@@ -199,7 +199,7 @@ samplers:
     expression: |
       if(continentalRiverDist(x,z)<0.0 && 
       continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
-      if((floor(x) % 2) = (floor(y) % 2),1,0),
+      if((floor(x) % 2) = (floor(z) % 2),1,0),
       0)
     samplers:
       soulSandPlaceDist:
@@ -416,23 +416,24 @@ samplers:
     dimensions: 3
     variables: *rtv
     expression: |
-      if(y <= base + minimumRiverBankHeight(x, z),
-        // ── Case 1: Riverbed ──
-        -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
+      -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z)
+    #if(y <= base + minimumRiverBankHeight(x, z),
+    #  // ── Case 1: Riverbed ──
+    #  -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
 
-        // ── Cases 2 & 3: Above bank, blended by enclosure ──
-        lerp(riverEnclosedFactor(x, z),
-          0,
-          // Case 3: Open valley — herp from terrain down to bank
-          -y + base + herp(continentalRiverDist(x, z),
-            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
-          enclosedTransitionBlocks,
-          // Case 2: Enclosed cave — carve void, ceiling preserved by blending
-          -y + base + minimumRiverBankHeight(x, z)
-            - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
-        )
-      )
+    #  // ── Cases 2 & 3: Above bank, blended by enclosure ──
+    #  lerp(riverEnclosedFactor(x, z),
+    #    0,
+    #    // Case 3: Open valley — herp from terrain down to bank
+    #    -y + base + herp(continentalRiverDist(x, z),
+    #      riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
+    #      riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
+    #    enclosedTransitionBlocks,
+    #    // Case 2: Enclosed cave — carve void, ceiling preserved by blending
+    #    -y + base + minimumRiverBankHeight(x, z)
+    #      - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+    #  )
+    #)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions

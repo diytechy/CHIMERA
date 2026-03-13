@@ -828,9 +828,19 @@ caveCeiling
 surfaceOpenings
 bedDepth
 
-#############################33333
+#############################
 
-I'd like too break the river sampler equation into upper and lower halfs, similar to the structure in RiverSamplerAlt.ymlo.
+Create a plan to reorganize the river sampler equation (riverTerrainSampler) into upper and lower portions, similar to the structure in RiverSamplerAlt.ymlo.  This is basically already complete, I just want it to be explicit in the sampler.
 
-The upper half should be anything above river height elevation.
+This way any y above bank level can evaluate the upper half computation, and anything else should evaluate as the riverbed erosion.
 
+I would expect the final riverTerrainSampler to be built of effectively 3 components:
+  - If y is less than or equal to the river bank height, use erosion based on the river bed.
+  - If y is more than the river bank height and the river is enclosed, use the sampler / function for the enclosed river.
+  - If y is more than the river bank height and the river is not enclosed, formulate the sampler to give a final density that generates blocks that herp from the detailed elevation at the riverBiomeActivationThreshold down to the bank height at riverBiomeActivationThreshold/2.
+
+3 Fixes:
+
+1. Transition distance and setting soulsand
+2. Soulsand getting laid in strips, should be diamond pattern
+3. Banks of river going to heaven... not intended.

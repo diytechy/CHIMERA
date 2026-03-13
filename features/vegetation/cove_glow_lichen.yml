@@ -14,8 +14,8 @@ locator:
     # Random heights
     - type: RANDOM
       height: &range
-        min: ${meta.yml:bottom-y} + 14
-        max: ${meta.yml:ocean-level} - 20
+        min: ${meta.yml:ocean-level} + 3
+        max: ${meta.yml:ocean-level} + 129
       amount: 1
       salt: 2913
     # Require either air or water
@@ -32,7 +32,7 @@ locator:
     # Require an adjacent solid block
     - type: OR
       locators:
-        # Either solid above / below
+        # Solid above
         - type: PATTERN
           range: *range
           pattern:
@@ -40,8 +40,6 @@ locator:
             patterns:
               - type: MATCH_SOLID
                 offset: 1
-              - type: MATCH_SOLID
-                offset: -1
         # Or solid next to block
         - type: ADJACENT_PATTERN
           range: *range

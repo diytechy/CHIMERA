@@ -2,11 +2,14 @@ id: COVE_GLOW_LICHEN
 type: FEATURE
 
 distributor:
-  type: SAMPLER
-  sampler:
-    type: POSITIVE_WHITE_NOISE
-    salt: 2313
-  threshold: 0.1
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 2313
+      threshold: 0.1
+  
 
 locator:
   type: AND
@@ -18,6 +21,12 @@ locator:
         max: ${meta.yml:ocean-level} + 129
       amount: 1
       salt: 2913
+    #In range
+    - type: SAMPLER
+      samplers:
+        type: EXPRESSION
+        expression: glowLichenRange(x,y,z)
+      threshold: 0.1
     # Require either air or water
     - type: PATTERN
       range: *range

@@ -167,10 +167,28 @@ samplers:
   riverCeilingAtLevel:
     dimensions: 2
     type: EXPRESSION
-    variables:
-      riverBedDepth: *riverBedDepth
-    expression: riverBedDepth - continentalRiverLevel(x,z)*2
+    variables: *rtv
+    #When inside river boundary, set the ceiling as a function of the river level
+    #(lower ceiling for higher level / smaller river branches), otherwise default
+    #to the half level.
+    expression: |
+      if(continentalRiverDist(x, z)<0,
+        (ceilingStartBlocks - ceilingTransitionBlocks*continentalRiverDist(x, z))*
+          (0.8^continentalRiverLevel(x,z)),
+        ceilingStartBlocks/2)
 
+  glowLichenCeiling:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    #When inside river boundary, set the ceiling as a function of the river level
+    #(lower ceiling for higher level / smaller river branches), otherwise default
+    #to the half level.
+    expression: |
+      if(continentalRiverDist(x, z)<0,
+        riverCeilingAtLevel(x,z),
+        ceilingStartBlocks)
+  
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
@@ -214,6 +232,26 @@ samplers:
         scale: $customization.yml:terrain-height
         terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
+    
+  worldRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalRiverBlockElevChange(x,z)+ocean_level
+    variables:
+      ocean_level: $meta.yml:ocean-level
+      
+  glowLichenRange:
+    dimensions: 3
+    type: EXPRESSION
+    #If between the ceiling and the river floor, allow
+    expression: |
+      if(((y-worldRiverElev(x,z))<glowLichenCeiling(x,z)) && (y>worldRiverElev(x,z)),
+        -1,1)
+    samplers:
+      noise:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        #frequency: 
 
   minimumRiverBankHeight:
     dimensions: 2

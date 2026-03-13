@@ -827,3 +827,10 @@ enclosedCavity
 caveCeiling
 surfaceOpenings
 bedDepth
+
+#############################33333
+
+I'd like too break the river sampler equation into upper and lower halfs, similar to the structure in RiverSamplerAlt.ymlo.
+
+The upper half should be anything above river height elevation.
+

@@ -121,7 +121,6 @@ stages:
         - MAPLE_WOODLANDS: 1
         - OAK_WOODLANDS: 1
         - REDWOOD_WOODLANDS: 1
-        - SAKURA_WOODLANDS: 1
         - SUGAR_PINE_WOODLANDS: 1
       boreal-cold-highlands:
         - MOUNTAINS: 1
@@ -307,7 +306,6 @@ stages:
         - FLOWERING_FOREST: 1
         - BROADLEAF_FOREST: 1
         - DARK_FOREST: 1
-        - SAKURA_GROVE: 1
         - WOODED_BUTTES: 1
         - BLACK_FOREST: 1
         - GLOOMY_GORGE: 1

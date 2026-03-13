@@ -6,6 +6,8 @@ variables: &variables
   riverThreshold: 0.3 # Determines the area calculated as river, which also determines how far away river borders will be.
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
+  soulSandPlaceDist: &soulSandPlaceDist 8
+  riverBiomeActivationThreshold: &riverBiomeActivationThreshold 0.4
 
   erosionMaxDistance: 0.3
   erosionMax: 0.95
@@ -45,6 +47,7 @@ river-terrain-variables: &rtv
   openingsNoiseMin: 0.3           # Noise below this → no opening
   openingsNoiseMax: 0.6           # Noise above this → full opening shift
   # Wall fade at river boundary for enclosed caves
+  # DEPRICATED BY ELIPTICAL
   enclosedWallFade: 0.05          # RiverDist range over which cave walls transition to solid
 
   # ─── Open channel ───────────────────────────────────────────────
@@ -59,8 +62,10 @@ river-terrain-variables: &rtv
   #   max depth at center (dist=-1), rolls to 0 at edge (dist=0).
   # depthVariation noise adds per-column variation so some stretches are
   # deeper than others, all scaled by the same elliptical profile.
-  riverBedDepth: 8                # Base bed depth at river center (blocks)
-  riverBedVariation: 4            # Max additional bed depth from noise (blocks)
+  # IMPORTANT: This is the river bed depth for root level rivers, 
+  # This is further augmented in narrower river distribution.
+  riverBedDepth: &riverBedDepth 8                # Base bed depth at river center (blocks)
+  riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
 samplers:
   riverSampler:
@@ -74,7 +79,7 @@ samplers:
       expression: |
         if(continentalRiverDist(x,z)>=1,
           -1,
-          if(continentalRiverDist(x,z)<=0.4,
+          if(continentalRiverDist(x,z)<=riverBiomeActivationThreshold,
             1,
             -0.25
           )
@@ -117,7 +122,7 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.2||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
+    expression: if((continents(x, z)<=0.1||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
  
   continentalDendryRivers:
     dimensions: 3
@@ -151,6 +156,37 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,4.0,z)
+    
+  riverBedDepthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverBedDepth: *riverBedDepth
+    expression: riverBedDepth - continentalRiverLevel(x,z)*2
+    
+  riverCeilingAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverBedDepth: *riverBedDepth
+    expression: riverBedDepth - continentalRiverLevel(x,z)*2
+
+  RiverSoulsandLocations:
+    dimensions: 2
+    type: EXPRESSION
+    #If within the soul sand distance at center of river, or half on outskirts, populate distribution.
+    expression: |
+      if(continentalRiverDist(x,z)<0.0 && 
+      continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
+      if((floor(x) % 2) = (floor(y) % 2),1,0),
+      0)
+    samplers:
+      soulSandPlaceDist:
+        dimensions: 2
+        type: EXPRESSION
+        expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        variables:
+          soulSandPlaceDist: *soulSandPlaceDist
 
   continentalRiverElev:
     dimensions: 2
@@ -187,7 +223,6 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      #Bump up 2 blocks to attempt to prevent water from being above the river banks, which can cause visual and gameplay issues.
       #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
       #which is very high.
       expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
@@ -301,7 +336,7 @@ samplers:
         max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
         - caveCeiling(x, z)
       )
-      * herp(continentalRiverDist(x, z), -enclosedWallFade, 1, 0, 0)
+      * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
@@ -337,7 +372,7 @@ samplers:
     variables: *rtv
     expression: |
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
-      * (riverBedDepth + depthVariation(x, z) * riverBedVariation)
+      * (riverBedDepthAtLevel(x,z) + depthVariation(x, z) * riverBedVariation)
 
   # ─── River terrain sampler ─────────────────────────────────────────
   # Composes cavity and bedDepth with erosion variation.
@@ -371,7 +406,9 @@ RiverSupportDensity:
     RiverBedElev: 
       dimensions: 2
       type: EXPRESSION
-      expression: Base+continentalRiverBlockElevChange(x,z) - riverBedDepth
+      variables:
+        riverBedVariation: *riverBedVariation
+      expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel) - riverBedVariation/2
       #Ratio up to minimum river bank is (y-RiverBedElev)/riverBedDepth
       #Goal is to maintain a maximum 2 block rise over 1 block run
       #to suppress slope activation pallette change, in general should not be exposed.

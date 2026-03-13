@@ -14,10 +14,10 @@ biomes:
     resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
     y-resolution: 8
     blend:
-      amplitude: 6
+      amplitude: 3
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.1
+        frequency: 0.05
     pipeline:
       source:
         type: SAMPLER

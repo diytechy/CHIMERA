@@ -8,13 +8,7 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(continentalRiverBlockElevShift(x,z),-1,1)
-    #expression: |
-    #  1-continentalRiverBlockElevShift(x,z)
-    samplers:
-      continentalRiverBlockElevShift: $math/samplers/rivers.yml:samplers.continentalRiverBlockElevShift
-  #threshold: 0.5
-  #threshold: 0.0
+    expression: if(RiverSoulsandLocations(x,z),-1,1)
 
 #Method:
   #Block is solid AND
@@ -26,7 +20,7 @@ locator:
   type: PATTERN
   range:
     min: ${meta.yml:ocean-level} -25
-    max: ${customization.yml:terrain-height}
+    max: ${customization.yml:terrain-height} * 0.5
   pattern:
     type: AND
     patterns:

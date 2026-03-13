@@ -1,12 +1,11 @@
 stages:
   - type: REPLACE_LIST
     sampler:
-      type: CELLULAR
-      return: CellValue
-      frequency: 1 / 400 / ${customization.yml:variation-scale} / ${customization.yml:global-scale}
+      type: EXPRESSION
+      expression: BiomeShapeLandmassValue(x, z)
     default-from: tropical-rainforest
     default-to: &travertineList
-      - SELF: 80
+      - SELF: 50
       - TRAVERTINE_TERRACES: 1
     to:
       tropical-rainforest-highlands: *travertineList

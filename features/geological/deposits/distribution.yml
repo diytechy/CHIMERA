@@ -245,7 +245,7 @@ infested-pale:
     max: 62
 
 shroomlight:
-  averageCountPerChunk: 100
+  averageCountPerChunk: 20
   salt: 6712
   range:
     min: 10

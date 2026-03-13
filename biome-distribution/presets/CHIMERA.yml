@@ -17,7 +17,7 @@ biomes:
       amplitude: 6
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.02
+        frequency: 0.1
     pipeline:
       source:
         type: SAMPLER
@@ -91,7 +91,9 @@ biomes:
         #  sampler:
         #    type: WHITE_NOISE
 
-        
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
         - type: SMOOTH
           sampler:
             type: WHITE_NOISE

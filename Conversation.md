@@ -815,3 +815,15 @@ caveCeiling
 surfaceOpenings
 bedDepth
 terrain.sampler should then exist in rivers.yml as an expression that is using the other broken out pack samplers.
+
+It looks like some of the functions are still embedded into large hard-to-read samplers.  Please make sure all the following are base level samplers, this will likely require variables to all be at the top of rivers.yml, and referenced wither as a whole structure, or individual parameters as needed via anchoring, refactor other samplers as needed:
+
+erosionStrengthVariation
+openings
+ceilingSpikes
+depthVariation
+cavity
+enclosedCavity
+caveCeiling
+surfaceOpenings
+bedDepth

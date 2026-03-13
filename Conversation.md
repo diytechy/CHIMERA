@@ -788,6 +788,8 @@ Make sure height above bank is knocked out?  Might not be occurring?
 Add 4 bit level to river dendry output.
 Add 4 bit distance to increase in quantized elevation.
 
+##############################################
+
 Break out 3 cavities to named sampler:
   River bed - Include bed height as function of river level.
   Enclosed river - Include river distance as a driver of total arc height.
@@ -795,3 +797,20 @@ Break out 3 cavities to named sampler:
 Still no grow litchen
 Still reduce shroomlight freq
 Should I remove frozen fungi from standard dist?  Isn't that just for islands?
+Sakura streams shouldn't be in colder regions
+
+In eq_global_river take the high level samplers out to make them pack samplers in math\samplers\rivers.yml.  Variables should be moved as needed so that they are all sourced from rivers.yml.
+
+The intent is to break this large expression up into smaller more manageable pieces.
+
+Move out the following functions / samplers to instead be pack level samplers:
+
+erosionStrengthVariation
+openings
+ceilingSpikes
+depthVariation
+cavity
+enclosedCavity
+caveCeiling
+surfaceOpenings
+bedDepth

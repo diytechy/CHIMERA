@@ -72,49 +72,7 @@ terrain:
     sampler:
       dimensions: 3
       type: EXPRESSION
-      variables:
-        Base: $meta.yml:ocean-level
-        HeightScale: $customization.yml:terrain-height
-        MinRiverSupp: $customization.yml:min-river-support-height
-        MinRiverNorm: $customization.yml:min-river-support-height-norm
-        terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
-        riverBedDepth: $biomes/abstract/terrain/land/eq_global_river.yml:variables.riverBedDepth
-        AvgWidestRiverHalfWidth: (${customization.yml:minimum-continental-river-width} + ${customization.yml:maximum-continental-river-width})/4
-      samplers:
-        RiverElev:
-          dimensions: 2
-          type: EXPRESSION
-          expression: Base+continentalRiverBlockElevChange(x,z)
-        RiverBedElev: 
-          dimensions: 2
-          type: EXPRESSION
-          expression: Base+continentalRiverBlockElevChange(x,z) - riverBedDepth
-          #Ratio up to minimum river bank is (y-RiverBedElev)/riverBedDepth
-          #Goal is to maintain a maximum 2 block rise over 1 block run
-          #to suppress slope activation pallette change, in general should not be exposed.
-          #Note since River distance does not give block distance, we can only approximate.
-          #This will yield lower / more fades slopes on wider rivers, but in general all this should
-          #be masked by the actual biome evaluation functions.
-
-          #Check 1: Make sure we are below river elevation.
-          #Form: For distance below
-      expression: |
-        if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
-          if((y>RiverBedElev(x,z)),
-            -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
-            if((y<Base && y>MinRiverSupp),
-              insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),AvgWidestRiverHalfWidth))
-            )
-          ),
-          0
-        )
-      functions:
-        insideMinimumBank:
-          arguments: [ depthBelowWaterElev, absDistFromBorder, WidthAtHalfDist ]
-          expression: |
-            if(((depthBelowWaterElev>WidthAtHalfDist) && (absDistFromBorder<1)),
-              1,
-                if(absDistFromBorder*WidthAtHalfDist > depthBelowWaterElev,1,0)
+      expression: RiverSupportDensity(x,y,z)
     smooth: false      # Smooth or hard 
   # Two-term erosion approach:
   #
@@ -135,6 +93,22 @@ terrain:
     variables: *variables
     expression: |
       -y + base -
+      cavity(
+        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)),
+        continentalRiverDist(x, z),
+        ceilingSpikes(x, z) * -ceilingSpikeAmplitude,
+        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
+        enclosedTransitionBlocks,
+        enclosedThresholdEdge,
+        enclosedThresholdCenter,
+        openChannelInner,
+        openChannelOuter,
+        enclosedWallFade,
+        ceilingStartBlocks,
+        ceilingTransitionBlocks,
+        openingsDeltaShallow,
+        openingsDeltaDeep
+      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) -
       bedDepth(
         continentalRiverDist(x, z),
         depthVariation(x, z),

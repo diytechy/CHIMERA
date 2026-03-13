@@ -784,7 +784,14 @@ What's happening at -1076, 145?  Rivers banks are vertical?
 
 3 fixes:
 
-Make sure height above bank is knocked out?  Might not be occuring?
+Make sure height above bank is knocked out?  Might not be occurring?
 Add 4 bit level to river dendry output.
 Add 4 bit distance to increase in quantized elevation.
+
+Break out 3 cavities to named sampler:
+  River bed - Include bed height as function of river level.
+  Enclosed river - Include river distance as a driver of total arc height.
+  Unenclosed river - Should just be straight down to elevation?  Or maybe herp the outside to the elevation profile?
 Still no grow litchen
+Still reduce shroomlight freq
+Should I remove frozen fungi from standard dist?  Isn't that just for islands?

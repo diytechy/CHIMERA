@@ -799,7 +799,7 @@ Still reduce shroomlight freq
 Should I remove frozen fungi from standard dist?  Isn't that just for islands?
 Sakura streams shouldn't be in colder regions
 
-In eq_global_river take the high level samplers out to make them pack samplers in math\samplers\rivers.yml.  Variables should be moved as needed so that they are all sourced from rivers.yml.
+In eq_global_river take the high level sampler (terrain.sampler) out to make it a pack samplers in math\samplers\rivers.yml.  Variables should be moved as needed so that they are all sourced from rivers.yml.
 
 The intent is to break this large expression up into smaller more manageable pieces.
 
@@ -814,3 +814,4 @@ enclosedCavity
 caveCeiling
 surfaceOpenings
 bedDepth
+terrain.sampler should then exist in rivers.yml as an expression that is using the other broken out pack samplers.

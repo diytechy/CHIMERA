@@ -416,7 +416,7 @@ samplers:
     dimensions: 3
     variables: *rtv
     expression: |
-      base - y + minimumRiverBankHeight(x, z)
+      base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
     #if(y <= base + minimumRiverBankHeight(x, z),
     #  // ── Case 1: Riverbed ──
     #  -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),

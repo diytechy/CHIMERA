@@ -153,12 +153,12 @@ samplers:
   continentalRiverLevel:
     dimensions: 2
     type: EXPRESSION
-    expression: continentalDendryRivers(x,3.0,z)
+    expression: continentalDendryRivers(x,2.0,z)
     
   continentalRiverBlockDist2Uplift:
     dimensions: 2
     type: EXPRESSION
-    expression: continentalDendryRivers(x,4.0,z)
+    expression: continentalDendryRivers(x,3.0,z)
     
   riverBedDepthAtLevel:
     dimensions: 2
@@ -212,7 +212,7 @@ samplers:
   continentalRiverElev:
     dimensions: 2
     type: EXPRESSION
-    expression: (continentalDendryRivers(x,2.0,z) * terrain_base_biome_shift)
+    expression: (continentalDendryRivers(x,1.0,z) * terrain_base_biome_shift)
     #expression: elevationTerraced(x,z)
     variables:
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
@@ -416,7 +416,7 @@ samplers:
     dimensions: 3
     variables: *rtv
     expression: |
-      base -y - bedDepth(x, z)
+      base - y + minimumRiverBankHeight(x, z)
     #if(y <= base + minimumRiverBankHeight(x, z),
     #  // ── Case 1: Riverbed ──
     #  -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),

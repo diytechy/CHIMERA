@@ -20,7 +20,7 @@ locator:
   type: PATTERN
   range:
     min: ${meta.yml:ocean-level} -25
-    max: ${customization.yml:terrain-height} * 0.5
+    max: ${customization.yml:terrain-height} * 0.5 + ${customization.yml:terrain-base-y-level} 
   pattern:
     type: AND
     patterns:

@@ -851,6 +851,10 @@ How can I stop water blocks from merging but allow user to pass through?
 Make forests smaller
 Reduce bed height and variability at lower levels.
 
+CORE PROBLEM: Blue Concrete identifies locations with a single block above?  What if neighboring blocks have two higher level water blocks that combine?  Those won't be detected?  Or is the likelihood of this basically non-existent?
+
+
+
 #########################
 
 For the next update, I want to prevent water from flowing at the water surface above soul sand or blue concrete (if soulsand has not been placed yet.)  I think the trigger can work similarly for newly generated chunks as well as loading chunks that already exist:

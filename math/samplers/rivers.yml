@@ -36,6 +36,11 @@ river-terrain-variables: &rtv
   # When enclosed, a ceiling of rock is preserved above the river void.
   # The ceiling thickness ramps from 0 (shallow) to ceilingStartBlocks
   # (deep) over a transition zone.
+  ceilingMaxHeightAtRiverEdge: 5  #Maximum cave ceiling height for level 0 / continental river at edge
+  ceilingMaxHeightAtRiverCntr: 12  #Maximum cave ceiling height for level 0 / continental river at center
+  ceilingMinThicknessAtRiverEdge: 25  #Maximum cave ceiling height for level 0 / continental river at edge
+  ceilingMinThicknessAtRiverCntr: 5   #Maximum cave ceiling height for level 0 / continental river at center
+
   ceilingStartBlocks: 18          # Max ceiling thickness / delta where ceiling begins forming
   ceilingTransitionBlocks: 31     # Delta range over which ceiling grows to full thickness
   ceilingSpikeAmplitude: 18       # Max stalactite offset in blocks (noise-driven texture)
@@ -269,7 +274,7 @@ samplers:
       type: EXPRESSION
       #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
       #which is very high.
-      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)))
+      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)-1))
       variables:
         scale: $customization.yml:terrain-height
 
@@ -348,6 +353,45 @@ samplers:
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
+        
+  # Returns minimum cave ceiling height over the river width.
+  caveCeilingMinimum:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      if(continentalRiverDist(x, z) < 0, ceilingMaxHeightAtRiverEdge + 
+        (ceilingMaxHeightAtRiverCenter - ceilingMaxHeightAtRiverEdge)* max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
+        ((1 + erosionStrengthVariation(x/3, y, z/3)^2)* 0.8^continentalRiverLevel(x,z),
+        0))
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
+
+
+  # Enclosed cave mode — carves delta minus ceiling thickness,
+  # preserving a rock roof. Fades to solid at the river boundary.
+  minimumCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      lerp(continentalRiverDist(x, z),-1.0,ceilingMinThicknessAtRiverCntr,0.0,ceilingMinThicknessAtRiverEdge)
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
+        
+  # Potential ceiling thickness — the delta between terrain and cave ceiling minimum if it exists.
+  potentialCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      scale * elevationDetailed(x, z) - caveCeilingMinimum(x,z)
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
+
 
   # Returns ceiling THICKNESS (blocks of rock preserved above river).
   # 0 = no ceiling, ceilingStartBlocks = full roof.
@@ -377,7 +421,7 @@ samplers:
     variables: *rtv
     expression: |
       max(0,
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
+        max(0, scale * elevationDetailed(x, z) - caveCeilingMinimum(x, z))
         - caveCeiling(x, z)
       )
       * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
@@ -394,8 +438,7 @@ samplers:
     type: EXPRESSION
     variables: *rtv
     expression: |
-      max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
-        - (enclosedThresholdEdge + enclosedThresholdCenter * continentalRiverDist(x, z))
+      max(0, potentialCeilingThickness(X,z) - minimumCeilingThickness(x,z))
 
   # Carves the riverbed BELOW the bank height. Always present regardless
   # of whether the river is enclosed or open.
@@ -428,8 +471,8 @@ samplers:
           0,
           // Case 3: Open valley — herp from terrain down to bank
           -y + base + herp(continentalRiverDist(x, z),
-            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
+            riverBiomeActivationThreshold / 2, scale * elevationDetailed(x, z)),
+            0, minimumRiverBankHeight(x, z),
           enclosedTransitionBlocks,
           // Case 2: Enclosed cave — carve void, ceiling preserved by blending
           -y + base + minimumRiverBankHeight(x, z)

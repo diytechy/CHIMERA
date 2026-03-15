@@ -53,15 +53,10 @@ river-terrain-variables: &rtv
   openingsNoiseMin: 0.3           # Noise below this → no opening
   openingsNoiseMax: 0.6           # Noise above this → full opening shift
   # Wall fade at river boundary for enclosed caves
-  # DEPRICATED BY ELIPTICAL
-  enclosedWallFade: 0.05          # RiverDist range over which cave walls transition to solid
-
   # ─── Open channel ───────────────────────────────────────────────
   # When not enclosed, the full delta height is carved as an open valley.
   # The erosion ramps on from the outer edge inward, creating valley walls
   # that roll smoothly from terrain height down to the riverbed.
-  openChannelInner: -0.6          # RiverDist where open channel erosion reaches full height
-  openChannelOuter: -0.2          # RiverDist where open channel erosion begins (valley lip)
 
   # ─── River bed (both modes) ─────────────────────────────────────
   # The riverbed sits below the bank height with an elliptical cross-section:
@@ -331,6 +326,15 @@ samplers:
       type: OPEN_SIMPLEX_2
       frequency: 0.005
       salt: 9
+  spikes:
+    dimensions: 2
+    type: LINEAR
+    min: -1
+    max: 0.2
+    sampler:
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.08
 
   # ─── River terrain computed samplers ─────────────────────────────
   # Each former function is now a standalone sampler referencing
@@ -361,21 +365,31 @@ samplers:
     type: EXPRESSION
     variables: *rtv
     expression: |
-      if(continentalRiverDist(x, z) < 0, ceilingMaxHeightAtRiverEdge + 
-        (ceilingMinThicknessAtRiverCntr - ceilingMaxHeightAtRiverEdge)* max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
-        ((1 + erosionStrengthVariation(x/3, y, z/3)^2)* 0.8^continentalRiverLevel(x,z),
-        0))
+      if(continentalRiverDist(x, z) < 0,
+        ceilingMaxHeightAtRiverEdge +
+        (ceilingMinThicknessAtRiverCntr - ceilingMaxHeightAtRiverEdge) *
+        max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
+        (1 + erosionStrengthVariation(x/3, 0, z/3)^2) *
+        0.8^continentalRiverLevel(x, z),
+        0)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
         
   # Returns minimum cave ceiling height over the river width.
+  # Includes stalactite spikes (reduce ceiling, min 2 blocks above water)
+  # and hole sections (increase ceiling to match surface erosion).
   caveCeilingMinimumWithSpikes:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
     expression: |
-      caveCeilingMinimum(x,z)
+      max(2,
+        caveCeilingMinimum(x, z)
+        - ceilingSpikes(x, z) * ceilingSpikeAmplitude
+          * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
+      )
+      + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
@@ -462,7 +476,10 @@ samplers:
     variables: *rtv
     expression: |
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
-      * (riverBedDepthAtLevel(x,z) )
+      * riverBedDepthAtLevel(x, z)
+      * if(continentalRiverLevel(x, z) < 0.5,
+          max(0.05, 1 - max(0, -spikes(x, z))),
+          1)
 
   elevationDetailedWithHoles:
     type: EXPRESSION
@@ -470,6 +487,10 @@ samplers:
     variables: *rtv
     expression: |
       scale * elevationDetailed(x, z)
+      - herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
   # ─── River terrain sampler ─────────────────────────────────────────
   # Split into upper/lower by bank height, with enclosure detection:
   #   Case 1 (y <= bank): Riverbed erosion via bedDepth
@@ -506,10 +527,11 @@ samplers:
           enclosedFullTransitionBlocks,
           // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
           // when above the ceiling, below the original terrain, and not in an river opening.
-          minimumRiverBankHeight(x, z) + 
-          if(y> caveCeilingMinimumWithSpikes(x,z) && y<elevationDetailedWithHoles(x,z),
-          elevationDetailedWithHoles(x,z),
-          0)
+          minimumRiverBankHeight(x, z) +
+          if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
+            && y < base + elevationDetailedWithHoles(x, z),
+            elevationDetailedWithHoles(x, z),
+            0)
         )
       )
     #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)

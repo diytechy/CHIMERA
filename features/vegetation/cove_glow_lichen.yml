@@ -22,11 +22,11 @@ locator:
       amount: 1
       salt: 2913
     #In range
-    - type: SAMPLER
-      samplers:
-        type: EXPRESSION
-        expression: glowLichenRange(x,y,z)
-      threshold: 0.1
+    #- type: SAMPLER
+    #  samplers:
+    #    type: EXPRESSION
+    #    expression: glowLichenRange(x,y,z)
+    #  threshold: 0.1
     # Require either air or water
     - type: PATTERN
       range: *range

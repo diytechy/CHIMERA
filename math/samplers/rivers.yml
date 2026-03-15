@@ -473,7 +473,7 @@ RiverSupportDensity:
       #Check 1: Make sure we are below river elevation.
       #Form: For distance below
   expression: |
-    if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
+    if((continents(x,z)>-0.1 && y<(RiverElev(x,z))),
       if((y>RiverBedElev(x,z)),
         -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
         if((y<Base && y>MinRiverSupp),

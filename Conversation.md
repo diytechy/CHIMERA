@@ -844,3 +844,23 @@ I would expect the final riverTerrainSampler to be built of effectively 3 compon
 1. Transition distance and setting soulsand
 2. Soulsand getting laid in strips, should be diamond pattern
 3. Banks of river going to heaven... not intended.
+
+###################################
+
+How can I stop water blocks from merging but allow user to pass through?
+Make forests smaller
+Reduce bed height and variability at lower levels.
+
+#########################
+
+For the next update, I want to prevent water from flowing at the water surface above soul sand or blue concrete (if soulsand has not been placed yet.)  I think the trigger can work similarly for newly generated chunks as well as loading chunks that already exist:
+
+Upon chunk generation, replace both the blue concrete with soul-sand, but also place a barrier block below it, this way the pattern will be uniquely identifiable in future chunk loads compared to user placed soul-sand blocks.  When the blue concrete is found, this can also be identified as a column where a bubble column exists (x,z coordinates) when a chunk is freshly created.
+
+Upon chunk loading, also search using the same pattern as used in chunk generation, but now look for a barrier block first, followed by soulsand above.  This identifies the column where the bubble column exists (x,z coordinates) when a chunk already existed but was just loaded.
+
+Then for each column location, find the surface level (the block above water that is either air, or is is a non-source water block), and take necessary action to makes sure that specific location (x/y/z coordinate) is blocked from water flowing and blocked from new water source blocks being created.
+
+This will prevent water from flowing past the soul-sand barrier, which can create issues with rivers growing.
+
+The key piece is that this must be performed fast enough to prevent any water from flowing after the chunk loads, or else it will get past the barrier.

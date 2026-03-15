@@ -64,7 +64,7 @@ river-terrain-variables: &rtv
   # deeper than others, all scaled by the same elliptical profile.
   # IMPORTANT: This is the river bed depth for root level rivers, 
   # This is further augmented in narrower river distribution.
-  riverBedDepth: &riverBedDepth 8                # Base bed depth at river center (blocks)
+  riverBedDepth: &riverBedDepth 12                # Base bed depth at river center (blocks)
   riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
   # ─── Biome activation ──────────────────────────────────────────
@@ -165,7 +165,8 @@ samplers:
     type: EXPRESSION
     variables:
       riverBedDepth: *riverBedDepth
-    expression: riverBedDepth - continentalRiverLevel(x,z)*2
+      riverBedVariation: *riverBedVariation
+    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 3
     
   riverCeilingAtLevel:
     dimensions: 2
@@ -195,12 +196,14 @@ samplers:
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
-    #If within the soul sand distance at center of river, or half on outskirts, populate distribution.
+    #Simplified to just set soulsand at elevation change, trying to accommodate flow will not work because
+    #some rivers will generate out infinitely.
     expression: |
-      if(continentalRiverDist(x,z)<0.0 && 
-      continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
-      if((floor(x) % 2) = (floor(z) % 2),1,0),
-      0)
+      continentalRiverBlockElevShift(x,z)
+    #if(continentalRiverDist(x,z)<0.0 && 
+    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
+    #if((floor(x) % 2) = (floor(z) % 2),1,0),
+    #0)
     samplers:
       soulSandPlaceDist:
         dimensions: 2
@@ -403,7 +406,7 @@ samplers:
     variables: *rtv
     expression: |
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
-      * (riverBedDepthAtLevel(x,z) + depthVariation(x, z) * riverBedVariation)
+      * (riverBedDepthAtLevel(x,z) )
 
   # ─── River terrain sampler ─────────────────────────────────────────
   # Split into upper/lower by bank height, with enclosure detection:
@@ -416,24 +419,24 @@ samplers:
     dimensions: 3
     variables: *rtv
     expression: |
-      base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
-    #if(y <= base + minimumRiverBankHeight(x, z),
-    #  // ── Case 1: Riverbed ──
-    #  -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
+      if(y <= base + minimumRiverBankHeight(x, z),
+        // ── Case 1: Riverbed ──
+        -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
 
-    #  // ── Cases 2 & 3: Above bank, blended by enclosure ──
-    #  lerp(riverEnclosedFactor(x, z),
-    #    0,
-    #    // Case 3: Open valley — herp from terrain down to bank
-    #    -y + base + herp(continentalRiverDist(x, z),
-    #      riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-    #      riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
-    #    enclosedTransitionBlocks,
-    #    // Case 2: Enclosed cave — carve void, ceiling preserved by blending
-    #    -y + base + minimumRiverBankHeight(x, z)
-    #      - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
-    #  )
-    #)
+        // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        lerp(riverEnclosedFactor(x, z),
+          0,
+          // Case 3: Open valley — herp from terrain down to bank
+          -y + base + herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
+            riverBiomeActivationThreshold,     scale * elevationDetailed(x, z)),
+          enclosedTransitionBlocks,
+          // Case 2: Enclosed cave — carve void, ceiling preserved by blending
+          -y + base + minimumRiverBankHeight(x, z)
+            - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+        )
+      )
+    #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions

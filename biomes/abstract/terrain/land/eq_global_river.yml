@@ -18,12 +18,12 @@ terrain:
     distance: 2     # 0 = disabled (sharp edges)
     step: 2
     weight: 3.0
-  #min-density:
-  #  sampler:
-  #    dimensions: 3
-  #    type: EXPRESSION
-  #    expression: RiverSupportDensity(x,y,z)
-  #  smooth: false      # Smooth or hard
+  min-density:
+    sampler:
+      dimensions: 3
+      type: EXPRESSION
+      expression: RiverSupportDensity(x,y,z)
+    smooth: false      # Smooth or hard
   sampler:
     type: EXPRESSION
     dimensions: 3

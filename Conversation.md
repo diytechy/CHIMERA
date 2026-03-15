@@ -853,7 +853,7 @@ Reduce bed height and variability at lower levels.
 
 CORE PROBLEM: Blue Concrete identifies locations with a single block above?  What if neighboring blocks have two higher level water blocks that combine?  Those won't be detected?  Or is the likelihood of this basically non-existent?
 
-
+Make sure rivers only rise in highlands (not lowland regions?)
 
 #########################
 
@@ -868,3 +868,27 @@ Then for each column location, find the surface level (the block above water tha
 This will prevent water from flowing past the soul-sand barrier, which can create issues with rivers growing.
 
 The key piece is that this must be performed fast enough to prevent any water from flowing after the chunk loads, or else it will get past the barrier.
+
+#############################
+
+I have attempted to update the rivers.yml sampler sets for terrain generation near samples, but I am getting unclear errors around the formatting of some expressions.
+
+1. Can you find where the expression error is?  Is a parenthesis missing?  Is an "if" statement lacking 3 arguments?
+
+Perform some other updates around individual samplers:
+
+A. Please update the riverbed sampler to also reduce magnitude around spike locations (so terrain lifts up in these spots) on level 0 rivers.  (Refer to "spikes" from "RiverSamplerAlt.ymlo").
+
+B. Update "elevationDetailedWithHoles" to decrease in elevation where hole sections are found.  Holes should form only around the river bed (River distance 0)
+
+C. Update "caveCeilingMinimumWithSpikes" to also include cave spikes (where spikes should start low and come up, but no closer than 2 blocks from the river height), and also to smoothly increase in height around the same hole sections in "elevationDetailedWithHoles", this way when holes form in the ceiling they are smoothly breaking away the surface of  the cave ceiling and the above terrain.
+
+D. Do a full review of all the samplers that are now being used, especially in terrain generation (Building up riverTerrainSampler), the sampler should give full support for:
+
+D1. River bed erosion that changes depth per river level (appears operational already.)
+D2. Spikes in the riverbed that go up to but don't exceed the river surface, and only exist in level 0 rivers.
+D3. Slanting up around river beds to surrounding terrain when not enclosed.
+D4. Continued surface when river is enclosed.
+D5. Support for spikes that go down from the cave ceiling no further than blocks fromm the water height.
+D6. Support for holes in the cave ceiling that punch through the surface above.
+D7. Clean up unused variables, or consolidate where possible.

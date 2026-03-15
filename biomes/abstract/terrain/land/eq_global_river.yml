@@ -33,4 +33,6 @@ terrain:
   sampler-2d:
     type: EXPRESSION
     #Make sure general surface is above riverbed leading up to river.
+    #This omits base, assuming most sampler-2d sets are relative to base height for 
+    # consistency.
     expression: minimumRiverBankHeight(x,z)

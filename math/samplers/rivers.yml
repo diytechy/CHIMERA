@@ -30,7 +30,8 @@ river-terrain-variables: &rtv
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
   enclosedThresholdEdge: 25       # Delta (blocks) to count as enclosed at river edge (dist=0)
   enclosedThresholdCenter: 10      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
-  enclosedTransitionBlocks: 10    # Hermite blend width between open/enclosed modes (blocks)
+  enclosedFullTransitionBlocks: 10    # Hermite blend width between open/enclosed modes (blocks)
+  enclosedStrtTransitionBlocks: 5    # Hermite blend width between open/enclosed modes (blocks)
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────
   # When enclosed, a ceiling of rock is preserved above the river void.
@@ -38,8 +39,8 @@ river-terrain-variables: &rtv
   # (deep) over a transition zone.
   ceilingMaxHeightAtRiverEdge: 5  #Maximum cave ceiling height for level 0 / continental river at edge
   ceilingMaxHeightAtRiverCntr: 12  #Maximum cave ceiling height for level 0 / continental river at center
-  ceilingMinThicknessAtRiverEdge: 25  #Maximum cave ceiling height for level 0 / continental river at edge
-  ceilingMinThicknessAtRiverCntr: 5   #Maximum cave ceiling height for level 0 / continental river at center
+  ceilingMinThicknessAtRiverEdge: 8  #Maximum cave ceiling height for level 0 / continental river at edge
+  ceilingMinThicknessAtRiverCntr: 8   #Maximum cave ceiling height for level 0 / continental river at center
 
   ceilingStartBlocks: 18          # Max ceiling thickness / delta where ceiling begins forming
   ceilingTransitionBlocks: 31     # Delta range over which ceiling grows to full thickness
@@ -138,7 +139,7 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: if(continents(x,z)>0.0, elevationTerraced(x,z), 0.0)
+      expression: if(continents(x,z)>0.0 && flatness(x,z)<1.0, elevationTerraced(x,z), 0.0)
       samplers:
         elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
         continents: $math/samplers/continents.yml:samplers.continents
@@ -361,9 +362,20 @@ samplers:
     variables: *rtv
     expression: |
       if(continentalRiverDist(x, z) < 0, ceilingMaxHeightAtRiverEdge + 
-        (ceilingMaxHeightAtRiverCenter - ceilingMaxHeightAtRiverEdge)* max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
+        (ceilingMinThicknessAtRiverCntr - ceilingMaxHeightAtRiverEdge)* max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
         ((1 + erosionStrengthVariation(x/3, y, z/3)^2)* 0.8^continentalRiverLevel(x,z),
         0))
+    functions:
+      "<<":
+        - math/functions/interpolation.yml:functions
+        
+  # Returns minimum cave ceiling height over the river width.
+  caveCeilingMinimumWithSpikes:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      caveCeilingMinimum(x,z)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions
@@ -431,18 +443,19 @@ samplers:
 
   # Returns how enclosed the river is at a given (x,z).
   #   <= 0:                        fully open (surface valley)
-  #   >= enclosedTransitionBlocks:  fully enclosed (cave)
+  #   >= enclosedFullTransitionBlocks:  fully enclosed (cave)
   #   Between:                      transition zone (lerp blend)
   riverEnclosedFactor:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
     expression: |
-      max(0, potentialCeilingThickness(X,z) - minimumCeilingThickness(x,z))
+      max(0, potentialCeilingThickness(x,z) - minimumCeilingThickness(x,z))
 
   # Carves the riverbed BELOW the bank height. Always present regardless
   # of whether the river is enclosed or open.
   # Cross-section is elliptical: deepest at center, 0 at edge.
+  # Higher "Level" rivers (narrower branches) 
   bedDepth:
     dimensions: 2
     type: EXPRESSION
@@ -451,6 +464,12 @@ samplers:
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
       * (riverBedDepthAtLevel(x,z) )
 
+  elevationDetailedWithHoles:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *rtv
+    expression: |
+      scale * elevationDetailed(x, z)
   # ─── River terrain sampler ─────────────────────────────────────────
   # Split into upper/lower by bank height, with enclosure detection:
   #   Case 1 (y <= bank): Riverbed erosion via bedDepth
@@ -461,22 +480,36 @@ samplers:
     type: EXPRESSION
     dimensions: 3
     variables: *rtv
+    #The 2d sampler is located at bank height (relative to the base height), so all 3d-sampler feedback must be positioned
+    # to reach 0 intercept around the riverbed where the details are built around.
+    # -y + base + minimumRiverBankHeight(x, z) will result in 0 intercept and real world river bank.
+    # subtract from this to force negative (<0) density to bore into to the ground below the bank height (used for riverbed creation)
+    # add to this to create positive density and create terrain above the bank, which can be used for enclosed caves or transitions outside the bank
     expression: |
+      -y + base +
       if(y <= base + minimumRiverBankHeight(x, z),
         // ── Case 1: Riverbed ──
-        -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z),
+        minimumRiverBankHeight(x, z) - bedDepth(x, z),
 
         // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        //Since the 2d sampler already forces negative values above the riverbank,
+        //this only needs to add content above the bank, and only if the river is not exposed,
+        //to create the cave around the river.
         lerp(riverEnclosedFactor(x, z),
-          0,
+          enclosedStrtTransitionBlocks,
           // Case 3: Open valley — herp from terrain down to bank
-          -y + base + herp(continentalRiverDist(x, z),
-            riverBiomeActivationThreshold / 2, scale * elevationDetailed(x, z)),
-            0, minimumRiverBankHeight(x, z),
-          enclosedTransitionBlocks,
-          // Case 2: Enclosed cave — carve void, ceiling preserved by blending
-          -y + base + minimumRiverBankHeight(x, z)
-            - enclosedCavity(x, z) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+          // River distance is 0 at river edge, increases up to the threshold where it is no longer 
+          // applicable (river biome only replaced up to threshold)
+          minimumRiverBankHeight(x, z) + herp(continentalRiverDist(x, z), 
+            riverBiomeActivationThreshold / 2, 0,
+            riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
+          enclosedFullTransitionBlocks,
+          // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
+          // when above the ceiling, below the original terrain, and not in an river opening.
+          minimumRiverBankHeight(x, z) + 
+          if(y> caveCeilingMinimumWithSpikes(x,z) && y<elevationDetailedWithHoles(x,z),
+          elevationDetailedWithHoles(x,z),
+          0)
         )
       )
     #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)

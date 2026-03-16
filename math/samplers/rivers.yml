@@ -37,10 +37,10 @@ river-terrain-variables: &rtv
   # When enclosed, a ceiling of rock is preserved above the river void.
   # The ceiling thickness ramps from 0 (shallow) to ceilingStartBlocks
   # (deep) over a transition zone.
-  ceilingMaxHeightAtRiverEdge: 5  #Maximum cave ceiling height for level 0 / continental river at edge
-  ceilingMaxHeightAtRiverCntr: 12  #Maximum cave ceiling height for level 0 / continental river at center
-  ceilingMinThicknessAtRiverEdge: 8  #Maximum cave ceiling height for level 0 / continental river at edge
-  ceilingMinThicknessAtRiverCntr: 8   #Maximum cave ceiling height for level 0 / continental river at center
+  ceilingMaxHeightAtRiverEdge: 3  #Cave ceiling height at river edge (dist=0), also the minimum cave height at center
+  ceilingMaxHeightAtRiverCntr: 19  #Maximum cave ceiling height at river center (dist=-1) with full noise variation
+  ceilingMinThicknessAtRiverEdge: 5  #Minimum blocks of rock required above cave ceiling at river edge
+  ceilingMinThicknessAtRiverCntr: 5   #Minimum blocks of rock required above cave ceiling at river center
 
   ceilingStartBlocks: 18          # Max ceiling thickness / delta where ceiling begins forming
   ceilingTransitionBlocks: 31     # Delta range over which ceiling grows to full thickness
@@ -131,6 +131,7 @@ samplers:
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
+    n: 3
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -270,7 +271,10 @@ samplers:
       type: EXPRESSION
       #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
       #which is very high.
-      expression: max(scale * elevationDetailed(x, z),(continentalRiverBlockElevChange(x, z)-1))
+      #Use min so enclosed rivers reference the water level (not terrain height).
+      #For open rivers terrain ≈ riverElev so min ≈ terrain regardless.
+      #expression: min(scale * elevationDetailed(x, z), continentalRiverBlockElevChange(x, z))
+      expression: continentalRiverBlockElevChange(x, z)
       variables:
         scale: $customization.yml:terrain-height
 
@@ -367,9 +371,9 @@ samplers:
     expression: |
       if(continentalRiverDist(x, z) < 0,
         ceilingMaxHeightAtRiverEdge +
-        (ceilingMinThicknessAtRiverCntr - ceilingMaxHeightAtRiverEdge) *
+        (ceilingMaxHeightAtRiverCntr - ceilingMaxHeightAtRiverEdge) *
         max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
-        (1 + erosionStrengthVariation(x/3, 0, z/3)^2) *
+        (0.5 + 0.5 * erosionStrengthVariation(x/3, 0, z/3)) *
         0.8^continentalRiverLevel(x, z),
         0)
     functions:
@@ -407,13 +411,14 @@ samplers:
       "<<":
         - math/functions/interpolation.yml:functions
         
-  # Potential ceiling thickness — the delta between terrain and cave ceiling minimum if it exists.
+  # Potential ceiling thickness — actual rock between cave ceiling and terrain surface.
+  # terrain - bank - caveHeight = blocks of rock available for the ceiling.
   potentialCeilingThickness:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
     expression: |
-      scale * elevationDetailed(x, z) - caveCeilingMinimum(x,z)
+      scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z)
     functions:
       "<<":
         - math/functions/interpolation.yml:functions

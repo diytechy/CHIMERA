@@ -892,3 +892,13 @@ D4. Continued surface when river is enclosed.
 D5. Support for spikes that go down from the cave ceiling no further than blocks fromm the water height.
 D6. Support for holes in the cave ceiling that punch through the surface above.
 D7. Clean up unused variables, or consolidate where possible.
+
+#################################
+
+Level 0 river spikes look... okay, not sure if I like them or not, they might be more annnoying than anyhing.
+
+Water flow is still occuring past soulsand, but soul sand is not spanning the river, and it is getting located improperly.  Need to check elevation.
+
+##############################
+
+I need help to understand why rivers appear to have huge terrain spikes near the outside of rivers without any sufficient blend with surrounding terrain.

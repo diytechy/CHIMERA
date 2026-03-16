@@ -521,8 +521,8 @@ samplers:
           // Case 3: Open valley — herp from terrain down to bank
           // River distance is 0 at river edge, increases up to the threshold where it is no longer 
           // applicable (river biome only replaced up to threshold)
-          minimumRiverBankHeight(x, z) + herp(continentalRiverDist(x, z), 
-            riverBiomeActivationThreshold / 2, 0,
+            herp(continentalRiverDist(x, z), 
+            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
             riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
           enclosedFullTransitionBlocks,
           // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)

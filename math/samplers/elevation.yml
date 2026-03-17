@@ -413,13 +413,6 @@ samplers:
       max(elevationFromSpots(x,z), elevationTerraced(x,z))
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-  elevationWithRivers:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      herp(continentalRiverDist(x, z), 0.0, continentalRiverElev(x,z), 1.0, elevationWithSpots(x,z))
-    functions: $math/functions/interpolation.yml:functions
-    variables: *variables
   elevationDetailed:
     dimensions: 2
     type: CACHE
@@ -430,13 +423,9 @@ samplers:
       type: EXPRESSION
       expression: |
         noisyelevation(x,z)
-      #herp(continentalRiverDist(x,z),0.1, elevationWithRivers(x,z),1, 
-      #  noisyelevation(x,z))
       functions: $math/functions/interpolation.yml:functions
       variables: *variables
       samplers:
-        continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-        elevationWithRivers: $math/samplers/elevation.yml:samplers.elevationWithRivers
         noisyelevation:
           dimensions: 2
           type: DOMAIN_WARP

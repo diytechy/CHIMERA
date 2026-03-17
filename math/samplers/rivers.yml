@@ -65,7 +65,7 @@ river-terrain-variables: &rtv
   # deeper than others, all scaled by the same elliptical profile.
   # IMPORTANT: This is the river bed depth for root level rivers, 
   # This is further augmented in narrower river distribution.
-  riverBedDepth: &riverBedDepth 12                # Base bed depth at river center (blocks)
+  riverBedDepth: &riverBedDepth 9                # Base bed depth at river center (blocks)
   riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
   # ─── Biome activation ──────────────────────────────────────────
@@ -156,14 +156,14 @@ samplers:
     type: EXPRESSION
     expression: continentalDendryRivers(x,2.0,z)
 
-  avgRiverWidthAtLevel:
+  maxRiverWidthAtLevel:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      ((maximum_continental_river_width + minimum_continental_river_width) / 2) *
-      continentalDendryRivers(NaN,continentalRiverLevel(x,z),NaN)
+      maximum_continental_river_width *
+      continentalDendryRivers(nan_Input,continentalRiverLevel(x,z),nan_Input)
     variables:
-      minimum_continental_river_width: $customization.yml:minimum-continental-river-width
+      nan_Input: 0.0/0.0
       maximum_continental_river_width: $customization.yml:maximum-continental-river-width
 
   continentalRiverBlockDist2Uplift:
@@ -177,7 +177,7 @@ samplers:
     variables:
       riverBedDepth: *riverBedDepth
       riverBedVariation: *riverBedVariation
-    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 3
+    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 5
 
   riverCeilingAtLevel:
     dimensions: 2
@@ -500,7 +500,6 @@ samplers:
       if(y <= base + minimumRiverBankHeight(x, z),
         // ── Case 1: Riverbed ──
         minimumRiverBankHeight(x, z) - bedDepth(x, z),
-#
         // ── Cases 2 & 3: Above bank, blended by enclosure ──
         //Since the 2d sampler already forces negative values above the riverbank,
         //this only needs to add content above the bank, and only if the river is not exposed,
@@ -510,14 +509,16 @@ samplers:
           // Case 3: Open valley — herp from terrain down to bank
           // River distance is 0 at river edge, increases up to the threshold where it is no longer 
           // applicable (river biome only replaced up to threshold)
-            herp(continentalRiverDist(x, z), 
+          // Above river (<0), keep zero.
+            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z), 
             riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
+            riverBiomeActivationThreshold, max(minimumRiverBankHeight(x, z),scale * elevationDetailed(x, z)))),
           enclosedFullTransitionBlocks,
-          // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
+          // Case 2: Enclosed cave — Only start adding deltas back (to increase density)
           // when above the ceiling, below the original terrain, and not in an river opening.
+          // Outside the river border (dist>0), just add back in whatever it takes to get up to 
           minimumRiverBankHeight(x, z) +
-          if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
+          if(y > (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z))
             && y < base + elevationDetailedWithHoles(x, z),
             elevationDetailedWithHoles(x, z),
             0)
@@ -562,15 +563,15 @@ RiverSupportDensity:
       if((y>RiverBedElev(x,z)),
         -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
         if((y<Base && y>MinRiverSupp),
-          insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),(avgRiverWidthAtLevel(x,z)/2)))
+          insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),(maxRiverWidthAtLevel(x,z)/4)))
         )
        ),
       0
     )
   functions:
     insideMinimumBank:
-      arguments: [depthBelowWaterElev, absDistFromBorder, WidthAtHalfDist]
+      arguments: [depthBelowWaterElev, absDistFromBorder, ForceWallWidth]
       expression: |-
-        if(((depthBelowWaterElev>WidthAtHalfDist) && (absDistFromBorder<1)),
+        if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
           1,
-            if(absDistFromBorder*WidthAtHalfDist > depthBelowWaterElev,1,0)
+            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev,1,0)

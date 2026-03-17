@@ -8,25 +8,25 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313
-      threshold: 0.1
+      threshold: 0.3
   
 
 locator:
   type: AND
   locators:
     # Random heights
-    - type: RANDOM
-      height: &range
-        min: ${meta.yml:ocean-level} + 2
-        max: ${meta.yml:ocean-level} + 12
-      amount: 1
-      salt: 2913
+    #- type: RANDOM
+    #  height: &range
+    #    min: ${meta.yml:ocean-level} + 2
+    #    max: ${meta.yml:ocean-level} + 12
+    #  amount: 1
+    #  salt: 2913
     #In range
-    #- type: SAMPLER
-    #  samplers:
-    #    type: EXPRESSION
-    #    expression: glowLichenRange(x,y,z)
-    #  threshold: 0.1
+    - type: SAMPLER
+      samplers:
+        type: EXPRESSION
+        expression: glowLichenRange(x,y,z)
+      threshold: 0.1
     # Require either air or water
     - type: PATTERN
       range: *range

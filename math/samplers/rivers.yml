@@ -247,12 +247,14 @@ samplers:
     type: EXPRESSION
     #If between the ceiling and the river floor, allow
     expression: |
-      if(((y-worldRiverElev(x,z))<glowLichenCeiling(x,z)) && (y>worldRiverElev(x,z)),
-        -1,1)
+      if(((y-base-worldRiverElev(x,z))<glowLichenCeiling(x,z)) && (y>)worldRiverElev(x,z)+base)),
+        1,-1)
     samplers:
       noise:
         dimensions: 2
         type: POSITIVE_WHITE_NOISE
+    variables:
+      base: $customization.yml:terrain-base-y-level
         #frequency: 
 
   minimumRiverBankHeight:
@@ -569,7 +571,7 @@ RiverSupportDensity:
       #Check 1: Make sure we are below river elevation.
       #Form: For distance below
   expression: |
-    if((continents(x,z)>-0.1 && y<(RiverElev(x,z))),
+    if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
       if((y>RiverBedElev(x,z)),
         -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
         if((y<Base && y>MinRiverSupp),

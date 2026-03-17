@@ -30,8 +30,8 @@ river-terrain-variables: &rtv
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
   enclosedThresholdEdge: 25       # Delta (blocks) to count as enclosed at river edge (dist=0)
   enclosedThresholdCenter: 10      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
-  enclosedFullTransitionBlocks: 10    # Hermite blend width between open/enclosed modes (blocks)
-  enclosedStrtTransitionBlocks: 5    # Hermite blend width between open/enclosed modes (blocks)
+  enclosedFullTransitionBlocks: 1000    # Hermite blend width between open/enclosed modes (blocks)
+  enclosedStrtTransitionBlocks: 500    # Hermite blend width between open/enclosed modes (blocks)
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────
   # When enclosed, a ceiling of rock is preserved above the river void.

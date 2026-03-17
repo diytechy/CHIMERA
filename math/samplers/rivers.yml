@@ -230,11 +230,9 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
-      expression: floor(continentalRiverElev(x,z))
+      expression: floor(continentalRiverElev(x,z)*scale)
       variables:
         scale: $customization.yml:terrain-height
-        terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
     
   worldRiverElev:

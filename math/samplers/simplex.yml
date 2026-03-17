@@ -10,7 +10,7 @@ samplers:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
     int: true
-    resolution: 2
+    resolution: 4
   simplex2:
     dimensions: 2
     type: CACHE
@@ -22,7 +22,7 @@ samplers:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
     int: true
-    resolution: 2
+    resolution: 4
   simplex3:
     dimensions: 3
     type: CACHE
@@ -34,7 +34,7 @@ samplers:
         type: OPEN_SIMPLEX_2
         frequency: 0.0075
     int: true
-    resolution: 2
+    resolution: 4
   positiveWhiteNoise:
     dimensions: 2
     type: POSITIVE_WHITE_NOISE

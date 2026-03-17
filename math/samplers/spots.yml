@@ -59,7 +59,7 @@ samplers:
             distance: Euclidean
 
     int: true
-    resolution: 2
+    resolution: 4
   spotSizePercent: # Returns a random value between 0 and 1 that determines the size of the spot
     dimensions: 2
     type: CACHE
@@ -71,7 +71,7 @@ samplers:
         return: CellValue
 
     int: true
-    resolution: 2
+    resolution: 4
   spotRadius: # Returns the radius of the spot in blocks
     dimensions: 2
     type: CACHE
@@ -85,7 +85,7 @@ samplers:
         spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
 
     int: true
-    resolution: 2
+    resolution: 4
   spotAngle:
     dimensions: 2
     type: CACHE
@@ -94,7 +94,7 @@ samplers:
       return: Angle
 
     int: true
-    resolution: 2
+    resolution: 4
   nearSpot:
     dimensions: 2
     type: EXPRESSION
@@ -180,7 +180,7 @@ samplers:
           elevation: $math/samplers/elevation.yml:samplers.elevation
 
     int: true
-    resolution: 2
+    resolution: 4
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
     type: DOMAIN_WARP
@@ -230,7 +230,7 @@ samplers:
             expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
     int: true
-    resolution: 2
+    resolution: 4
   spotEdgeRadius:
     dimensions: 2
     type: EXPRESSION
@@ -285,7 +285,7 @@ samplers:
 
   #spotPlacer: -1 for oceanSpot, 0 for non-spot, 1 for landSpot
     int: true
-    resolution: 2
+    resolution: 4
   spotPlacer:
     dimensions: 2
     type: EXPRESSION

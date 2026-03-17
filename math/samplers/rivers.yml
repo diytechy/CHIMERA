@@ -76,7 +76,7 @@ samplers:
     dimensions: 2
     type: CACHE
     int: true
-    resolution: 2
+    resolution: 4
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -127,7 +127,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if((continents(x, z)<=0.1||mesaPresent(x, z)>0.0||precipitation(x, z)<-0.5), 0,  (((rawPrecipitation(x, z)+1)/2)^0.3)*1.3)
- 
+
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
@@ -144,23 +144,23 @@ samplers:
     branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability
     default-riverwidth: 30
     default-borderwidth: 50
-    
+
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
     expression: herp(continents(x,z),-0.10,1.0,0.0,continentalDendryRivers(x,0.0,z))
     functions: $math/functions/interpolation.yml:functions
-    
+
   continentalRiverLevel:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,2.0,z)
-    
+
   continentalRiverBlockDist2Uplift:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,3.0,z)
-    
+
   riverBedDepthAtLevel:
     dimensions: 2
     type: EXPRESSION
@@ -168,7 +168,7 @@ samplers:
       riverBedDepth: *riverBedDepth
       riverBedVariation: *riverBedVariation
     expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 3
-    
+
   riverCeilingAtLevel:
     dimensions: 2
     type: EXPRESSION
@@ -193,7 +193,7 @@ samplers:
       if(continentalRiverDist(x, z)<0,
         riverCeilingAtLevel(x,z),
         ceilingStartBlocks)
-  
+
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
@@ -224,17 +224,12 @@ samplers:
 
   continentalRiverBlockElevChange:
     dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: floor(continentalRiverElev(x,z)*scale)
-      variables:
-        scale: $customization.yml:terrain-height
+    type: EXPRESSION
+    expression: floor(continentalRiverElev(x,z)*scale)
+    variables:
+      scale: $customization.yml:terrain-height
 
-    
+
   worldRiverElev:
     dimensions: 2
     type: EXPRESSION
@@ -259,20 +254,15 @@ samplers:
 
   minimumRiverBankHeight:
     dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 2
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
+    type: EXPRESSION
       #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
       #which is very high.
       #Use min so enclosed rivers reference the water level (not terrain height).
       #For open rivers terrain ≈ riverElev so min ≈ terrain regardless.
       #expression: min(scale * elevationDetailed(x, z), continentalRiverBlockElevChange(x, z))
-      expression: continentalRiverBlockElevChange(x, z)
-      variables:
-        scale: $customization.yml:terrain-height
+    expression: continentalRiverBlockElevChange(x, z)
+    variables:
+      scale: $customization.yml:terrain-height
 
   continentalRiverBlockElevShift:
     dimensions: 2
@@ -311,8 +301,8 @@ samplers:
     dimensions: 2
     type: CUBIC_SPLINE
     points:
-      - { from: -1, to: 1, gradient: -2 }
-      - { from: -0.2, to: 0, gradient: 0 }
+    - {from: -1, to: 1, gradient: -2}
+    - {from: -0.2, to: 0, gradient: 0}
     sampler:
       type: CELLULAR
       distance: Euclidean
@@ -327,13 +317,18 @@ samplers:
       salt: 9
   spikes:
     dimensions: 2
-    type: LINEAR
-    min: -1
-    max: 0.2
+    type: CACHE
+    int: true
+    resolution: 4
     sampler:
-      type: CELLULAR
-      distance: Euclidean
-      frequency: 0.08
+      dimensions: 2
+      type: LINEAR
+      min: -1
+      max: 0.2
+      sampler:
+        type: CELLULAR
+        distance: Euclidean
+        frequency: 0.08
 
   # ─── River terrain computed samplers ─────────────────────────────
   # Each former function is now a standalone sampler referencing
@@ -356,8 +351,8 @@ samplers:
       )
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
-        
+      - math/functions/interpolation.yml:functions
+
   # Returns minimum cave ceiling height over the river width.
   caveCeilingMinimum:
     dimensions: 2
@@ -373,8 +368,8 @@ samplers:
         0)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
-        
+      - math/functions/interpolation.yml:functions
+
   # Returns minimum cave ceiling height over the river width.
   # Includes stalactite spikes (reduce ceiling, min 2 blocks above water)
   # and hole sections (increase ceiling to match surface erosion).
@@ -391,7 +386,7 @@ samplers:
       + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
+      - math/functions/interpolation.yml:functions
 
 
   # Enclosed cave mode — carves delta minus ceiling thickness,
@@ -404,8 +399,8 @@ samplers:
       lerp(continentalRiverDist(x, z),-1.0,ceilingMinThicknessAtRiverCntr,0.0,ceilingMinThicknessAtRiverEdge)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
-        
+      - math/functions/interpolation.yml:functions
+
   # Potential ceiling thickness — actual rock between cave ceiling and terrain surface.
   # terrain - bank - caveHeight = blocks of rock available for the ceiling.
   potentialCeilingThickness:
@@ -416,7 +411,7 @@ samplers:
       scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
+      - math/functions/interpolation.yml:functions
 
 
   # Returns ceiling THICKNESS (blocks of rock preserved above river).
@@ -437,28 +432,10 @@ samplers:
       )
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
+      - math/functions/interpolation.yml:functions
 
   # Enclosed cave mode — carves delta minus ceiling thickness,
   # preserving a rock roof. Fades to solid at the river boundary.
-  enclosedCavity:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *rtv
-    expression: |
-      max(0,
-        max(0, scale * elevationDetailed(x, z) - caveCeilingMinimum(x, z))
-        - caveCeiling(x, z)
-      )
-      * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
-    functions:
-      "<<":
-        - math/functions/interpolation.yml:functions
-
-  # Returns how enclosed the river is at a given (x,z).
-  #   <= 0:                        fully open (surface valley)
-  #   >= enclosedFullTransitionBlocks:  fully enclosed (cave)
-  #   Between:                      transition zone (lerp blend)
   riverEnclosedFactor:
     dimensions: 2
     type: EXPRESSION
@@ -490,7 +467,7 @@ samplers:
       - herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
+      - math/functions/interpolation.yml:functions
   # ─── River terrain sampler ─────────────────────────────────────────
   # Split into upper/lower by bank height, with enclosure detection:
   #   Case 1 (y <= bank): Riverbed erosion via bedDepth
@@ -537,7 +514,7 @@ samplers:
     #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
     functions:
       "<<":
-        - math/functions/interpolation.yml:functions
+      - math/functions/interpolation.yml:functions
 
 RiverSupportDensity:
   dimensions: 3
@@ -555,7 +532,7 @@ RiverSupportDensity:
       dimensions: 2
       type: EXPRESSION
       expression: Base+continentalRiverBlockElevChange(x,z)
-    RiverBedElev: 
+    RiverBedElev:
       dimensions: 2
       type: EXPRESSION
       variables:
@@ -582,8 +559,8 @@ RiverSupportDensity:
     )
   functions:
     insideMinimumBank:
-      arguments: [ depthBelowWaterElev, absDistFromBorder, WidthAtHalfDist ]
-      expression: |
+      arguments: [depthBelowWaterElev, absDistFromBorder, WidthAtHalfDist]
+      expression: |-
         if(((depthBelowWaterElev>WidthAtHalfDist) && (absDistFromBorder<1)),
           1,
             if(absDistFromBorder*WidthAtHalfDist > depthBelowWaterElev,1,0)

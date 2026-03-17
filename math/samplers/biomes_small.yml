@@ -46,7 +46,7 @@ samplers:
     dimensions: 2
     type: CACHE
     int: true
-    resolution: 2
+    resolution: 4
     sampler:
       <<: *outerWarpSmall
       sampler:
@@ -95,13 +95,13 @@ samplers:
         offset_scale: $customization.yml:terrain-base-biome-shift
 
     int: true
-    resolution: 2
+    resolution: 4
 
   BiomeShapeOceanValue:
     dimensions: 2
     type: CACHE
     int: true
-    resolution: 2
+    resolution: 4
     sampler:
       <<: *outerWarpSmall
       sampler:

@@ -103,7 +103,7 @@ samplers:
               salt: 1
               frequency: (1/5000)
     int: true
-    resolution: 2
+    resolution: 4
   blotSpots:
     dimensions: 2
     type: EXPRESSION

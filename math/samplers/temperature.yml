@@ -38,4 +38,4 @@ samplers:
         elevation: $math/samplers/elevation.yml:samplers.elevation
         rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature
     int: true
-    resolution: 2
+    resolution: 4

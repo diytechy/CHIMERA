@@ -78,7 +78,7 @@ samplers:
     dimensions: 2
     type: CACHE
     int: true
-    resolution: 2
+    resolution: 4
     sampler:
       dimensions: 2
       type: EXPRESSION

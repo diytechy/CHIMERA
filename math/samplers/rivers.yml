@@ -185,12 +185,14 @@ samplers:
     variables: *rtv
     #When inside river boundary, set the ceiling as a function of the river level
     #(lower ceiling for higher level / smaller river branches), otherwise default
-    #to the half level.
+    #to 0.
     expression: |
       if(continentalRiverDist(x, z)<0,
+        //Note subtraction of transition blocks since distance is actually negative
+        // resulting in raise toward center.
         (ceilingStartBlocks - ceilingTransitionBlocks*continentalRiverDist(x, z))*
           (0.8^continentalRiverLevel(x,z)),
-        ceilingStartBlocks/2)
+        0)
 
   glowLichenCeiling:
     dimensions: 2
@@ -518,10 +520,13 @@ samplers:
           // when above the ceiling, below the original terrain, and not in an river opening.
           // Outside the river border (dist>0), just add back in whatever it takes to get up to 
           minimumRiverBankHeight(x, z) +
-          if(y > (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z))
-            && y < base + elevationDetailedWithHoles(x, z),
+          if((y > (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z))) &&
+            (y < (base + elevationDetailedWithHoles(x, z))) &&
+            continentalRiverDist(x, z)<=0.0,
+            //Within the river, above the ceiling height.
             elevationDetailedWithHoles(x, z),
-            0)
+            //Otherwise, pure elevation
+            elevationDetailed(x, z))
         )
       )
     functions:

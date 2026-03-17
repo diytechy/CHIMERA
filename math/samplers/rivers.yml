@@ -242,7 +242,7 @@ samplers:
     type: EXPRESSION
     #If between the ceiling and the river floor, allow
     expression: |
-      if(((y-base-worldRiverElev(x,z))<glowLichenCeiling(x,z)) && (y>)worldRiverElev(x,z)+base)),
+      if(y>(worldRiverElev(x,z)+base),
         1,-1)
     samplers:
       noise:

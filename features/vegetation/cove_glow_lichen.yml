@@ -11,6 +11,10 @@ distributor:
       threshold: 0.3
   
 
+height: &range
+  min: ${meta.yml:ocean-level} + 2
+  max: ${meta.yml:ocean-level} + 112
+  
 locator:
   type: AND
   locators:

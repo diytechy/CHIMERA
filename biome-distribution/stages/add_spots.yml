@@ -12,7 +12,7 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      - volcano: 2
+      - volcano: 3
       - mesa: 1
       - sinkhole: 1
     sampler:
@@ -23,7 +23,7 @@ stages:
   - type: REPLACE
     from: _ocean_spot
     to:
-      - volcano: 1
+      - volcano: 2
       - mesa: 1
     sampler:
       type: EXPRESSION
@@ -36,7 +36,7 @@ stages:
       - active-volcano: 1
     sampler:
       type: EXPRESSION
-      expression: volcanoActivity(x, z)
+      expression: spotSizePercent(x, z)*2-1
 
   - type: REPLACE
     from: extinct-volcano
@@ -45,7 +45,7 @@ stages:
       # - crater-lake: 1 # Crater lakes are disabled until a good method of adding fluid is implemented
     sampler:
       type: EXPRESSION
-      expression: spotEdgeRadiusPercent(x, z)*2-1
+      expression: spotSizePercent(x, z)*2-1
 
   - type: REPLACE
     from: active-volcano
@@ -54,7 +54,7 @@ stages:
       - PRISMATIC_SPRING: 1
     sampler:
       type: EXPRESSION
-      expression: spotEdgeRadiusPercent(x, z)*2-1
+      expression: spotSizePercent(x, z)*2-1
 
   - type: BORDER
     from: live-volcano

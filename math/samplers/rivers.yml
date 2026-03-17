@@ -484,33 +484,34 @@ samplers:
     # subtract from this to force negative (<0) density to bore into to the ground below the bank height (used for riverbed creation)
     # add to this to create positive density and create terrain above the bank, which can be used for enclosed caves or transitions outside the bank
     expression: |
-      -y + base +
-      if(y <= base + minimumRiverBankHeight(x, z),
-        // ── Case 1: Riverbed ──
-        minimumRiverBankHeight(x, z) - bedDepth(x, z),
-
-        // ── Cases 2 & 3: Above bank, blended by enclosure ──
-        //Since the 2d sampler already forces negative values above the riverbank,
-        //this only needs to add content above the bank, and only if the river is not exposed,
-        //to create the cave around the river.
-        lerp(riverEnclosedFactor(x, z),
-          enclosedStrtTransitionBlocks,
-          // Case 3: Open valley — herp from terrain down to bank
-          // River distance is 0 at river edge, increases up to the threshold where it is no longer 
-          // applicable (river biome only replaced up to threshold)
-            herp(continentalRiverDist(x, z), 
-            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
-          enclosedFullTransitionBlocks,
-          // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
-          // when above the ceiling, below the original terrain, and not in an river opening.
-          minimumRiverBankHeight(x, z) +
-          if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
-            && y < base + elevationDetailedWithHoles(x, z),
-            elevationDetailedWithHoles(x, z),
-            0)
-        )
-      )
+      -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z)
+    #-y + base + 
+    #if(y <= base + minimumRiverBankHeight(x, z),
+    #  // ── Case 1: Riverbed ──
+    #  minimumRiverBankHeight(x, z) - bedDepth(x, z),
+#
+    #  // ── Cases 2 & 3: Above bank, blended by enclosure ──
+    #  //Since the 2d sampler already forces negative values above the riverbank,
+    #  //this only needs to add content above the bank, and only if the river is not exposed,
+    #  //to create the cave around the river.
+    #  lerp(riverEnclosedFactor(x, z),
+    #    enclosedStrtTransitionBlocks,
+    #    // Case 3: Open valley — herp from terrain down to bank
+    #    // River distance is 0 at river edge, increases up to the threshold where it is no longer 
+    #    // applicable (river biome only replaced up to threshold)
+    #      herp(continentalRiverDist(x, z), 
+    #      riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
+    #      riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
+    #    enclosedFullTransitionBlocks,
+    #    // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
+    #    // when above the ceiling, below the original terrain, and not in an river opening.
+    #    minimumRiverBankHeight(x, z) +
+    #    if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
+    #      && y < base + elevationDetailedWithHoles(x, z),
+    #      elevationDetailedWithHoles(x, z),
+    #      0)
+    #  )
+    #)
     #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
     functions:
       "<<":

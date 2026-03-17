@@ -156,6 +156,16 @@ samplers:
     type: EXPRESSION
     expression: continentalDendryRivers(x,2.0,z)
 
+  avgRiverWidthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      ((maximum_continental_river_width + minimum_continental_river_width) / 2) *
+      continentalDendryRivers(NaN,continentalRiverLevel(x,z),NaN)
+    variables:
+      minimum_continental_river_width: $customization.yml:minimum-continental-river-width
+      maximum_continental_river_width: $customization.yml:maximum-continental-river-width
+
   continentalRiverBlockDist2Uplift:
     dimensions: 2
     type: EXPRESSION
@@ -483,36 +493,36 @@ samplers:
     # -y + base + minimumRiverBankHeight(x, z) will result in 0 intercept and real world river bank.
     # subtract from this to force negative (<0) density to bore into to the ground below the bank height (used for riverbed creation)
     # add to this to create positive density and create terrain above the bank, which can be used for enclosed caves or transitions outside the bank
+    # For a simple unenclosed space:
+    #-y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z)
     expression: |
-      -y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z)
-    #-y + base + 
-    #if(y <= base + minimumRiverBankHeight(x, z),
-    #  // ── Case 1: Riverbed ──
-    #  minimumRiverBankHeight(x, z) - bedDepth(x, z),
+      -y + base + 
+      if(y <= base + minimumRiverBankHeight(x, z),
+        // ── Case 1: Riverbed ──
+        minimumRiverBankHeight(x, z) - bedDepth(x, z),
 #
-    #  // ── Cases 2 & 3: Above bank, blended by enclosure ──
-    #  //Since the 2d sampler already forces negative values above the riverbank,
-    #  //this only needs to add content above the bank, and only if the river is not exposed,
-    #  //to create the cave around the river.
-    #  lerp(riverEnclosedFactor(x, z),
-    #    enclosedStrtTransitionBlocks,
-    #    // Case 3: Open valley — herp from terrain down to bank
-    #    // River distance is 0 at river edge, increases up to the threshold where it is no longer 
-    #    // applicable (river biome only replaced up to threshold)
-    #      herp(continentalRiverDist(x, z), 
-    #      riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-    #      riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
-    #    enclosedFullTransitionBlocks,
-    #    // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
-    #    // when above the ceiling, below the original terrain, and not in an river opening.
-    #    minimumRiverBankHeight(x, z) +
-    #    if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
-    #      && y < base + elevationDetailedWithHoles(x, z),
-    #      elevationDetailedWithHoles(x, z),
-    #      0)
-    #  )
-    #)
-    #base - y + minimumRiverBankHeight(x, z) - bedDepth(x, z)
+        // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        //Since the 2d sampler already forces negative values above the riverbank,
+        //this only needs to add content above the bank, and only if the river is not exposed,
+        //to create the cave around the river.
+        lerp(riverEnclosedFactor(x, z),
+          enclosedStrtTransitionBlocks,
+          // Case 3: Open valley — herp from terrain down to bank
+          // River distance is 0 at river edge, increases up to the threshold where it is no longer 
+          // applicable (river biome only replaced up to threshold)
+            herp(continentalRiverDist(x, z), 
+            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
+            riverBiomeActivationThreshold, scale * elevationDetailed(x, z)),
+          enclosedFullTransitionBlocks,
+          // Case 2: Enclosed cave — carve void, only start adding above blocks back (to increase density)
+          // when above the ceiling, below the original terrain, and not in an river opening.
+          minimumRiverBankHeight(x, z) +
+          if(y > base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)
+            && y < base + elevationDetailedWithHoles(x, z),
+            elevationDetailedWithHoles(x, z),
+            0)
+        )
+      )
     functions:
       "<<":
       - math/functions/interpolation.yml:functions
@@ -528,7 +538,6 @@ RiverSupportDensity:
     terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
     riverBedDepth: 8
     AvgWidestRiverHalfWidth: (${customization.yml:minimum-continental-river-width} + ${customization.yml:maximum-continental-river-width})/4
-  samplers:
     RiverElev:
       dimensions: 2
       type: EXPRESSION
@@ -553,9 +562,9 @@ RiverSupportDensity:
       if((y>RiverBedElev(x,z)),
         -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
         if((y<Base && y>MinRiverSupp),
-          insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),AvgWidestRiverHalfWidth))
+          insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),(avgRiverWidthAtLevel(x,z)/2)))
         )
-      ),
+       ),
       0
     )
   functions:

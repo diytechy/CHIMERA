@@ -2,7 +2,10 @@ id: SINKHOLE_FROZEN
 type: BIOME
 vanilla: minecraft:snowy_plains
 color: $biomes/colors.yml:SNOWY_PLAINS
-extends: [ SINKHOLE_BASE ]
+extends:
+  - SINKHOLE_BASE
+  - DEPOSITS_DEFAULT
+  - ORES_DEFAULT
 
 slant:
   - threshold: 0.5

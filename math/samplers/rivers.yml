@@ -131,7 +131,7 @@ samplers:
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
-    n: 3
+    #n: 3 Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     sampler:
       dimensions: 2
       type: EXPRESSION

@@ -1,133 +1,133 @@
 #ores
 
 lapis:
-  averageCountPerChunk: 2
+  averageCountPerChunk: 3
   salt: 3542
   range:
     min: -32
     max: 32
 
 lapis-uniform:
-  averageCountPerChunk: 4
+  averageCountPerChunk: 6
   salt: 5329
   range:
     min: -64
     max: 64
 
 diamond:
-  averageCountPerChunk: 6
+  averageCountPerChunk: 9
   salt: 1032
   range:
     min: -144
     max: 16
 
 diamond-high:
-  averageCountPerChunk: 28
+  averageCountPerChunk: 35
   salt: 433535999
   range:
     min: -64
     max: 16
 
 iron:
-  averageCountPerChunk: 10
+  averageCountPerChunk: 15
   salt: 6921
   range:
     min: -24
     max: 56
 
 iron-uniform:
-  averageCountPerChunk: 10
+  averageCountPerChunk: 15
   salt: 2013
   range:
     min: -64
     max: 72
 
 iron-high:
-  averageCountPerChunk: 90
+  averageCountPerChunk: 135
   salt: 2031
   range:
     min: 80
     max: 384
 
 copper:
-  averageCountPerChunk: 16
+  averageCountPerChunk: 24
   salt: 2932
   range:
     min: -16
     max: 112
 
 redstone:
-  averageCountPerChunk: 8
+  averageCountPerChunk: 12
   salt: 7019
   range:
     min: -96
     max: -32
 
 redstone-uniform:
-  averageCountPerChunk: 4
+  averageCountPerChunk: 6
   salt: 1923
   range:
     min: -64
     max: 16
 
 redstone-high:
-  averageCountPerChunk: 28
+  averageCountPerChunk: 42
   salt: 236245
   range:
     min: -64
     max: 16
 
 coal:
-  averageCountPerChunk: 10
+  averageCountPerChunk: 15
   salt: 1068
   range:
     min: 0
     max: 192
 
 coal-uniform:
-  averageCountPerChunk: 15
+  averageCountPerChunk: 21
   salt: 7012
   range:
     min: 136
     max: 319
 
 coal-high:
-  averageCountPerChunk: 60
+  averageCountPerChunk: 90
   salt: 233333466922420
   range:
     min: -64
     max: 319
 
 gold:
-  averageCountPerChunk: 4
+  averageCountPerChunk: 6
   salt: 5912
   range:
     min: -64
     max: 32
 
 gold-uniform:
-  averageCountPerChunk: 1/2
+  averageCountPerChunk: 3/4
   salt: 3313
   range:
     min: -64
     max: -48
     
 gold-high:
-  averageCountPerChunk: 60
+  averageCountPerChunk: 90
   salt: 225555236969
   range:
     min: -64
     max: 319
 
 emerald:
-  averageCountPerChunk: 100
+  averageCountPerChunk: 150
   salt: 5091
   range:
     min: -16
     max: 480
 
 emerald-high:
-  averageCountPerChunk: 300
+  averageCountPerChunk: 450
   salt: 509133696969420
   range:
     min: -16

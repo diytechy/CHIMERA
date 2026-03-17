@@ -12,8 +12,8 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      - volcano: 1
-      #- mesa: 1
+      - volcano: 2
+      - mesa: 1
       - sinkhole: 1
     sampler:
       type: EXPRESSION
@@ -32,7 +32,7 @@ stages:
   - type: REPLACE
     from: volcano
     to:
-      #- extinct-volcano: 5
+      - extinct-volcano: 2
       - active-volcano: 1
     sampler:
       type: EXPRESSION
@@ -50,7 +50,7 @@ stages:
   - type: REPLACE
     from: active-volcano
     to:
-      - live-volcano: 4
+      - live-volcano: 2
       - PRISMATIC_SPRING: 1
     sampler:
       type: EXPRESSION

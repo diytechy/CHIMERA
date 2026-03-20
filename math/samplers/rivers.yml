@@ -47,8 +47,8 @@ river-terrain-variables: &rtv
   ceilingSpikeAmplitude: 18       # Max stalactite offset in blocks (noise-driven texture)
   # surfaceOpenings thresholds — at shallow deltas, noise can force the
   # cave open even when it would otherwise be enclosed
-  openingsDeltaShallow: 72        # Delta below which openings noise is fully active
-  openingsDeltaDeep: 108          # Delta above which openings noise has no effect
+  openingsDeltaShallow: 7        # Delta below which openings noise is fully active
+  openingsDeltaDeep: 15          # Delta above which openings noise has no effect
   # Openings noise thresholds — controls which areas can force-open caves
   openingsNoiseMin: 0.3           # Noise below this → no opening
   openingsNoiseMax: 0.6           # Noise above this → full opening shift
@@ -131,7 +131,7 @@ samplers:
   continentalDendryRivers:
     dimensions: 3
     type: DENDRY
-    #n: 3 Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
+    n: 3 Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -237,7 +237,7 @@ samplers:
   continentalRiverBlockElevChange:
     dimensions: 2
     type: EXPRESSION
-    expression: floor(continentalRiverElev(x,z)*scale)
+    expression: max(floor(continentalRiverElev(x,z)*scale),0)
     variables:
       scale: $customization.yml:terrain-height
 
@@ -272,7 +272,7 @@ samplers:
       #Use min so enclosed rivers reference the water level (not terrain height).
       #For open rivers terrain ≈ riverElev so min ≈ terrain regardless.
       #expression: min(scale * elevationDetailed(x, z), continentalRiverBlockElevChange(x, z))
-    expression: continentalRiverBlockElevChange(x, z)
+    expression: max(continentalRiverBlockElevChange(x, z)-2,0)
     variables:
       scale: $customization.yml:terrain-height
 

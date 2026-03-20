@@ -28,27 +28,24 @@ river-terrain-variables: &rtv
   #   At center (dist=-1): threshold = 40 blocks overhead → enclosed
   # Result: shallow rivers fully open, moderate rivers open at center with
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
-  enclosedThresholdEdge: 25       # Delta (blocks) to count as enclosed at river edge (dist=0)
-  enclosedThresholdCenter: 10      # Negative delta to add on at river center (dist=-1), to attempt to guarantee support for terrain going over river.
-  enclosedFullTransitionBlocks: 1000    # Hermite blend width between open/enclosed modes (blocks)
-  enclosedStrtTransitionBlocks: 500    # Hermite blend width between open/enclosed modes (blocks)
+  enclosedFullTransitionBlocks: 10    # potentialCeiling excess (blocks) at which cave is fully enclosed
+  enclosedStrtTransitionBlocks: 0     # potentialCeiling excess (blocks) at which enclosure blending begins
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────
   # When enclosed, a ceiling of rock is preserved above the river void.
-  # The ceiling thickness ramps from 0 (shallow) to ceilingStartBlocks
-  # (deep) over a transition zone.
+  # caveCeilingMinimum defines the minimum void height; enclosure triggers
+  # when potentialCeilingThickness exceeds minimumCeilingThickness.
   ceilingMaxHeightAtRiverEdge: 3  #Cave ceiling height at river edge (dist=0), also the minimum cave height at center
   ceilingMaxHeightAtRiverCntr: 19  #Maximum cave ceiling height at river center (dist=-1) with full noise variation
   ceilingMinThicknessAtRiverEdge: 5  #Minimum blocks of rock required above cave ceiling at river edge
   ceilingMinThicknessAtRiverCntr: 5   #Minimum blocks of rock required above cave ceiling at river center
 
-  ceilingStartBlocks: 18          # Max ceiling thickness / delta where ceiling begins forming
-  ceilingTransitionBlocks: 31     # Delta range over which ceiling grows to full thickness
   ceilingSpikeAmplitude: 18       # Max stalactite offset in blocks (noise-driven texture)
-  # surfaceOpenings thresholds — at shallow deltas, noise can force the
-  # cave open even when it would otherwise be enclosed
-  openingsDeltaShallow: 7        # Delta below which openings noise is fully active
-  openingsDeltaDeep: 15          # Delta above which openings noise has no effect
+  # surfaceOpenings thresholds — when potentialCeilingThickness is below
+  # openingsDeltaShallow, openings noise can force the cave open.
+  # Above openingsDeltaDeep the rock is thick enough that holes never form.
+  openingsDeltaShallow: 7        # Ceiling thickness below which openings noise is fully active
+  openingsDeltaDeep: 15          # Ceiling thickness above which openings noise has no effect
   # Openings noise thresholds — controls which areas can force-open caves
   openingsNoiseMin: 0.3           # Noise below this → no opening
   openingsNoiseMax: 0.6           # Noise above this → full opening shift
@@ -185,11 +182,11 @@ samplers:
     variables: *rtv
     #Defines the reference height for glow lichen placement based on minimum cave void height.
     #Inside river: uses caveCeilingMinimum (includes level-based scaling for narrower branches).
-    #Outside river: defaults to ceilingStartBlocks as a fixed reference.
+    #Outside river: defaults to ceilingMaxHeightAtRiverCntr as the maximum possible void height.
     expression: |
       if(continentalRiverDist(x, z)<0,
         caveCeilingMinimum(x,z),
-        ceilingStartBlocks)
+        ceilingMaxHeightAtRiverCntr)
 
   RiverSoulsandLocations:
     dimensions: 2
@@ -331,16 +328,16 @@ samplers:
   # Each former function is now a standalone sampler referencing
   # other pack samplers and *rtv variables directly.
 
-  # Returns the opening shift for shallow deltas.
-  # At delta < openingsDeltaShallow: openings noise is fully active.
-  # At delta > openingsDeltaDeep: no effect.
+  # Returns the opening shift for thin ceilings.
+  # At potentialCeilingThickness < openingsDeltaShallow: openings noise is fully active.
+  # At potentialCeilingThickness > openingsDeltaDeep: no effect (rock is thick enough).
   surfaceOpenings:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
     expression: |
       herp(
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)),
+        potentialCeilingThickness(x, z),
         openingsDeltaShallow,
         herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
         openingsDeltaDeep,
@@ -410,26 +407,6 @@ samplers:
       "<<":
       - math/functions/interpolation.yml:functions
 
-
-  # Returns ceiling THICKNESS (blocks of rock preserved above river).
-  # 0 = no ceiling, ceilingStartBlocks = full roof.
-  # ceilingSpikes (stalactite noise) and surfaceOpenings reduce
-  # the effective delta, making the cave easier to stay open.
-  caveCeiling:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *rtv
-    expression: |
-      herp(
-        max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
-          - ceilingSpikes(x, z) * -ceilingSpikeAmplitude
-          - surfaceOpenings(x, z),
-        ceilingStartBlocks, 0,
-        ceilingStartBlocks + ceilingTransitionBlocks, ceilingStartBlocks
-      )
-    functions:
-      "<<":
-      - math/functions/interpolation.yml:functions
 
   # Enclosed cave mode — carves delta minus ceiling thickness,
   # preserving a rock roof. Fades to solid at the river boundary.

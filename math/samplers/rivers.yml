@@ -179,31 +179,16 @@ samplers:
       riverBedVariation: *riverBedVariation
     expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 5
 
-  riverCeilingAtLevel:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *rtv
-    #When inside river boundary, set the ceiling as a function of the river level
-    #(lower ceiling for higher level / smaller river branches), otherwise default
-    #to 0.
-    expression: |
-      if(continentalRiverDist(x, z)<0,
-        //Note subtraction of transition blocks since distance is actually negative
-        // resulting in raise toward center.
-        (ceilingStartBlocks - ceilingTransitionBlocks*continentalRiverDist(x, z))*
-          (0.8^continentalRiverLevel(x,z)),
-        0)
-
   glowLichenCeiling:
     dimensions: 2
     type: EXPRESSION
     variables: *rtv
-    #When inside river boundary, set the ceiling as a function of the river level
-    #(lower ceiling for higher level / smaller river branches), otherwise default
-    #to the half level.
+    #Defines the reference height for glow lichen placement based on minimum cave void height.
+    #Inside river: uses caveCeilingMinimum (includes level-based scaling for narrower branches).
+    #Outside river: defaults to ceilingStartBlocks as a fixed reference.
     expression: |
       if(continentalRiverDist(x, z)<0,
-        riverCeilingAtLevel(x,z),
+        caveCeilingMinimum(x,z),
         ceilingStartBlocks)
 
   RiverSoulsandLocations:
@@ -392,7 +377,7 @@ samplers:
     expression: |
       max(2,
         caveCeilingMinimum(x, z)
-        - ceilingSpikes(x, z) * ceilingSpikeAmplitude
+        + ceilingSpikes(x, z) * ceilingSpikeAmplitude
           * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
       )
       + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)

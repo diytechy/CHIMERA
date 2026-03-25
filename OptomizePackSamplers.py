@@ -27,7 +27,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 PACK_ROOT = Path(__file__).parent
 PACK_YML = PACK_ROOT / "pack.yml"
-CACHE_THRESHOLD = 3        # wrap in CACHE if combined usages exceed this value
+CACHE_THRESHOLD = 300        # wrap in CACHE if combined usages exceed this value
 
 
 # ---------------------------------------------------------------------------

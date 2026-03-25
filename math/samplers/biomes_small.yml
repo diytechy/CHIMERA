@@ -43,19 +43,14 @@ _innerWarpSmall: &innerWarpSmall
 
 samplers:
   BiomeShapeLandmassValue:
-    dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 4
+    <<: *outerWarpSmall
     sampler:
-      <<: *outerWarpSmall
+      <<: *midWarpSmall
       sampler:
-        <<: *midWarpSmall
+        <<: *innerWarpSmall
         sampler:
-          <<: *innerWarpSmall
-          sampler:
-            <<: *landmassShape
-            return: CellValue
+          <<: *landmassShape
+          return: CellValue
 
   BiomeShapeLandmassTemperature:
     <<: *outerWarpSmall
@@ -82,35 +77,24 @@ samplers:
           salt-lookup: false
 
   BiomeShapeLandmassBaseOffset:
+    type: EXPRESSION
     dimensions: 2
-    type: CACHE
-    sampler:
-      type: EXPRESSION
-      dimensions: 2
-      expression: max(elevation(x,z) * offset_scale * land_scale * 1.5, 0)
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
-      variables:
-        land_scale: $customization.yml:terrain-height
-        offset_scale: $customization.yml:terrain-base-biome-shift
-
-    int: true
-    resolution: 4
+    expression: max(elevation(x,z) * offset_scale * land_scale * 1.5, 0)
+    samplers:
+      elevation: $math/samplers/elevation.yml:samplers.elevation
+    variables:
+      land_scale: $customization.yml:terrain-height
+      offset_scale: $customization.yml:terrain-base-biome-shift
 
   BiomeShapeOceanValue:
-    dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 4
+    <<: *outerWarpSmall
     sampler:
-      <<: *outerWarpSmall
+      <<: *midWarpSmall
       sampler:
-        <<: *midWarpSmall
+        <<: *innerWarpSmall
         sampler:
-          <<: *innerWarpSmall
-          sampler:
-            <<: *oceanShape
-            return: CellValue
+          <<: *oceanShape
+          return: CellValue
 
   BiomeShapeOceanTemperature:
     <<: *outerWarpSmall

@@ -74,36 +74,31 @@ samplers:
       scale: $customization.yml:continental-scale
   continents:
     dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        max(
-          sampler(x / scale / globalScale, z / scale / globalScale),
-          spawnIsland(x, z)
-        )
-      variables:
-        globalScale: $customization.yml:global-scale
-        scale: $customization.yml:continental-scale
-      samplers:
-        spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-        sampler:
-          dimensions: 2
-          type: DOMAIN_WARP
-          amplitude: 1500
-          sampler: $math/samplers/continents.yml:samplers.continental_landmass
-          warp:
-            type: RIDGED
-            lacunarity: 3
-            gain: 0.45
-            octaves: 4
-            sampler:
-              type: OPEN_SIMPLEX_2
-              salt: 1
-              frequency: (1/5000)
-    int: true
-    resolution: 4
+    type: EXPRESSION
+    expression: |
+      max(
+        sampler(x / scale / globalScale, z / scale / globalScale),
+        spawnIsland(x, z)
+      )
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+    samplers:
+      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 1500
+        sampler: $math/samplers/continents.yml:samplers.continental_landmass
+        warp:
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.45
+          octaves: 4
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 1
+            frequency: (1/5000)
   blotSpots:
     dimensions: 2
     type: EXPRESSION

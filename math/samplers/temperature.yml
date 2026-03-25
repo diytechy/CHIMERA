@@ -25,17 +25,12 @@ samplers:
 
   temperature:
     dimensions: 2
-    type: CACHE
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: rawTemperature(x, z) - lerp(elevation(x, z), lapseStart, 0, 1, lapseRate)
-      functions: $math/functions/interpolation.yml:functions
-      variables:
-        lapseRate: $customization.yml:temperature-altitude-lapse-rate
-        lapseStart: $customization.yml:temperature-altitude-lapse-start
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
-        rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature
-    int: true
-    resolution: 4
+    type: EXPRESSION
+    expression: rawTemperature(x, z) - lerp(elevation(x, z), lapseStart, 0, 1, lapseRate)
+    functions: $math/functions/interpolation.yml:functions
+    variables:
+      lapseRate: $customization.yml:temperature-altitude-lapse-rate
+      lapseStart: $customization.yml:temperature-altitude-lapse-start
+    samplers:
+      elevation: $math/samplers/elevation.yml:samplers.elevation
+      rawTemperature: $math/samplers/temperature.yml:samplers.rawTemperature

@@ -71,23 +71,18 @@ river-terrain-variables: &rtv
 samplers:
   riverSampler:
     dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 4
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        if(continentalRiverDist(x,z)>=1,
-          -1,
-          if(continentalRiverDist(x,z)<=riverBiomeActivationThreshold,
-            1,
-            -0.25
-          )
+    type: EXPRESSION
+    expression: |
+      if(continentalRiverDist(x,z)>=1,
+        -1,
+        if(continentalRiverDist(x,z)<=riverBiomeActivationThreshold,
+          1,
+          -0.25
         )
-      variables: *variables
-      samplers:
-        continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      )
+    variables: *variables
+    samplers:
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
 
 ############# DENDRY BASED RIVER IMPLEMENTATION BELOW ##############
 
@@ -177,18 +172,6 @@ samplers:
       riverBedVariation: *riverBedVariation
     expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 5
 
-  glowLichenCeiling:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *rtv
-    #Defines the reference height for glow lichen placement based on minimum cave void height.
-    #Inside river: uses caveCeilingMinimum (includes level-based scaling for narrower branches).
-    #Outside river: defaults to ceilingMaxHeightAtRiverCntr as the maximum possible void height.
-    expression: |
-      if(continentalRiverDist(x, z)<0,
-        caveCeilingMinimum(x,z),
-        ceilingMaxHeightAtRiverCntr)
-
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
@@ -231,7 +214,7 @@ samplers:
     expression: continentalRiverBlockElevChange(x,z)+ocean_level
     variables:
       ocean_level: $meta.yml:ocean-level
-      
+
   glowLichenRange:
     dimensions: 3
     type: EXPRESSION
@@ -312,18 +295,13 @@ samplers:
       salt: 9
   spikes:
     dimensions: 2
-    type: CACHE
-    int: true
-    resolution: 4
+    type: LINEAR
+    min: -1
+    max: 0.2
     sampler:
-      dimensions: 2
-      type: LINEAR
-      min: -1
-      max: 0.2
-      sampler:
-        type: CELLULAR
-        distance: Euclidean
-        frequency: 0.08
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.08
 
   # ─── River terrain computed samplers ─────────────────────────────
   # Each former function is now a standalone sampler referencing

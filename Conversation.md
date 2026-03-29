@@ -902,3 +902,7 @@ Water flow is still occuring past soulsand, but soul sand is not spanning the ri
 ##############################
 
 I need help to understand why rivers appear to have huge terrain spikes near the outside of rivers without any sufficient blend with surrounding terrain.
+
+#######################
+
+The file "Calculate_Biome_Percentages.py", one of the tasks is to compute

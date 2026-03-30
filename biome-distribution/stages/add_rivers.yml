@@ -93,7 +93,9 @@ stages:
         - SELF: 1
         - MOUNTAIN_MIRRORS_RIVER: 1
 
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Desert rivers
   - type: REPLACE
     from: USE_DESERT_RIVER
@@ -101,7 +103,9 @@ stages:
       - SELF: 1
       - GALLERY_FOREST: 1
       - DESERT_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Red desert rivers
   - type: REPLACE
     from: USE_RED_DESERT_RIVER
@@ -109,7 +113,10 @@ stages:
       - SELF: 1
       - RED_GALLERY_FOREST: 1
       - RED_DESERT_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Orange desert rivers
   - type: REPLACE
     from: USE_ORANGE_DESERT_RIVER
@@ -117,14 +124,20 @@ stages:
       - SELF: 1
       - ORANGE_GALLERY_FOREST: 1
       - ORANGE_DESERT_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Tar pit rivers
   - type: REPLACE
     from: USE_TAR_PIT_RIVER
     to:
       - SELF: 1
       - TAR_PIT_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Regular rivers with temperate marshes
   # SUPPRESSED - Only marshes directly get a river replacement, no need to bound other biomes with marshland which
   # forces elevation change.
@@ -133,51 +146,74 @@ stages:
     to:
       - SELF: 1
       - RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Pale Garden rivers
   - type: REPLACE
     from: USE_PALE_GARDEN_RIVER
     to:
       - SELF: 1
       - PALE_GARDEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_ARID_PALE_GARDEN_RIVER
     to:
       - SELF: 1
       - ARID_PALE_GARDEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_ORANGE_ARID_PALE_GARDEN_RIVER
     to:
       - SELF: 1
       - ORANGE_ARID_PALE_GARDEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_RED_ARID_PALE_GARDEN_RIVER
     to:
       - SELF: 1
       - RED_ARID_PALE_GARDEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Pale Garden rivers
   - type: REPLACE
     from: USE_POLAR_PALE_GARDEN_RIVER
     to:
       - SELF: 1
       - POLAR_PALE_GARDEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_MUSHROOM_RIVER
     to:
       - SELF: 1
       - MUSHROOM_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_POLAR_MUSHROOM_RIVER
     to:
       - SELF: 1
       - POLAR_MUSHROOM_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Regular rivers with bordering swamps
   - type: REPLACE
     from: USE_RIVER_TEMPERATE_SWAMP
@@ -185,14 +221,20 @@ stages:
       - SELF: 1
       - SWAMP: 1
       - RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Warm rivers
   - type: REPLACE
     from: USE_LUKEWARM_RIVER
     to:
       - SELF: 1
       - LUKEWARM_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Tropical rivers
   - type: REPLACE
     from: USE_TROPICAL_RIVER
@@ -200,7 +242,10 @@ stages:
       - SELF: 1
       - GALLERY_FOREST: 1
       - TROPICAL_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Tropical coastal rivers with mangrove swamps
   - type: REPLACE
     from: USE_RIVER_COASTAL_TROPICAL_SWAMP
@@ -208,27 +253,39 @@ stages:
       - SELF: 1
       - MANGROVE_SWAMP: 1
       - TROPICAL_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Cold rivers
   - type: REPLACE
     from: USE_COLD_RIVER
     to:
       - SELF: 1
       - COLD_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Frozen Rivers
   - type: REPLACE
     from: USE_FROZEN_RIVER
     to:
       - SELF: 1
       - FROZEN_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   - type: REPLACE
     from: USE_LAND_GLACIER_RIVER
     to:
       - SELF: 1
       - LAND_GLACIER_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Frozen rivers with frozen marshes
   - type: REPLACE
     from: USE_FROZEN_RIVER_FROZEN_MARSH
@@ -236,21 +293,30 @@ stages:
       - SELF: 1
       - FROZEN_MARSH: 1
       - FROZEN_RIVER: 2
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_JUNGLE_VISTA_RIVER
     to:
       - SELF: 1
       - VERTICAL_JUNGLE_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_FROZEN_VISTA_RIVER
     to:
       - SELF: 1
       - MOUNTAIN_MIRRORS_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   #- type: REPLACE
   #  from: USE_JUNGLE_VISTA_RIVER
@@ -264,42 +330,60 @@ stages:
     to:
       - SELF: 1
       - VERDANT_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_LOOPS_RIVER
     to:
       - SELF: 1
       - LOOPS_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_DRAFTY_STREAM_RIVER
     to:
       - SELF: 1
       - DRAFTY_STREAM_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_FROSTBITE_RIVERS
     to:
       - SELF: 1
       - FROSTBITE_RIVERS: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_CHILLY_CREEK_RIVER
     to:
       - SELF: 1
       - CHILLY_CREEK_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   - type: REPLACE
     from: USE_SWAMP_RIVER
     to:
       - SELF: 1
       - SWAMP_RIVER: 1
-    sampler: $math/samplers/rivers.yml:samplers.riverSampler
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # 
   #- type: REPLACE
   #  from: USE_DRAFTY_STREAMS

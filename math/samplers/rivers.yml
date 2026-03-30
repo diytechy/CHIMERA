@@ -195,7 +195,10 @@ samplers:
     dimensions: 2
     type: EXPRESSION
       #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
-    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z),0)
+    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0)
+    #expression: elevationTerraced(x,z)
+    variables:
+      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
   continentalRiverBlockElevChange:
     dimensions: 2

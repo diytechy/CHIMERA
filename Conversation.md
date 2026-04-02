@@ -905,4 +905,22 @@ I need help to understand why rivers appear to have huge terrain spikes near the
 
 #######################
 
-The file "Calculate_Biome_Percentages.py", one of the tasks is to compute
+Confirm rivers are fixed (L3 contains water?) or just need to drop to L2 only.
+
+Confirm river caves (nice to have)
+
+Confirm glow around river caves / overhangs
+
+Add new biomes into mix
+
+
+
+In the file "Calculate_Biome_Percentages.py", one of the tasks is to compute the percentage distribution of biomes as a function of their sampler distributions and expressions.  This appears today to take multiple shortcuts.  I would like you to do a deep review of this python script compared to the way biome distribution is actually computed (Refer to C:\Projects\Terra).  Since the intent of this is to find the percentage of distribution across an infinite map, it must estimate the distribution of each base sampler (ex: white-noise sampler returns a near flat distribution), and then compute how that distribution changes as it is affected through each expression, to yield a final distribution for each sampler and ultimately used to replace another biome.  Accuracy here is important, so full evaluation from the distribution within reasonable ranges, multipliers due to expressions, and ultimate final replacement percentage of a combined expression.
+
+The script should also use the distribution assessment of special named samplers (precipitation / temperature / elevation)
+
+
+Convert bubble plugin to Terra plugin?
+
+Update Terra apis to latest available?  This should support new paper version?
+

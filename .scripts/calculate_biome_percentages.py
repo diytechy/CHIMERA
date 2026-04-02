@@ -2447,6 +2447,9 @@ class BiomeMetadata:
         self.river: str = ""  # 'Desert' | 'Cold' | 'General' | ''
         self.category: str = "SURFACE"  # 'SURFACE' | 'RIVER' | 'SUBSURFACE'
         self.uses_elevation: bool = False  # True if terrain.sampler-2d uses elevation keywords
+        self.terrain_parent: str = ""     # Abstract terrain biome (e.g. EQ_LAND, EQ_GLOBAL_OCEAN)
+        self.elevation_sampler: str = ""  # Which elevation sampler: "elevation", "oceanElevation", ""
+        self.avg_surface_y: Optional[float] = None  # Estimated surface Y when elevation not used
 
     def set_climate(self, context: ClimateContext):
         """Set climate attributes from a ClimateContext"""
@@ -2474,6 +2477,7 @@ class BiomeMetadata:
         special_caves_str = "True" if self.special_caves else ""
         caverns_str = "True" if self.caverns_land else ""
         uses_elevation_str = "True" if self.uses_elevation else ""
+        avg_y_str = f"{self.avg_surface_y:.1f}" if self.avg_surface_y is not None else ""
 
         tags_str = str(self.tags) if self.tags else ""
 
@@ -2493,7 +2497,10 @@ class BiomeMetadata:
             self.format_climate_value(self.temperature),
             self.format_climate_value(self.precipitation),
             self.format_climate_value(self.elevation),
-            uses_elevation_str,
+            self.terrain_parent,                        # Abstract terrain parent
+            self.elevation_sampler,                     # Which elevation sampler used
+            uses_elevation_str,                         # Boolean: uses any elevation
+            avg_y_str,                                  # Avg surface Y when no elevation
         ]
         # Add percentage columns for each preset
         for preset_name in preset_names:
@@ -2648,6 +2655,7 @@ class BiomeReader:
         cls._biome_tags = {}
         cls._tag_index = defaultdict(set)
         cls._vanilla_map = None
+        cls._terrain_cache = {}
 
     @classmethod
     def _load_vanilla_map(cls):
@@ -2726,68 +2734,399 @@ class BiomeReader:
             if not metadata.color and parent_meta.color:
                 metadata.color = parent_meta.color
 
+    # Cache for terrain analysis results
+    _terrain_cache: Dict[str, Dict] = {}
+
     @classmethod
-    def _check_elevation_usage_in_config(cls, config: Any) -> bool:
-        """Recursively check if config contains elevation keywords"""
+    def _find_elevation_keywords_in_config(cls, config: Any) -> Set[str]:
+        """Recursively find which elevation keywords appear in a sampler config."""
+        found: Set[str] = set()
         if isinstance(config, str):
             for keyword in ELEVATION_KEYWORDS:
                 if keyword in config:
-                    return True
+                    found.add(keyword)
         elif isinstance(config, dict):
-            # Check expression field
             expression = config.get('expression', '')
             if isinstance(expression, str):
                 for keyword in ELEVATION_KEYWORDS:
                     if keyword in expression:
-                        return True
-            # Recursively check nested samplers
+                        found.add(keyword)
             for key in ['sampler', 'samplers', 'warp', 'lookup']:
                 nested = config.get(key)
                 if nested:
                     if isinstance(nested, dict):
-                        if cls._check_elevation_usage_in_config(nested):
-                            return True
-                        # Check named samplers dict
+                        found.update(cls._find_elevation_keywords_in_config(nested))
                         for v in nested.values():
-                            if cls._check_elevation_usage_in_config(v):
-                                return True
+                            found.update(cls._find_elevation_keywords_in_config(v))
                     elif isinstance(nested, list):
                         for item in nested:
-                            if cls._check_elevation_usage_in_config(item):
-                                return True
+                            found.update(cls._find_elevation_keywords_in_config(item))
         elif isinstance(config, list):
             for item in config:
-                if cls._check_elevation_usage_in_config(item):
-                    return True
-        return False
+                found.update(cls._find_elevation_keywords_in_config(item))
+        return found
 
     @classmethod
-    def _check_elevation_usage(cls, biome_id: str) -> bool:
-        """Check if biome's terrain.sampler-2d uses elevation keywords"""
+    def _resolve_terrain_config(cls, biome_id: str,
+                                _visited: Optional[Set[str]] = None
+                                ) -> Tuple[Optional[Dict], Optional[Dict], Optional[str]]:
+        """
+        Resolve terrain.sampler and terrain.sampler-2d through the extends chain.
+
+        Returns (sampler_3d, sampler_2d, terrain_parent_id):
+          - sampler_3d:  the resolved 3D terrain sampler config dict (or None)
+          - sampler_2d:  the resolved 2D terrain sampler config dict (or None)
+          - terrain_parent_id: the biome ID that first defined terrain.sampler-2d
+        """
+        if _visited is None:
+            _visited = set()
+        if biome_id in _visited:
+            return None, None, None
+        _visited.add(biome_id)
+
         biome_file = cls.find_biome_file(biome_id)
         if not biome_file:
-            return False
-        
+            return None, None, None
+
         try:
             with open(biome_file, 'r') as f:
                 data = yaml.safe_load(f)
-                terrain = data.get('terrain', {})
-                sampler_2d = terrain.get('sampler-2d', {})
-                
-                if cls._check_elevation_usage_in_config(sampler_2d):
-                    return True
-                
-                # If extends, check parent
-                extends = data.get('extends')
-                if extends:
-                    parent_ids = [extends] if isinstance(extends, str) else extends
-                    for parent_id in parent_ids:
-                        if cls._check_elevation_usage(parent_id):
-                            return True
         except Exception:
-            pass
-        
-        return False
+            return None, None, None
+
+        terrain = data.get('terrain', {})
+        if not isinstance(terrain, dict):
+            terrain = {}
+
+        sampler_3d = terrain.get('sampler')
+        sampler_2d = terrain.get('sampler-2d')
+
+        # If this biome defines sampler-2d, it IS the terrain parent
+        if sampler_2d is not None:
+            return sampler_3d, sampler_2d, biome_id
+
+        # Walk extends chain to find terrain definition
+        extends = data.get('extends')
+        if extends:
+            parent_ids = [extends] if isinstance(extends, str) else extends
+            for parent_id in parent_ids:
+                p_3d, p_2d, parent_name = cls._resolve_terrain_config(
+                    parent_id, _visited)
+                if p_2d is not None:
+                    # If this biome defines a 3D sampler but no 2D, use its 3D + parent's 2D
+                    return (sampler_3d if sampler_3d else p_3d), p_2d, parent_name
+
+        return sampler_3d, None, None
+
+    @classmethod
+    def _resolve_terrain_config_3d(cls, biome_id: str,
+                                    _visited: Optional[Set[str]] = None
+                                    ) -> Tuple[Optional[Dict], Optional[Dict], Optional[str]]:
+        """
+        Like _resolve_terrain_config but finds the parent that defined terrain.sampler (3D).
+        Used as fallback for biomes like EQ_MESA that embed elevation in the 3D sampler.
+        """
+        if _visited is None:
+            _visited = set()
+        if biome_id in _visited:
+            return None, None, None
+        _visited.add(biome_id)
+
+        biome_file = cls.find_biome_file(biome_id)
+        if not biome_file:
+            return None, None, None
+
+        try:
+            with open(biome_file, 'r') as f:
+                data = yaml.safe_load(f)
+        except Exception:
+            return None, None, None
+
+        terrain = data.get('terrain', {})
+        if not isinstance(terrain, dict):
+            terrain = {}
+
+        sampler_3d = terrain.get('sampler')
+
+        # If this biome defines a 3D sampler, it's the terrain parent
+        if sampler_3d is not None:
+            return sampler_3d, None, biome_id
+
+        extends = data.get('extends')
+        if extends:
+            parent_ids = [extends] if isinstance(extends, str) else extends
+            for parent_id in parent_ids:
+                p_3d, _, parent_name = cls._resolve_terrain_config_3d(
+                    parent_id, _visited)
+                if p_3d is not None:
+                    return p_3d, None, parent_name
+
+        return None, None, None
+
+    @classmethod
+    def _extract_base_y(cls, sampler_3d: Optional[Dict]) -> Optional[float]:
+        """
+        Extract the base Y level from a 3D terrain sampler.
+
+        Most ORIGEN2 biomes use: expression: -y + base
+        where base is resolved from customization.yml:terrain-base-y-level (65)
+        or terrain-ocean-base-y-level (60), or a hardcoded value.
+        """
+        if not isinstance(sampler_3d, dict):
+            return None
+
+        variables = sampler_3d.get('variables', {})
+        if not isinstance(variables, dict):
+            return None
+
+        # Look for 'base' variable
+        base_val = variables.get('base')
+        if base_val is None:
+            return None
+
+        # If it's a direct number, use it
+        if isinstance(base_val, (int, float)):
+            return float(base_val)
+
+        # If it's a reference like $customization.yml:terrain-base-y-level
+        if isinstance(base_val, str):
+            if 'terrain-base-y-level' in base_val:
+                return 65.0   # from customization.yml
+            if 'terrain-ocean-base-y-level' in base_val:
+                return 60.0   # from customization.yml
+
+        return None
+
+    @classmethod
+    def _estimate_avg_surface_y(cls, sampler_3d: Optional[Dict],
+                                sampler_2d: Optional[Dict]) -> Optional[float]:
+        """
+        Estimate the average surface Y for a biome.
+
+        For biomes with the pattern: density = -y + base + sampler2d(x,z)
+        the surface is at Y = base + sampler2d(x,z) on average.
+
+        For biomes NOT using elevation, sampler-2d is typically:
+          - CONSTANT → 0 → surface at Y = base
+          - Simple noise like (simplex(x,z)+1)/6 → avg ≈ 0.167 → surface ≈ base + 0.167
+
+        For biomes USING elevation:
+          - sampler-2d = scale * elevation(x,z) → avg depends on elevation distribution
+          - We use the climate elevation value from the pipeline to estimate this per-biome
+          - Return None here; the pipeline elevation value is used instead
+        """
+        base_y = cls._extract_base_y(sampler_3d)
+        if base_y is None:
+            return None
+
+        if not isinstance(sampler_2d, dict):
+            return base_y  # No 2D sampler → flat at base
+
+        s2d_type = sampler_2d.get('type', '')
+
+        # CONSTANT → flat surface
+        if s2d_type == 'CONSTANT':
+            val = sampler_2d.get('value', 0.0)
+            if isinstance(val, (int, float)):
+                return base_y + float(val)
+            return base_y
+
+        # Simple EXPRESSION without elevation → try to evaluate average
+        if s2d_type == 'EXPRESSION':
+            expr = str(sampler_2d.get('expression', ''))
+            # If it references elevation, we can't compute a single average
+            for kw in ELEVATION_KEYWORDS:
+                if kw in expr:
+                    return None
+
+            # For simple expressions like "(simplex(x, z)+1)/6", average of
+            # simplex ≈ 0, so average ≈ (0+1)/6 = 0.167
+            # For general expressions, try replacing function calls with 0
+            try:
+                import re as _re
+                # Replace sampler calls like func(x, z) with 0
+                simplified = _re.sub(r'[a-zA-Z_]\w*\s*\([^)]*\)', '0', expr)
+                avg = eval(simplified.strip(), {"__builtins__": {}}, {})
+                if isinstance(avg, (int, float)):
+                    return base_y + float(avg)
+            except Exception:
+                pass
+
+        return base_y  # Fall back to base
+
+    @classmethod
+    def _estimate_avg_surface_y_from_3d(cls, sampler_3d: Optional[Dict]) -> Optional[float]:
+        """
+        Estimate average surface Y from a 3D-only terrain sampler.
+
+        For 3D expressions like: -y + base + (noise(x,z)+1)/2 * height + ...
+        Surface is where density=0: Y = base + f(x,z)
+
+        Uses numerical bisection: evaluate density(y) with noise calls replaced
+        by 0 (their mean), and find the Y where density crosses zero.
+        """
+        if not isinstance(sampler_3d, dict):
+            return None
+
+        base_y = cls._extract_base_y(sampler_3d)
+        if base_y is None:
+            return None
+
+        expression = sampler_3d.get('expression', '')
+        if not isinstance(expression, str):
+            return base_y
+
+        variables = sampler_3d.get('variables', {})
+        if not isinstance(variables, dict):
+            variables = {}
+
+        import re as _re
+
+        # Strip comments and collapse to single line
+        expr = _re.sub(r'//[^\n]*', '', expression)
+        expr = ' '.join(expr.split())
+        expr = _re.sub(r'\^', '**', expr)  # caret → Python **
+
+        # Replace x/z sampler function calls with 0 (symmetric noise mean).
+        # Keep y in the expression so we can evaluate density(y).
+        # Iteratively replace innermost calls first (handles nesting).
+        for _ in range(5):
+            new_expr = _re.sub(r'[a-zA-Z_]\w*\s*\([^()]*\)', '0', expr)
+            if new_expr == expr:
+                break
+            expr = new_expr
+
+        # Build variable substitution dict
+        var_vals = {}
+        for k, v in variables.items():
+            if k == '<<':
+                continue
+            if isinstance(v, (int, float)):
+                var_vals[k] = float(v)
+            elif isinstance(v, str) and 'terrain-base-y-level' in v:
+                var_vals[k] = 65.0
+            elif isinstance(v, str) and 'legacy-terrain-base-y-level' in v:
+                var_vals[k] = 65.0
+            elif isinstance(v, str) and 'terrain-ocean-base-y-level' in v:
+                var_vals[k] = 60.0
+            elif isinstance(v, str) and 'terrain-height' in v:
+                var_vals[k] = 180.0
+
+        safe_builtins = {'round': round, 'min': min, 'max': max, 'abs': abs}
+
+        def eval_density(y_val: float) -> Optional[float]:
+            try:
+                return float(eval(expr.strip(), {"__builtins__": {}},
+                                  {**var_vals, **safe_builtins, 'y': y_val}))
+            except Exception:
+                return None
+
+        # Bisection: find Y where density crosses 0
+        # density is positive below surface (solid) and negative above (air)
+        lo, hi = -64.0, 320.0
+        d_lo = eval_density(lo)
+        d_hi = eval_density(hi)
+        if d_lo is None or d_hi is None:
+            return base_y
+
+        # If no sign change, density is constant-sign — fall back
+        if d_lo * d_hi > 0:
+            return base_y
+
+        for _ in range(50):
+            mid = (lo + hi) / 2
+            d_mid = eval_density(mid)
+            if d_mid is None:
+                return base_y
+            if abs(d_mid) < 0.01:
+                break
+            if d_lo * d_mid <= 0:
+                hi = mid
+            else:
+                lo = mid
+                d_lo = d_mid
+
+        avg_y = (lo + hi) / 2
+        if -64 < avg_y < 320:
+            return round(avg_y, 1)
+
+        return base_y
+
+    @classmethod
+    def _analyze_terrain(cls, biome_id: str) -> Dict:
+        """
+        Full terrain analysis for a biome.
+
+        Returns dict with:
+          terrain_parent:    abstract biome ID that defines sampler-2d
+          elevation_sampler: "elevation", "oceanElevation", or ""
+          uses_elevation:    True if any elevation keyword found
+          avg_surface_y:     estimated avg surface Y (only for non-elevation biomes)
+        """
+        if biome_id in cls._terrain_cache:
+            return cls._terrain_cache[biome_id]
+
+        result = {
+            'terrain_parent': '',
+            'elevation_sampler': '',
+            'uses_elevation': False,
+            'avg_surface_y': None,
+        }
+
+        sampler_3d, sampler_2d, terrain_parent = cls._resolve_terrain_config(biome_id)
+        if terrain_parent:
+            result['terrain_parent'] = terrain_parent
+
+        # Collect elevation keywords from BOTH 3D and 2D samplers.
+        # Some biomes (e.g. EQ_MESA) put elevation directly in the 3D sampler:
+        #   expression: -y + base + scale * elevationDetailed(x, z)
+        all_keywords: Set[str] = set()
+        if sampler_2d is not None:
+            all_keywords.update(cls._find_elevation_keywords_in_config(sampler_2d))
+        if sampler_3d is not None:
+            all_keywords.update(cls._find_elevation_keywords_in_config(sampler_3d))
+
+        if all_keywords:
+            result['uses_elevation'] = True
+            if 'oceanElevation' in all_keywords:
+                result['elevation_sampler'] = 'oceanElevation'
+            elif any(k in all_keywords for k in ('elevation', 'elevationDetailed',
+                                                  'spotBaseElevation')):
+                result['elevation_sampler'] = 'elevation'
+            else:
+                result['elevation_sampler'] = ', '.join(sorted(all_keywords))
+
+        # If no terrain parent was found from sampler-2d, try to find one from
+        # the 3D sampler (biomes like EQ_MESA define terrain only in sampler 3D).
+        # Also resolve the 3D sampler from parents for elevation keyword checking.
+        if not result['terrain_parent']:
+            s3d_fallback, _, terrain_parent_3d = cls._resolve_terrain_config_3d(biome_id)
+            if terrain_parent_3d:
+                result['terrain_parent'] = terrain_parent_3d
+            # If we didn't get a 3D sampler from the primary resolve, use the fallback
+            if sampler_3d is None and s3d_fallback is not None:
+                sampler_3d = s3d_fallback
+                fb_keywords = cls._find_elevation_keywords_in_config(sampler_3d)
+                if fb_keywords:
+                    all_keywords.update(fb_keywords)
+                    result['uses_elevation'] = True
+                    if 'oceanElevation' in all_keywords:
+                        result['elevation_sampler'] = 'oceanElevation'
+                    elif any(k in all_keywords for k in ('elevation', 'elevationDetailed',
+                                                          'spotBaseElevation')):
+                        result['elevation_sampler'] = 'elevation'
+                    else:
+                        result['elevation_sampler'] = ', '.join(sorted(all_keywords))
+
+        if not result['uses_elevation']:
+            if sampler_2d is not None:
+                result['avg_surface_y'] = cls._estimate_avg_surface_y(
+                    sampler_3d, sampler_2d)
+            else:
+                result['avg_surface_y'] = cls._estimate_avg_surface_y_from_3d(sampler_3d)
+
+        cls._terrain_cache[biome_id] = result
+        return result
 
     @classmethod
     def read_biome_metadata(cls, biome_id: str) -> BiomeMetadata:
@@ -2847,9 +3186,13 @@ class BiomeReader:
 
         # Resolve VanillaID match
         metadata.vanilla_match = cls._match_vanilla(metadata.vanilla_raw)
-        
-        # Check elevation usage
-        metadata.uses_elevation = cls._check_elevation_usage(biome_id)
+
+        # Terrain analysis: elevation usage, terrain parent, avg surface Y
+        terrain_info = cls._analyze_terrain(biome_id)
+        metadata.uses_elevation = terrain_info['uses_elevation']
+        metadata.terrain_parent = terrain_info['terrain_parent']
+        metadata.elevation_sampler = terrain_info['elevation_sampler']
+        metadata.avg_surface_y = terrain_info['avg_surface_y']
 
         cls._metadata_cache[biome_id] = metadata
         return metadata
@@ -3217,7 +3560,8 @@ def generate_csv_output(
         # Header row
         header = [
             'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River', 'Tags',
-            'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation', 'UsesElevation'
+            'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation',
+            'TerrainParent', 'ElevationSampler', 'UsesElevation', 'AvgSurfaceY'
         ] + preset_names
         writer.writerow(header)
 

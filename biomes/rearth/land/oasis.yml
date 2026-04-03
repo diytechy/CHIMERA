@@ -1,6 +1,6 @@
 id: OASIS
 type: BIOME
-vanilla: minecraft:beach
+vanilla: minecraft:desert_lakes
 extends:
 - CARVING_LAND
 - BASE

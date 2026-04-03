@@ -5,7 +5,7 @@ extends:
 - CARVING_OCEAN
 - MUSHROOM_FIELDS
 color: $biomes/colors.yml:MUSHROOM_COAST
-vanilla: minecraft:mushroom_fields
+vanilla: minecraft:mushroom_field_shore
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

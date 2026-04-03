@@ -1,6 +1,6 @@
 id: VERTICAL_VISTAS
 type: BIOME
-vanilla: minecraft:windswept_hills
+vanilla: minecraft:modified_gravelly_mountains
 color: $biomes/colors.yml:BAMBOO_JUNGLE
 extends:
 - EQ_TERRACE_MOUNTAINS

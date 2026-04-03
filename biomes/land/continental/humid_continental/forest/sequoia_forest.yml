@@ -13,7 +13,7 @@ tags:
   - USE_COLD_RIVER
   - BOREAL_COAST_FLAT
 
-vanilla: minecraft:old_growth_spruce_taiga
+vanilla: minecraft:giant_spruce_taiga_hills
 
 colors:
   grass: 0x86B770

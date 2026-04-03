@@ -3,7 +3,7 @@ type: BIOME
 extends:
 - CARVING_LAND
 - BASE
-vanilla: minecraft:windswept_hills
+vanilla: minecraft:windswept_gravelly_hills
 color: $biomes/colors.yml:TEMPERATE_MOUNTAINS
 tags:
 - USE_RIVER

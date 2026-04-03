@@ -8,7 +8,7 @@ color: $biomes/colors.yml:BOREAL_MESA
 tags:
 - USE_COLD_RIVER
 - BOREAL_COAST_FLAT
-vanilla: minecraft:taiga
+vanilla: minecraft:taiga_hills
 colors:
   grass: 8828803
   foliage: 6857828

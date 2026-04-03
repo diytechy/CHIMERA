@@ -1,6 +1,6 @@
 id: CARVING_CREAKS
 type: BIOME
-vanilla: minecraft:badlands
+vanilla: minecraft:modified_badlands_plateau
 extends:
 - CARVING_LAND
 - BASE

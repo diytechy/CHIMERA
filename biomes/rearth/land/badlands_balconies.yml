@@ -1,6 +1,6 @@
 id: BADLANDS_BALCONIES
 type: BIOME
-vanilla: minecraft:badlands
+vanilla: minecraft:badlands_plateau
 color: $biomes/colors.yml:BADLANDS_BUTTES
 extends:
 - CARVING_LAND

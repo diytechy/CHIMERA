@@ -7,7 +7,7 @@ extends:
   - BASE
 color: $biomes/colors.yml:DESERT_TERRACES
 
-vanilla: minecraft:desert
+vanilla: minecraft:desert_hills
 
 tags:
   - LAND_CAVES

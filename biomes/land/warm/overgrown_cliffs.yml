@@ -8,7 +8,7 @@ extends:
 - DEPOSITS_INFESTED
 - BASE
 color: $biomes/colors.yml:OVERGROWN_CLIFFS
-vanilla: minecraft:jungle
+vanilla: minecraft:jungle_hills
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

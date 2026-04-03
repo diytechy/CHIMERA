@@ -1,6 +1,6 @@
 id: ROCKY_REFUGE
 type: BIOME
-vanilla: minecraft:plains
+vanilla: minecraft:stony_peaks
 extends:
 - CARVING_LAND
 - BASE

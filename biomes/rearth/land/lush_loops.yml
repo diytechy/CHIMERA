@@ -3,7 +3,7 @@ type: BIOME
 extends:
 - CARVING_LAND
 - BASE
-vanilla: minecraft:jungle
+vanilla: minecraft:bamboo_jungle_hills
 color: $biomes/colors.yml:OVERGROWN_CLIFFS
 tags:
 - USE_LOOPS_RIVER

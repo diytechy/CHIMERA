@@ -8,7 +8,7 @@ extends:
 - ORES_GOLD
 - BASE
 color: $biomes/colors.yml:ARID_SPIKES
-vanilla: minecraft:badlands
+vanilla: minecraft:eroded_badlands
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

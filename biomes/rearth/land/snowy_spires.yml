@@ -1,6 +1,6 @@
 id: SNOWY_SPIRES
 type: BIOME
-vanilla: minecraft:snowy_taiga
+vanilla: minecraft:snowy_taiga_mountains
 color: $biomes/colors.yml:FROZEN_ARCHIPELAGO
 extends:
 - EQ_PILLARS

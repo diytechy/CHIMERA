@@ -8,7 +8,7 @@ extends:
 - DEPOSITS_INFESTED
 - BASE
 color: $biomes/colors.yml:DENSELY_WOODED_HIGHLANDS
-vanilla: minecraft:windswept_hills
+vanilla: minecraft:windswept_forest
 tags:
 - DEEP_DARK
 - USE_RIVER

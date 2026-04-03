@@ -5,7 +5,7 @@ extends:
   - TROPICAL_OCEAN
 color: $biomes/colors.yml:TROPICAL_DEEP_OCEAN
 
-vanilla: minecraft:deep_warm_ocean
+vanilla: minecraft:warm_ocean
 
 features:
   flora:

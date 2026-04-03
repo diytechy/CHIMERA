@@ -1,6 +1,6 @@
 id: MESA_MONUMENTS
 type: BIOME
-vanilla: minecraft:badlands
+vanilla: minecraft:wooded_badlands
 color: $biomes/colors.yml:DESERT_MESA
 extends:
 - EQ_PILLARS

@@ -8,7 +8,7 @@ extends:
 - DEPOSITS_INFESTED
 - BASE
 color: $biomes/colors.yml:CLOUD_FOREST
-vanilla: minecraft:jungle
+vanilla: minecraft:sparse_jungle
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

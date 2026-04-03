@@ -8,7 +8,7 @@ extends:
 - DEPOSITS_INFESTED
 - BASE
 color: $biomes/colors.yml:SAVANNA_OVERHANGS
-vanilla: minecraft:savanna_plateau
+vanilla: minecraft:windswept_savanna
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

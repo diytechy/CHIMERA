@@ -11,7 +11,7 @@ tags:
 - SPECIAL_CAVES
 - USE_RIVER
 - TEMPERATE_COAST_FLAT
-vanilla: minecraft:jungle
+vanilla: minecraft:sparse_jungle
 colors:
   grass: 8045669
   foliage: 6268489

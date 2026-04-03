@@ -924,3 +924,6 @@ Convert bubble plugin to Terra plugin?
 
 Update Terra apis to latest available?  This should support new paper version?
 
+##########################
+
+In the BiomeTable, I see precipitation / temperature / elevation all span from 0 to 1, but don't the sampler values span from -1 to 1?  Or is there a normalizer occurring somewhere in the chain?

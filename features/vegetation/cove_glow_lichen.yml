@@ -35,13 +35,13 @@ locator:
     - type: PATTERN
       range: *range
       pattern:
-      - type: MATCH_AIR
+        type: MATCH_AIR
         offset: 0
     # Require an adjacent solid block
     - type: PATTERN
       range: *range
       pattern:
-      - type: MATCH_SOLID
+        type: MATCH_SOLID
         offset: 1
 
 structures:

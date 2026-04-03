@@ -927,3 +927,7 @@ Update Terra apis to latest available?  This should support new paper version?
 ##########################
 
 In the BiomeTable, I see precipitation / temperature / elevation all span from 0 to 1, but don't the sampler values span from -1 to 1?  Or is there a normalizer occurring somewhere in the chain?
+
+########################
+
+I see there are 2 files with equation ids "EQ_TERRACE_MOUNTAINS", can you build a script that also finds and removes duplicate equations like "remove_duplicate_biomes.py"?  Are there other artifacts that need to be checked for duplicates?

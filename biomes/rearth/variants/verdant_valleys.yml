@@ -69,7 +69,7 @@ palette:
 slant:
 - threshold: 0.6
   palette:
-  - DARK_STONE_MIX: 319
+  - DARK_GREEN_STONE_MIX: 319
   - << meta.yml:palette-bottom
 features:
   trees:

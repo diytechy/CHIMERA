@@ -50,26 +50,21 @@ def scan_directory(directory: Path, label: str):
 
 
 def process_duplicates(by_id: dict, label: str) -> int:
-    """Find and optionally remove duplicates. Returns count of duplicates."""
+    """Find and remove all files with duplicate IDs. Returns count removed."""
     dup_count = 0
 
     for artifact_id, files in sorted(by_id.items()):
         if len(files) <= 1:
             continue
 
-        # Sort by size descending — keep largest
-        files.sort(key=lambda x: x[1], reverse=True)
-        dup_count += len(files) - 1
+        dup_count += len(files)
         print(f"\n  {artifact_id}: {len(files)} files")
 
-        for i, (file_path, size) in enumerate(files):
+        for file_path, size in files:
             rel = file_path.relative_to(PROJECT_ROOT)
-            if i == 0:
-                print(f"    KEEP:   {rel} ({size} bytes)")
-            else:
-                print(f"    DELETE: {rel} ({size} bytes)")
-                if not dry_run:
-                    file_path.unlink()
+            print(f"    DELETE: {rel} ({size} bytes)")
+            if not dry_run:
+                file_path.unlink()
 
     return dup_count
 
@@ -92,9 +87,10 @@ def main():
         total_dupes += dupes
 
     print(f"\n{'=' * 50}")
-    print(f"Total duplicates: {total_dupes}")
+    print(f"Total files to remove: {total_dupes}")
     if dry_run and total_dupes > 0:
         print("Run with --delete to remove them.")
+        print("Review removed files in git staging to restore the correct one.")
 
 
 if __name__ == "__main__":

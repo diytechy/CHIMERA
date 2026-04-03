@@ -14,7 +14,7 @@ colors:
   water: 3244543
   water-fog: 2578091
 tags:
-- USE_RIVER
+- USE_FROZEN_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
 - POLAR_COAST_FLAT

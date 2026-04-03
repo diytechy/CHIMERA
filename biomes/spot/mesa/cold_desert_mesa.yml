@@ -8,6 +8,6 @@ extends:
 color: $biomes/colors.yml:COLD_DESERT_MESA
 tags:
 - ICE_CAVES
-- USE_DESERT_RIVER
+- USE_FROZEN_RIVER
 - POLAR_COAST_FLAT
 vanilla: minecraft:snowy_plains

@@ -11,7 +11,6 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - ICE_CAVES
-- USE_RIVER
 - USE_FROZEN_RIVER_FROZEN_MARSH
 - POLAR_COAST_FLAT
 vanilla: minecraft:snowy_plains

@@ -6,7 +6,7 @@ extends:
 - SNOWY_PLAINS
 color: $biomes/colors.yml:ICE_SPIKES
 tags:
-- USE_RIVER
+- USE_FROZEN_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
 variables: &id001

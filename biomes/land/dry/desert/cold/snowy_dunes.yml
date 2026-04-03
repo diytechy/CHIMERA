@@ -12,7 +12,7 @@ vanilla: minecraft:snowy_plains
 tags:
   - LAND_CAVES
   - SPECIAL_CAVES
-  - USE_DESERT_RIVER
+  - USE_FROZEN_RIVER
 
 palette:
   - SNOW: $meta.yml:top-y

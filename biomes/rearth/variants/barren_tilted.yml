@@ -6,7 +6,7 @@ extends:
 vanilla: minecraft:windswept_gravelly_hills
 color: $biomes/colors.yml:TEMPERATE_MOUNTAINS
 tags:
-- USE_RIVER
+- USE_FROZEN_RIVER
 - POLAR_COAST_HIGHLANDS
 vars: &id001
   base: 85

@@ -4,7 +4,7 @@ extends:
 - BASE_HYDRAXIA
 - EQ_HILLS
 - EQ_CARVING_LAND
-vanilla: minecraft:birch_forest_hills
+vanilla: minecraft:snowy_taiga
 palette:
 - SNOWY_GRASS: 319
 - RIVER_BANK: 61

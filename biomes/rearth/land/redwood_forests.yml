@@ -4,7 +4,7 @@ extends:
 - EQ_MOUNTAIN_SPOTS
 - CARVING_LAND
 - BASE
-vanilla: minecraft:giant_tree_taiga_hills
+vanilla: minecraft:old_growth_pine_taiga
 color: $biomes/colors.yml:SEQUOIA_FOREST
 tags:
 - USE_RIVER

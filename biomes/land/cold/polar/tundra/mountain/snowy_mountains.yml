@@ -9,7 +9,7 @@ extends:
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:SNOWY_MOUNTAINS
-vanilla: minecraft:snowy_mountains
+vanilla: minecraft:frozen_peaks
 tags:
 - USE_FROZEN_RIVER
 - DEEP_DARK

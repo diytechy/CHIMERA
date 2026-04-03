@@ -1,6 +1,6 @@
 id: WHITE_WALLOWS
 type: BIOME
-vanilla: minecraft:mountain_edge
+vanilla: minecraft:windswept_hills
 extends:
 - EQ_ERODED_VALLEY_MOUNTAINS
 - CARVING_LAND

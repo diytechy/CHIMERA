@@ -940,4 +940,7 @@ Verify in elevation.yml, non of the
 
 In "VanillaJavaBiomes.csv" there are a list of vanilla biomes that are available, with a few listed as "no" for "Used In BiomeTable".
 
-There 
+Ideally, every non-end or non-nether vanilla biome has at least one if not multiple CHIMERA biomes with that vanilla biome property.  Using "VanillaJavaBiomes.csv" that are not allocated, please use available descriptions and infer from the table properties which CHIMERA biomes should have their vanilla biome definition updated to the currently unallocated vanilla biomes.
+
+#############
+BADLAND_BALCOONIES has terraces staggered not using elevation (id: EQ_ROCKY_BUTTES), are these allocated to the correct elevation region?

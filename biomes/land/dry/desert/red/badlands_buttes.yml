@@ -7,7 +7,7 @@ extends:
 - ORES_GOLD
 - BASE
 color: $biomes/colors.yml:BADLANDS_BUTTES
-vanilla: minecraft:modified_wooded_badlands_plateau
+vanilla: minecraft:badlands
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

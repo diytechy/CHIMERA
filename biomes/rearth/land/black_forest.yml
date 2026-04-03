@@ -4,7 +4,7 @@ extends:
 - EQ_MOUNTAIN_SPOTS
 - CARVING_LAND
 - BASE
-vanilla: minecraft:dark_forest_hills
+vanilla: minecraft:dark_forest
 color: $biomes/colors.yml:DARK_FOREST
 tags:
 - TEMPERATE_COAST_FLAT

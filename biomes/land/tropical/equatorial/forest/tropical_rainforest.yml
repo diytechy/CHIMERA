@@ -6,7 +6,7 @@ extends:
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:TROPICAL_RAINFOREST
-vanilla: minecraft:modified_jungle
+vanilla: minecraft:jungle
 colors:
   grass: 6924354
   foliage: 9493312

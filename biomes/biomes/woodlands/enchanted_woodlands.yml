@@ -5,7 +5,7 @@ extends:
 - EQ_TERRACED_MOUNTAINS
 - EQ_CARVING_LAND
 - HYDRAXIA_ORES_EMERALD
-vanilla: minecraft:snowy_taiga_hills
+vanilla: minecraft:snowy_taiga
 colors:
   grass: 65509
   foliage: 11993343

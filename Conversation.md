@@ -931,3 +931,13 @@ In the BiomeTable, I see precipitation / temperature / elevation all span from 0
 ########################
 
 I see there are 2 files with equation ids "EQ_TERRACE_MOUNTAINS", can you build a script that also finds and removes duplicate equations like "remove_duplicate_biomes.py"?  Are there other artifacts that need to be checked for duplicates?
+
+########################
+
+Verify in elevation.yml, non of the 
+
+########################
+
+In "VanillaJavaBiomes.csv" there are a list of vanilla biomes that are available, with a few listed as "no" for "Used In BiomeTable".
+
+There 

@@ -26,8 +26,8 @@ terrain:
         /*radius*/        spotRadius(x, z),
         /*centerDepth*/   volcanoCenterDepth(x, z),
         /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
-                            0, minHeight,
-                            1, maxHeight
+                            0, 0.2,
+                            1, 0.5
                           ),
         /*volcanoBase*/   spotBaseElevation(x, z)
       )

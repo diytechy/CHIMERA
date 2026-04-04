@@ -15,36 +15,25 @@ height: &range
   min: ${meta.yml:ocean-level} + 2
   max: ${meta.yml:ocean-level} + 112
   
-locator:
-  type: AND
-  locators:
-    # Random heights
-    #- type: RANDOM
-    #  height: &range
-    #    min: ${meta.yml:ocean-level} + 2
-    #    max: ${meta.yml:ocean-level} + 12
-    #  amount: 1
-    #  salt: 2913
-    #In range
     #- type: SAMPLER
     #  samplers:
     #    type: EXPRESSION
     #    expression: glowLichenRange(x,y,z)
     #  threshold: 0.1
-    # Require either air or water
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: MATCH_AIR
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level} + 3
+    max: ${meta.yml:ocean-level} + 112
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_AIR
         offset: 0
-    # Require an adjacent solid block
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: MATCH_SOLID
+      - type: MATCH_SOLID
         offset: 1
 
 structures:
   distribution:
     type: CONSTANT
-  structures: glow_lichen
+  structures: glow_berries

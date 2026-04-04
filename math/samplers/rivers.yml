@@ -431,42 +431,36 @@ samplers:
     type: EXPRESSION
     dimensions: 3
     variables: *rtv
-    #The 2d sampler is located at bank height (relative to the base height), so all 3d-sampler feedback must be positioned
-    # to reach 0 intercept around the riverbed where the details are built around.
-    # -y + base + minimumRiverBankHeight(x, z) will result in 0 intercept and real world river bank.
-    # subtract from this to force negative (<0) density to bore into to the ground below the bank height (used for riverbed creation)
-    # add to this to create positive density and create terrain above the bank, which can be used for enclosed caves or transitions outside the bank
-    # For a simple unenclosed space:
-    #-y + base + minimumRiverBankHeight(x, z) - bedDepth(x, z)
+    #The 2d sampler (sampler-2d) already provides minimumRiverBankHeight, so the combined
+    # density is: (-y + base + <3D value>) + minimumRiverBankHeight.
+    # The 3D sampler must therefore NOT include minimumRiverBankHeight in its branches —
+    # returning 0 yields the bank surface (density=0 at y = base + minimumRiverBankHeight).
+    # Subtract to carve below bank (riverbed), add to build above (enclosed cave roof).
     expression: |
-      -y + base + 
+      -y + base +
       if(y <= base + minimumRiverBankHeight(x, z),
         // ── Case 1: Riverbed ──
-        minimumRiverBankHeight(x, z) - bedDepth(x, z),
+        -bedDepth(x, z),
         // ── Cases 2 & 3: Above bank, blended by enclosure ──
-        //Since the 2d sampler already forces negative values above the riverbank,
-        //this only needs to add content above the bank, and only if the river is not exposed,
-        //to create the cave around the river.
+        // 2D sampler already places surface at bank height, so 0 = bank surface here.
+        // Only add positive values to build enclosed cave roofs or border transitions.
         lerp(riverEnclosedFactor(x, z),
           enclosedStrtTransitionBlocks,
           // Case 3: Open valley — herp from terrain down to bank
-          // River distance is 0 at river edge, increases up to the threshold where it is no longer 
-          // applicable (river biome only replaced up to threshold)
-          // Above river (<0), keep zero.
-            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z), 
-            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold, max(minimumRiverBankHeight(x, z),scale * elevationDetailed(x, z)))),
+          // Inside river (dist<=0): 0 = air above bank.
+          // Border (dist>0): ramp from bank (0) up to terrain height minus bank.
+            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 2, 0,
+            riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))),
           enclosedFullTransitionBlocks,
-          // Case 2: Enclosed cave — Only start adding deltas back (to increase density)
-          // when above the ceiling, below the original terrain, and not in an river opening.
-          // Outside the river border (dist>0), just add back in whatever it takes to get up to 
-          minimumRiverBankHeight(x, z) +
+          // Case 2: Enclosed cave — add solid back above ceiling, below terrain.
+          // Cave void (below ceiling) falls to 'otherwise' which returns ~0 → air.
           if((y > (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z))) &&
             (y < (base + elevationDetailedWithHoles(x, z))) &&
             continentalRiverDist(x, z)<=0.0,
-            //Within the river, above the ceiling height.
-            elevationDetailedWithHoles(x, z),
-            //Otherwise, pure elevation
+            //Within the river, above the ceiling height — cave roof solid up to terrain surface.
+            elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z),
+            //Otherwise, cave void or border — raw elevation gives ~0 → air in void.
             elevationDetailed(x, z))
         )
       )

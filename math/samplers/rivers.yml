@@ -45,7 +45,7 @@ river-terrain-variables: &rtv
   # openingsDeltaShallow, openings noise can force the cave open.
   # Above openingsDeltaDeep the rock is thick enough that holes never form.
   openingsDeltaShallow: 7        # Ceiling thickness below which openings noise is fully active
-  openingsDeltaDeep: 15          # Ceiling thickness above which openings noise has no effect
+  openingsDeltaDeep: 25          # Ceiling thickness above which openings noise has no effect
   # Openings noise thresholds — controls which areas can force-open caves
   openingsNoiseMin: 0.3           # Noise below this → no opening
   openingsNoiseMax: 0.6           # Noise above this → full opening shift
@@ -170,7 +170,7 @@ samplers:
     variables:
       riverBedDepth: *riverBedDepth
       riverBedVariation: *riverBedVariation
-    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 5
+    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 2
 
   RiverSoulsandLocations:
     dimensions: 2
@@ -456,7 +456,7 @@ samplers:
           // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
           if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
             // Below ceiling height: carve void with negative density (always empty)
-            -scale * elevationDetailed(x, z),
+            -scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z),
             // Above ceiling height: add roof only if inside river and below terrain surface
             if((y < (base + elevationDetailedWithHoles(x, z))) &&
               continentalRiverDist(x, z)<=0.0,

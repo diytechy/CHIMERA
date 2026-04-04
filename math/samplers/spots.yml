@@ -11,14 +11,15 @@ variables: &variables
   maxRadius: $customization.yml:spot-radius-max
 
   minHeight: 0.05
+  minVolHeight: 0.2
   maxHeight: 0.5
 
-  spotMinEdgeRadius: 0.1
-  spotMaxEdgeRadius: 0.5
+  spotMinEdgeRadius: 0.05
+  spotMaxEdgeRadius: 0.2
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max
-  volcanoMinCenterDepth: 0.01
+  volcanoMinCenterDepth: 0.03
   volcanoMaxCenterDepth: 0.3
 
   prismaticMinCenterDepth: 0.01

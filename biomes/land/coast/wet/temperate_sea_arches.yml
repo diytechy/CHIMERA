@@ -64,3 +64,5 @@ slant:
 features:
   flora:
     - GRASS
+  river-decoration:
+    - COVE_GLOW_LICHEN

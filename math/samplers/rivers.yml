@@ -407,7 +407,7 @@ samplers:
     expression: |
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
       * riverBedDepthAtLevel(x, z)
-      * if(continentalRiverLevel(x, z) < 0.5,
+      * if(continentalRiverLevel(x, z) < -0.5,
           max(0.05, 1 - max(0, -spikes(x, z))),
           1)
 

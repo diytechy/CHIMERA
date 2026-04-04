@@ -1,6 +1,7 @@
 id: VERDANT_RIVER
 type: BIOME
-extends: 
+extends:
+ - EQ_GLOBAL_RIVER
  - RIVER
  - VERDANT_VALLEYS
 

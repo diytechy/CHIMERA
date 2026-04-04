@@ -453,15 +453,17 @@ samplers:
             riverBiomeActivationThreshold / 2, 0,
             riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))),
           enclosedFullTransitionBlocks,
-          // Case 2: Enclosed cave — add solid back above ceiling, below terrain.
-          // Cave void (below ceiling) falls to 'otherwise' which returns ~0 → air.
-          if((y > (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z))) &&
-            (y < (base + elevationDetailedWithHoles(x, z))) &&
-            continentalRiverDist(x, z)<=0.0,
-            //Within the river, above the ceiling height — cave roof solid up to terrain surface.
-            elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z),
-            //Otherwise, cave void or border — raw elevation gives ~0 → air in void.
-            elevationDetailed(x, z))
+          // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
+          if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
+            // Below ceiling height: carve void with negative density (always empty)
+            -scale * elevationDetailed(x, z),
+            // Above ceiling height: add roof only if inside river and below terrain surface
+            if((y < (base + elevationDetailedWithHoles(x, z))) &&
+              continentalRiverDist(x, z)<=0.0,
+              //Within the river, above ceiling — solid roof up to terrain surface.
+              elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z),
+              //Outside river or above terrain — use base elevation (allows border blending).
+              scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))
         )
       )
     functions:
@@ -501,7 +503,7 @@ RiverSupportDensity:
   expression: |
     if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
       if((y>RiverBedElev(x,z)),
-        -y+Base+herp(RiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
+        -y+Base+herp(continentalRiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
         if((y<Base && y>MinRiverSupp),
           insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),(maxRiverWidthAtLevel(x,z)/4)))
         )

@@ -128,10 +128,7 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: if(continents(x,z)>0.0 && flatness(x,z)<1.0, elevationTerraced(x,z), 0.0)
-      samplers:
-        elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
-        continents: $math/samplers/continents.yml:samplers.continents
+      expression: if(continents(x,z)>0.0 && flatness(x,z)<1.0, elevationDetailed(x,z), 0.0)
     riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
     borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
     branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability

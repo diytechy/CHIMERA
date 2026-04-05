@@ -137,6 +137,100 @@ LAND_SOURCE_BIOMES: Set[str]  = {
     "extinct-volcano", "island", "vast-forest",
 }
 
+# =============================================================================
+# ELEVATION FLAT REGION DETECTION
+# =============================================================================
+# Paths to the elevation and downstream biome-assignment stage files
+ELEVATION_STAGE_FILE      = Path("biome-distribution/stages/climate/elevation.yml")
+SET_BIOMES_STAGE_FILES: List[Path] = [
+    Path("biome-distribution/stages/set_biomes_in_climates.yml"),
+    Path("biome-distribution/stages/set_biomes_in_climates_origen.yml"),
+]
+
+
+def _extract_slot0_biomes(stage: Dict) -> Set[str]:
+    """Return all biome IDs that occupy slot 0 in a REPLACE_LIST stage's to-lists."""
+    result: Set[str] = set()
+
+    def _first_biome(weighted_list: List) -> None:
+        if weighted_list and isinstance(weighted_list, list):
+            first = weighted_list[0]
+            if isinstance(first, dict):
+                result.update(first.keys())
+
+    _first_biome(stage.get('default-to', []))
+    for to_list in stage.get('to', {}).values():
+        _first_biome(to_list)
+
+    return result
+
+
+def _load_stage_file(path: Path) -> List[Dict]:
+    """Load a stage YAML file and return its stages list, or [] on failure."""
+    if not path.exists():
+        print(f"Warning: stage file not found: {path}", file=sys.stderr)
+        return []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+        return data.get('stages', []) if data else []
+    except Exception as e:
+        print(f"Warning: could not parse {path}: {e}", file=sys.stderr)
+        return []
+
+
+def _build_elevation_flat_biomes() -> Set[str]:
+    """
+    Return the set of CONCRETE biome IDs that are distributed to the FLAT region
+    of the land-elevation REPLACE_LIST in elevation.yml.
+
+    Because the flat-slot biomes produced by elevation.yml (e.g. 'tundra-flat')
+    are abstract intermediates, this function resolves them one stage further by
+    parsing set_biomes_in_climates.yml and collecting every concrete biome that
+    is produced from a flat intermediate.
+    """
+    # --- Step 1: collect flat intermediate IDs from elevation.yml ---
+    flat_intermediates: Set[str] = set()
+    for stage in _load_stage_file(ELEVATION_STAGE_FILE):
+        if stage.get('type') != 'REPLACE_LIST':
+            continue
+        expr = stage.get('sampler', {}).get('expression', '')
+        # The land-elevation stage calls elevation(x,z), not oceanElevation
+        if 'elevation(x' not in expr or 'oceanElevation' in expr:
+            continue
+        flat_intermediates = _extract_slot0_biomes(stage)
+        break  # Only one matching stage expected
+
+    if not flat_intermediates:
+        return set()
+
+    # --- Step 2: resolve intermediates → concrete biomes via all set_biomes files ---
+    concrete_flat: Set[str] = set()
+    for stage_file in SET_BIOMES_STAGE_FILES:
+        for stage in _load_stage_file(stage_file):
+            if stage.get('type') not in ('REPLACE_LIST', 'REPLACE'):
+                continue
+
+            # default-from maps to default-to when the from-biome is a flat intermediate
+            default_from = stage.get('default-from')
+            if default_from in flat_intermediates:
+                for item in stage.get('default-to', []):
+                    if isinstance(item, dict):
+                        concrete_flat.update(item.keys())
+
+            # Each key in 'to' that is a flat intermediate maps to concrete biomes
+            for from_key, to_list in stage.get('to', {}).items():
+                if from_key not in flat_intermediates:
+                    continue
+                if isinstance(to_list, list):
+                    for item in to_list:
+                        if isinstance(item, dict):
+                            concrete_flat.update(item.keys())
+                elif isinstance(to_list, str):
+                    concrete_flat.add(to_list)
+
+    return concrete_flat
+
 
 # =============================================================================
 # Sampler Distribution  (CDF-based probability)
@@ -2450,6 +2544,7 @@ class BiomeMetadata:
         self.terrain_parent: str = ""     # Abstract terrain biome (e.g. EQ_LAND, EQ_GLOBAL_OCEAN)
         self.elevation_sampler: str = ""  # Which elevation sampler: "elevation", "oceanElevation", ""
         self.avg_surface_y: Optional[float] = None  # Estimated surface Y when elevation not used
+        self.is_elevation_flat: bool = False  # True if distributed to flat region in elevation.yml
 
     def set_climate(self, context: ClimateContext):
         """Set climate attributes from a ClimateContext"""
@@ -2477,6 +2572,7 @@ class BiomeMetadata:
         special_caves_str = "True" if self.special_caves else ""
         caverns_str = "True" if self.caverns_land else ""
         uses_elevation_str = "True" if self.uses_elevation else ""
+        elevation_flat_str = "True" if self.is_elevation_flat else ""
         avg_y_str = f"{self.avg_surface_y:.1f}" if self.avg_surface_y is not None else ""
 
         tags_str = str(self.tags) if self.tags else ""
@@ -2500,6 +2596,7 @@ class BiomeMetadata:
             self.terrain_parent,                        # Abstract terrain parent
             self.elevation_sampler,                     # Which elevation sampler used
             uses_elevation_str,                         # Boolean: uses any elevation
+            elevation_flat_str,                         # Boolean: flat region in elevation.yml
             avg_y_str,                                  # Avg surface Y when no elevation
         ]
         # Add percentage columns for each preset
@@ -3457,6 +3554,10 @@ def generate_csv_output(
 
     print(f"Total biomes to include in table: {len(all_biomes)}")
 
+    # Build set of biomes distributed to the flat region in elevation.yml
+    elevation_flat_biomes = _build_elevation_flat_biomes()
+    print(f"Elevation flat biomes: {len(elevation_flat_biomes)}")
+
     # Identify unresolved intermediate biomes
     # An intermediate biome is one that appears in distributions but is NOT a valid biome
     unresolved_biomes = set()
@@ -3521,6 +3622,10 @@ def generate_csv_output(
         if biome_id in extrusion_only_biomes:
             metadata.category = DistributionCategory.SUBSURFACE.value
 
+        # Mark if this biome is distributed to the flat region in elevation.yml
+        if biome_id in elevation_flat_biomes:
+            metadata.is_elevation_flat = True
+
         biome_metadata_map[display_id] = metadata
 
     # Get sorted list of preset names
@@ -3561,7 +3666,7 @@ def generate_csv_output(
         header = [
             'BiomeID', 'Extends', 'VanillaID', 'LAND_CAVES', 'SPECIAL_CAVES', 'CAVERNS_LAND', 'River', 'Tags',
             'Category', 'Source', 'Origin', 'Type', 'Temperature', 'Precipitation', 'Elevation',
-            'TerrainParent', 'ElevationSampler', 'UsesElevation', 'AvgSurfaceY'
+            'TerrainParent', 'ElevationSampler', 'UsesElevation', 'ElevationFlat', 'AvgSurfaceY'
         ] + preset_names
         writer.writerow(header)
 

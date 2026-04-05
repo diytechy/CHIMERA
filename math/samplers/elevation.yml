@@ -392,6 +392,7 @@ samplers:
       continentZero: $customization.yml:elevation-continental-flat-threshold
       continentFull: $customization.yml:elevation-continental-full-height-threshold
       factorContinental: $customization.yml:elevation-factor-continental
+
   elevationDetailed:
     dimensions: 2
     type: EXPRESSION
@@ -403,7 +404,10 @@ samplers:
       noisyelevation:
         dimensions: 2
         type: DOMAIN_WARP
-        sampler: $math/samplers/elevation.yml:samplers.elevationFromSpots
+        sampler: 
+          dimensions: 2
+          type: EXPRESSION
+          expression: max(elevationFromSpots(x, z),elevationTerraced(x,z))
           # Elevation is warped slightly by white noise, creating a small fuzzy
           # or dithered look to break up perfectly smooth noise. Produces small
           # 1 block divots in terrain, especially apparent on steeper terrain and

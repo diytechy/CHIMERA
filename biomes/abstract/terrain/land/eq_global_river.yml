@@ -29,10 +29,9 @@ terrain:
     dimensions: 3
     expression: riverTerrainSampler(x, y, z)
 
-  # Will always return y value for surface
+  # sampler-2d removed — riverTerrainSampler is self-contained and handles
+  # minimumRiverBankHeight directly. Using sampler-2d caused 2D elevation blending
+  # with neighboring biomes to corrupt river density at biome boundaries.
   sampler-2d:
     type: EXPRESSION
-    #Make sure general surface is above riverbed leading up to river.
-    #This omits base, assuming most sampler-2d sets are relative to base height for 
-    # consistency.
-    expression: minimumRiverBankHeight(x,z)
+    expression: "0"

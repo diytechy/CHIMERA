@@ -83,7 +83,8 @@ ELEVATION_KEYWORDS = [
     "spotBaseElevation",
     "elevationDetailed",
     "elevation",
-    "oceanElevation"
+    "oceanElevation",
+    "BiomeShapeLandmassBaseOffset",  # wraps elevationDetailed internally
 ]
 
 # =============================================================================
@@ -3188,7 +3189,8 @@ class BiomeReader:
             if 'oceanElevation' in all_keywords:
                 result['elevation_sampler'] = 'oceanElevation'
             elif any(k in all_keywords for k in ('elevation', 'elevationDetailed',
-                                                  'spotBaseElevation')):
+                                                  'spotBaseElevation',
+                                                  'BiomeShapeLandmassBaseOffset')):
                 result['elevation_sampler'] = 'elevation'
             else:
                 result['elevation_sampler'] = ', '.join(sorted(all_keywords))

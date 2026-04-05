@@ -247,10 +247,10 @@ samplers:
     type: EXPRESSION
     expression: |
       max(
-        max(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x+1,z),
-          continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x-1,z)),
-        max(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z+1),
-          continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1))
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+1,z),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-1,z)),
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+1),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
       )
 
   continentalRiverDistFarGrid:

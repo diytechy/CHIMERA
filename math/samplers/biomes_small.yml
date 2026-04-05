@@ -79,7 +79,7 @@ samplers:
   BiomeShapeLandmassBaseOffset:
     type: EXPRESSION
     dimensions: 2
-    expression: max(elevation(x,z) * offset_scale * land_scale * 1.5, 0)
+    expression: max(elevationDetailed(x,z) * offset_scale * land_scale, 0)
     samplers:
       elevation: $math/samplers/elevation.yml:samplers.elevation
     variables:

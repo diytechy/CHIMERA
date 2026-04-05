@@ -944,3 +944,10 @@ Ideally, every non-end or non-nether vanilla biome has at least one if not multi
 
 #############
 BADLAND_BALCOONIES has terraces staggered not using elevation (id: EQ_ROCKY_BUTTES), are these allocated to the correct elevation region?
+
+#################333
+
+Some flat designated / distributed biomes actually have terrain defined by elevation, so are they really flat and / or should they be attributed to flat zones?
+
+Some biomes are NOT defined for flat distribution but they do not use the elevation, so they may have strange river artifacts as the river attempts to climb the standard elevation equation, but the biome does not actually raise with elevation.
+

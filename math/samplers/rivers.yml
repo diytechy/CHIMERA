@@ -426,7 +426,7 @@ samplers:
     dimensions: 2
     variables: *rtv
     expression: |
-      scale * elevationDetailed(x, z) -
+      elevationAboveBank(x,z) -
       if(continentalRiverDist(x, z) < 0,
       // If within the river border, apply the ceiling minimum, modified by spikes and openings.
       herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),

@@ -431,37 +431,39 @@ samplers:
     type: EXPRESSION
     dimensions: 3
     variables: *rtv
-    # Self-contained 3D sampler — no sampler-2d contribution needed.
-    # density = -y + base + <branch value>. Zero intercept is where terrain surface forms.
-    # Each branch returns the Y offset (above base) where surface should be:
-    #   minimumRiverBankHeight → surface at bank height (air above = void)
-    #   scale * elevationDetailed → surface at natural terrain (solid below)
+    #The 2d sampler (sampler-2d) already provides minimumRiverBankHeight, so the combined
+    # density is: (-y + base + <3D value>) + minimumRiverBankHeight.
+    # The 3D sampler must therefore NOT include minimumRiverBankHeight in its branches —
+    # returning 0 yields the bank surface (density=0 at y = base + minimumRiverBankHeight).
+    # Subtract to carve below bank (riverbed), add to build above (enclosed cave roof).
     expression: |
       -y + base +
       if(y <= base + minimumRiverBankHeight(x, z),
-        // ── Case 1: Riverbed — surface at bank minus bed carve ──
-        minimumRiverBankHeight(x, z) - bedDepth(x, z),
+        // ── Case 1: Riverbed ──
+        -bedDepth(x, z),
         // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        // 2D sampler already places surface at bank height, so 0 = bank surface here.
+        // Only add positive values to build enclosed cave roofs or border transitions.
         lerp(riverEnclosedFactor(x, z),
           enclosedStrtTransitionBlocks,
-          // Case 3: Open valley
-          // Inside river (dist<=0): surface at bank height → air above.
-          // Border (dist>0): ramp from bank up to natural terrain.
-            if(continentalRiverDist(x, z)<=0, minimumRiverBankHeight(x, z), herp(continentalRiverDist(x, z),
-            riverBiomeActivationThreshold / 2, minimumRiverBankHeight(x, z),
-            riverBiomeActivationThreshold, max(minimumRiverBankHeight(x, z), scale * elevationDetailed(x, z)))),
+          // Case 3: Open valley — herp from terrain down to bank
+          // Inside river (dist<=0): 0 = air above bank.
+          // Border (dist>0): ramp from bank (0) up to terrain height minus bank.
+            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 2, 0,
+            riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))),
           enclosedFullTransitionBlocks,
-          // Case 2: Enclosed cave
+          // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
           if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
-            // Below ceiling: void — surface at bank height → negative density = air.
-            minimumRiverBankHeight(x, z),
-            // Above ceiling: solid roof
+            // Below ceiling height: carve void with negative density (always empty)
+            -scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z),
+            // Above ceiling height: add roof only if inside river and below terrain surface
             if((y < (base + elevationDetailedWithHoles(x, z))) &&
               continentalRiverDist(x, z)<=0.0,
-              // Inside river, above ceiling — roof up to terrain surface.
-              elevationDetailedWithHoles(x, z),
-              // Outside river or above terrain — natural terrain.
-              scale * elevationDetailed(x, z)))
+              //Within the river, above ceiling — solid roof up to terrain surface.
+              elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z),
+              //Outside river or above terrain — use base elevation (allows border blending).
+              scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))
         )
       )
     functions:

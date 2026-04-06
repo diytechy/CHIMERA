@@ -411,11 +411,17 @@ samplers:
     expression: |
       max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
       * riverBedDepthAtLevel(x, z)
-      * if(continentalRiverLevel(x, z) < 0.5,
+      * if(continentalRiverLevel(x, z) < -0.5,
           max(0.05, 1 - max(0, -spikes(x, z))),
           1)
 
-  elevationDetailedWithHoles:
+  elevationAboveBank:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *rtv
+    expression: max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
+
+  elevationDetailedWithHolesAboveBank:
     type: EXPRESSION
     dimensions: 2
     variables: *rtv
@@ -429,6 +435,7 @@ samplers:
     functions:
       "<<":
       - math/functions/interpolation.yml:functions
+
   # ─── River terrain sampler ─────────────────────────────────────────
   # Split into upper/lower by bank height, with enclosure detection:
   #   Case 1 (y <= bank): Riverbed erosion via bedDepth
@@ -459,14 +466,14 @@ samplers:
           // Border (dist>0): ramp from bank (0) up to terrain height.
             if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
             riverBiomeActivationThreshold / 4, 0,
-            riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z)))),
+            riverBiomeActivationThreshold, elevationAboveBank(x,z)))),
           enclosedFullTransitionBlocks,
           // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
           if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
             // Below ceiling height: carve void with negative density (always empty)
-            -scale * elevationDetailed(x, z),
+            -elevationAboveBank(x,z),
             // Above ceiling height: add roof only if inside river and below terrain surface
-           elevationDetailedWithHoles(x, z))
+           elevationDetailedWithHolesAboveBank(x, z))
         )
       )
     functions:

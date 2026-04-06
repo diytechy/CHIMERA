@@ -8,17 +8,14 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313  
-        threshold: 0.025
+        threshold: 0.5
     - type: SAMPLER
       sampler:
         type: EXPRESSION
         expression: continentalRiverDist(x,z)
+        threshold: 1.0
   
 
-height: &range
-  min: ${meta.yml:ocean-level} + 2
-  max: ${meta.yml:ocean-level} + 112
-  
     #- type: SAMPLER
     #  samplers:
     #    type: EXPRESSION
@@ -26,7 +23,7 @@ height: &range
     #  threshold: 0.1
 locator:
   type: PATTERN
-  range:
+  range: &range
     min: ${meta.yml:ocean-level} + 3
     max: ${meta.yml:ocean-level} + 112
   pattern:

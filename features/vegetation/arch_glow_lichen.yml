@@ -8,13 +8,10 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313  
-        threshold: 0.025
+        threshold: 0.9
   
 
-height: &range
-  min: ${meta.yml:ocean-level} + 2
-  max: ${meta.yml:ocean-level} + 30
-  
+
     #- type: SAMPLER
     #  samplers:
     #    type: EXPRESSION
@@ -22,9 +19,9 @@ height: &range
     #  threshold: 0.1
 locator:
   type: PATTERN
-  range:
+  range: &range
     min: ${meta.yml:ocean-level} + 3
-    max: ${meta.yml:ocean-level} + 112
+    max: ${meta.yml:ocean-level} + 40
   pattern:
     type: AND
     patterns:

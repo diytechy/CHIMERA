@@ -351,12 +351,16 @@ samplers:
     type: EXPRESSION
     variables: *rtv
     expression: |
-      max(2,
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+        max(2,
         caveCeilingMinimum(x, z)
         + ceilingSpikes(x, z) * ceilingSpikeAmplitude
           * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
-      )
-      + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
+        )
+        + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        -1)
     functions:
       "<<":
       - math/functions/interpolation.yml:functions
@@ -416,8 +420,12 @@ samplers:
     dimensions: 2
     variables: *rtv
     expression: |
-      scale * elevationDetailed(x, z)
-      - herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0)
+      scale * elevationDetailed(x, z) -
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+      herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        0)
     functions:
       "<<":
       - math/functions/interpolation.yml:functions
@@ -458,12 +466,7 @@ samplers:
             // Below ceiling height: carve void with negative density (always empty)
             -scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z),
             // Above ceiling height: add roof only if inside river and below terrain surface
-            if((y < (base + elevationDetailedWithHoles(x, z))) &&
-              continentalRiverDist(x, z)<=0.0,
-              //Within the river, above ceiling — solid roof up to terrain surface.
-              elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z),
-              //Outside river or above terrain — use base elevation (allows border blending).
-              scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))
+           elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z))
         )
       )
     functions:

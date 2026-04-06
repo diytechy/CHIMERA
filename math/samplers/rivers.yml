@@ -297,11 +297,11 @@ samplers:
     dimensions: 2
     type: LINEAR
     min: -1
-    max: 0.2
+    max: 0.5
     sampler:
       type: CELLULAR
       distance: Euclidean
-      frequency: 0.08
+      frequency: 0.04
 
   # ─── River terrain computed samplers ─────────────────────────────
   # Each former function is now a standalone sampler referencing

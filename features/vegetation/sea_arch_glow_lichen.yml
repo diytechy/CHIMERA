@@ -1,4 +1,4 @@
-id: ARCH_GLOW_LICHEN
+id: SEA_ARCH_GLOW_LICHEN
 type: FEATURE
 
 distributor:
@@ -14,7 +14,7 @@ distributor:
 
 locator:
   type: PATTERN
-  range: &range
+  range:
     min: ${meta.yml:ocean-level} + 3
     max: ${meta.yml:ocean-level} + 40
   pattern:

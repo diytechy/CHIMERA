@@ -65,4 +65,4 @@ features:
   flora:
     - GRASS
   river-decoration:
-    - ARCH_GLOW_LICHEN
+    - SEA_ARCH_GLOW_LICHEN

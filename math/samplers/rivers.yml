@@ -466,7 +466,7 @@ samplers:
           // Border (dist>0): ramp from bank (0) up to terrain height.
             if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
             riverBiomeActivationThreshold / 4, 0,
-            riverBiomeActivationThreshold, elevationAboveBank(x,z)))),
+            riverBiomeActivationThreshold, elevationAboveBank(x,z))),
           enclosedFullTransitionBlocks,
           // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
           if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),

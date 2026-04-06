@@ -951,3 +951,10 @@ Some flat designated / distributed biomes actually have terrain defined by eleva
 
 Some biomes are NOT defined for flat distribution but they do not use the elevation, so they may have strange river artifacts as the river attempts to climb the standard elevation equation, but the biome does not actually raise with elevation.
 
+#######################
+
+In the latest river terrain sampler (riverTerrainSampler) I am seeing correct enclosed rivers and correct open rivers, but above the enclosed rivers there is a huge discontinuity in elevation.  
+
+I need a deep analysis of this problem to root cause.  It may be simple, but I am unable to identify.
+
+If necessary, go through the terrain sampler and emulate (or design a script to emulate) a terrain that returns a constant elevationDetailed of 105.  What happens when this terrain intersects a river whose width in the generated world is 

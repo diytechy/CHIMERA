@@ -11,7 +11,7 @@ tags:
 - SPECIAL_CAVES
 - DEEP_DARK
 vars: &id001
-  base: 90
+  base: 70
   height: 130
   peaks: 60
   warpStrength: 0.29
@@ -73,6 +73,12 @@ terrain:
             octaves: 2
             lacunarity: 2
             gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 slant:
 - threshold: 0.35
   palette:

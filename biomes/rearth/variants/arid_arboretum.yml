@@ -80,6 +80,12 @@ terrain:
         dimensions: 2
         type: OPEN_SIMPLEX_2S
         frequency: 0.011
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 
 palette:
   - ARID: 319

@@ -4,7 +4,7 @@ vanilla: minecraft:savanna
 extends:
 - CARVING_LAND
 - BASE
-color: $biomes/colors.yml:SAVANNA
+color: $biomes/colors.yml:SAVANNA_OUTER
 colors:
   grass: 8567917
   foliage: 6662473
@@ -19,16 +19,15 @@ vars: &id001
   base: 69
   height: 11
   stepHeight: 4
+  scale: $customization.yml:terrain-height
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *id001
-    expression: '-y + base + height * surfaceOffset(x,z)
-
+    expression: |
+      -y + base + height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-
-      '
     samplers:
       plateous:
         dimensions: 2
@@ -44,6 +43,12 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 palette:
 - GRASS_MUSHY: 319
 - MUDDY_BEACH: 63

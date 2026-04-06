@@ -15,7 +15,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y+base+BiomeShapeLandmassBaseOffset(x,z) + max(height * surfaceOffset(x,z) - 2
+      -y+base + max(height * surfaceOffset(x,z) - 2
       + terrace(max(plateous(x,z) - 0.5, 0) * terraceCount, 999) / terraceCount * terraceHeight,
       paths(x,z) * pathHeight - 1)
     functions:
@@ -48,3 +48,9 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

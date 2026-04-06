@@ -33,9 +33,7 @@ stages:
       BLACK_FOREST: 1
       FLOWERING_FOREST: 1
       TALL_TIMBERLAND: 1
-      _pillow_plains: 2
       _secluded_valleys: 1
-      SAKURA_STREAMS: 1
       BAMBOO_BASIN: 2
       BADLANDS_BALCONIES: 2
       SCARLET_SANCTUARY: 2
@@ -56,7 +54,6 @@ stages:
     to:
       MESA_MONUMENTS: 2
       LUSH_LOOPS: 2
-      CARVING_CREAKS: 2
       ARID_ARBORETUM: 2
       SALT_FLATS: 1
       DESERT_SPIKES_GOLD: 1

@@ -101,8 +101,7 @@ stages:
     from: USE_DESERT_RIVER
     to:
       - SELF: 1
-      - GALLERY_FOREST: 1
-      - DESERT_RIVER: 2
+      - DESERT_RIVER: 1
     sampler:
       type: EXPRESSION
       expression: riverSampler(x,z)
@@ -111,8 +110,7 @@ stages:
     from: USE_RED_DESERT_RIVER
     to:
       - SELF: 1
-      - RED_GALLERY_FOREST: 1
-      - RED_DESERT_RIVER: 2
+      - RED_DESERT_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -122,8 +120,7 @@ stages:
     from: USE_ORANGE_DESERT_RIVER
     to:
       - SELF: 1
-      - ORANGE_GALLERY_FOREST: 1
-      - ORANGE_DESERT_RIVER: 2
+      - ORANGE_DESERT_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -240,8 +237,7 @@ stages:
     from: USE_TROPICAL_RIVER
     to:
       - SELF: 1
-      - GALLERY_FOREST: 1
-      - TROPICAL_RIVER: 2
+      - TROPICAL_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -291,8 +287,7 @@ stages:
     from: USE_FROZEN_RIVER_FROZEN_MARSH
     to:
       - SELF: 1
-      - FROZEN_MARSH: 1
-      - FROZEN_RIVER: 2
+      - FROZEN_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION

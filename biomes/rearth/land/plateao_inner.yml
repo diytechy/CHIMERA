@@ -21,11 +21,14 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: $biomes/rearth/land/plateao_middle.yml:vars
-    expression: '-y + top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z)
-      * surfaceVariationStrength
-
-      '
-    samplers: $biomes/rearth/land/plateao_middle.yml:terrain.sampler.samplers
+    expression: |
+      -y + top
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 palette:
 - GRASS_VARIATION: 319
 - << meta.yml:palette-bottom

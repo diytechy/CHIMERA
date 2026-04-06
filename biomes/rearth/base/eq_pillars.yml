@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y+base+BiomeShapeLandmassBaseOffset(x,z) + 10 + noiseBase(x,z) * height, -2, 3)
+      clamp(-y+base + 10 + noiseBase(x,z) * height, -2, 3)
       + clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:
@@ -74,3 +74,9 @@ terrain:
         dimensions: 2
         type: OPEN_SIMPLEX_2S
         frequency: 0.011
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

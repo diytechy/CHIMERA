@@ -1,4 +1,4 @@
-id: COVE_GLOW_LICHEN
+id: COVE_FROZEN_LIGHT
 type: FEATURE
 
 distributor:
@@ -7,7 +7,7 @@ distributor:
     - type: SAMPLER
       sampler:
         type: POSITIVE_WHITE_NOISE
-        salt: 2313  
+        salt: 2313
       threshold: 0.05
     - type: SAMPLER
       sampler:
@@ -37,4 +37,4 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: glow_berries
+  structures: BLOCK:minecraft:pearlescent_froglight

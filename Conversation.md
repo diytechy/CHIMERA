@@ -957,4 +957,19 @@ In the latest river terrain sampler (riverTerrainSampler) I am seeing correct en
 
 I need a deep analysis of this problem to root cause.  It may be simple, but I am unable to identify.
 
-If necessary, go through the terrain sampler and emulate (or design a script to emulate) a terrain that returns a constant elevationDetailed of 105.  What happens when this terrain intersects a river whose width in the generated world is 
+If necessary, go through the terrain sampler and emulate (or design a script to emulate) a terrain that returns a constant elevationDetailed of 105, knowing the terrain generation pipeline is described at C:\Projects\Terra\TerrainGenerationPipeline.md.  What happens when this terrain intersects a river whose width in the generated world whose width is about 20 blocks wide?  If emulating, make sure to use variables that are already a part of this script.  The river can be emulated as going straight through the biome.  All parts of the calculation should be emulated, if making any assumptions / estimations, ask for confirmation, knowing the river sets it's biome on top of the original biome according to add_rivers.yml (riverSampler, which outputs -1 when outside the border region of a river, -0.25 when outside the border activation threshold but closer to the river edge, and 1 when within the activation threshold where the river biome should take control)
+
+################################
+
+Actually the discontinuity might just be due to differing elevation samplers coming into contact.
+
+I see EQ_MULTI_TERRACED_LAND is relying heavily on the 3d sampler which does not have any true blending with the 2d sampler.  This is in contrast with "EQ_LAND
+
+
+###############################
+
+The discontinuity appears to be fixed, but this exposes a new issue, where the eq_global_river elevation sampler is not always compatible with a biome (such as a biome that does not use the elevation height).  I want to create a plan to investigate how many of these land surface biomes exist (that don't generate terrain from elevation, this should already be documented in BiomeTable.csv), and a recommendation for how they might be repaired.  For instance, "FOLIAGE_FORTRESS" biome IDs have a slow surfaceOffset(x,z) that should probably just be entirely removed, and then a 2-d sampler could be added with a respective elevationDetailed which would shift it in line with other samplers.
+
+Yes please proceed with the "FOLIAGE_FORTRESS" biomes.
+
+Just note that biomes in the "ElevationFlat" designation likely do not need any update because the flatness zeros out the elevation in those locations.  EQ_MULTI_TERRACED also likely does not need an update, since it generally will be higher than the detailed elevation.

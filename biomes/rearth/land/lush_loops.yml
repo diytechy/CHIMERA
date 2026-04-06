@@ -16,7 +16,7 @@ colors:
   water: 2004978
   water-fog: 2004978
 vars: &id001
-  base: 75
+  base: 68
   height: 55
   archHeight: 3.5
   archRadius: 35
@@ -92,6 +92,12 @@ terrain:
               type: CELLULAR
               frequency: 0.012
               jitter: 0.2
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 palette:
 - GRASS: 319
 - SAND: 64

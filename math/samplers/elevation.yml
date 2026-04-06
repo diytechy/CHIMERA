@@ -67,14 +67,14 @@ samplers:
   AppliedMountainHeightA:
     dimensions: 2
     type: EXPRESSION
-    expression: min(parabolicMap(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)), parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, mountains(x, z)))
+    expression: min(lerp(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)), lerp(continents(x, z), mountainContZero, 0, mountainContFull, mountains(x, z)))
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
 
   AppliedMountainHeightB:
     dimensions: 2
     type: EXPRESSION
-    expression: min(parabolicMap(-mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, abs(mountainsB(x, z))), parabolicMap(continents(x, z), mountainContZero, 0, mountainContFull, abs(mountainsB(x, z))))
+    expression: min(lerp(-mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, abs(mountainsB(x, z))), lerp(continents(x, z), mountainContZero, 0, mountainContFull, abs(mountainsB(x, z))))
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
 
@@ -201,7 +201,7 @@ samplers:
   plainsMaskApplied:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(abs(plainsMask(x, z)), plainsMaskZero, 0, plainsMaskFull, 1)
+    expression: if(AppliedMountainHeight(x,z)=0, herp(abs(plainsMask(x, z)), plainsMaskZero, 0, plainsMaskFull, 1), 0)
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
 
@@ -270,7 +270,6 @@ samplers:
         - mountains
         - mountainCap
         expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
-      parabolicMap: $math/functions/interpolation.yml:functions.parabolicMap
       lerp: $math/functions/interpolation.yml:functions.lerp
       herp: $math/functions/interpolation.yml:functions.herp
 

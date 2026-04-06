@@ -13,5 +13,7 @@ features:
   - OAK_BUSHES
   - FIREFLY_BUSH
   - GRASS
+  river-decoration:
+  - COVE_FROZEN_LIGHT
   processors:
   - RIVER_SOULSAND

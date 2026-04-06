@@ -27,11 +27,16 @@ terrain:
   sampler:
     type: EXPRESSION
     dimensions: 3
-    expression: riverTerrainSampler(x, y, z)
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: riverTerrainSampler(x, y, z) - scale * elevationDetailed(x, z)
 
-  # sampler-2d removed — riverTerrainSampler is self-contained and handles
-  # minimumRiverBankHeight directly. Using sampler-2d caused 2D elevation blending
-  # with neighboring biomes to corrupt river density at biome boundaries.
+  # sampler-2d matches neighboring land biomes (scale * elevationDetailed) so the
+  # 2D elevation blend is continuous across the river boundary. The 3D sampler
+  # subtracts the same value, keeping riverTerrainSampler's net contribution correct.
   sampler-2d:
     type: EXPRESSION
-    expression: "0"
+    dimensions: 2
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

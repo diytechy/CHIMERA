@@ -82,5 +82,7 @@ features:
   - ICE_PILLARS_CEILING
   snow:
   - SNOW_LAYERS
+  river-decoration:
+  - COVE_FROZEN_LIGHT
   postprocessors:
   - RIVER_SOULSAND

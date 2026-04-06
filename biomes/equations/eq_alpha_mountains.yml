@@ -9,7 +9,7 @@ terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    expression: -y + base + BiomeShapeLandmassBaseOffset(x,z) + (noise(x, z)+1)/2
+    expression: -y + base + (noise(x, z)+1)/2
       * height + (noise3(x, y*3, z)+1)/2 * blobStrength
     variables: *id001
     samplers:
@@ -24,5 +24,11 @@ terrain:
         dimensions: 3
         type: OPEN_SIMPLEX_2
         frequency: 0.018
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 tags:
 - BOREAL_COAST_HIGHLANDS

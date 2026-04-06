@@ -26,3 +26,8 @@ samplers:
   whiteNoise:
     dimensions: 2
     type: WHITE_NOISE
+  whiteNoiseExp:
+    dimensions: 2
+    type: CELLULAR
+    return: NoiseLookup
+    salt: 54321

@@ -28,8 +28,8 @@ river-terrain-variables: &rtv
   #   At center (dist=-1): threshold = 40 blocks overhead → enclosed
   # Result: shallow rivers fully open, moderate rivers open at center with
   # enclosed/overhanging edges, deep rivers fully enclosed as caves.
-  enclosedFullTransitionBlocks: 10    # potentialCeiling excess (blocks) at which cave is fully enclosed
-  enclosedStrtTransitionBlocks: 0     # potentialCeiling excess (blocks) at which enclosure blending begins
+  enclosedFullTransitionBlocks: 20    # potentialCeiling excess (blocks) at which cave is fully enclosed
+  enclosedStrtTransitionBlocks: 10     # potentialCeiling excess (blocks) at which enclosure blending begins
 
   # ─── Enclosed cave (ceiling) ────────────────────────────────────
   # When enclosed, a ceiling of rock is preserved above the river void.
@@ -385,7 +385,7 @@ samplers:
     type: EXPRESSION
     variables: *rtv
     expression: |
-      scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z)
+      max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z))
     functions:
       "<<":
       - math/functions/interpolation.yml:functions
@@ -445,7 +445,7 @@ samplers:
     # returning 0 yields the bank surface (density=0 at y = base + minimumRiverBankHeight).
     # Subtract to carve below bank (riverbed), add to build above (enclosed cave roof).
     expression: |
-      -y + base +
+      -y + base + minimumRiverBankHeight(x, z) +
       if(y <= base + minimumRiverBankHeight(x, z),
         // ── Case 1: Riverbed ──
         -bedDepth(x, z),
@@ -456,17 +456,17 @@ samplers:
           enclosedStrtTransitionBlocks,
           // Case 3: Open valley — herp from terrain down to bank
           // Inside river (dist<=0): 0 = air above bank.
-          // Border (dist>0): ramp from bank (0) up to terrain height minus bank.
+          // Border (dist>0): ramp from bank (0) up to terrain height.
             if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
-            riverBiomeActivationThreshold / 2, 0,
-            riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z)))),
+            riverBiomeActivationThreshold / 4, 0,
+            riverBiomeActivationThreshold, max(0, scale * elevationDetailed(x, z)))),
           enclosedFullTransitionBlocks,
           // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
           if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
             // Below ceiling height: carve void with negative density (always empty)
-            -scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z),
+            -scale * elevationDetailed(x, z),
             // Above ceiling height: add roof only if inside river and below terrain surface
-           elevationDetailedWithHoles(x, z) - minimumRiverBankHeight(x, z))
+           elevationDetailedWithHoles(x, z))
         )
       )
     functions:

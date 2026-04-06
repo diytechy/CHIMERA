@@ -236,6 +236,7 @@ stages:
         - ROCKY_GRASSLAND: 1
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
+        - VERDANT_VALLEYS: 1
       temperate-hot:
         - WOODED_BUTTES: 1
         - TEMPERATE_OVERPASS: 1
@@ -243,7 +244,6 @@ stages:
         - AZALEA_FOREST: 1
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
-        - VERDANT_VALLEYS: 1
         - FLOWERING_FOREST: 1
         - SAKURA_STREAMS: 1
       temperate-hot-highlands:
@@ -269,6 +269,7 @@ stages:
         - ALIEN_MARSH: 1
         - MARSH: 1
         - SWAMP: 1
+        - VERDANT_VALLEYS: 1
       temperate-warm:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
@@ -277,7 +278,6 @@ stages:
         - DARK_FOREST: 1
         - SAKURA_GROVE: 1
         - WOODED_BUTTES: 1
-        - VERDANT_VALLEYS: 1
         - SAKURA_STREAMS: 1
         - _plateao: 1
       temperate-warm-highlands:

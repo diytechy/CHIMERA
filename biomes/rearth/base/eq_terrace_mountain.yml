@@ -17,7 +17,7 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y+base+BiomeShapeLandmassBaseOffset(x,z) + 10 + (height / 2) * biomeInfluence(x,z)
+      -y+base + 10 + (height / 2) * biomeInfluence(x,z)
       + terrace(surfaceBaseMountains(x,z) * biomeInfluence(x,z) * terraceThinness, terraceStrength) / (terraceHeight * (terraceSizeVariation(x,z) * 0.5 + 1))
         * height + surfaceOffset(x,z) * variationHeight
     functions:
@@ -60,3 +60,9 @@ terrain:
         octaves: 3
         lacunarity: 3.6
         gain: 0.37
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

@@ -5,13 +5,14 @@ abstract: true
 vars: &variables
   base: $customization.yml:legacy-terrain-base-y-level
   height: 250
+  scale: $customization.yml:terrain-height
 
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y+base+BiomeShapeLandmassBaseOffset(x,z)
+    expression: -y+base
 
   sampler-2d:
     dimensions: 2
@@ -28,6 +29,7 @@ terrain:
         ),
         30, terraceVariation(x, z+2000)*2, 0, 1
       )
+      + scale * elevationDetailed(x, z)
     samplers:
       bubbles:
         dimensions: 2

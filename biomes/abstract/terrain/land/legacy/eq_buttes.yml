@@ -27,7 +27,7 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y+base+BiomeShapeLandmassBaseOffset(x,z)
+    expression: -y+base
 
   sampler-2d:
     dimensions: 2

@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      cliffify(-y+base+BiomeShapeLandmassBaseOffset(x,z) + height * surfaceOffset(x,z)
+      cliffify(-y+base + height * surfaceOffset(x,z)
         + (biomeTilt(x - 3, z - 3) + 0.5) * 55, -1)
       + (wallAddition(x,y,z) + 1) * 2
     functions:
@@ -62,3 +62,9 @@ terrain:
         octaves: 3
         lacunarity: 2
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y+base+BiomeShapeLandmassBaseOffset(x,z) + height * 
+      -y+base + height *
       if (clearingStrength(x,0,z) > clearingOffset, 
         lerp(clearingDepth(x,0,z), -0.8, flatClearings(x, 0, z), -0.45, surfaceOffset(x,z)), 
         surfaceOffset(x,z))
@@ -52,3 +52,9 @@ terrain:
             surfaceOffset(x,z)
           samplers:
             surfaceOffset: *baseFBM
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

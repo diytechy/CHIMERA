@@ -92,7 +92,7 @@ terrain-height: 180
 origen-terrain-height: 100
 # Terrain height for origen / rearth specific biomes that were designed before the height increase.
 
-valley-dist: -0.2
+valley-dist: -0.4
 # The distance from the edge of small biomes where valley terrain starts to generate.
 # Higher values give more gradual falloff into valley, but leave less space for actual valley region.
 

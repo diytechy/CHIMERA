@@ -51,6 +51,53 @@ samplers:
         sampler:
           <<: *landmassShape
           return: CellValue
+          
+  BiomeShapeLandmassValue2:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            type: WHITE_NOISE
+          salt-lookup: false
+
+  BiomeShapeLandmassPlainsMask:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup: $math/samplers/elevation.yml:samplers.plainsMaskApplied
+          salt-lookup: false
+          
+  BiomeShapeLandmassDistance:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          distance: Euclidean
+          
+  BiomeShapeLandmassFarRiverDistance:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+          salt-lookup: false
 
   BiomeShapeLandmassTemperature:
     <<: *outerWarpSmall

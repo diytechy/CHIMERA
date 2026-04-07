@@ -33,7 +33,6 @@ stages:
       BLACK_FOREST: 1
       FLOWERING_FOREST: 1
       TALL_TIMBERLAND: 1
-      _pillow_plains: 2
       _secluded_valleys: 1
       SAKURA_STREAMS: 1
       BAMBOO_BASIN: 2

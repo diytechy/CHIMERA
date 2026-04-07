@@ -1,13 +1,10 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 125
+  cellDistance: 200
   wellDistance: 100
   cellDistanceLarge: 250
   
-  # Basic size of large region features (vast forests / mesas / mountian ranges)
-  # Increase to make regions larger.
-  regionDistance: 900
   
   # Rift region distance for cells that will contain rifts.
   riftDistance: 300
@@ -94,6 +91,10 @@ terrain-height: 180
 
 origen-terrain-height: 100
 # Terrain height for origen / rearth specific biomes that were designed before the height increase.
+
+valley-dist: -0.2
+# The distance from the edge of small biomes where valley terrain starts to generate.
+# Higher values give more gradual falloff into valley, but leave less space for actual valley region.
 
 terrain-ocean-base-y-level: 60
 # The base ocean terrain y level, generally the highest level for terrain for ocean biomes.

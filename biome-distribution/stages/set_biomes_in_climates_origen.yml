@@ -264,7 +264,6 @@ stages:
         - OAK_FOREST: 1
         - FOSSILIZED_FENLANDS: 1
         - MURKY_MARSHLANDS: 1
-        - _pillow_plains: 1
         - _secluded_valleys: 1
         - ALIEN_MARSH: 1
         - MARSH: 1

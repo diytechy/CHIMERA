@@ -23,7 +23,6 @@ terrain:
     variables: $biomes/rearth/land/plateao_middle.yml:vars
     expression: |
       -y + top
-    samplers: $biomes/rearth/land/plateao_middle.yml:terrain.sampler.samplers
   sampler-2d:
     dimensions: 2
     type: EXPRESSION

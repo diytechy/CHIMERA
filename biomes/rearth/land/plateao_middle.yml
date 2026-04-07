@@ -32,32 +32,17 @@ terrain:
         -y + base,
         -abs(top - y - topWidth) + topWidth
       ) + wallVariation(x,y,z) * clamp((-abs(base + (top - base) / 2 - y) + 10), 0, 1) * 10
+    samplers:
+      wallVariation:
+        dimensions: 3
+        type: OPEN_SIMPLEX_2S
+        frequency: 0.035
   sampler-2d:
     dimensions: 2
     type: EXPRESSION
     variables:
       scale: $customization.yml:terrain-height
     expression: scale * elevationDetailed(x, z)
-    samplers:
-      cellBase:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-        jitter: ${customization.yml:biomeSpread.cellJitter}
-        return: CellValue
-      surfaceOffset:
-        dimensions: 2
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.006
-        octaves: 2
-        lacunarity: 3.4
-        gain: 0.4
-      wallVariation:
-        dimensions: 3
-        type: OPEN_SIMPLEX_2S
-        frequency: 0.035
 palette:
 - GRASS_VARIATION: 319
 - GRASS_MUSHY: 78

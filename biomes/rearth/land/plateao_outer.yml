@@ -28,12 +28,6 @@ terrain:
     expression: |
       -y + base + height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
     samplers:
       plateous:
         dimensions: 2
@@ -49,6 +43,12 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 palette:
 - GRASS_MUSHY: 319
 - MUDDY_BEACH: 63

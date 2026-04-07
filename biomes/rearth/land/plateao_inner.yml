@@ -22,9 +22,7 @@ terrain:
     type: EXPRESSION
     variables: $biomes/rearth/land/plateao_middle.yml:vars
     expression: |
-      -y + top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z)
-      * surfaceVariationStrength
-      - scale * elevationDetailed(x, z)
+      -y + top
     samplers: $biomes/rearth/land/plateao_middle.yml:terrain.sampler.samplers
   sampler-2d:
     dimensions: 2

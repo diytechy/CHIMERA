@@ -29,10 +29,9 @@ terrain:
     variables: *id001
     expression: |
       max(
-        -y + base + surfaceOffset(x,z) * surfaceVariationStrength,
-        -abs(top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z) * surfaceVariationStrength - y - topWidth) + topWidth
+        -y + base,
+        -abs(top - y - topWidth) + topWidth
       ) + wallVariation(x,y,z) * clamp((-abs(base + (top - base) / 2 - y) + 10), 0, 1) * 10
-      - scale * elevationDetailed(x, z)
   sampler-2d:
     dimensions: 2
     type: EXPRESSION

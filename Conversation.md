@@ -964,3 +964,12 @@ If necessary, go through the terrain sampler and emulate (or design a script to 
 Actually the discontinuity might just be due to differing elevation samplers coming into contact.
 
 I see EQ_MULTI_TERRACED_LAND is relying heavily on the 3d sampler which does not have any true blending with the 2d sampler.  This is in contrast with "EQ_LAND
+
+
+###############################
+
+The discontinuity appears to be fixed, but this exposes a new issue, where the eq_global_river elevation sampler is not always compatible with a biome (such as a biome that does not use the elevation height).  I want to create a plan to investigate how many of these land surface biomes exist (that don't generate terrain from elevation, this should already be documented in BiomeTable.csv), and a recommendation for how they might be repaired.  For instance, "FOLIAGE_FORTRESS" biome IDs have a slow surfaceOffset(x,z) that should probably just be entirely removed, and then a 2-d sampler could be added with a respective elevationDetailed which would shift it in line with other samplers.
+
+Yes please proceed with the "FOLIAGE_FORTRESS" biomes.
+
+Just note that biomes in the "ElevationFlat" designation likely do not need any update because the flatness zeros out the elevation in those locations.  EQ_MULTI_TERRACED also likely does not need an update, since it generally will be higher than the detailed elevation.

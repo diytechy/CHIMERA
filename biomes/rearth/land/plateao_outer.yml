@@ -28,7 +28,6 @@ terrain:
     expression: |
       -y + base + height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-      - scale * elevationDetailed(x, z)
   sampler-2d:
     dimensions: 2
     type: EXPRESSION

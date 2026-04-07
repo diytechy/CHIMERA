@@ -118,7 +118,7 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.2||mesaPresent(x, z)>0.0||flatness(x,z) >= 1.0||precipitation(x, z)<-0.2), 0,  (((rawPrecipitation(x, z)+1)/2)^0.5))
+    expression: if((continents(x, z)<=0.2||mesaPresent(x, z)>0.0||precipitation(x, z)<0), 0,  ((rawPrecipitation(x, z))^0.5))
 
   continentalDendryRivers:
     dimensions: 3

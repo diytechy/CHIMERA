@@ -43,3 +43,5 @@ features:
   - RIVER_SOULSAND
   landforms:
   - RIVER_BOULDERS
+  river-decoration:
+  - COVE_FROZEN_LIGHT

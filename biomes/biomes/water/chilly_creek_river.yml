@@ -101,5 +101,7 @@ features:
   - SNOW_LAYERS
   - SNOW_LAYERS_SINGLE_MODERATE
   - TREE_SNOW
+  river-decoration:
+  - COVE_FROZEN_LIGHT
   postprocessors:
   - RIVER_SOULSAND

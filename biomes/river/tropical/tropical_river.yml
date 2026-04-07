@@ -39,5 +39,7 @@ features:
   - SUGAR_CANE
   - GRASS
   - SEA_PICKLES
+  river-decoration:
+  - COVE_GLOW_LICHEN
   processors:
   - RIVER_SOULSAND

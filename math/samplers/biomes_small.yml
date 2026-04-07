@@ -61,8 +61,7 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup:
-            type: WHITE_NOISE
+          lookup: $math/samplers/simplex.yml:samplers.whiteNoiseExp
           salt-lookup: false
 
   BiomeShapeLandmassPlainsMask:

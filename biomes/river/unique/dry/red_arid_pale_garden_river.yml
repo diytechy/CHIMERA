@@ -22,7 +22,5 @@ features:
   - DENSE_PALE_FOREST_TREES
   - DENSE_FALLEN_PALE_OAK_TREES
   - PALE_OAK_BUSHES
-  landforms:
-  - PALE_MOSSY_BOULDERS
   processors:
   - RIVER_SOULSAND

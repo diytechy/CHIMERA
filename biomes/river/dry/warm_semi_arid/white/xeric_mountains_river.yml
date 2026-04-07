@@ -22,3 +22,5 @@ features:
   - DEAD_TREES_SPARSE
   processors:
   - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN

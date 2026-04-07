@@ -10,5 +10,6 @@ original-noise: &originalNoise $biomes/rearth/land/badlands_balconies.yml:terrai
 features:
   river-decoration:
   - CLAY_DEPOSITS
+  - COVE_GLOW_LICHEN
   processors:
   - RIVER_SOULSAND

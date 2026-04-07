@@ -13,6 +13,7 @@ vanilla: minecraft:frozen_river
 features:
   flora:
   - SMALL_MUSHROOMS
+  - COVE_GLOW_LICHEN
   trees:
   - MUSHROOM_DISK_PATCHES
   - LARGE_MUSHROOMS

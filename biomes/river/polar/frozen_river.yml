@@ -37,4 +37,5 @@ features:
   postprocessors:
   - TREE_SNOW
   - BLEND_SNOW
-  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_FROZEN_LIGHT

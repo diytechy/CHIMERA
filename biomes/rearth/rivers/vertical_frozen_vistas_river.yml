@@ -11,5 +11,6 @@ features:
   river-decoration:
     - CEILING_ICICLES
     - CLAY_DEPOSITS
+    - COVE_FROZEN_LIGHT
   processors:
   - RIVER_SOULSAND

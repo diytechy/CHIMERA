@@ -39,7 +39,7 @@ stages:
       _cold_well: 4
       land: 11
       _warm_well: 3
-      _warm_rift: 2
+      _warm_rift: 1
 
   - type: REPLACE_LIST
     sampler:

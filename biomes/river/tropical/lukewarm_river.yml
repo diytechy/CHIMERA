@@ -31,5 +31,7 @@ features:
   flora:
   - SUGAR_CANE
   - GRASS
+  river-decoration:
+  - COVE_GLOW_LICHEN
   processors:
   - RIVER_SOULSAND

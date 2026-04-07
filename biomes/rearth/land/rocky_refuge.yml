@@ -17,7 +17,7 @@ colors:
   water: 4159204
   water-fog: 329011
 vars: &id001
-  base: 77
+  base: 68
   height: 22
   pillarHeight: 50
   pillarCutoff: 0.95
@@ -107,6 +107,12 @@ terrain:
         octaves: 3
         lacunarity: 3.5
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 slant-depth: 40
 slant:
 - threshold: 0.9

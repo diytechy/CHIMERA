@@ -16,7 +16,7 @@ colors:
   water: 13494015
   water-fog: 13494015
 vars: &id001
-  base: 75
+  base: 65
   height: 54
   variationHeight: 4
   terraceHeight: 2.5  // inverted
@@ -66,6 +66,12 @@ terrain:
             expression: round(x) + 0.5 * (2*(x - round(x)))^terraceStrength
         samplers:
           mountainBasicShape: *id002
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
 slant-depth: 20
 slant:
 - threshold: 0.7

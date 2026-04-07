@@ -11,6 +11,10 @@ stages:
       - ICE_SPIKES: 1
       - LAND_GLACIER: 1
     to:
+      ice-cap-flat:
+        - ICE_SPIKES: 1
+        - LAND_GLACIER: 1
+        - FROSTBOUND_CHASMS: 1
       ice-cap:
         - LAND_GLACIER: 2
         - SNOWY_TUFF_MOUNTAINS: 1
@@ -21,7 +25,6 @@ stages:
         - BARE_BOULDERFIELDS: 1
         - BITTER_HEIGHTS: 1
         - PERMAFROST_CLIFFS: 1
-        - FROSTBOUND_CHASMS: 1
         - FROZEN_SPIRES: 1
 
       tundra-flat:
@@ -29,6 +32,7 @@ stages:
         - TUNDRA_TRACKS: 1
         - FRIGID_WASTELANDS: 1
         - MUSKEG: 1
+        - FROSTBOUND_CHASMS: 1
       tundra:
         - TUNDRA: 2
         - SNOWY_TUFF_MOUNTAINS: 1
@@ -42,7 +46,6 @@ stages:
         - BARE_BOULDERFIELDS: 1
         - BITTER_HEIGHTS: 1
         - PERMAFROST_CLIFFS: 1
-        - FROSTBOUND_CHASMS: 1
         - VERTICAL_VISTAS_FROZEN: 1
 
       polar-mesa:
@@ -348,6 +351,7 @@ stages:
         - DESERT: 4
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
+        - CARVING_CREAKS: 1
         - _desert: 1
       hot-desert-white:
         - DESERT: 1
@@ -357,7 +361,6 @@ stages:
         - DESERT_TERRACES: 1
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
-        - CARVING_CREAKS: 1
         - _desert: 1
       hot-desert-highlands-white:
         - DESERT_PILLARS: 1

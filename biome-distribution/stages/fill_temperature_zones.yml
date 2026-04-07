@@ -54,7 +54,6 @@ stages:
     to:
       MESA_MONUMENTS: 2
       LUSH_LOOPS: 2
-      CARVING_CREAKS: 2
       ARID_ARBORETUM: 2
       SALT_FLATS: 1
       DESERT_SPIKES_GOLD: 1

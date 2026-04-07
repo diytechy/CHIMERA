@@ -291,8 +291,7 @@ stages:
     from: USE_FROZEN_RIVER_FROZEN_MARSH
     to:
       - SELF: 1
-      - FROZEN_MARSH: 1
-      - FROZEN_RIVER: 2
+      - FROZEN_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION

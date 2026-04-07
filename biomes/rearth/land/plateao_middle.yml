@@ -21,15 +21,24 @@ vars: &id001
   topWidth: 6
   biomeVariationStrength: 15
   surfaceVariationStrength: 8
+  scale: $customization.yml:terrain-height
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *id001
-    expression: "max(\n  -y + base + surfaceOffset(x,z) * surfaceVariationStrength,\n\
-      \  -abs(top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z) *\
-      \ surfaceVariationStrength - y - topWidth) + topWidth\n) + wallVariation(x,y,z)\
-      \ * clamp((-abs(base + (top - base) / 2 - y) + 10), 0, 1) * 10\n"
+    expression: |
+      max(
+        -y + base + surfaceOffset(x,z) * surfaceVariationStrength,
+        -abs(top + cellBase(x,z) * biomeVariationStrength + surfaceOffset(x,z) * surfaceVariationStrength - y - topWidth) + topWidth
+      ) + wallVariation(x,y,z) * clamp((-abs(base + (top - base) / 2 - y) + 10), 0, 1) * 10
+      - scale * elevationDetailed(x, z)
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
     samplers:
       cellBase:
         dimensions: 2

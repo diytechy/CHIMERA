@@ -19,16 +19,22 @@ vars: &id001
   base: 69
   height: 11
   stepHeight: 4
+  scale: $customization.yml:terrain-height
 terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *id001
-    expression: '-y + base + height * surfaceOffset(x,z)
-
+    expression: |
+      -y + base + height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-
-      '
+      - scale * elevationDetailed(x, z)
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)
     samplers:
       plateous:
         dimensions: 2

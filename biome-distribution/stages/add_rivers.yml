@@ -120,8 +120,7 @@ stages:
     from: USE_ORANGE_DESERT_RIVER
     to:
       - SELF: 1
-      - ORANGE_GALLERY_FOREST: 1
-      - ORANGE_DESERT_RIVER: 2
+      - ORANGE_DESERT_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION

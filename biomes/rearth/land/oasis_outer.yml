@@ -1,7 +1,7 @@
 id: OASIS_OUTER
 type: BIOME
 vanilla: minecraft:desert
-color: $biomes/colors.yml:DESERT
+color: $biomes/colors.yml:DESERT_OUTER
 extends:
 - CARVING_LAND
 - BASE

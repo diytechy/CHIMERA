@@ -1,7 +1,7 @@
 id: SECLUDED_VALLEY_OUTER
 type: BIOME
 vanilla: minecraft:meadow
-color: $biomes/colors.yml:SUNFLOWER_PRAIRIE
+color: $biomes/colors.yml:SUNFLOWER_PRAIRIE_OUTER
 extends:
 - CARVING_LAND
 - BASE

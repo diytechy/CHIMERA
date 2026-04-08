@@ -1,7 +1,7 @@
 id: PILLOW_PLAINS_OUTER
 type: BIOME
 vanilla: minecraft:plains
-color: $biomes/colors.yml:SAKURA_GROVE
+color: $biomes/colors.yml:SAKURA_GROVE_OUTER
 extends:
 - CARVING_LAND
 - BASE

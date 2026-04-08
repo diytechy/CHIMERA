@@ -85,6 +85,7 @@ samplers:
         sampler:
           <<: *landmassShape
           distance: Euclidean
+          #distance: EuclideanSq
           
   BiomeShapeLandmassFarRiverDistance:
     <<: *outerWarpSmall

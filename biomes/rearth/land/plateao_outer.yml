@@ -4,7 +4,7 @@ vanilla: minecraft:savanna
 extends:
 - CARVING_LAND
 - BASE
-color: $biomes/colors.yml:SAVANNA
+color: $biomes/colors.yml:SAVANNA_OUTER
 colors:
   grass: 8567917
   foliage: 6662473

@@ -77,15 +77,11 @@ samplers:
           salt-lookup: false
           
   BiomeShapeLandmassDistance:
-    <<: *outerWarpSmall
+    <<: *innerWarpSmall
     sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *landmassShape
-          distance: Euclidean
-          #distance: EuclideanSq
+      <<: *landmassShape
+      distance: Euclidean
+      #distance: EuclideanSq
           
   BiomeShapeLandmassFarRiverDistance:
     <<: *outerWarpSmall

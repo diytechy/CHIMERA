@@ -27,3 +27,5 @@ features:
     - CAVE_GRASS
     - AZALEA_BLOCK
     - FLOWERING_AZALEA_BLOCK
+  ores:
+    - HONEYCOMB_DEPOSITS

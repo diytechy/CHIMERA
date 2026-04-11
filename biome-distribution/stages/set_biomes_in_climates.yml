@@ -118,6 +118,7 @@ stages:
       boreal-snowy-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
+        - SAKURA_WOODLANDS: 1
 
       boreal-hot-dry-flat:
         - PRAIRIE: 1
@@ -169,6 +170,7 @@ stages:
       boreal-snowy-dry-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
+        - LAVENDER_CRAGS: 1
 
       boreal-coast-flat:
         - ROCKY_ARCHIPELAGO: 5

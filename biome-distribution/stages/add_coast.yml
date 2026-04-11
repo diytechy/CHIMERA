@@ -69,9 +69,10 @@ stages:
     from: POLAR_COAST_FLAT
     to:
       - FROZEN_BEACH: 2
+      - SNOWDRIFT_COASTS: 2
       - FROSTY_FINGERS: 1
       - FRIGID_WASTELANDS: 1
-      - SELF: 4
+      - SELF: 6
 
       
   - type: REPLACE

@@ -480,50 +480,47 @@ samplers:
       "<<":
       - math/functions/interpolation.yml:functions
 
-RiverSupportDensity:
-  dimensions: 3
-  type: EXPRESSION
-  variables:
-    Base: $meta.yml:ocean-level
-    HeightScale: $customization.yml:terrain-height
-    MinRiverSupp: $customization.yml:min-river-support-height
-    MinRiverNorm: $customization.yml:min-river-support-height-norm
-    terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
-    riverBedDepth: 8
-    AvgWidestRiverHalfWidth: (${customization.yml:minimum-continental-river-width} + ${customization.yml:maximum-continental-river-width})/4
-    RiverElev:
-      dimensions: 2
-      type: EXPRESSION
-      expression: Base+continentalRiverBlockElevChange(x,z)
-    RiverBedElev:
-      dimensions: 2
-      type: EXPRESSION
-      variables:
-        riverBedVariation: *riverBedVariation
-      expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
-      #Ratio up to minimum river bank is (y-RiverBedElev)/riverBedDepth
-      #Goal is to maintain a maximum 2 block rise over 1 block run
-      #to suppress slope activation pallette change, in general should not be exposed.
-      #Note since River distance does not give block distance, we can only approximate.
-      #This will yield lower / more fades slopes on wider rivers, but in general all this should
-      #be masked by the actual biome evaluation functions.
-
-      #Check 1: Make sure we are below river elevation.
-      #Form: For distance below
-  expression: |
-    if((continents(x,z)>-0.05 && y<(RiverElev(x,z))),
-      if((y>RiverBedElev(x,z)),
-        -y+Base+herp(continentalRiverDist(x,z),0,HeightScale*RiverElev(x,z),1,0),
-        if((y<Base && y>MinRiverSupp),
-          insideMinimumBank(RiverElev-y,abs(continentalRiverDist(x,z),(maxRiverWidthAtLevel(x,z)/4)))
-        )
-       ),
-      0
-    )
-  functions:
-    insideMinimumBank:
-      arguments: [depthBelowWaterElev, absDistFromBorder, ForceWallWidth]
-      expression: |-
-        if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
-          1,
-            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev,1,0)
+  RiverSupportDensity:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      Base: $meta.yml:ocean-level
+      HeightScale: $customization.yml:terrain-height
+      MinRiverSupp: $customization.yml:min-river-support-height
+      riverBedDepth: 8
+    samplers:
+      RiverElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: $meta.yml:ocean-level
+        expression: Base+continentalRiverBlockElevChange(x,z)
+      RiverBedElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: $meta.yml:ocean-level
+          riverBedDepth: 8
+          riverBedVariation: *riverBedVariation
+        expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
+    expression: |
+      if((continents(x,z)>-0.05 && y<RiverElev(x,z)),
+        if(y>RiverBedElev(x,z),
+          -y+Base+herp(continentalRiverDist(x,z),0,HeightScale*RiverElev(x,z),0.1,0),
+          if(y>MinRiverSupp,
+            insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4),
+            0
+          )
+         ),
+        0
+      )
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+      insideMinimumBank:
+        arguments: [depthBelowWaterElev, absDistFromBorder, ForceWallWidth]
+        expression: |-
+          if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
+            1,
+            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, 1, 0)
+          )

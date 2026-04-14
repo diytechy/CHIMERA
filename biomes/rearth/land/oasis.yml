@@ -2,6 +2,7 @@ id: OASIS
 type: BIOME
 vanilla: minecraft:beach
 extends:
+- EQ_SMALL_BIOME_VALLEY
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:DESERT
@@ -18,30 +19,7 @@ vars: &id001
   base: 64
   height: 8
   offset: 0.995
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *id001
-    expression: '-y + base + clamp((biomeCenter(x,z) + offset) / (1 - offset), -0.7,
-      0) * height
 
-      '
-    functions: null
-    samplers:
-      biomeCenter:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 5
-        warp:
-          dimensions: 2
-          type: OPEN_SIMPLEX_2
-          frequency: 0.08
-        sampler:
-          dimensions: 2
-          type: CELLULAR
-          jitter: ${customization.yml:biomeSpread.cellJitter}
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
 palette:
 - SANDY_GRASS: 319
 - MUDDY_BEACH: 62

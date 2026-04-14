@@ -1,4 +1,4 @@
-id: EQ_SMALL_BIOME_VALLEY_TRANSITION
+id: EQ_SMALL_BIOME_VALLEY
 type: BIOME
 abstract: true
 
@@ -7,6 +7,8 @@ vars: &variables
   scale: $customization.yml:terrain-height
   valley_dist: $customization.yml:valley-dist
   valley_srt: $customization.yml:valley-srt
+  query_scale: 1
+  hill_variation: 6
 
 terrain:
   sampler:
@@ -18,6 +20,5 @@ terrain:
   sampler-2d:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(BiomeShapeLandmassDistance(x, z),valley_dist,0,valley_srt,scale * elevationDetailed(x, z))
     variables: *variables
-    functions: $math/functions/interpolation.yml:functions
+    expression: simplex2(x * query_scale, z * query_scale)*hill_variation

@@ -973,3 +973,22 @@ The discontinuity appears to be fixed, but this exposes a new issue, where the e
 Yes please proceed with the "FOLIAGE_FORTRESS" biomes.
 
 Just note that biomes in the "ElevationFlat" designation likely do not need any update because the flatness zeros out the elevation in those locations.  EQ_MULTI_TERRACED also likely does not need an update, since it generally will be higher than the detailed elevation.
+
+##############################################
+
+An issue with this Terra pack is that in very dry regions, a hot very dry region type will border a cold very dry region, which is jarring and nonsensical (cold / snowy region next to a desert / mesa region)
+
+This is due to the way biomes are distributed in the staging sequence, such that a temperature swing from very hot to very cold across a very dry location will cause this discontinuity.
+
+Please ideate alternatives to prevent this discontinuity.
+
+One ideas:
+
+Map moderate temperature very dry biomes to a moderate temperature moderate / low precipitation region instead of a direct jump from cold-desert to hot-desert, potentially just mapping the dry regions of the following regions to something that is not strictly dry to give more of a transition across the dry definition temperature gradient:
+
+boreal-warm
+boreal-hot
+temperate-cold
+temperate-warm
+
+What other alternatives would smooth out the user experience to be less jarring in very dry regions?

@@ -992,3 +992,11 @@ temperate-cold
 temperate-warm
 
 What other alternatives would smooth out the user experience to be less jarring in very dry regions?
+
+#####################################
+
+When creating terrain, rivers are rarely not bounded correctly on either side, resulting in water that is able to flow outward instead of contained by banks.
+
+The sampler "RiverSupportDensity" is intended to ensure land at the bank of the river fully raise up to contain the river water (where the river distance = 0 at the rivers edge).
+
+A positive density return should force block placement to contain river water.  Can you review the expression and corresponding samplers to verify if there is an issue with the way the expression is formulated?

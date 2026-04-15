@@ -3,11 +3,10 @@ variables: &variables
   borderValue: 1 # Value the sampler outputs for areas bordering rivers.
   riverValue: 0 # Value the sampler outputs where there should be a river.
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
-  riverThreshold: 0.3 # Determines the area calculated as river, which also determines how far away river borders will be.
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
   soulSandPlaceDist: &soulSandPlaceDist 8
-  riverBiomeActivationThreshold: &riverBiomeActivationThreshold 0.4
+  riverBiomeActivationThreshold: &riverBiomeActivationThreshold 0.4 # Determines the area calculated as river, which also determines how far away river borders will be.
 
   erosionMaxDistance: 0.3
   erosionMax: 0.95
@@ -488,6 +487,7 @@ samplers:
       HeightScale: $customization.yml:terrain-height
       MinRiverSupp: $customization.yml:min-river-support-height
       riverBedDepth: 8
+      riverBiomeActivationThreshold: *riverBiomeActivationThreshold
     samplers:
       RiverElev:
         dimensions: 2
@@ -504,15 +504,17 @@ samplers:
           riverBedVariation: *riverBedVariation
         expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
     expression: |
-      if((continents(x,z)>-0.05 && y<RiverElev(x,z)),
-        if(y>RiverBedElev(x,z),
-          -y+Base+herp(continentalRiverDist(x,z),0,HeightScale*RiverElev(x,z),0.1,0),
-          if(y>MinRiverSupp,
-            insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4),
-            0
-          )
+      //If within river bounds, provide support up to the river elevation, otherwise no support (-1).
+      if((y>RiverBedElev(x,z) && continents(x,z)>-0.05 && y<RiverElev(x,z)),
+        //If outside the river, provide support rolling up to minimum bank.
+        //If this creates too much material, the else condition should work for
+        // both inside and outside the river.
+        if(continentalRiverDist(x,z)>0,
+          -y+herp(continentalRiverDist(x,z),0,RiverElev(x,z),riverBiomeActivationThreshold,Base),
+          //If inside the river, provide linear support.
+          insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4)
          ),
-        0
+        -1
       )
     functions:
       "<<":

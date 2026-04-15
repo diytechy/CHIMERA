@@ -415,7 +415,13 @@ samplers:
         warp:
           type: WHITE_NOISE
           salt: 2394
-
+          
+  elevationDetailedBlockHeight:
+    dimensions: 2
+    variables: *variables
+    type: EXPRESSION
+    expression: |
+      elevationDetailed(x,z)*verticalLift
 
   oceanElevation:
     dimensions: 2

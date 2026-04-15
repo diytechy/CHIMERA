@@ -413,11 +413,9 @@ stages:
       temperate-steppe-flat:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
-        - RED_DRY_PALM_FOREST: 1
       temperate-steppe:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
-        - RED_DRY_PALM_FOREST: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
 

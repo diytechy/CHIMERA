@@ -39,8 +39,9 @@ terrain:
             -basepillars(x,z) - 0.72    // basic pillars
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
-            + (min(0, base + BiomeShapeLandmassElevation(x,z) + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
+            + (min(0, base  + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
           )
+          // + BiomeShapeLandmassElevation(x,z)
         samplers:
           basepillars: &pillarConf
             dimensions: 2
@@ -89,4 +90,4 @@ terrain:
     type: EXPRESSION
     variables:
       scale: $customization.yml:terrain-height
-    expression: BiomeShapeLandmassElevation(x,z)
+    expression: elevationDetailedBlockHeight(x,z)

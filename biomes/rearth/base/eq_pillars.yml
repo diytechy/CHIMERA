@@ -9,8 +9,8 @@ vars: &variables
 
 terrain:
   blend:
-    distance: 0     # 0 = disabled (sharp edges)
-    step: 0
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 1
     weight: 1.0
   sampler:
     dimensions: 3
@@ -33,7 +33,7 @@ terrain:
             -basepillars(x,z) - 0.72    // basic pillars
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
-            + (min(0, base + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
+            + (min(0, base + BiomeShapeLandmassElevation(x,z) + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
           )
         samplers:
           basepillars: &pillarConf
@@ -78,9 +78,9 @@ terrain:
         dimensions: 2
         type: OPEN_SIMPLEX_2S
         frequency: 0.011
-#  sampler-2d:
-#    dimensions: 2
-#    type: EXPRESSION
-#    variables:
-#      scale: $customization.yml:terrain-height
-#    expression: scale * elevationDetailed(x, z)
+  # sampler-2d:
+  #   dimensions: 2
+  #   type: EXPRESSION
+  #   variables:
+  #     scale: $customization.yml:terrain-height
+  #   expression: scale * elevationDetailed(x, z)

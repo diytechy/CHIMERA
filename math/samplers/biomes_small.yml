@@ -87,7 +87,18 @@ samplers:
         distance: Euclidean
         #distance: EuclideanSq
 
-  BiomeShapeLandmassFullDistance:
+  #BiomeShapeLandmassFullDistance:
+  #  <<: *outerWarpSmall
+  #  sampler:
+  #    <<: *midWarpSmall
+  #    sampler:
+  #      <<: *innerWarpSmall
+  #      sampler:
+  #        <<: *landmassShape
+  #        distance: Euclidean
+  #        #distance: EuclideanSq
+          
+  BiomeShapeLandmassDist2Center:
     <<: *outerWarpSmall
     sampler:
       <<: *midWarpSmall
@@ -95,6 +106,7 @@ samplers:
         <<: *innerWarpSmall
         sampler:
           <<: *landmassShape
+          return: Distance2Div
           distance: Euclidean
           #distance: EuclideanSq
           
@@ -114,12 +126,12 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     expression: |
-      herp(BiomeShapeLandmassFullDistance(x,z),-0.7, elevationDetailedBlockHeight(x,z),
-      -0.3, BiomeShapeLandmassElevation(x,z))
+      herp(BiomeShapeLandmassDist2Center(x,z),0.4,  BiomeShapeLandmassElevation(x,z),
+      0.8,elevationDetailedBlockHeight(x,z))
     samplers:
       BiomeShapeLandmassElevation: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassElevation
       elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
-      BiomeShapeLandmassFullDistance: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassFullDistance
+      BiomeShapeLandmassDist2Center: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDist2Center
           
   BiomeShapeLandmassFarRiverDistance:
     <<: *outerWarpSmall

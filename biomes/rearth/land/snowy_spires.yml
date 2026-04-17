@@ -4,7 +4,7 @@ vanilla: minecraft:snowy_taiga
 color: $biomes/colors.yml:FROZEN_ARCHIPELAGO
 extends:
 - EQ_PILLARS
-- CARVING_LAND
+# - CARVING_LAND
 - BASE
 tags:
 - USE_FROZEN_RIVER

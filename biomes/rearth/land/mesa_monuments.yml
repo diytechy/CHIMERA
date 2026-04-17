@@ -5,7 +5,7 @@ color: $biomes/colors.yml:DESERT_MESA
 extends:
 - EQ_PILLARS
 - COLOR_XERIC
-- CARVING_LAND
+#- CARVING_LAND
 - BASE
 tags:
 - USE_RIVER

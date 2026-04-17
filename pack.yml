@@ -8,9 +8,10 @@ blend:
   sampler-floor:
     dimensions: 3
     type: EXPRESSION
-    expression: -2.5 + noise(x,y,z)*1.5
+    expression: -10 + noise(x,y,z)*1.5
     samplers:
       noise:
+        dimensions: 3
         type: SIMPLEX
         octaves: 2
         frequency: 0.5

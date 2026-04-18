@@ -1034,12 +1034,12 @@ Act:
 Actions to take in order to better 
 1. 
 
-1. Update the biomeInfluence sampler to increase to 1 as distance into biome grows, derive from:
+1. Update the biomeInfluence sampler to increase from 0 to 1 as distance into biome grows, derive from:
   - rivers increase (ContinentalRiverDist goes from distance threshold to 1)
   - distance from cell border increases (Convert cell biome distance, BiomeShapeLandmassDist2Center, which goes to 0 as it approaches center)
   - distance from mesa border increases. (mesaFootDist, 0 at mesa foot, grows to 1 into mesa, negative value away from mesa)
   - distance from coast?  (dist2Coast, gets larger the further away from shore, can be normalized using the continents distance?)
-  - The biomeInfluence sampler should increase to 1 at the real world block distance of distAtFullInfluence.
+  - The biomeInfluence sampler should increase to 1 at the real world block distance of distAtFullInfluence, while 0 when at the border of the above artifacts.
 
 *. Make sure all surface / land biomes respect these borders, this means mesa sub-biome replacements must also use this biome replacement (small biome), not a secondary sampler.
 

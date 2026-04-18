@@ -430,8 +430,29 @@ samplers:
   biomeInfluence:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      distAtFullInfluence: $customization.yml:biomeSpread.distAtFullInfluence
+      # River: continentalRiverDist = 1 at river boundary, 1 unit ≈ riverNominalBoundary blocks
+      riverNominalBoundary: $customization.yml:river-nominal-boundary
+      # Cell border: BiomeShapeLandmassDist2Center = 1 at border, 0 at center, over ~cellHalfDist blocks
+      # (approximation — actual scale is heavily affected by domain warp)
+      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} / 2
+      # Mesa / coast: no precise block-to-unit anchor; tune these as needed
+      mesaBlocksPerUnit: ${customization.yml:continental-mesa-region-allowed-distance} / 2
+      coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} / 2
     expression: |
-      1
+      min(
+        min(
+          min(herp(continentalRiverDist(x,z), 1, 0, 1 + distAtFullInfluence / riverNominalBoundary, 1),
+          herp(BiomeShapeLandmassDist2Center(x,z), 1, 0, 1 - distAtFullInfluence / cellHalfDist, 1)),
+        if(mesaFootDist(x,z) < 0, 1, herp(mesaFootDist(x,z), 0, 0, distAtFullInfluence / mesaBlocksPerUnit, 1))),
+      herp(dist2Coast(x,z), 0, 0, distAtFullInfluence / coastBlocksPerUnit, 1))
+    functions: $math/functions/interpolation.yml:functions
+    samplers:
+      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      BiomeShapeLandmassDist2Center: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDist2Center
+      mesaFootDist: $math/samplers/elevation.yml:samplers.mesaFootDist
+      dist2Coast: $math/samplers/continents.yml:samplers.dist2Coast
 
   oceanElevation:
     dimensions: 2

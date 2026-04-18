@@ -521,8 +521,8 @@ samplers:
       - math/functions/interpolation.yml:functions
       insideMinimumBank:
         arguments: [depthBelowWaterElev, absDistFromBorder, ForceWallWidth]
-        expression: |-
+        expression: |
           if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
             1,
-            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, 1, 0)
+            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, -1, 1)
           )

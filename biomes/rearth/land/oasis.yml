@@ -1,58 +1,35 @@
 id: OASIS
 type: BIOME
 vanilla: minecraft:beach
-extends: [ CARVING_LAND, BASE ]
-
+extends:
+- EQ_SMALL_BIOME_VALLEY
+- CARVING_LAND
+- BASE
 color: $biomes/colors.yml:DESERT
-
 colors:
-  grass: 0x77B338
-  foliage: 0x4EB338
-  water: 0x45BE90
-  water-fog: 0x44aff5
-
+  grass: 7844664
+  foliage: 5157688
+  water: 4570768
+  water-fog: 4501493
 tags:
-  - USE_RIVER
-
-vars: &variables
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+vars: &id001
   base: 64
   height: 8
   offset: 0.995
 
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *variables
-    expression: |
-      -y + base + clamp((biomeCenter(x,z) + offset) / (1 - offset), -0.7, 0) * height
-    functions:
-    samplers:
-      biomeCenter:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 5
-        warp:
-          dimensions: 2
-          type: OPEN_SIMPLEX_2
-          frequency: 0.08
-        sampler:
-          dimensions: 2
-          type: CELLULAR
-          jitter: ${customization.yml:biomeSpread.cellJitter}
-          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-
 palette:
-  - SANDY_GRASS: 319
-  - MUDDY_BEACH: 62
-  - << meta.yml:palette-bottom
-
+- SANDY_GRASS: 319
+- MUDDY_BEACH: 62
+- << meta.yml:palette-bottom
 features:
   landforms:
-    - SMALL_BOULDER_PATCHES
+  - SMALL_BOULDER_PATCHES
   trees:
-    - OASIS_PALM_TREES
+  - OASIS_PALM_TREES
   flora:
-    - GRASS
-    - JUNGLE_BUSHES
-    - SUGAR_CANE
+  - GRASS
+  - JUNGLE_BUSHES
+  - SUGAR_CANE

@@ -1,42 +1,42 @@
 id: TUNDRA_TRACKS
 type: BIOME
 vanilla: minecraft:snowy_plains
-extends: [ EQ_LOWLAND_HILLS, CARVING_LAND, BASE ]
-
+extends:
+- EQ_LOWLAND_HILLS
+- CARVING_LAND
+- BASE
 color: $biomes/colors.yml:SAVANNA
-
 colors:
-  sky: 0xe4f1ff
-  fog: 0xbacddc
-  grass: 0xe9f2e2
-  foliage: 0xd2f7e9
-  water: 0x3181ff
-  water-fog: 0x2756ab
-  
+  sky: 15004159
+  fog: 12242396
+  grass: 15332066
+  foliage: 13826025
+  water: 3244543
+  water-fog: 2578091
 tags:
-  - USE_RIVER
-
+- USE_FROZEN_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+- POLAR_COAST_FLAT
 palette:
-  - GRASS_SNOW_MIX: 319
-  - BLOCK:minecraft:blue_ice: 62
-  - MUDDY_BEACH: 61
-  - << meta.yml:palette-bottom
-
+- GRASS_SNOW_MIX: 319
+- BLOCK:minecraft:blue_ice: 62
+- MUDDY_BEACH: 61
+- << meta.yml:palette-bottom
 slant:
-  - threshold: 0.75
-    palette:
-      - BLOCK:minecraft:stone: 319
-      - << meta.yml:palette-bottom
-
+- threshold: 0.75
+  palette:
+  - BLOCK:minecraft:stone: 319
+  - << meta.yml:palette-bottom
 features:
   landforms:
-    - SMALL_GRANITE_BOULDER_PATCHES
+  - SMALL_GRANITE_BOULDER_PATCHES
   slabs:
-    - SNOW_LAYERS
+  - SNOW_LAYERS
   trees:
-    - COLD_EVERGREEN_TREES
+  - COLD_EVERGREEN_TREES
   preprocessors:
-    - POWDER_SNOW_DEPOSITS
-    - ICE_COASTLINE
+  - POWDER_SNOW_DEPOSITS
+  - ICE_COASTLINE
   postprocessors:
-    - TREE_SNOW
+  - TREE_SNOW

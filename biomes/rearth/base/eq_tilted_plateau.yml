@@ -3,8 +3,8 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: $customization.yml:terrain-base-y-level
-  height: 16
+  base: 71
+  height: 10
   cellDist: ${customization.yml:biomeSpread.cellDistance}
 
 terrain:
@@ -13,8 +13,8 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      cliffify(-y+base
-        + (biomeTilt(x - 3, z - 3) + 0.5) * 35, -1)
+      cliffify(-y + base + height * surfaceOffset(x,z)
+        + (biomeTilt(x - 3, z - 3) + 0.5) * 55, -1)
       + (wallAddition(x,y,z) + 1) * 2
     functions:
       cliffify:
@@ -26,7 +26,7 @@ terrain:
     samplers:
       wallAddition:
         dimensions: 3
-        type: OPEN_SIMPLEX_2
+        type: OPEN_SIMPLEX_2S
         frequency: 0.09
       biomeTilt:
         dimensions: 2
@@ -62,9 +62,3 @@ terrain:
         octaves: 3
         lacunarity: 2
         gain: 0.5
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)

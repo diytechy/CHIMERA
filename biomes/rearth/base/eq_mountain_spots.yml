@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: $customization.yml:legacy-terrain-base-y-level
+  base: 100
   height: 55
   clearingOffset: 0.7 # increasing this will result in more clearings / flat spots
 
@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y+base + height *
+      -y + base + height * 
       if (clearingStrength(x,0,z) > clearingOffset, 
         lerp(clearingDepth(x,0,z), -0.8, flatClearings(x, 0, z), -0.45, surfaceOffset(x,z)), 
         surfaceOffset(x,z))
@@ -52,9 +52,3 @@ terrain:
             surfaceOffset(x,z)
           samplers:
             surfaceOffset: *baseFBM
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)

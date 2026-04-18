@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: $customization.yml:legacy-terrain-base-y-level
+  base: 73
   height: 25
   valleyDepth: 50
   valleyCutoff: 0.15
@@ -16,7 +16,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y+base
+      -y + base
       + valleyDepth * (clamp(valleys(x,z), valleyCutoffStart, valleyCutoffStart + valleyCutoff) - valleyCutoffStart) * (1 / valleyCutoff)
       + lerp(valleys(x,z), valleyCutoffStart, 0.2, valleyCutoffStart + valleyCutoff, 1) * height * surfaceOffset(x,z)
       - abs(caves(x,y * 1.85,z) * caveStrength) * lerp(y, 65, 0, 70, 1)
@@ -40,9 +40,3 @@ terrain:
         frequency: 0.005
         distance: Euclidean
         return: Distance2Sub
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)

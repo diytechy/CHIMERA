@@ -17,7 +17,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*elevationBiomeDetailFactor(x,z), -1.75, 3)
+      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence(x,z), -1.75, 3)
       + clamp(pillars(x,y,z) * 24, -2, 3)
       //clamp(pillars(x,y,z) * 24, -2, 3)
     functions:

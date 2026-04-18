@@ -4,7 +4,9 @@ biomeSpread:
   cellDistance: 200
   wellDistance: 100
   cellDistanceLarge: 250
-  
+  distAtFullInfluence: 20
+  #How many blocks deep do we have to be in biome before terrain features for biome
+  #are realized (depends on terrain sampler used)
   
   # Rift region distance for cells that will contain rifts.
   riftDistance: 300
@@ -185,20 +187,8 @@ continental-max-lake-ratio: 0.1
 # Default: 0.4
 # of expected zones.
 
-continental-coast-width: 55
-# Default: 30
-
-continental-coast-threshold: 0.07
-# Determines how far from a continental value of 0 is considered for calculating 
-# areas as coastal or not. This is more of a technical performance value and should only
-# need to be increased in small increments experimentally if you are trying to increase
-# continental-coast-width and or decrease continental-scale and do not see coastal biomes
-# as wide as you are expecting.
-#
-# Increasing this value beyond what is needed to encompass the full potential coastal area
-# will not affect generation, however may incur small performance penalties.
-#
-# Default: 0.05
+continental-coast-cutoff: 0.02
+#Defines how much of the continental ratio will be reserved for coastal biomes. Higher values will result in wider coastal regions, while lower values will result in thinner coastal regions.
 
 # ---
 # Elevation

@@ -124,3 +124,10 @@ samplers:
     type: EXPRESSION
     expression: |
       if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
+
+  dist2Coast:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      coastalCutoff: $customization.yml:continental-coast-cutoff
+    expression: continents(x, z) - coastalCutoff

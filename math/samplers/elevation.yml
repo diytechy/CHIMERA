@@ -113,10 +113,14 @@ samplers:
     #2.75-mesa_threshold
     variables:
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  mesaFootDist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: mesaMask(x,z)-(1/(MaxNMesSteps*2))
   mesaPresent:
     dimensions: 2
     type: EXPRESSION
-    expression: mesaMask(x,z)>(1/(MaxNMesSteps*2))
+    expression: mesaFootDist>0
     variables:
       MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
   PeakHeightMultiplierAtPosition:

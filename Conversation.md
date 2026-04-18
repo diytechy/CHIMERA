@@ -1000,3 +1000,71 @@ When creating terrain, rivers are rarely not bounded correctly on either side, r
 The sampler "RiverSupportDensity" is intended to ensure land at the bank of the river fully raise up to contain the river water (where the river distance = 0 at the rivers edge).
 
 A positive density return should force block placement to contain river water.  Can you review the expression and corresponding samplers to verify if there is an issue with the way the expression is formulated?
+
+##########################################
+
+To prepare for larger terrain changes, I want to make sure all terrain definitions  directly in biome files are moved to extended properties of the biome with a new or existing eq_* file describing the terrain.  If the terrain sampler expression is identical between two biomes, it should be reused.  Please go through all terrain definitions of biomes, and make sure they are extended from a file instead of a definition inside the biome file itself, and rectify duplicate terrain definitions, and finally create recommendations that may allow biomes to share the same sampler if their sampler definitions are similar.
+
+Now perform the same exercise for all other biome files (not just rearth) if not already complete to pull their terrain definitions out into an extended property file eq_*, and perform the same analysis for any remaining and add it to the TERRAIN_SHARING_RECOMMENDATIONS which I have pulled to the root of the project folder.
+
+##################################################
+
+Now apply fixes for all non-ocean equations.
+
+List all eq_* files that reference customization.cellDistance, as these likely use old biome spread references that are no longer valid.
+
+#########################################
+
+Update the following biomes to use a updated biomeInfluence sampler instead of the current cell distance reference:
+
+eq_tilted_plateau.yml	3 (lines 8, 43, 55)  (Is just a very jagged sampler anyways.)
+eq_terrace_mountain.yml	1 (line 43)
+eq_sakura_streams.yml	4 (lines 32, 38, 67, 78)
+eq_pillars.yml	1 (line 64)
+eq_bamboo_basin.yml	3 (lines 42, 59, 70)
+eq_arid_arboretum.yml	1 (line 58)
+
+Need ALL  land biomes with terrain features to follow the same small biome distribution pattern instead of the current hard-cutoff that is being used.
+Investigate:
+Are terraced elevations (elevationTerraced) larger or smaller than normal elevation?  A: Larger.
+Act:
+
+*. Ensure elevation is "0-d" out on approaching coastal threshold except for spots?  However this will wear down coasts where they don't need to wear?
+
+Actions to take in order to better 
+1. 
+
+1. Update the biomeInfluence sampler to increase to 1 as distance into biome grows, derive from:
+  - rivers increase (ContinentalRiverDist goes from distance threshold to 1)
+  - distance from cell border increases (Convert cell biome distance, BiomeShapeLandmassDist2Center, which goes to 0 as it approaches center)
+  - distance from mesa border increases. (mesaFootDist, 0 at mesa foot, grows to 1 into mesa, negative value away from mesa)
+  - distance from coast?  (dist2Coast, gets larger the further away from shore, can be normalized using the continents distance?)
+  - The biomeInfluence sampler should increase to 1 at the real world block distance of distAtFullInfluence.
+
+*. Make sure all surface / land biomes respect these borders, this means mesa sub-biome replacements must also use this biome replacement (small biome), not a secondary sampler.
+
+*. Any vast-forest subreplacement must also follow the same restrictive replacement set.
+
+G. Make sure biome distribution for elevation uses cell center instead of pure elevation.
+
+H. Consider updating elevation with influence from river which is not done today.  This would drag elevation down to rivers in most locations for crossing and more natural erosion, but leave some places where elevation doesn't care and the river-specific sampler itself is responsible for determining through it's sampler if it should tunnel through the terrain or ramp.  This creates more variation at river zones.
+
+2. Create a new sampler that indicates biomeInfluence3D, which will also ramp down scaler influence as y height above the detailed elevation plane increases.  This will prevent floating artifacts at biome borders.
+
+3. Update the above terrain equations above that used cell distance to instead use biome influence for 3d structures.
+
+4. For biomes that have "centered" features, make sure they are using the new biome cell distance.
+
+5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
+
+6. Make changes to all other surface equation files to remove the 2d elevation sampler and instead implant it into the standard 3d sampler.  This is to give fidelity to that sampler and simplify computation.
+
+The change I made to eq_pillars.yml is working to properly isolate the sampling to only the 3d sampling.
+
+I want to make similar changes to the other files 
+
+
+Come back to in future:
+
+eq_tilted_plateau
+river influence on elevation?

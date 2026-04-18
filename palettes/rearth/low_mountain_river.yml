@@ -22,8 +22,8 @@ layers:
     layers: 1
 
 
-vars: &variables $biomes/rearth/land/bamboo_basin.yml:vars
-sourceSampler: &sourceSampler $biomes/rearth/land/bamboo_basin.yml:terrain.sampler.samplers.riverMask
+vars: &variables $biomes/rearth/base/eq_bamboo_basin.yml:vars
+sourceSampler: &sourceSampler $biomes/rearth/base/eq_bamboo_basin.yml:terrain.sampler.samplers.riverMask
 
 sampler:
   type: EXPRESSION

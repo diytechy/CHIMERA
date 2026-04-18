@@ -3,7 +3,7 @@ coastSampler: &coastSampler
       # according to biome shape randomization, else land with no change.
   type: EXPRESSION
   expression: |
-    if(dist2Coast<0,
+    if(dist2Coast(x,z)<0,
       (BiomeShapeLandmassValue(x, z) - 1)/2,
       1)
 

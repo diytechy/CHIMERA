@@ -2,7 +2,7 @@ id: LOOPS_RIVER
 type: BIOME
 extends: [EQ_GLOBAL_RIVER, RIVER, LUSH_LOOPS]
 
-original-noise: &originalNoise $biomes/rearth/land/lush_loops.yml:terrain.sampler # Original noise to be turned into river
+original-noise: &originalNoise $biomes/rearth/base/eq_lush_loops.yml:terrain.sampler # Original noise to be turned into river
 
 vars: &variables
   ceilingHeight:    80  # Base Y level of the ceiling

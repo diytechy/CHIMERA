@@ -116,13 +116,13 @@ samplers:
   mesaFootDist:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
     expression: mesaMask(x,z)-(1/(MaxNMesSteps*2))
   mesaPresent:
     dimensions: 2
     type: EXPRESSION
-    expression: mesaFootDist>0
-    variables:
-      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+    expression: mesaFootDist(x,z)>0
   PeakHeightMultiplierAtPosition:
     dimensions: 2
     type: EXPRESSION
@@ -431,7 +431,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      '1'
+      1
 
   oceanElevation:
     dimensions: 2

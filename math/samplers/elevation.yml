@@ -423,11 +423,11 @@ samplers:
     expression: |
       elevationDetailed(x,z)*verticalLift
   
-  elevationBiomeDetailFactor:
+  biomeInfluence:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      '0'
+      '1'
 
   oceanElevation:
     dimensions: 2

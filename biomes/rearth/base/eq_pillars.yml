@@ -18,8 +18,8 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence3D(x,y,z), -1.75, 3)
-      + clamp(pillars(x,y,z) * 24, -2, 3)*biomeInfluence3D(x,y,z)
+      max(clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence(x,z), -1.75, 3),
+      clamp(min(pillars(x,y,z),biomeInfluence3D(x,y,z)*pillars(x,y,z)) * 24, -2, 3))
       //clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:

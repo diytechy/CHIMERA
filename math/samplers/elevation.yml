@@ -437,16 +437,16 @@ samplers:
       riverNominalBoundary: $customization.yml:river-nominal-boundary
       # Cell border: BiomeShapeLandmassDist2Center = 1 at border, 0 at center, over ~cellHalfDist blocks
       # (approximation — actual scale is heavily affected by domain warp)
-      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} / 2
+      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} / 2n
       # Mesa / coast: no precise block-to-unit anchor; tune these as needed
       mesaBlocksPerUnit: ${customization.yml:continental-mesa-region-allowed-distance} / 2
       coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} / 2
     expression: |
       min(
         min(
-          min(herp(continentalRiverDist(x,z), 1, 0, 1 + distAtFullInfluence / riverNominalBoundary, 1),
+          min(herp(continentalRiverDist(x,z), 0, 0, min(1,distAtFullInfluence / riverNominalBoundary), 1),
           herp(BiomeShapeLandmassDist2Center(x,z), 1, 0, 1 - distAtFullInfluence / cellHalfDist, 1)),
-        if(mesaFootDist(x,z) < 0, 1, herp(mesaFootDist(x,z), 0, 0, distAtFullInfluence / mesaBlocksPerUnit, 1))),
+        herp(mesaFootDist(x,z), -distAtFullInfluence / mesaBlocksPerUnit, 1, 0, 0)),
       herp(dist2Coast(x,z), 0, 0, distAtFullInfluence / coastBlocksPerUnit, 1))
     functions: $math/functions/interpolation.yml:functions
     samplers:
@@ -464,14 +464,13 @@ samplers:
     # If the biome influence is full (1), the sampler must return 1 to allow
     # feature construction.
     expression: |
-      clamp(if(biomeInfluence(x,z)<1,
+      min(max(if(biomeInfluence(x,z)<1,
       ((base+elevationDetailedBlockHeight(x,z)-y)/270)+
       biomeInfluence(x,z),
-      3),0,1)
+      3),0),1)
     samplers:
       biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
       elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
-    functions: $math/functions/interpolation.yml:functions
 
   oceanElevation:
     dimensions: 2

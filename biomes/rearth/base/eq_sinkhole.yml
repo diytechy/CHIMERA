@@ -2,9 +2,9 @@ id: SINKHOLE_BASE
 type: BIOME
 abstract: true
 extends:
-  - DEPOSITS_DEFAULT
-  - ORES_DEFAULT
-  - CARVING_LAND
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+- CARVING_LAND
 
 vars: &variables
   base: -40

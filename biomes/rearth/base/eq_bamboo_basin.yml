@@ -11,15 +11,11 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '// positive / higher = solid
-
+    expression: |
+      // positive / higher = solid
       -y + base
-
       + min(-cells(x,z), 0.8) * height
-
       + riverMask(x, y, z) * 40
-
-      '
     functions:
       terrace:
         arguments: [x, terraceStrength]
@@ -46,11 +42,11 @@ terrain:
         dimensions: 3
         type: EXPRESSION
         variables: *variables
-        expression: "clamp(abs(abs(riverBaseAngle(x,z) * 3) +    // basic line from\
-          \ center\n  riverAngleVariation(cellMountains(x,z) * 300, 0) * 0.24   //\
-          \ vary angle slightly going outwards\n  - rivers(x,z)) % (6.28 / 5) * lerp(cellMountains(x,z),\
-          \ -0.98, -0.15, -0.2, 3.5) // ensure river has proper width, add lake on\
-          \ top\n  - 0.25, -0.21, 0)   // set river width, clamp at max depth\n"
+        expression: |
+          clamp(abs(abs(riverBaseAngle(x,z) * 3) +    // basic line from center
+            riverAngleVariation(cellMountains(x,z) * 300, 0) * 0.24   // vary angle slightly going outwards
+            - rivers(x,z)) % (6.28 / 5) * lerp(cellMountains(x,z), -0.98, -0.15, -0.2, 3.5) // ensure river has proper width, add lake on top
+            - 0.25, -0.21, 0)   // set river width, clamp at max depth
         samplers:
           cellMountains: *cellMountains
           rivers:

@@ -13,13 +13,15 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: "// positive / higher = solid\nmax(\nmin(-y + base + surfaceVariation(x,z)\
-      \ * height,   // surface heigh, used on both bottom and top of the pillars\n\
-      \    -(flatCells(x,z)                               // basic pillar shape\n\
-      \    + (pillarSizing(x,z) * -0.1) + pillarBaseThinness   // base pillar width\n\
-      \    + pillarWidth(1.13 - remapY(y, base, floorOffset) * 1.15) * 0.035   //\
-      \ curve to adjust the width of the pillar on the Y-axis\n  ) * 10),\n  -y +\
-      \ base - floorOffset + surfaceVariation(x,z) * height)\n"
+    expression: |
+      // positive / higher = solid
+      max(
+      min(-y + base + surfaceVariation(x,z) * height,   // surface heigh, used on both bottom and top of the pillars
+          -(flatCells(x,z)                               // basic pillar shape
+          + (pillarSizing(x,z) * -0.1) + pillarBaseThinness   // base pillar width
+          + pillarWidth(1.13 - remapY(y, base, floorOffset) * 1.15) * 0.035   // curve to adjust the width of the pillar on the Y-axis
+        ) * 10),
+        -y + base - floorOffset + surfaceVariation(x,z) * height)
     functions:
       remapY:
         arguments: [y, base, depth]

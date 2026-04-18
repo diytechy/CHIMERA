@@ -9,7 +9,7 @@ vars: &variables
 
 terrain:
   blend:
-    distance: 3     # 0 = disabled (sharp edges)
+    distance: 3     # 0 = disabled (sharp edges)
     step: 1
     weight: 1.0
   sampler:
@@ -22,7 +22,7 @@ terrain:
       //clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:
-        arguments: [x, a, b] # clamps x between a (low) and b (high)
+        arguments: [x, a, b] # clamps x between a (low) and b (high)
         expression: min(max(x, a), b)
     samplers:
       pillars:
@@ -44,10 +44,10 @@ terrain:
             frequency: 0.022
             jitter: 1
             distance: Euclidean
-          basepillarsCenter: 
+          basepillarsCenter:
             <<: *pillarConf
             return: CellValue
-          basePillarsExistance: 
+          basePillarsExistance:
             <<: *pillarConf
             return: NoiseLookup
             lookup:

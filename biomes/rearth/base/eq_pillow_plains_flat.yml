@@ -11,11 +11,9 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '// positive / higher = solid
-
+    expression: |
+      // positive / higher = solid
       -y + base + surfaceVariation(x,z) * height
-
-      '
     functions:
       remapY:
         arguments: [y, base, depth]

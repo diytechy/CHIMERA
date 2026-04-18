@@ -12,11 +12,9 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '-y + base + height * surfaceOffset(x,z)
-
+    expression: |
+      -y + base + height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-
-      '
     functions:
       clamp:
         arguments: [x, a, b]

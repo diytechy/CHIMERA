@@ -22,10 +22,17 @@ terrain:
     variables: *variables
   sampler-2d:
     type: EXPRESSION
-    expression: "scale *\ncombine(\n  combine(\n    elevation(x, z) * 0.1,\n    mountainPeakStart,\
-      \ 0,\n    mountainPeakEnd, mountainPeaks(x,z) * mountainPeakFactor\n  ),\n \
-      \ duneStart, dunes(x*duneFrequency,z*duneFrequency) * duneFactor,\n  duneEnd,\
-      \ 0\n)\n"
+    expression: |
+      scale *
+      combine(
+        combine(
+          elevation(x, z) * 0.1,
+          mountainPeakStart, 0,
+          mountainPeakEnd, mountainPeaks(x,z) * mountainPeakFactor
+        ),
+        duneStart, dunes(x*duneFrequency,z*duneFrequency) * duneFactor,
+        duneEnd, 0
+      )
     variables: *variables
     samplers:
       dunes:
@@ -45,8 +52,10 @@ terrain:
           sampler:
             type: EXPRESSION
             variables: *variables
-            expression: "-mask(x, z) * (-|sin((\n   x*sin(rotation(x,z)*duneRotationRange)\n\
-              \  +z*cos(rotation(x,z)*duneRotationRange))/duneSpacing)|+1)\n"
+            expression: |
+              -mask(x, z) * (-|sin((
+                 x*sin(rotation(x,z)*duneRotationRange)
+                +z*cos(rotation(x,z)*duneRotationRange))/duneSpacing)|+1)
             samplers:
               height:
                 dimensions: 2

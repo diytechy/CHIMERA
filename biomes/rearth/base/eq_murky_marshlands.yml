@@ -11,9 +11,8 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '-y + base + height * cells(x,z)
-
-      '
+    expression: |
+      -y + base + height * cells(x,z)
     samplers:
       cells:
         dimensions: 2

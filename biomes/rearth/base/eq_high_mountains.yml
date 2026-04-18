@@ -14,15 +14,10 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '// positive / higher = solid
-
+    expression: |
+      // positive / higher = solid
       -y + base
-
-      + main(mountainBasicShape(x,z), y, x * varPackStrength + z)  // packed into
-      a subsampler to only have to sample mountainBasicShape once, and then we need
-      to pack x&z into one coordinate
-
-      '
+      + main(mountainBasicShape(x,z), y, x * varPackStrength + z)  // packed into a subsampler to only have to sample mountainBasicShape once, and then we need to pack x&z into one coordinate
     samplers:
       mountainBasicShape:
         dimensions: 2
@@ -38,13 +33,14 @@ terrain:
         dimensions: 3
         type: EXPRESSION
         variables: *variables
-        expression: "lerp(x, \n  -0.1, lerp(x,\n    -0.2, terrace(x  * 14, 99) / 14\
-          \ * height * 0.25 - 4,\n    0, (terrace(x * 5, 7) / 4.8 - warping((z - z\
-          \ % varPackStrength) / varPackStrength,y / 2,z % varPackStrength) * warpStrength\
-          \ * 0.7) * height),\n  0.1, lerp(x, \n    0.6, (x - warping((z - z % varPackStrength)\
-          \ / varPackStrength,y / 1.5,z % varPackStrength) * warpStrength) * height,\n\
-          \    0.8, x * height * 1.4 + peaks((z - z % varPackStrength) / varPackStrength,\
-          \ z % varPackStrength) * peaks))\n"
+        expression: |
+          lerp(x, 
+            -0.1, lerp(x,
+              -0.2, terrace(x  * 14, 99) / 14 * height * 0.25 - 4,
+              0, (terrace(x * 5, 7) / 4.8 - warping((z - z % varPackStrength) / varPackStrength,y / 2,z % varPackStrength) * warpStrength * 0.7) * height),
+            0.1, lerp(x, 
+              0.6, (x - warping((z - z % varPackStrength) / varPackStrength,y / 1.5,z % varPackStrength) * warpStrength) * height,
+              0.8, x * height * 1.4 + peaks((z - z % varPackStrength) / varPackStrength, z % varPackStrength) * peaks))
         functions:
           terrace:
             arguments: [x, terraceStrength]

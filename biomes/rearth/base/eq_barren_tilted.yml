@@ -14,9 +14,11 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: "// positive / higher = solid\n  -y + base \n  + cellLean(x,z) * height\
-      \ * remapCellRange(cells(x,z)) + cells(x,z) * cellHeightVariation\n  + surfaceBase(x,z)\
-      \ * mountainHeight\n"
+    expression: |
+      // positive / higher = solid
+        -y + base 
+        + cellLean(x,z) * height * remapCellRange(cells(x,z)) + cells(x,z) * cellHeightVariation
+        + surfaceBase(x,z) * mountainHeight
     functions:
       remapCellRange:
         arguments: [x]
@@ -48,9 +50,8 @@ terrain:
           type: EXPRESSION
           variables: *variables
           dimensions: 2
-          expression: 'x * tiltStrength + z * tiltStrength * 0.7
-
-            '
+          expression: |
+            x * tiltStrength + z * tiltStrength * 0.7
           samplers:
             variation:
               dimensions: 2

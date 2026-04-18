@@ -12,25 +12,18 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: '// positive / higher = solid
-
+    expression: |
+      // positive / higher = solid
       min(-y + base + surfaceVariation(x,z) * height, valley(x,y,z) * 10)
-
-      '
     samplers:
       valley:
         type: EXPRESSION
         dimensions: 3
         variables: *variables
-        expression: 'flatCells(x, z / 1.3) + 0.88  // basic 2d cell shape (stretched
-          along z axis)
-
+        expression: |
+          flatCells(x, z / 1.3) + 0.88  // basic 2d cell shape (stretched along z axis)
           + wallVariation(x,y,z) * 0.04            // move walls around a bit
-
-          - holeWidth(remapY(clamp(y, valley_low - 10, base), base, valley_low)) *
-          0.23   // move walls back by a pre-defined curve
-
-          '
+          - holeWidth(remapY(clamp(y, valley_low - 10, base), base, valley_low)) * 0.23   // move walls back by a pre-defined curve
         functions:
           remapY:
             arguments: [y, base, valley_low]

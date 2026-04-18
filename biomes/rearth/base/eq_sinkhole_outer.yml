@@ -10,6 +10,5 @@ terrain:
     dimensions: 2
     type: EXPRESSION
     variables: *variables
-    expression: '-y + base
-
-      '
+    expression: |
+      -y + base

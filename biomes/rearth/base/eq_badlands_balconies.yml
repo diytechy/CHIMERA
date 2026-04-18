@@ -15,10 +15,16 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: "// positive / higher = solid\n-y + base + (height / 2)\n+ lerp(mountainBasicShape(x,z)\
-      \ * height, \n  -10, lerp(terracingMask(x,z), \n    0.2, mountainResult(x,z),\
-      \ \n    -0.2, mountainBasicShape(x,z) * height + vallyNoise(x,z) * variationHeight\
-      \ * 4\n    ),\n  -25, vallyNoise(x,z) * variationHeight - 30\n)\n"
+    expression: |
+      // positive / higher = solid
+      -y + base + (height / 2)
+      + lerp(mountainBasicShape(x,z) * height, 
+        -10, lerp(terracingMask(x,z), 
+          0.2, mountainResult(x,z), 
+          -0.2, mountainBasicShape(x,z) * height + vallyNoise(x,z) * variationHeight * 4
+          ),
+        -25, vallyNoise(x,z) * variationHeight - 30
+      )
     samplers:
       mountainBasicShape: &mountainShape
         dimensions: 2
@@ -43,9 +49,8 @@ terrain:
         dimensions: 2
         type: EXPRESSION
         variables: *variables
-        expression: 'terrace(mountainBasicShape(x,z) * 2.5, 7) * height / 2.5
-
-          '
+        expression: |
+          terrace(mountainBasicShape(x,z) * 2.5, 7) * height / 2.5
         functions:
           terrace:
             arguments: [x, terraceStrength]

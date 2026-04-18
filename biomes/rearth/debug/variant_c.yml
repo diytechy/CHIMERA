@@ -1,5 +1,7 @@
 id: VARIANT_C
 type: BIOME
+extends:
+  - EQ_DEBUG_FLAT
 color: $biomes/colors.yml:TEMPERATE_GRASSLAND
 
 vanilla: minecraft:plains
@@ -12,9 +14,3 @@ colors:
 
 palette:
   - BLOCK:minecraft:red_wool: $meta.yml:top-y
-
-
-terrain:
-  sampler:
-    type: EXPRESSION
-    expression: -y + 70

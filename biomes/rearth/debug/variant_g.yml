@@ -2,6 +2,7 @@ id: VARIANT_G
 type: BIOME
 extends:
   - BASE
+  - EQ_DEBUG_FLAT
 color: $biomes/colors.yml:DARK_FOREST
 
 vanilla: minecraft:plains
@@ -14,9 +15,3 @@ colors:
 
 palette:
   - BLOCK:minecraft:cyan_wool: $meta.yml:top-y
-
-
-terrain:
-  sampler:
-    type: EXPRESSION
-    expression: -y + 70

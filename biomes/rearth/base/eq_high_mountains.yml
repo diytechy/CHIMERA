@@ -1,0 +1,72 @@
+id: EQ_HIGH_MOUNTAINS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: 70
+  height: 130
+  peaks: 60
+  warpStrength: 0.29
+  varPackStrength: 128000
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: '// positive / higher = solid
+
+      -y + base
+
+      + main(mountainBasicShape(x,z), y, x * varPackStrength + z)  // packed into
+      a subsampler to only have to sample mountainBasicShape once, and then we need
+      to pack x&z into one coordinate
+
+      '
+    samplers:
+      mountainBasicShape:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 25
+        warp:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.01
+        sampler:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.004
+      main:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: "lerp(x, \n  -0.1, lerp(x,\n    -0.2, terrace(x  * 14, 99) / 14\
+          \ * height * 0.25 - 4,\n    0, (terrace(x * 5, 7) / 4.8 - warping((z - z\
+          \ % varPackStrength) / varPackStrength,y / 2,z % varPackStrength) * warpStrength\
+          \ * 0.7) * height),\n  0.1, lerp(x, \n    0.6, (x - warping((z - z % varPackStrength)\
+          \ / varPackStrength,y / 1.5,z % varPackStrength) * warpStrength) * height,\n\
+          \    0.8, x * height * 1.4 + peaks((z - z % varPackStrength) / varPackStrength,\
+          \ z % varPackStrength) * peaks))\n"
+        functions:
+          terrace:
+            arguments: [x, terraceStrength]
+            expression: round(x) + 0.5 * (2*(x - round(x)))^terraceStrength
+        samplers:
+          warping:
+            dimensions: 3
+            type: OPEN_SIMPLEX_2S
+            frequency: 0.034
+            salt: 89745
+          peaks:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.02
+            octaves: 2
+            lacunarity: 2
+            gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

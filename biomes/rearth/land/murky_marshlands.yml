@@ -3,6 +3,7 @@ type: BIOME
 extends:
 - CARVING_OCEAN
 - BASE
+- EQ_MURKY_MARSHLANDS
 vanilla: minecraft:swamp
 color: $biomes/colors.yml:SWAMP
 tags:
@@ -14,32 +15,6 @@ colors:
   foliage: 1851392
   water: 6388580
   water-fog: 5077600
-vars: &id001
-  base: 66
-  height: 18
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *id001
-    expression: '-y + base + height * cells(x,z)
-
-      '
-    samplers:
-      cells:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.06
-        jitter: 0.9
-        return: NoiseLookup
-        lookup:
-          type: FBM
-          sampler:
-            type: OPEN_SIMPLEX_2S
-            frequency: 0.01
-          octaves: 2
-          lacunarity: 2
-          gain: 0.5
 palette:
 - MUDDY_GRASS: 319
 - GRASS_PODZOL_MUDDY: 62

@@ -1,0 +1,31 @@
+id: EQ_MURKY_MARSHLANDS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: 66
+  height: 18
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: '-y + base + height * cells(x,z)
+
+      '
+    samplers:
+      cells:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 0.06
+        jitter: 0.9
+        return: NoiseLookup
+        lookup:
+          type: FBM
+          sampler:
+            type: OPEN_SIMPLEX_2S
+            frequency: 0.01
+          octaves: 2
+          lacunarity: 2
+          gain: 0.5

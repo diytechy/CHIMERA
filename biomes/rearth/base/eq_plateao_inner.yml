@@ -1,0 +1,21 @@
+id: EQ_PLATEAO_INNER
+type: BIOME
+abstract: true
+
+vars: &variables
+  top: 109
+  scale: $customization.yml:terrain-height
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + top
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: scale * elevationDetailed(x, z)

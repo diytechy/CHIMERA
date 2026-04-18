@@ -4,47 +4,12 @@ vanilla: minecraft:plains
 extends:
 - CARVING_LAND
 - BASE
+- EQ_FOSSILIZED_FENLANDS
 color: $biomes/colors.yml:TEMPERATE_GRASSLAND
 tags:
 - USE_RIVER
 - LAND_CAVES
 - SPECIAL_CAVES
-vars: &id001
-  base: 71
-  height: 11
-  stepHeight: 4
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *id001
-    expression: '-y + base + height * surfaceOffset(x,z)
-
-      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
-
-      '
-    functions:
-      clamp:
-        arguments:
-        - x
-        - a
-        - b
-        expression: min(max(x, a), b)
-    samplers:
-      plateous:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2S
-        frequency: 0.01
-        salt: 4
-      surfaceOffset:
-        dimensions: 2
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.006
-        octaves: 3
-        lacunarity: 2.4
-        gain: 0.5
 palette:
 - GRASS_MUSHY: 319
 - MUDDY_BEACH: 63

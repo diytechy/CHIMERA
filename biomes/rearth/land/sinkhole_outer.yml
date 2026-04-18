@@ -6,16 +6,7 @@ extends:
 - DEPOSITS_DEFAULT
 - ORES_DEFAULT
 - CARVING_LAND
-vars: &id001
-  base: ${meta.yml:ocean-level} + 5
-terrain:
-  sampler:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *id001
-    expression: '-y + base
-
-      '
+- EQ_SINKHOLE_OUTER
 palette:
 - GRASS: 319
 - SAND: 64

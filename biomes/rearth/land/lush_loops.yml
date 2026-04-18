@@ -3,6 +3,7 @@ type: BIOME
 extends:
 - CARVING_LAND
 - BASE
+- EQ_LUSH_LOOPS
 vanilla: minecraft:jungle
 color: $biomes/colors.yml:OVERGROWN_CLIFFS
 tags:
@@ -15,89 +16,6 @@ colors:
   foliage: 43543
   water: 2004978
   water-fog: 2004978
-vars: &id001
-  base: 68
-  height: 55
-  archHeight: 3.5
-  archRadius: 35
-  angle: 1.2
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *id001
-    expression: "// positive / higher = solid\n  max(-y + base + surfaceBase(x,z)\
-      \ * 20, -3) +\n  max(arches(rotate(x, z, angle), y - 21, rotate(z, x, angle))\
-      \ * 10, -3)\n"
-    functions:
-      rotate:
-        arguments:
-        - x
-        - y
-        - rad
-        expression: x * cos(rad) - y * sin(rad)
-    samplers:
-      surfaceBase:
-        dimensions: 2
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.003
-          salt: 3
-        octaves: 3
-        lacunarity: 2
-        gain: 0.5
-      arches:
-        dimensions: 3
-        type: EXPRESSION
-        variables: *id001
-        expression: '// positive / higher = solid
-
-          (-abs((base + height * (pillarRand(0, z) * 0.3 + 1) * wave(x * 1.3 + pillarRand(0,
-          z) * 50, archRadius)) - y) + archHeight) / archHeight // wave along x-axis
-
-          - (archMask(z, 0) + 0.98) * 190 * (pillarRand(0, z) * 0.4 + 1) // transform
-          it along x-axis to transform the wave into arches
-
-          + widthRandom(x,y,z) * 0.8
-
-          '
-        functions:
-          wave:
-            arguments:
-            - x
-            - frequency
-            expression: -sin(x / frequency)
-          smoothAbs:
-            arguments:
-            - x
-            expression: sqrt(x * x)
-        samplers:
-          widthRandom:
-            dimensions: 3
-            type: OPEN_SIMPLEX_2
-            frequency: 0.05
-          pillarRand:
-            dimensions: 2
-            type: CELLULAR
-            frequency: 0.012
-            jitter: 0.2
-            return: CellValue
-          archMask:
-            dimensions: 2
-            type: LINEAR
-            min: -1
-            max: 0.2
-            sampler:
-              type: CELLULAR
-              frequency: 0.012
-              jitter: 0.2
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
 palette:
 - GRASS: 319
 - SAND: 64

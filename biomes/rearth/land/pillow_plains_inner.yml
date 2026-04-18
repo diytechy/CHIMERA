@@ -5,15 +5,11 @@ color: $biomes/colors.yml:SAKURA_GROVE
 extends:
 - DEPOSITS_DEFAULT
 - ORES_DEFAULT
+- EQ_PILLOW_PLAINS_INNER
 colors:
   grass: 7399021
   water: 6141935
   leaves: 7399021
-vars: &id001
-  base: 65
-  height: 5
-  floorOffset: 32
-  pillarBaseThinness: 0.81
 carving:
   sampler:
     dimensions: 3
@@ -25,61 +21,6 @@ carving:
       - biomes/abstract/carving/carving_sampler_template.yml:variables
       terrainBase: ${customization.yml:terrain-base-y-level} - 32
       carvingMaxMode: 1
-terrain:
-  sampler:
-    dimensions: 3
-    type: EXPRESSION
-    variables: *id001
-    expression: "// positive / higher = solid\nmax(\nmin(-y + base + surfaceVariation(x,z)\
-      \ * height,   // surface heigh, used on both bottom and top of the pillars\n\
-      \    -(flatCells(x,z)                               // basic pillar shape\n\
-      \    + (pillarSizing(x,z) * -0.1) + pillarBaseThinness   // base pillar width\n\
-      \    + pillarWidth(1.13 - remapY(y, base, floorOffset) * 1.15) * 0.035   //\
-      \ curve to adjust the width of the pillar on the Y-axis\n  ) * 10),\n  -y +\
-      \ base - floorOffset + surfaceVariation(x,z) * height)\n"
-    functions:
-      remapY:
-        arguments:
-        - y
-        - base
-        - depth
-        expression: (base - y) / depth
-      clamp:
-        arguments:
-        - x
-        - a
-        - b
-        expression: min(max(x, a), b)
-      pillarWidth:
-        arguments:
-        - x
-        expression: 8.416667*x - 19.25*x^2 + 10.83333*x^3
-    samplers:
-      surfaceVariation:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2S
-        frequency: 0.011
-      flatCells:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.018
-        jitter: 1
-        distance: Euclidean
-      largeFlatAreas:
-        dimensions: 2
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.0055
-        octaves: 3
-        lacunarity: 1
-        gain: 0.5
-      pillarSizing:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.018
-        jitter: 1
-        return: CellValue
 palette:
 - GRASS_WHITE_PILLAR: 319
 - GRASS: 56

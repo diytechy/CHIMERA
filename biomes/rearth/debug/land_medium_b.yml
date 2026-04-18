@@ -2,6 +2,7 @@ id: LAND_MEDIUM_B
 type: BIOME
 extends:
   - BASE
+  - EQ_DEBUG_FLAT
 color: $biomes/colors.yml:FOREST_LOWLANDS
 
 tags:
@@ -17,9 +18,3 @@ colors:
 
 palette:
   - BLOCK:minecraft:green_concrete: $meta.yml:top-y
-
-
-terrain:
-  sampler:
-    type: EXPRESSION
-    expression: -y + 70

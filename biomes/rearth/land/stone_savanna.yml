@@ -1,45 +1,45 @@
 id: WATERY_WILDS
 type: BIOME
 vanilla: minecraft:savanna
-extends:
-- EQ_LOWLAND_HILLS
-- CARVING_LAND
-- BASE
+extends: [ EQ_LOWLAND_HILLS, CARVING_LAND, BASE ]
+
 color: $biomes/colors.yml:SAVANNA
+
 colors:
-  grass: 8567917
-  foliage: 6662473
-  water: 937679
-  water-fog: 12638463
+  grass: 0x82BC6D
+  foliage: 0x65A949
+  water: 0xE4ECF
+  water-fog: 0xC0D8FF
+  
 tags:
-- USE_RIVER
-- LAND_CAVES
-- SPECIAL_CAVES
-- TROPICAL_COAST_FLAT
+  - USE_RIVER
+
 palette:
-- ARID: 319
-- SAVANNA_BRIDGES: 62
-- MUDDY_BEACH: 61
-- << meta.yml:palette-bottom
-slant:
-- threshold: 0.75
-  palette:
-  - BLOCK:minecraft:stone: 319
+  - ARID: 319
+  - SAVANNA_BRIDGES: 62
+  - MUDDY_BEACH: 61
   - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.75
+    palette:
+      - BLOCK:minecraft:stone: 319
+      - << meta.yml:palette-bottom
+
 features:
   landforms:
-  - RED_ROCKS
+    - RED_ROCKS
   trees:
-  - ACACIA_TREES
+    - ACACIA_TREES
   flora:
-  - GRASS
-  - TALL_GRASS
-  - CACTUS_SPARSE
-  - MANGROVE_SEAGRASS
-  - JUNGLE_BUSHES
-  - POPPY_PATCH
-  - MELON_PATCHES
-  - OXEYE_DAISY_PATCH
-  - CORNFLOWER_PATCH
-  - ALLIUM_PATCH
-  - SUGAR_CANE
+    - GRASS
+    - TALL_GRASS
+    - CACTUS_SPARSE
+    - MANGROVE_SEAGRASS
+    - JUNGLE_BUSHES
+    - POPPY_PATCH
+    - MELON_PATCHES
+    - OXEYE_DAISY_PATCH
+    - CORNFLOWER_PATCH
+    - ALLIUM_PATCH
+    - SUGAR_CANE

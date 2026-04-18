@@ -2,41 +2,40 @@ id: SNOWY_SPIRES
 type: BIOME
 vanilla: minecraft:snowy_taiga
 color: $biomes/colors.yml:FROZEN_ARCHIPELAGO
-extends:
-- EQ_PILLARS
-# - CARVING_LAND
-- BASE
+extends: [ EQ_PILLARS, CARVING_LAND, BASE ]
+
 tags:
-- USE_FROZEN_RIVER
-- LAND_CAVES
-- SPECIAL_CAVES
-- POLAR_COAST_HIGHLANDS
+  - USE_FROZEN_RIVER
+
 colors:
-  sky: 10858685
-  fog: 14145761
-  grass: 8827035
-  foliage: 6529406
-  water: 4159204
-  water-fog: 329011
+  sky: 0xA5B0BD
+  fog: 0xD7D8E1
+  grass: 0x86B09B
+  foliage: 0x63A17E
+  water: 0x3F76E4
+  water-fog: 0x50533
+
 palette:
-- SNOW_TERRACOTTA_DESERT: 319
-- << meta.yml:palette-bottom
-slant:
-- threshold: 0.4
-  palette:
-  - BADLANDS_PILLARS_TERRACOTTA_FROZEN: 319
-  - SNOW_TERRACOTTA_DESERT: 64
+  - SNOW_TERRACOTTA_DESERT: 319
   - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.4
+    palette:
+      - BADLANDS_PILLARS_TERRACOTTA_FROZEN: 319
+      - SNOW_TERRACOTTA_DESERT: 64
+      - << meta.yml:palette-bottom
+
 features:
   preprocessors:
-  - POWDER_SNOW_DEPOSITS
+    - POWDER_SNOW_DEPOSITS
   slabs:
-  - SNOW_LAYERS
+    - SNOW_LAYERS
   landforms:
-  - CEILING_ICICLES
-  - SMALL_GRANITE_BOULDER_PATCHES
-  - CROSSING_VINES_FROZEN
+    - CEILING_ICICLES
+    - SMALL_GRANITE_BOULDER_PATCHES
+    - CROSSING_VINES_FROZEN
   trees:
-  - COLD_EVERGREEN_TREES
+    - COLD_EVERGREEN_TREES
   postprocessors:
-  - TREE_SNOW
+    - TREE_SNOW

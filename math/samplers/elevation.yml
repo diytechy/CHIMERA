@@ -20,6 +20,7 @@ variables: &variables
   globalScale: $customization.yml:global-scale
   verticalLift: $customization.yml:terrain-height
   scale: $customization.yml:flatness-scale
+  base: $customization.yml:terrain-base-y-level
   continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1
 
 samplers:
@@ -453,6 +454,24 @@ samplers:
       BiomeShapeLandmassDist2Center: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDist2Center
       mesaFootDist: $math/samplers/elevation.yml:samplers.mesaFootDist
       dist2Coast: $math/samplers/continents.yml:samplers.dist2Coast
+  
+  biomeInfluence3D:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    # The first part scales from high negative values at the stratosphere, 
+    # and adds in the biome influence, to increase density near the bottom.
+    # If the biome influence is full (1), the sampler must return 1 to allow
+    # feature construction.
+    expression: |
+      clamp(if(biomeInfluence(x,z)<1,
+      ((base+elevationDetailedBlockHeight(x,z)-y)/270)+
+      biomeInfluence(x,z),
+      3),0,1)
+    samplers:
+      biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
+      elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
+    functions: $math/functions/interpolation.yml:functions
 
   oceanElevation:
     dimensions: 2

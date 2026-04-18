@@ -9,7 +9,8 @@ vars: &variables
 
 terrain:
   blend:
-    distance: 3     # 0 = disabled (sharp edges)
+    distance: 3     # 0 = disabled (sharp edges)
+
     step: 1
     weight: 1.0
   sampler:
@@ -17,12 +18,13 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence(x,z), -1.75, 3)
-      + clamp(pillars(x,y,z) * 24, -2, 3)
+      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence3D(x,y,z), -1.75, 3)
+      + clamp(pillars(x,y,z) * 24, -2, 3)*biomeInfluence3D(x,y,z)
       //clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:
-        arguments: [x, a, b] # clamps x between a (low) and b (high)
+        arguments: [x, a, b] # clamps x between a (low) and b (high)
+
         expression: min(max(x, a), b)
     samplers:
       pillars:

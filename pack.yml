@@ -17,7 +17,7 @@ blend:
         frequency: 0.5
         seed: 8675409
   terrain:
-    elevation: 3
+    elevation: 0
     defaults:
       distance: 3
       step: 4

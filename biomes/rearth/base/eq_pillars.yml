@@ -3,18 +3,23 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 75
-  height: 13
+  base: $customization.yml:terrain-base-y-level
+  height: 7
   pillarHeight: 50
 
 terrain:
+  blend:
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 1
+    weight: 1.0
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(-y + base + noiseBase(x,z) * height, -2, 3)
+      clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*elevationBiomeDetailFactor(x,z), -1.75, 3)
       + clamp(pillars(x,y,z) * 24, -2, 3)
+      //clamp(pillars(x,y,z) * 24, -2, 3)
     functions:
       clamp:
         arguments: [x, a, b] # clamps x between a (low) and b (high)
@@ -25,12 +30,13 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          basePillarsExistance(x,z) * (
+          1* (
             -basepillars(x,z) - 0.72    // basic pillars
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
-            + (min(0, base + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
+            + (min(0, base  + (BiomeShapeLandmassElevation(x,z) + pillarHeight) * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
           )
+          // basePillarsExistance(x,z)
         samplers:
           basepillars: &pillarConf
             dimensions: 2
@@ -74,3 +80,7 @@ terrain:
         dimensions: 2
         type: OPEN_SIMPLEX_2S
         frequency: 0.011
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

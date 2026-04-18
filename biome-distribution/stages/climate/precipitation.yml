@@ -102,9 +102,9 @@ stages:
         - temperate-mesa: *mildlyWet
         - temperate-mesa: *veryWet
       boreal-mesa:
-        - cold-desert-mesa: *desert
-        - cold-desert-mesa: *desertBorder
-        - cold-desert-mesa: *semiArid
+        - boreal-mesa: *desert
+        - boreal-mesa: *desertBorder
+        - boreal-mesa: *semiArid
         - boreal-mesa: *mid
         - boreal-mesa: *mildlyWet
         - boreal-mesa: *veryWet

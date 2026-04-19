@@ -406,6 +406,11 @@ river-boundary-variance-period: 200
 # Frequency of river boundary variance using Perlin noise.
 # Default: 50
 
+river-biome-activation-threshold: 0.4
+
+#How far from river edges do river biomes activate.  In theory would be best right at rivers edge (0), but due to current
+#terrain sampling, need more distance to blend down to bank.
+
 # ---
 # Trenches
 # ---

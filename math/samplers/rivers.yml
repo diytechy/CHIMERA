@@ -6,7 +6,7 @@ variables: &variables
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
   soulSandPlaceDist: &soulSandPlaceDist 8
-  riverBiomeActivationThreshold: &riverBiomeActivationThreshold 0.4 # Determines the area calculated as river, which also determines how far away river borders will be.
+  river-biome-activation-threshold: ${customization.yml:river-biome-activation-threshold} 
 
   erosionMaxDistance: 0.3
   erosionMax: 0.95
@@ -65,7 +65,7 @@ river-terrain-variables: &rtv
   riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
   # ─── Biome activation ──────────────────────────────────────────
-  riverBiomeActivationThreshold: *riverBiomeActivationThreshold
+  riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold} 
 
 samplers:
   riverSampler:
@@ -487,7 +487,7 @@ samplers:
       HeightScale: $customization.yml:terrain-height
       MinRiverSupp: $customization.yml:min-river-support-height
       riverBedDepth: 8
-      riverBiomeActivationThreshold: *riverBiomeActivationThreshold
+      riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
     samplers:
       RiverElev:
         dimensions: 2

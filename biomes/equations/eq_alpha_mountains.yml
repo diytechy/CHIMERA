@@ -9,8 +9,10 @@ terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    expression: -y + base + (noise(x, z)+1)/2
-      * height + (noise3(x, y*3, z)+1)/2 * blobStrength
+    expression: 
+      -y + base + elevationDetailedBlockHeight(x,z) +
+      (noise(x, z)+1)/2 * height * biomeInfluence(x,z) + 
+      (noise3(x, y*3, z)+1)/2 * blobStrength
     variables: *id001
     samplers:
       noise:

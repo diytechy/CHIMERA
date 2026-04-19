@@ -437,7 +437,7 @@ samplers:
       riverNominalBoundary: $customization.yml:river-nominal-boundary
       # Cell border: BiomeShapeLandmassDist2Center = 1 at border, 0 at center, over ~cellHalfDist blocks
       # (approximation — actual scale is heavily affected by domain warp)
-      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} / 2
+      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} / 4
       # Mesa / coast: no precise block-to-unit anchor; tune these as needed
       mesaBlocksPerUnit: ${customization.yml:continental-mesa-region-allowed-distance} / 2
       coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} / 2
@@ -465,13 +465,28 @@ samplers:
     # feature construction.
     expression: |
       min(max(if(biomeInfluence(x,z)<1,
-      ((base+elevationDetailedBlockHeight(x,z)-y)/270)+
+      ((base+elevationDetailedBlockHeight(x,z)-y)/200)+1+
       biomeInfluence(x,z),
-      3),0),1)
+      1),0),1)
     samplers:
       biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
       elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
 
+  
+  biomeInfluenceOffset:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      distAtFullInfluence: $customization.yml:biomeSpread.distAtFullInfluence
+    # The first part scales from high negative values at the stratosphere, 
+    # and adds in the biome influence, to increase density near the bottom.
+    # If the biome influence is full (1), the sampler must return 1 to allow
+    # feature construction.
+    expression: |
+      biomeInfluence3D(x,y,z)*distAtFullInfluence - distAtFullInfluence
+    samplers:
+      biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
+      elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
   oceanElevation:
     dimensions: 2
     type: EXPRESSION

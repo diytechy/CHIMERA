@@ -48,7 +48,7 @@ biomes:
         #  sampler:
         #    #type: CONSTANT
         #    type: EXPRESSION
-        #    expression: biomeInfluence(x, z)-0.5
+        #    expression: biomeInfluence3D(x, 100, z)-0.5
         #    #- MUSKEG: 1
         #    # - SWAMP: 1
         #    #- MANGROVE_SWAMP: 1

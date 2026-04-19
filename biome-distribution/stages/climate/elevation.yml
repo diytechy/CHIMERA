@@ -225,8 +225,3 @@ stages:
         - tropical-savanna-wet: 1
         - tropical-savanna-wet: 1
         - tropical-savanna-wet-highlands: 1
-      hot-shallow-ocean:
-        - hot-shallow-ocean: 1
-        - hot-shallow-ocean: 1
-        - hot-shallow-ocean-midlands: 1
-        - hot-shallow-ocean-midlands: 1

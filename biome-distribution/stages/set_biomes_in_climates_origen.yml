@@ -574,17 +574,12 @@ stages:
         - SEAGRASS_MEADOW: 2
         - STONEGATE_SEAS: 1
         - MARINE_MONOLITHS: 1
-      hot-shallow-ocean-midlands:
-        - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_OVERHANGS: 1
-        - SEAGRASS_MEADOW: 1
-        - CORAL_OCEAN: 1
-        - CORAL_OCEAN_OVERHANGS: 1
-        - MARINE_MONOLITHS: 1
       hot-ocean:
         - TROPICAL_OCEAN: 1
         - TROPICAL_OCEAN_SLOPES: 1
         - CORAL_OCEAN_SLOPES: 1
+        - CORAL_OCEAN: 1
         - ABYSSAL_ALLEYS: 1
       hot-deep-ocean:
         - TROPICAL_DEEP_OCEAN: 1

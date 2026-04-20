@@ -448,7 +448,7 @@ samplers:
         min(
           min(
             min(herp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
-            herp(BiomeShapeLandmassDist2Center(x,z), min(-0.5,-1+distAtFullNormDist / cellHalfDist), 1, 0, 0)),
+            herp(BiomeShapeLandmassDist2Center(x,z), -1, 1, 0, 0)),
           herp(mesaFootDist(x,z), -distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
         herp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
       herp(spotDistance(x, z) - (spotRadius(x, z) + biomeBorder),0,0,distAtFullNormDist,1))

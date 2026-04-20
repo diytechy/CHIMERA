@@ -49,7 +49,7 @@ biomes:
             #type: CONSTANT
             type: EXPRESSION
             #expression: biomeInfluence3D(x, 100, z)-0.5
-            expression: biomeInfluence(x, z)-0.99
+            expression: biomeInfluence(x, z)-0.5
             #expression: normDistIntoBiome(x,z)-0.5
         #    #- MUSKEG: 1
         #    # - SWAMP: 1

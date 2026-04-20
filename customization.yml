@@ -394,11 +394,11 @@ continental-river-width-period: 100
 # Higher values create more gradual width changes.
 # Default: 50
 
-river-nominal-boundary: 25
+river-nominal-boundary: 50
 # Nominal distance from river center to boundary in blocks.
 # Default: 25
 
-river-boundary-variance-magnitude: 17
+river-boundary-variance-magnitude: 20
 # Magnitude of variance in river boundary distance.
 # Default: 17
 

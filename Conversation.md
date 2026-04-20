@@ -1015,6 +1015,29 @@ List all eq_* files that reference customization.cellDistance, as these likely u
 
 #########################################
 
+The biome sampler currently uses the following expression for the elevation related distribution:
+expression: if(elevation > highlands, 0.75, if(elevation > lowlands, 0.25, if(flatness < 1, -0.25, -0.75)))
+
+In all cases, the midlands and lowlands are leading to the same placeholder biome.
+
+Remove the midlands / lowlands duplicate, and update the expression to the following:
+expression: if(elevation > highlands, if(flatness < flatness-factor, 0, -1)))
+
+Then update the distributions to remove the duplicate, example:
+
+        - tundra-flat: 1
+        - tundra: 1
+        - tundra: 1
+        - tundra-highlands: 1
+		
+		would become:
+		
+        - tundra-flat: 1
+        - tundra: 1
+        - tundra-highlands: 1
+
+#############################################
+
 Update the following biomes to use a updated biomeInfluence sampler instead of the current cell distance reference:
 
 eq_tilted_plateau.yml	3 (lines 8, 43, 55)  (Is just a very jagged sampler anyways.)

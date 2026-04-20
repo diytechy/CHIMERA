@@ -869,7 +869,7 @@ samplers:
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(continents(x,z),-0.10,1.0,0.0,continentalDendryRivers(x,0.0,z))
+    expression: herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
     functions:
       lerp:
         arguments:

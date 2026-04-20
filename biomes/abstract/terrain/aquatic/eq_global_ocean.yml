@@ -31,6 +31,7 @@ terrain:
         detailStart, 0,
         detailEnd, - (1-|simplex(x*detailFrequency, z*detailFrequency)|) * detailFactor
       )
+      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
     variables: *variables
     functions:
       combine: # Stacks a layer of noise on top scaled according to the base noise

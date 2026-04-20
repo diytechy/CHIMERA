@@ -125,6 +125,16 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: riverSampler(x,z)
+  # Badlands
+  - type: REPLACE
+    from: USE_BADLANDS_RIVER
+    to:
+      - SELF: 1
+      - BAD_BALCOONIES_RIVER: 1
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Tar pit rivers
   - type: REPLACE
     from: USE_TAR_PIT_RIVER

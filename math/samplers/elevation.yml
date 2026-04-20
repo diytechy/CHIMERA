@@ -397,7 +397,7 @@ samplers:
       continentFull: $customization.yml:elevation-continental-full-height-threshold
       factorContinental: $customization.yml:elevation-factor-continental
 
-  elevationDetailed:
+  elevationDetailedPreErosion:
     dimensions: 2
     type: EXPRESSION
     expression: |
@@ -420,6 +420,25 @@ samplers:
         warp:
           type: WHITE_NOISE
           salt: 2394
+
+  elevationEroded:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, 100),elevationDetailedPreErosion(x,z))
+    samplers:
+      RiverOverhangMask: $math/samplers/rivers.yml:samplers.RiverOverhangMask
+      continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
+      elevationDetailedPreErosion: $math/samplers/elevation.yml:samplers.elevationDetailedPreErosion
+
+  elevationDetailed:
+    type: EXPRESSION
+    dimensions: 2
+    functions: $math/functions/interpolation.yml:functions
+    expression: |
+      herp(ContinentalRiverDist(x,z),0,elevationDetailedPreErosion(x,z),1,elevationEroded(x,z))
+    samplers:
+      ContinentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
+      elevationDetailedPreErosion: $math/samplers/elevation.yml:samplers.elevationDetailedPreErosion
           
   elevationDetailedBlockHeight:
     dimensions: 2

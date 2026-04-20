@@ -40,15 +40,17 @@ biomes:
             type: EXPRESSION
             expression: continentalDistribution(x, z)
             
-        #- type: REPLACE
-        #  from: land
-        #  to:
-        #    - FROSTCOATED_BOG: 1
-        #    - FROZEN_MARSH: 1
-        #  sampler:
-        #    #type: CONSTANT
-        #    type: EXPRESSION
-        #    expression: biomeInfluence3D(x, 100, z)-0.5
+        - type: REPLACE
+          from: land
+          to:
+            - FROSTCOATED_BOG: 1
+            - FROZEN_MARSH: 1
+          sampler:
+            #type: CONSTANT
+            type: EXPRESSION
+            #expression: biomeInfluence3D(x, 100, z)-0.5
+            expression: biomeInfluence(x, z)-0.99
+            #expression: normDistIntoBiome(x,z)-0.5
         #    #- MUSKEG: 1
         #    # - SWAMP: 1
         #    #- MANGROVE_SWAMP: 1

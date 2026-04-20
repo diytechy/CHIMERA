@@ -135,7 +135,7 @@ samplers:
     borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
     branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability
     default-riverwidth: 30
-    default-borderwidth: 50
+    default-borderwidth: 75
 
   continentalRiverDist:
     dimensions: 2

@@ -100,5 +100,5 @@ terrain:
     type: EXPRESSION
     expression: |
       scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
-      - if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
+      // - if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
     variables: *variables

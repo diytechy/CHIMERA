@@ -5,7 +5,7 @@ abstract: true
 vars: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
-  
+
   pillarHeight: 80
   pillarPlatformHeight: 20
   pillarHeightVariation: 20
@@ -21,7 +21,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
+      -y + base + elevationDetailedBlockHeight(x,z)
       + if(y<pillarYMin||y>base+scale+pillarHeight+pillarHeightVariation,0, // Skip unnecessary calculations
         max(
           // Pillar 'platform'
@@ -45,7 +45,7 @@ terrain:
             )
           )
         )
-      )
+      ) * biomeInfluence(x,z)
     samplers:
       pillarMask: # Determines where pillars will go, only higher end values will be turned into pillars
         dimensions: 2
@@ -71,6 +71,5 @@ terrain:
 
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables: *variables
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

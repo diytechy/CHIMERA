@@ -12,7 +12,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * cells(x,z)
+      -y + base + elevationDetailedBlockHeight(x,z) + height * cells(x,z) * biomeInfluence(x,z)
     samplers:
       cells:
         dimensions: 2

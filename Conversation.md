@@ -1038,6 +1038,55 @@ Then update the distributions to remove the duplicate, example:
 
 #############################################
 
+1. Update the biomeInfluence sampler to increase from 0 to 1 as distance into biome grows, derive from:
+  - rivers increase (ContinentalRiverDist goes from distance threshold to 1)
+  - distance from cell border increases (Convert cell biome distance, BiomeShapeLandmassDist2Center, which goes to 0 as it approaches center)
+  - distance from mesa border increases. (mesaFootDist, 0 at mesa foot, grows to 1 into mesa, negative value away from mesa)
+  - distance from coast?  (dist2Coast, gets larger the further away from shore, can be normalized using the continents distance?)
+  - The biomeInfluence sampler should increase to 1 at the real world block distance of distAtFullInfluence, while 0 when at the border of the above artifacts.
+
+*. Make sure all surface / land biomes respect these borders, this means mesa sub-biome replacements must also use this biome replacement (small biome), not a secondary sampler.
+
+*. Any vast-forest subreplacement must also follow the same restrictive replacement set.
+
+G. Make sure biome distribution for elevation uses cell center instead of pure elevation.
+
+H. Consider updating elevation with influence from river which is not done today.  This would drag elevation down to rivers in most locations for crossing and more natural erosion, but leave some places where elevation doesn't care and the river-specific sampler itself is responsible for determining through it's sampler if it should tunnel through the terrain or ramp.  This creates more variation at river zones.
+
+2. Create a new sampler that indicates biomeInfluence3D, which will also ramp down scaler influence as y height above the detailed elevation plane increases.  This will prevent floating artifacts at biome borders.
+
+
+
+###########################################
+Goal: Update all "eq_*" related terrain samplers that are used for land biomes to share a common expression and detail ramping method for consistent elevation at biome borders:
+
+sampler-2d shall always return 0.
+
+The current elevation at sampler-2d shall instead be added into the standard sampler where the -y+base or base-y part of the expression exists.
+
+Any 2d noise added into the -y+base apart from the additional elevation shall be multiplied by the biomeInfluence(x,z) to ramp any biome specific 2-d noise.
+
+Refer to the following changes where this was already performed:
+
+Latest commit, where changes have already been made and verified: 12b6a1f0c693c7d91be8de27b9b53263fc0aaf79
+Previous commit, where files had older definition:
+bdeb91eef5066e68bc78cd4270f080a68827ff75
+
+Files modified for reference, to apply the same pattern to all other "eq_*" files that are used for land biomes:
+
+eq_pillars
+eq_land
+eq_alpha_mountains
+
+Be sure to only adjust "eq_" files that are used for land biomes.  The biometable may be useful context to verify the eq file is related to land terrain (as opposed to ocean terrain)
+
+
+
+
+
+
+
+
 Update the following biomes to use a updated biomeInfluence sampler instead of the current cell distance reference:
 
 eq_tilted_plateau.yml	3 (lines 8, 43, 55)  (Is just a very jagged sampler anyways.)
@@ -1056,23 +1105,6 @@ Act:
 
 Actions to take in order to better 
 1. 
-
-1. Update the biomeInfluence sampler to increase from 0 to 1 as distance into biome grows, derive from:
-  - rivers increase (ContinentalRiverDist goes from distance threshold to 1)
-  - distance from cell border increases (Convert cell biome distance, BiomeShapeLandmassDist2Center, which goes to 0 as it approaches center)
-  - distance from mesa border increases. (mesaFootDist, 0 at mesa foot, grows to 1 into mesa, negative value away from mesa)
-  - distance from coast?  (dist2Coast, gets larger the further away from shore, can be normalized using the continents distance?)
-  - The biomeInfluence sampler should increase to 1 at the real world block distance of distAtFullInfluence, while 0 when at the border of the above artifacts.
-
-*. Make sure all surface / land biomes respect these borders, this means mesa sub-biome replacements must also use this biome replacement (small biome), not a secondary sampler.
-
-*. Any vast-forest subreplacement must also follow the same restrictive replacement set.
-
-G. Make sure biome distribution for elevation uses cell center instead of pure elevation.
-
-H. Consider updating elevation with influence from river which is not done today.  This would drag elevation down to rivers in most locations for crossing and more natural erosion, but leave some places where elevation doesn't care and the river-specific sampler itself is responsible for determining through it's sampler if it should tunnel through the terrain or ramp.  This creates more variation at river zones.
-
-2. Create a new sampler that indicates biomeInfluence3D, which will also ramp down scaler influence as y height above the detailed elevation plane increases.  This will prevent floating artifacts at biome borders.
 
 3. Update the above terrain equations above that used cell distance to instead use biome influence for 3d structures.
 

@@ -16,7 +16,8 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-        max(-y + base + surfaceBase(x,z) * 20, -3) +
+        -y + base + elevationDetailedBlockHeight(x,z) +
+        max(surfaceBase(x,z) * 20 * biomeInfluence(x,z), -3) +
         max(arches(rotate(x, z, angle), y - 21, rotate(z, x, angle)) * 10, -3)
     functions:
       rotate:
@@ -71,7 +72,5 @@ terrain:
               jitter: 0.2
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

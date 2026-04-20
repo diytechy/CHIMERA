@@ -9,10 +9,10 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + simplex(x*20, z*20)
+    expression: -y + base + elevationDetailedBlockHeight(x,z) + simplex(x*20, z*20) * biomeInfluence(x,z)
     variables: *variables
 
   sampler-2d:
-    type: EXPRESSION
-    expression: scale * elevationDetailed(x, z)
-    variables: *variables
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -30,8 +30,6 @@ terrain:
       type: CONSTANT
       value: 5
   sampler-2d:
-    type: MUL
-    left: $biomes/abstract/terrain/land/legacy/eq_flat.yml:terrain.sampler-2d
-    right:
-      type: CONSTANT
-      value: 5
+    dimensions: 2
+    type: CONSTANT
+    value: 0

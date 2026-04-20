@@ -11,5 +11,10 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + scale * elevationDetailed(x, z)
+    expression: -y + base + elevationDetailedBlockHeight(x,z)
     variables: *variables
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

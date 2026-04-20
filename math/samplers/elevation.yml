@@ -444,8 +444,9 @@ samplers:
     dimensions: 2
     variables: *variables
     type: EXPRESSION
+    #Note, -0.5 so that at floor we are properly blending against nearby terrain.
     expression: |
-      elevationDetailed(x,z)*verticalLift
+      elevationDetailed(x,z)*verticalLift-0.9
   
   normDistIntoBiome:
     dimensions: 2

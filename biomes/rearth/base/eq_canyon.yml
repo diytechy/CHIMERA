@@ -5,7 +5,12 @@ abstract: true
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + 73
+    dimensions: 3
+    expression: -y + 73 + elevationDetailedBlockHeight(x,z)
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0
 
 variables: &variables
   canyonFloor: ${customization.yml:biomeSpread.canyons.minY} + 3

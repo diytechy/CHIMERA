@@ -13,8 +13,8 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      cliffify(-y + base + height * surfaceOffset(x,z)
-        + (biomeTilt(x - 3, z - 3) + 0.5) * 55, -1)
+      cliffify(-y + base + elevationDetailedBlockHeight(x,z) + height * surfaceOffset(x,z) * biomeInfluence(x,z)
+        + (biomeTilt(x - 3, z - 3) + 0.5) * 55 * biomeInfluence(x,z), -1)
       + (wallAddition(x,y,z) + 1) * 2
     functions:
       cliffify:

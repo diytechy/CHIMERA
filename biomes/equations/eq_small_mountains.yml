@@ -12,13 +12,7 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y+base
-    samplers:
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    expression: (noise(x, z)+1)/2 * height + scale * elevationDetailed(x, z)
-    variables: *variables
+    expression: -y + base + elevationDetailedBlockHeight(x,z) + (noise(x, z)+1)/2 * height * biomeInfluence(x,z)
     samplers:
       noise:
         dimensions: 2
@@ -37,3 +31,7 @@ terrain:
             sampler:
               type: CELLULAR
               frequency: 0.008
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

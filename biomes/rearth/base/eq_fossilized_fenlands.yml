@@ -13,8 +13,9 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * surfaceOffset(x,z)
-      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (height * surfaceOffset(x,z)
+      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
     functions:
       clamp:
         arguments: [x, a, b]

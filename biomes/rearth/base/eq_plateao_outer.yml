@@ -14,8 +14,9 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * surfaceOffset(x,z)
-      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (height * surfaceOffset(x,z)
+      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
     samplers:
       plateous:
         dimensions: 2
@@ -33,7 +34,5 @@ terrain:
         gain: 0.5
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

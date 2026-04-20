@@ -16,9 +16,9 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-        -y + base 
-        + cellLean(x,z) * height * remapCellRange(cells(x,z)) + cells(x,z) * cellHeightVariation
-        + surfaceBase(x,z) * mountainHeight
+        -y + base + elevationDetailedBlockHeight(x,z)
+        + (cellLean(x,z) * height * remapCellRange(cells(x,z)) + cells(x,z) * cellHeightVariation
+        + surfaceBase(x,z) * mountainHeight) * biomeInfluence(x,z)
     functions:
       remapCellRange:
         arguments: [x]

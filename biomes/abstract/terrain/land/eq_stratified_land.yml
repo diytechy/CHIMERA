@@ -10,19 +10,15 @@ variables: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + 10
-    variables: *variables
-
-  sampler-2d:
-    type: EXPRESSION
     expression: |
-      terraceStrata(
+      -y + base + elevationDetailedBlockHeight(x,z) + 10
+      + terraceStrata(
         terraceStrata(
           terraceStrata(
             heightmap(x, z) * scale
           ,50, 0, 0, 0.1)
         ,30, 0, 0, 0.15)
-      ,15, 0, 0, 0.2)
+      ,15, 0, 0, 0.2) * biomeInfluence(x,z)
     variables: *variables
     samplers:
       heightmap:
@@ -36,3 +32,8 @@ terrain:
         sampler:
           type: EXPRESSION
           expression: elevation(x, z)
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

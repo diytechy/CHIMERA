@@ -5,7 +5,7 @@ abstract: true
 vars: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
-  
+
   pillarHeight: 0.35
   pillarPlatformHeight: 0.05
   pillarWarpStrength: 45
@@ -17,7 +17,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
+      -y + base + elevationDetailedBlockHeight(x,z)
       + if(y<pillarYMin||y>base+scale,0, // Skip unnecessary calculations
         herp(elevation(x, z),
           0.8, 0,
@@ -27,7 +27,7 @@ terrain:
               0.4, 0,
               0.5, pillarPlatformHeight - elevation(x, z) / 2
             ),
-      
+
             // Pillars
             herp(pillarMask(
                 x+pillarWarp(x,y/2,z)*pillarWarpStrength,
@@ -37,7 +37,7 @@ terrain:
             )
           )
         )
-      )
+      ) * biomeInfluence(x,z)
     samplers:
       pillarMask:
         dimensions: 2
@@ -63,6 +63,5 @@ terrain:
 
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables: *variables
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

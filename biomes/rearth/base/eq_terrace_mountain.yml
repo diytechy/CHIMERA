@@ -17,9 +17,10 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base + (height / 2) * biomeInfluenceOld(x,z)
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + ((height / 2) * biomeInfluenceOld(x,z)
       + terrace(surfaceBaseMountains(x,z) * biomeInfluenceOld(x,z) * terraceThinness, terraceStrength) / (terraceHeight * (terraceSizeVariation(x,z) * 0.5 + 1))
-        * height + surfaceOffset(x,z) * variationHeight
+        * height + surfaceOffset(x,z) * variationHeight) * biomeInfluence(x,z)
     functions:
       terrace:
         arguments: [x, terraceStrength]
@@ -32,7 +33,7 @@ terrain:
           clamp((-biomeSize(x,z) - 0.5) * 4, 0, 1)
         functions:
           clamp:
-            arguments: [x, a, b] # clamps x between a (low) and b (high)
+            arguments: [x, a, b] # clamps x between a (low) and b (high)
             expression: min(max(x, a), b)
         samplers:
           biomeSize:

@@ -28,9 +28,7 @@ terrain:
         frequency: 0.018
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0
 tags:
 - BOREAL_COAST_HIGHLANDS

@@ -8,11 +8,10 @@ vars: &variables
   pillarHeight: 50
 
 terrain:
-  blend:
-    distance: 3     # 0 = disabled (sharp edges)
-
-    step: 1
-    weight: 1.0
+  #blend:
+  #  distance: 3     # 0 = disabled (sharp edges)
+  #  step: 1
+  #  weight: 1.0
   sampler:
     dimensions: 3
     type: EXPRESSION

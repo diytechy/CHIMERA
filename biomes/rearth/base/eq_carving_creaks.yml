@@ -14,9 +14,10 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * baseRandom(x,z)
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (height * baseRandom(x,z)
       - min(terrace(easeInOut(max(0, -abs(rivers(x,z)) + 0.5)) * terraceCount, 9) / terraceCount * 200, base - floor)
-      - max(0, -abs(rivers(x,z)) + 0.23)  * 45
+      - max(0, -abs(rivers(x,z)) + 0.23)  * 45) * biomeInfluence(x,z)
     functions:
       easeInOut:
         arguments: [x]

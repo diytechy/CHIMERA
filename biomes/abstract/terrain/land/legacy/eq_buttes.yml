@@ -6,13 +6,13 @@ abstract: true
 
 vars: &variables
   base: $customization.yml:terrain-base-y-level
-  
+
   groundHeight: 10
   groundFrequency: 0.8
 
   terraceHeight: 30 # Block height of terrace levels
   terraceHeightVariation: 5
-  
+
   depositMaskLowerBound: 0.3
   depositMaskUpperBound: 1
 
@@ -27,37 +27,34 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y+base
-
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *variables
     expression: |
-      // Ground
-      (simplex(x*groundFrequency, z*groundFrequency)+1)/2 * groundHeight
-      
-      + max(
-        terraceStrata(
-          // Deposits
-          maskSmooth(
-            butteBase,
-            depositMaskLowerBound, depositMaskUpperBound,
-            |mask(x*butteMaskFrequency, z*butteMaskFrequency)|
-          ),
-          4, 0, 0, lerp(simplex(x*3,z*3),0.2,0,0.3,0.5)
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (
+        // Ground
+        (simplex(x*groundFrequency, z*groundFrequency)+1)/2 * groundHeight
+
+        + max(
+          terraceStrata(
+            // Deposits
+            maskSmooth(
+              butteBase,
+              depositMaskLowerBound, depositMaskUpperBound,
+              |mask(x*butteMaskFrequency, z*butteMaskFrequency)|
+            ),
+            4, 0, 0, lerp(simplex(x*3,z*3),0.2,0,0.3,0.5)
+          )
+          ,
+          // Buttes
+          terraceStrata(
+            maskSmooth(
+              (buttes(x, z)+1)/2 * butteHeight,
+              butteMaskLowerBound, butteMaskUpperBound,
+              |mask(x*butteMaskFrequency, z*butteMaskFrequency)|
+            ),
+            terraceHeight, terraceVariation(x, z) * terraceHeightVariation, 0, 0.5
+          )
         )
-        ,
-        // Buttes
-        terraceStrata(
-          maskSmooth(
-            (buttes(x, z)+1)/2 * butteHeight,
-            butteMaskLowerBound, butteMaskUpperBound,
-            |mask(x*butteMaskFrequency, z*butteMaskFrequency)|
-          ),
-          terraceHeight, terraceVariation(x, z) * terraceHeightVariation, 0, 0.5
-        )
-      )
+      ) * biomeInfluence(x,z)
     samplers:
       terraceVariation:
         dimensions: 2
@@ -86,3 +83,8 @@ terrain:
           sampler:
             type: CELLULAR
             frequency: 0.02
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

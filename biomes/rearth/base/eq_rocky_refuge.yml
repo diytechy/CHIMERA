@@ -17,9 +17,10 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * terrace(surfaceOffset(x,z) * 4, 3) / 4
-      + if (y > base - 15 && y < base + pillarHeight * 1.3, 
-        max(pillars(x + yCurve(y, 0), y, z + yCurve(y, 0)), 
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + height * terrace(surfaceOffset(x,z) * 4, 3) / 4 * biomeInfluence(x,z)
+      + if (y > base - 15 && y < base + pillarHeight * 1.3,
+        max(pillars(x + yCurve(y, 0), y, z + yCurve(y, 0)),
         max(pillars(x - yCurve(y, 0), y, z + yCurve(y, 0)), pillars(x - yCurve(y, 0) + 5000, y, z - yCurve(y, 0)))),
         0)
     functions:
@@ -98,7 +99,5 @@ terrain:
         gain: 0.5
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

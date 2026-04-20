@@ -12,10 +12,8 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + top
+      -y + top + elevationDetailedBlockHeight(x,z)
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

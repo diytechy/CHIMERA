@@ -10,7 +10,9 @@ terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    expression: -y + base+elevationDetailedBlockHeight(x,z) + lerp(overhangsMask(x, y, z), 0, 0, 1, (overhangs(x, y*3, z)) * 20)
+    expression: |
+      -y + base+elevationDetailedBlockHeight(x,z) 
+      + lerp(overhangsMask(x, y, z), 0, 0, 1, (overhangs(x, y*3, z)) * 20)
     variables: *variables
     samplers:
       overhangsMask:

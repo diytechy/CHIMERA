@@ -11,4 +11,4 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
+      -y + base + elevationDetailedBlockHeight(x,z)

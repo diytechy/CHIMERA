@@ -14,7 +14,7 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      min(-y + base + surfaceVariation(x,z) * height, valley(x,y,z) * 10)
+      min(-y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height * biomeInfluence(x,z), valley(x,y,z) * 10)
     samplers:
       valley:
         type: EXPRESSION

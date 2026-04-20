@@ -12,14 +12,9 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y+base
-
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *variables
     expression: |
-      terraceParabolic(
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + terraceParabolic(
         terraceParabolic(
           terraceParabolic(
             (noise(x, z)+1)/2 * height + (-bubbles(x, z)+1)/2 * 10,
@@ -28,8 +23,7 @@ terrain:
           20, terraceVariation(x, z+1000)*1.5, 0, 1
         ),
         30, terraceVariation(x, z+2000)*2, 0, 1
-      )
-      + scale * elevationDetailed(x, z)
+      ) * biomeInfluence(x,z)
     samplers:
       bubbles:
         dimensions: 2
@@ -72,3 +66,8 @@ terrain:
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.0015
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

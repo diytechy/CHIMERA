@@ -15,7 +15,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
+      -y + base + elevationDetailedBlockHeight(x,z)
       - if(y<(erosionBottomFloor+base),0,
         lerp(y,
           (erosionTopRise+base), 0,
@@ -25,9 +25,9 @@ terrain:
             * erosionStrength
         )
       )
-      + (simplex2(x/2, z/2)+1)/2 * 10 + maskSmooth(70, -0.15, -0.35, cracks(x, z))
+      + ((simplex2(x/2, z/2)+1)/2 * 10 + maskSmooth(70, -0.15, -0.35, cracks(x, z))) * biomeInfluence(x,z)
     samplers:
-    
+
       erosion:
         dimensions: 3
         type: OPEN_SIMPLEX_2
@@ -38,7 +38,7 @@ terrain:
         dimensions: 2
         type: CELLULAR
         frequency: 0.07
-  
+
       cracks:
         dimensions: 2
         type: DOMAIN_WARP
@@ -53,3 +53,8 @@ terrain:
           type: CELLULAR
           return: Distance2Div
           frequency: 0.003
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

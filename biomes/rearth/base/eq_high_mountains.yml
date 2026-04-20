@@ -16,8 +16,8 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base
-      + main(mountainBasicShape(x,z), y, x * varPackStrength + z)  // packed into a subsampler to only have to sample mountainBasicShape once, and then we need to pack x&z into one coordinate
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + main(mountainBasicShape(x,z), y, x * varPackStrength + z) * biomeInfluence(x,z)  // packed into a subsampler to only have to sample mountainBasicShape once, and then we need to pack x&z into one coordinate
     samplers:
       mountainBasicShape:
         dimensions: 2
@@ -62,7 +62,5 @@ terrain:
             gain: 0.5
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      scale: $customization.yml:terrain-height
-    expression: scale * elevationDetailed(x, z)
+    type: CONSTANT
+    value: 0

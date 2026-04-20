@@ -17,11 +17,9 @@ terrain:
     type: EXPRESSION
     expression: |
       -y + base
-      + min(overhangs(x, y*3, z) * parabolicMap(y,
+      + overhangs(x, y*3, z) * parabolicMap(y,
         base - scale * overhangStartPercent,
         overhangStrength, base, 0)
-      +scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength),
-      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0))
     variables: *variables
     samplers:
       overhangs:
@@ -35,4 +33,7 @@ terrain:
             frequency: 0.01
             salt: 4957
   sampler-2d:
-    type: CONSTANT
+    type: EXPRESSION
+    expression: scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
+      - if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
+    variables: *variables

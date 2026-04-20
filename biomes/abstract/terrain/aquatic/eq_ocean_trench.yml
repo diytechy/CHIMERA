@@ -20,19 +20,17 @@ terrain:
     variables: *variables
     expression: |
       -y + base -
-      // erode(
-      //   base,
-      //   elevation(x, z),
-      //   scale,
-      //   (y - base) / scale,
-      //   depth,
-      //   ceilingBase,
-      //   ceilingHeight,
-      //   ceilingSpikes(x, z) * -0.1,
-      //   herp(openings(x, z), 0.3, 0, 0.6, 1)
-      // ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
-      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)
-      +scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
+      erode(
+        base,
+        elevation(x, z),
+        scale,
+        (y - base) / scale,
+        depth,
+        ceilingBase,
+        ceilingHeight,
+        ceilingSpikes(x, z) * -0.1,
+        herp(openings(x, z), 0.3, 0, 0.6, 1)
+      ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
     samplers:
       erosionStrengthVariation: # Used to roughen up the walls
         dimensions: 3
@@ -76,4 +74,8 @@ terrain:
             - math/functions/interpolation.yml:functions
 
   sampler-2d:
-    type: CONSTANT
+    type: EXPRESSION
+    expression: |
+      scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
+      - if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
+    variables: *variables

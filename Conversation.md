@@ -1081,7 +1081,12 @@ eq_alpha_mountains
 Be sure to only adjust "eq_" files that are used for land biomes.  The biometable may be useful context to verify the eq file is related to land terrain (as opposed to ocean terrain)
 
 
+#####################################
 
+Make sure all frozen river variants have packed ice for icecles?
+Check rivers now that min-density has been commented.
+Check rivers for bubble columns.
+Check distribution of biomes, dry/warm regions seem prolific.  Might need some variety here?
 
 
 

@@ -8,12 +8,12 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313
-      threshold: 0.05
+      threshold: 0.025
     - type: SAMPLER
       sampler:
         type: EXPRESSION
         expression: continentalRiverDist(x,z)
-      threshold: 0.0
+      threshold: -0.2
   
 
     #- type: SAMPLER

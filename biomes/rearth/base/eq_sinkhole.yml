@@ -18,7 +18,7 @@ terrain:
     variables: *variables
     expression: |
       clamp(
-        -y + base + elevationDetailedBlockHeight(x,z) + height * surfaceBase(x,z) * biomeInfluence(x,z),
+        -y + base + elevationDetailedBlockHeight(x,z) + height * surfaceBase(x,z),
       -5, 5)
     samplers:
       surfaceBase:
@@ -31,3 +31,7 @@ terrain:
         octaves: 2
         lacunarity: 2
         gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

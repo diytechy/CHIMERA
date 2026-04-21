@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + elevationDetailedBlockHeight(x,z)
+      -y + base + BiomeShapeFlattenedElevation(x,z)
       + (height * surfaceOffset(x,z)
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
     functions:
@@ -35,3 +35,8 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
+        
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -9,7 +9,7 @@ terrain:
     variables:
       base: $customization.yml:terrain-base-y-level
       height: 14
-    expression: -y + base - 9 + elevationDetailedBlockHeight(x,z) + (noise(x,z)+1)/2 * height * biomeInfluence(x,z)
+    expression: -y + base + BiomeShapeFlattenedElevation(x,z) + ((noise(x,z)+1)/2 * height - 9) * biomeInfluence(x,z)
     samplers:
       noise:
         dimensions: 2

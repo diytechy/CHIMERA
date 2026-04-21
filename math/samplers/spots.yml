@@ -155,7 +155,7 @@ samplers:
       type: EXPRESSION
       expression: elevation(x, z)
       samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
+        elevation_with_mesas: $math/samplers/elevation.yml:samplers.elevation_with_mesas
 
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
@@ -260,3 +260,8 @@ samplers:
         if(spotCenterOnOcean(x,z), -1.0,
           if(spotCenterOnLand(x,z), 1.0, 0.0)),0.0)
     variables: $math/samplers/spots.yml:variables
+
+  elevationAcrossSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))

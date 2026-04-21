@@ -17,7 +17,7 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base
+    expression: -y + base + 0.9
     variables: *variables
 
   sampler-2d:
@@ -31,7 +31,7 @@ terrain:
         detailStart, 0,
         detailEnd, - (1-|simplex(x*detailFrequency, z*detailFrequency)|) * detailFactor
       )
-      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
+      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)
     variables: *variables
     functions:
       combine: # Stacks a layer of noise on top scaled according to the base noise

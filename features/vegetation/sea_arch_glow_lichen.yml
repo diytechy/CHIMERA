@@ -8,7 +8,7 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313
-      threshold: 0.1
+      threshold: 0.025
     - type: "YES"
   
 

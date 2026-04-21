@@ -110,7 +110,7 @@ samplers:
           distance: Euclidean
           #distance: EuclideanSq
           
-  BiomeShapeLandmassElevation:
+  BiomeShapeLandmassElevationDetailed:
     <<: *outerWarpSmall
     sampler:
       <<: *midWarpSmall
@@ -119,15 +119,34 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
+          lookup: $math/samplers/elevation.yml:samplers.elevationDetailed
+          salt-lookup: false
+          
+  BiomeShapeLandmassElevation:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: BiomeShapeLandmassElevationDetailed(x,z) * scale
+          
+  BiomeShapeLandmassFlatness:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup: $math/samplers/elevation.yml:samplers.flatness
           salt-lookup: false
 
   BiomeShapeFlattenedElevation:
     type: EXPRESSION
     dimensions: 2
     expression: |
-      herp(BiomeShapeLandmassDist2Center(x,z),0.4,  BiomeShapeLandmassElevation(x,z),
-      0.8,elevationDetailedBlockHeight(x,z))
+      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  BiomeShapeLandmassElevation(x,z))
     samplers:
       BiomeShapeLandmassElevation: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassElevation
       elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
@@ -168,38 +187,3 @@ samplers:
           return: NoiseLookup
           lookup: $math/samplers/precipitation.yml:samplers.precipitation
           salt-lookup: false
-
-  BiomeShapeOceanValue:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *oceanShape
-          return: CellValue
-
-  BiomeShapeOceanTemperature:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *oceanShape
-          return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
-          salt-lookup: false
-
-  BiomeShapeOceanContinents:
-    <<: *outerWarpSmall
-    sampler:
-      <<: *midWarpSmall
-      sampler:
-        <<: *innerWarpSmall
-        sampler:
-          <<: *oceanShape
-          return: NoiseLookup
-          lookup: $math/samplers/continents.yml:samplers.continents
-          salt-lookup: false
-

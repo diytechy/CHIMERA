@@ -383,6 +383,7 @@ samplers:
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
+    #spotBaseElevation
   elevationFromSpots:
     dimensions: 2
     type: EXPRESSION
@@ -411,7 +412,7 @@ samplers:
         sampler: 
           dimensions: 2
           type: EXPRESSION
-          expression: max(elevationFromSpots(x, z),elevationTerraced(x,z))
+          expression: max(elevationAcrossSpot(x, z),elevationTerraced(x,z))
           # Elevation is warped slightly by white noise, creating a small fuzzy
           # or dithered look to break up perfectly smooth noise. Produces small
           # 1 block divots in terrain, especially apparent on steeper terrain and

@@ -16,6 +16,10 @@ vars: &variables
   erosionStrength: 4
 
 terrain:
+  blend:
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 2
+    weight: 1.5
   sampler:
     type: EXPRESSION
     dimensions: 3
@@ -47,7 +51,6 @@ terrain:
 tags:
   - LAND_CAVES
   - SPECIAL_CAVES
-  - USE_RIVER
 
 palette:
   - GRASS: $meta.yml:top-y

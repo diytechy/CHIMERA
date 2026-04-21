@@ -201,6 +201,7 @@ samplers:
     - math/samplers/trenches.yml:samplers
     - math/samplers/spots.yml:samplers
     - math/samplers/biomes_small.yml:samplers
+    - math/samplers/biomes_ocean.yml:samplers
     - math/samplers/biomes_large.yml:samplers
     - math/samplers/rifts.yml:samplers
 

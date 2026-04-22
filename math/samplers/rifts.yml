@@ -46,8 +46,6 @@ samplers:
     sampler:
       type: EXPRESSION
       expression: if(riftHybDistFromCenter(x,z)<-0.6,1,-1)
-      samplers:
-        riftHybDistFromCenter: $math/samplers/rifts.yml:samplers.riftHybDistFromCenter
 
   riftCanyon:
     type: EXPRESSION

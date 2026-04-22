@@ -80,8 +80,6 @@ samplers:
         )
       )
     variables: *variables
-    samplers:
-      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
 
 ############# DENDRY BASED RIVER IMPLEMENTATION BELOW ##############
 
@@ -133,9 +131,6 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: if(continents(x,z)>0.1 && flatness(x,z)<1.0, elevationTerraced(x,z), 0.0)
-      samplers:
-        elevationTerraced: $math/samplers/elevation.yml:samplers.elevationTerraced
-        continents: $math/samplers/continents.yml:samplers.continents
     riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
     borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
     branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability

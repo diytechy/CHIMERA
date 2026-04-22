@@ -450,21 +450,13 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: min(herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, 100),elevationDetailedPreErosion(x,z))
-    samplers:
-      RiverOverhangMask: $math/samplers/rivers.yml:samplers.RiverOverhangMask
-      continentalRiverElev: $math/samplers/rivers.yml:samplers.continentalRiverElev
-      elevationDetailedPreErosion: $math/samplers/elevation.yml:samplers.elevationDetailedPreErosion
 
   elevationDetailed:
     type: EXPRESSION
     dimensions: 2
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      herp(ContinentalRiverDist(x,z),0,elevationDetailedPreErosion(x,z),1,elevationEroded(x,z))
-    samplers:
-      ContinentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-      elevationDetailedPreErosion: $math/samplers/elevation.yml:samplers.elevationDetailedPreErosion
-          
+      herp(continentalRiverDist(x,z),0,elevationDetailedPreErosion(x,z),1,elevationEroded(x,z))
   elevationDetailedBlockHeight:
     dimensions: 2
     variables: *variables
@@ -498,13 +490,6 @@ samplers:
         herp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
       herp(spotDistance(x, z) - (spotRadius(x, z) + biomeBorder),0,0,distAtFullNormDist,1))
     functions: $math/functions/interpolation.yml:functions
-    samplers:
-      continentalRiverDist: $math/samplers/rivers.yml:samplers.continentalRiverDist
-      BiomeShapeLandmassDist2Center: $math/samplers/biomes_small.yml:samplers.BiomeShapeLandmassDist2Center
-      mesaFootDist: $math/samplers/elevation.yml:samplers.mesaFootDist
-      dist2Coast: $math/samplers/continents.yml:samplers.dist2Coast
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
 
   biomeInfluence:
     dimensions: 2
@@ -514,8 +499,6 @@ samplers:
       distAtFullNormDist: $customization.yml:biomeSpread.distAtFullNormDist 
     expression: lerp(normDistIntoBiome(x,z), 0, 0, distAtFullInfluence / distAtFullNormDist, 1)
     functions: $math/functions/interpolation.yml:functions
-    samplers:
-      normDistIntoBiome: $math/samplers/elevation.yml:samplers.normDistIntoBiome
   
   biomeInfluence3D:
     dimensions: 3
@@ -530,9 +513,6 @@ samplers:
       ((base+elevationDetailedBlockHeight(x,z)-y)/200)+1+
       biomeInfluence(x,z),
       1),0),1)
-    samplers:
-      biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
-      elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
 
   
   biomeInfluenceOffset:
@@ -546,9 +526,6 @@ samplers:
     # feature construction.
     expression: |
       biomeInfluence3D(x,y,z)*distAtFullInfluence - distAtFullInfluence
-    samplers:
-      biomeInfluence: $math/samplers/elevation.yml:samplers.biomeInfluence
-      elevationDetailedBlockHeight: $math/samplers/elevation.yml:samplers.elevationDetailedBlockHeight
   oceanElevation:
     dimensions: 2
     type: EXPRESSION

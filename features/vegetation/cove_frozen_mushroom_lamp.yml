@@ -8,7 +8,7 @@ distributor:
       sampler:
         type: POSITIVE_WHITE_NOISE
         salt: 2313
-      threshold: 0.025
+      threshold: 0.005
     - type: SAMPLER
       sampler:
         type: EXPRESSION
@@ -31,10 +31,19 @@ locator:
     patterns:
       - type: MATCH_AIR
         offset: 0
-      - type: MATCH_SOLID
-        offset: 1
+      - type: OR
+        patterns:
+          - type: MATCH_SOLID
+            offset: 1
+          - type: MATCH_SET
+            offset: 1
+            blocks:
+              - minecraft:ice
+              - minecraft:packed_ice
+              - minecraft:blue_ice
 
 structures:
   distribution:
     type: CONSTANT
-  structures: BLOCK:minecraft:pearlescent_froglight
+  structures: BLOCK:minecraft:soul_lantern
+  #Soul Lantern

@@ -11,7 +11,7 @@ ocean:
     type: EXPRESSION
     variables:
       olevel: $meta.yml:ocean-level
-    expression: if(continentalRiverDist(x,z)<0,olevel + continentalRiverBlockElevChange(x, z), olevel)
+    expression: if(continentalRiverDist(x,z)<=0,olevel + continentalRiverBlockElevChange(x, z), olevel)
 
 terrain:
   blend:

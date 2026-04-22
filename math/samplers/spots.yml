@@ -23,7 +23,7 @@ variables: &variables
   volcanoMaxCenterDepth: 0.3
 
   prismaticMinCenterDepth: 0.01
-  prismaticMaxCenterDepth: 0.15
+  prismaticMaxCenterDepth: -0.05
 
 smallCellular: &smallCellular
   dimensions: 2

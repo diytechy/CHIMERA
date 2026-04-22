@@ -11,9 +11,8 @@ anchors:
 distributor:
   type: SAMPLER
   sampler:
-    type: POSITIVE_WHITE_NOISE
-    salt: *salt
-    frequency: 1.0
+    type: EXPRESSION
+    expression: if(temperature(x,z)>-0.4, positiveWhiteNoise(x, z), 1)
   threshold: *densityThreshold
 
 locator:

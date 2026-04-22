@@ -21,7 +21,7 @@ terrain:
       scale * calcHeight(x, z,
         /*distance*/      spotDistance(x, z),
         /*erosion*/       (volcanoErosion(x, z)+1)/2,
-        /*outsideHeight*/ elevation(x, z),
+        /*outsideHeight*/ elevationDetailed(x, z),
         /*edge*/          spotEdgeRadius(x, z),
         /*radius*/        spotRadius(x, z),
         /*centerDepth*/   prismaticCenterDepth(x, z),

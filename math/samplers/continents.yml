@@ -88,7 +88,10 @@ samplers:
         dimensions: 2
         type: DOMAIN_WARP
         amplitude: 1500
-        sampler: $math/samplers/continents.yml:samplers.continental_landmass
+        sampler:
+          dimensions: 2
+          type: EXPRESSION
+          expression: continental_landmass(x, z)
         warp:
           type: RIDGED
           lacunarity: 3

@@ -114,8 +114,14 @@ samplers:
 
   RiverBranchingProbability:
     dimensions: 2
+    #type: CONSTANT
+    #value: 0
     type: EXPRESSION
-    expression: if((continents(x, z)<=0.2||mesaPresent(x, z)>0.0||precipitation(x, z)<0.2), 0,  ((rawPrecipitation(x, z))^0.5))
+    expression: |
+      if(((continents(x, z)>0.15)&&
+      (mesaFootDist(x,z)<0)&&
+      (precipitation(x, z)>0)), 
+      ((precipitation(x, z))^0.5),0)
 
   RiverOverhangMask:
     dimensions: 2
@@ -130,10 +136,19 @@ samplers:
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: if(continents(x,z)>0.1 && flatness(x,z)<1.0, elevationTerraced(x,z), 0.0)
-    riverwidth: $math/samplers/rivers.yml:samplers.continentalRiverWidth
-    borderwidth: $math/samplers/rivers.yml:samplers.riverBoundaryDistance
-    branches: $math/samplers/rivers.yml:samplers.RiverBranchingProbability
+      expression: elevationTerraced(x,z)
+    riverwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverWidth(x,z)
+    borderwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverBoundaryDistance(x,z)
+    branches: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: RiverBranchingProbability(x,z)
     default-riverwidth: 30
     default-borderwidth: 75
 

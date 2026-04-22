@@ -6,8 +6,6 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: if(mesaPresent(x, z)>0,1,-1)
-    samplers:
-      mesaPresent: $math/samplers/elevation.yml:samplers.mesaPresent
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
       SELF: 2
@@ -19,8 +17,6 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: islandMask(x, z)
-    samplers:
-      islandMask: $math/samplers/continents.yml:samplers.islandMask
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
       SELF: 2
@@ -32,10 +28,6 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: if(BiomeShapeLandmassPlainsMask(x, z)>0 && BiomeShapeLandmassTemperature(x, z)<-0.25, BiomeShapeLandmassValue2(x, z), -1)
-    samplers:
-      BiomeShapeLandmassPlainsMask: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassPlainsMask
-      BiomeShapeLandmassTemperature: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassTemperature
-      BiomeShapeLandmassValue2: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassValue2
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
       SELF: 4
@@ -49,10 +41,6 @@ stages:
       expression: if(BiomeShapeLandmassPlainsMask(x, z)>0 && BiomeShapeLandmassTemperature(x, z)>0.1 && BiomeShapeLandmassPrecipitation(x, z)>-0.1 && BiomeShapeLandmassFarRiverDistance(x, z)>riverDistThreshold, BiomeShapeLandmassValue2(x, z), -1)
       variables:
         riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.7
-    samplers:
-      BiomeShapeLandmassPlainsMask: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassPlainsMask
-      BiomeShapeLandmassTemperature: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassTemperature
-      BiomeShapeLandmassValue2: $math/samplers/biomes.yml:samplers.BiomeShapeLandmassValue2
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
       SELF: 4

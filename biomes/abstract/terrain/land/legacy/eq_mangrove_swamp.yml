@@ -11,7 +11,7 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y + base + BiomeShapeFlattenedElevation(x,z) + (noise(x,z)+1)/2 * height * biomeInfluence(x,z)
+    expression: -y + base + BiomeShapeSealevelElevation(x,z) + (noise(x,z)+1)/2 * height * biomeInfluence(x,z)
     samplers:
       noise:
         dimensions: 2

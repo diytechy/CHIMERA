@@ -3,9 +3,9 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 67
-  height: 60
-  variation: 23
+  base: 65
+  height: 30
+  variation: 13
 
 terrain:
   sampler:

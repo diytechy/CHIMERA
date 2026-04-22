@@ -1086,7 +1086,7 @@ Be sure to only adjust "eq_" files that are used for land biomes.  The biometabl
 Make sure all frozen river variants have packed ice for icecles?
 Check rivers now that min-density has been commented.
 Check rivers for bubble columns.
-Check distribution of biomes, dry/warm regions seem prolific.  Might need some variety here?
+Check distribution of biomes, dry/warm regions seem prolific.  Might need some variety here?   Might need to augment precipitation?
 
 
 
@@ -1113,9 +1113,6 @@ Actions to take in order to better
 
 3. Update the above terrain equations above that used cell distance to instead use biome influence for 3d structures.
 
-4. For biomes that have "centered" features, make sure they are using the new biome cell distance.
-
-5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
 
 6. Make changes to all other surface equation files to remove the 2d elevation sampler and instead implant it into the standard 3d sampler.  This is to give fidelity to that sampler and simplify computation.
 
@@ -1128,3 +1125,20 @@ Come back to in future:
 
 eq_tilted_plateau
 river influence on elevation?
+
+##################################################
+
+Changes:
+1. Update biome sampler to use mountain mask for highlands biome placement instead of elevation?  This way elevation detailed need not be evaluated for biome placement.
+
+2. Update flatness sampler to not include mountain mask, and then reduce flatness to 0.75 max factor instead of 0.95 so that attributes are not suppressed so significantly on "flat" regions.
+
+3. Update river distance sampler to user lower resolution river distance if x/z coordinates are on 4th block?  This would significantly improve the river sampler speed for sparse biome lookup as long as it's using the correct coordinates.
+
+4. For biomes that have "centered" features, make sure they are using the new biome cell distance.
+
+5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
+
+6. Consider shifting mesa structure back to "max" instead of "round function?
+
+7. Consider preventing "flat" from overruling mountain range?  But need to be sure mountain ranges are not so aggressive...

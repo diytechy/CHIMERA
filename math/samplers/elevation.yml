@@ -317,10 +317,10 @@ samplers:
       factorRiver: $customization.yml:elevation-factor-rivers
       factorSpawnIsland: $customization.yml:elevation-factor-spawn-island
       spawnIslandScale: $customization.yml:elevation-spawn-island-scale
-    samplers:
-      rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
-      continents: $math/samplers/continents.yml:samplers.continents
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+    #samplers:
+    #  rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
+    #  continents: $math/samplers/continents.yml:samplers.continents
+    #  spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
 
   # Now place mesas into elevation.
   # Blend the floor and nominal step height based on the distance to ramp from step to step.

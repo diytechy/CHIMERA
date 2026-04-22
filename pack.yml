@@ -192,6 +192,7 @@ functions:
 
 samplers:
   "<<":
+    - math/samplers/spawnIsland.yml:samplers
     - math/samplers/elevation.yml:samplers
     - math/samplers/simplex.yml:samplers
     - math/samplers/continents.yml:samplers

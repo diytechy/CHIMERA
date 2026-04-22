@@ -122,6 +122,18 @@ samplers:
           lookup: $math/samplers/elevation.yml:samplers.elevationDetailed
           salt-lookup: false
           
+  BiomeShapeLandmassMountains:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup: $math/samplers/elevation.yml:samplers.mountainMask
+          salt-lookup: false
+          
   BiomeShapeLandmassElevation:
     type: EXPRESSION
     dimensions: 2

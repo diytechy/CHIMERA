@@ -66,10 +66,12 @@ stages:
   - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
-      expression: segment(BiomeShapeLandmassElevationDetailed(x, z), BiomeShapeLandmassFlatness(x, z), highlandsThreshold, flatnessFactor)
+      expression: segment(abs(BiomeShapeLandmassMountains(x, z)), BiomeShapeLandmassFlatness(x, z), highlandsThreshold, flatnessFactor)
       variables:
-        highlandsThreshold: $customization.yml:elevation-highlands-threshold
+        highlandsThreshold: (${math/samplers/elevation.yml:variables.mountainMaskZero} + ${math/samplers/elevation.yml:variables.mountainMaskFull}) / 2
         flatnessFactor: $customization.yml:flatness-factor
+        #mountainMaskZero: $math/samplers/elevation.yml:variables.mountainMaskZero
+        #mountainMaskFull: $math/samplers/elevation.yml:variables.mountainMaskFull
       functions:
         segment:
           arguments:

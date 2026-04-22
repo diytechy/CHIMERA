@@ -12,10 +12,14 @@ variables: &variables
   plainsMaskFull: 0.85
   hillMaxElevation: 0.2
   mountainCap: 0.9
+  mountainMaskFlat: 0.25
   mountainMaskZero: 0.3
   mountainMaskFull: 0.55
-  mountainContZero: 0.05
+  mountainContZero: 0.0
   mountainContFull: 0.5
+  threshold: $customization.yml:flatness-percent
+  blend: $customization.yml:flatness-blend
+  factor: $customization.yml:flatness-factor
 
   globalScale: $customization.yml:global-scale
   verticalLift: $customization.yml:terrain-height
@@ -252,12 +256,32 @@ samplers:
   flatness:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(rawFlatness(x, z), threshold, factor, threshold + blend, 0)
+    expression: |
+      min(herp(rawFlatness(x, z), threshold, factor, threshold + blend, 0),
+        herp(abs(mountainMask(x, z)), mountainMaskFlat, factor, mountainMaskZero, 0))
     functions: $math/functions/interpolation.yml:functions
-    variables:
-      threshold: $customization.yml:flatness-percent
-      blend: $customization.yml:flatness-blend
-      factor: $customization.yml:flatness-factor
+    variables: *variables
+    
+  nonMountainElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      combine(continentalRise(x,z) * (1-flatness(x, z)),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+      0,
+      mountainCap)
+    variables: *variables
+    functions:
+      combine: # Stacks scaled mountain noise on top of hill noise
+        arguments:
+        - continents
+        - hills
+        - mountains
+        - mountainCap
+        expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+      lerp: $math/functions/interpolation.yml:functions.lerp
+      herp: $math/functions/interpolation.yml:functions.herp
+
   rawElevation:
     dimensions: 2
     type: EXPRESSION
@@ -529,7 +553,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      (-1+rawElevation(x, z))
+      (-1+nonMountainElevation(x, z))
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
     functions: $math/functions/interpolation.yml:functions
     variables:

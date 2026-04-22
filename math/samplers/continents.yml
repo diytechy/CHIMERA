@@ -84,7 +84,6 @@ samplers:
       globalScale: $customization.yml:global-scale
       scale: $customization.yml:continental-scale
     samplers:
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
       sampler:
         dimensions: 2
         type: DOMAIN_WARP
@@ -110,8 +109,6 @@ samplers:
     variables:
       globalScale: $customization.yml:global-scale
       spotContinentalFactor: 0.3
-    samplers:
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
   continentsWithSpots:
     dimensions: 2
     type: EXPRESSION

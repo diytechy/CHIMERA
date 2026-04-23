@@ -43,12 +43,23 @@ biomes:
         - type: REPLACE
           from: land
           to:
-          - _secluded_valleys: 1
-          - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
-          - _pillow_plains: 1
-          - _desert: 1
-          - _plateao: 1
-          - FROZEN_SPIRES: 1
+          - ARID_ARBORETUM: 1
+          - FOSSILIZED_FENLANDS: 1
+          - BAMBOO_BASIN: 1
+          - ROCKY_REFUGE: 1
+          - MURKY_MARSHLANDS: 1
+          - MARINE_MONOLITHS: 1
+        #  - _secluded_valleys: 1
+        #  - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
+        #  - _pillow_plains: 1
+        #  - _desert: 1
+        #  - _plateao: 1
+        #  - FROZEN_SPIRES: 1
+        # NEXT:
+        #   - GLOOMY_GORGE: 1
+        #   - SNOWY_SPIRES: 1
+        #   - CARVING_CREAKS: 1 (Likely needs to be mesa replacement, maybe around river?  Likely has it's own river that must be removed.)
+        #   - CANOPY_C
           sampler:
             #type: CONSTANT
             type: EXPRESSION

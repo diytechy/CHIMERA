@@ -1,7 +1,7 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 200
+  cellDistance: 250
   wellDistance: 100
   cellDistanceLarge: 250
   distAtFullInfluence: 20
@@ -96,7 +96,7 @@ origen-terrain-height: 100
 # Terrain height for origen / rearth specific biomes that were designed before the height increase.
 
 valley-srt: .4
-valley-dist: 0.75
+valley-dist: 0.82
 # The distance from the edge of small biomes where valley terrain starts to generate.
 # Higher values give more gradual falloff into valley, but leave less space for actual valley region.
 

@@ -1145,7 +1145,8 @@ Somehow rivers still appear to be branching more in arid regions, maybe the samp
 Issue is with elevation detailed and herping from river elevaiton???
 Fix desert not rolling down from detailed elevation?
 Why does a normal river have glow lamps that are only for frozen rivers?
-############################
+
+
 Secluded Valley appears to be bugged / not populating with content.
   Issue might be with palette below 65?
 
@@ -1159,18 +1160,34 @@ prismatic spring still looks wrong, no crater exists like it does in volcano
 
 Fix some flat areas being too flat? <- Maybe defect in previous sampler set.
 
-Fix craters?
 
-Tuff Mountains <- Fix ice replacements?
+Tuff Mountains <- Fix ice replacements? (Was actually spires)
+############################
 
-Arid Arboretum<- Check
+Fix craters? - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
+
+Marine Monoliths needs glow lichen
+foliage fortress needs glow lichen on mid-bracing
+Bamboo Basin should probably be a swamp region
+Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted?
+Rocky refuge <- Need glow lichen, under refuge area only?  Possible?
+fenlands <- Change to raised biome elevation
+
+Glow Lichen < - prevent placement in cold regions so they don't melt ice, match glowshroom restrictor
+
+Prismatic spring <- Need to fix dist of features
+
+Secluded sanctuary <- Consider feature placement above?
+
+Consider expanding continent size and mountain mask size, to get larger features in that space.
+
+
+Arid Arboretum<- Check 
 Fossilized Fenlands <- Check
 Bamboo Basins <- Check, this should be large region?
 Rocky refuge<- Check
 Murky Marshlands <- Check
 Marine Monolits <- Check
-
-Pillow Plains not working right
 
 Carving Creaks <- This should be a mesaa type?
 

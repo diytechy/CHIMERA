@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 71
+  base: $customization.yml:terrain-base-y-level
   height: 11
   stepHeight: 4
 
@@ -13,8 +13,8 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + BiomeShapeFlattenedElevation(x,z)
-      + (height * surfaceOffset(x,z)
+      -y + base + BiomeShapeSealevelElevation(x,z)
+      + (height * surfaceOffset(x,z) + 6
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
     functions:
       clamp:
@@ -35,7 +35,7 @@ terrain:
         octaves: 3
         lacunarity: 2.4
         gain: 0.5
-        
+
   sampler-2d:
     dimensions: 2
     type: CONSTANT

@@ -11,6 +11,12 @@ vanilla: minecraft:badlands
 tags:
   - LAVA_TUBES
 
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level rises with the river's regional elevation so rivers at higher
+  # terrain still have water in them.
+  sampler:
+  
 particles:
   particle: minecraft:ash
   probability: 0.025

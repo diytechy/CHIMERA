@@ -8,12 +8,29 @@ vars: &variables
   "<<":
     - math/samplers/spots.yml:variables
 
+#ocean is overwritten in active volcano biomes.
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level rises with the river's regional elevation so rivers at higher
+  # terrain still have water in them.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      olevel: $meta.yml:ocean-level
+      base: $customization.yml:terrain-base-y-level
+      scale: $customization.yml:terrain-height
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z)*0.2, //Ideally derived from spot arithmetic.
+      olevel + scale *spotBaseElevation(x, z) + 15,
+      olevel)
+
 terrain:
   sampler-2d:
     type: CONSTANT
   sampler:
     type: EXPRESSION
-    expression: -y + base
+    expression: -y + base + sampler2d(x,z)
     # + elevationDetailedBlockHeight(x,z)
     variables: *variables
     samplers:

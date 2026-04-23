@@ -20,8 +20,8 @@ ocean:
       base: $customization.yml:terrain-base-y-level
       scale: $customization.yml:terrain-height
     expression: |
-      if(spotDistance(x, z)<prismaticEdgeRadius(x, z),
-      olevel + scale *spotBaseElevation(x, z) + 5,
+      if(spotDistance(x, z) < spotRadius(x, z)*0.5, //Ideally 0.5 is derived from spot arithmetic.
+      olevel + scale *spotBaseElevation(x, z) + 8,
       olevel)
 
 terrain:

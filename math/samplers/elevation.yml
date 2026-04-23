@@ -498,12 +498,22 @@ samplers:
       min(
         min(
           min(
-            min(herp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
-            herp(BiomeShapeLandmassDist2Center(x,z), -1, 1, 0, 0)),
-          herp(mesaFootDist(x,z), -distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
-        herp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
-      herp(spotDistance(x, z) - (spotRadius(x, z) + biomeBorder),0,0,distAtFullNormDist,1))
+            min(lerp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
+            lerp(BiomeShapeLandmassDist2Center(x,z), -1, 1, 0, 0)),
+          lerp(mesaFootDist(x,z), -distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
+        lerp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
+      lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1))
     functions: $math/functions/interpolation.yml:functions
+
+  dist2BiomeSegments:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: $customization.yml:valley-srt
+      valley_dist: $customization.yml:valley-dist
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
 
   biomeInfluence:
     dimensions: 2

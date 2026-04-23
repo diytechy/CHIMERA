@@ -9,6 +9,5 @@ vanilla: minecraft:frozen_peaks
 
 features:
   preprocessors:
-    - VOLCANO_WATER
     - ICE_LAKE
     - ICE_COASTLINE

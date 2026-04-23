@@ -12,10 +12,16 @@ variables: &variables
 
   minHeight: 0.05
   minVolHeight: 0.2
+  
   maxHeight: 0.5
+  prismaticMinHeight: 0.05
+  prismaticMaxHeight: 0.1
 
   spotMinEdgeRadius: 0.05
   spotMaxEdgeRadius: 0.2
+  
+  prismaticMinEdgeRadius: 0.3
+  prismaticMaxEdgeRadius: 0.5
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max
@@ -23,7 +29,7 @@ variables: &variables
   volcanoMaxCenterDepth: 0.3
 
   prismaticMinCenterDepth: 0.01
-  prismaticMaxCenterDepth: -0.05
+  prismaticMaxCenterDepth: -0.1
 
 smallCellular: &smallCellular
   dimensions: 2
@@ -203,6 +209,15 @@ samplers:
     lookup:
       type: WHITE_NOISE
       salt: 4128
+      
+
+  prismaticEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, prismaticMinEdgeRadius, 1, prismaticMaxEdgeRadius)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+
 
   volcanoCenterDepth:
     dimensions: 2

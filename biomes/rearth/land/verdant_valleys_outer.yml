@@ -3,7 +3,7 @@ type: BIOME
 vanilla: minecraft:plains
 color: $biomes/colors.yml:TEMPERATE_GRASSLAND_OUTER
 extends:
-- CARVING_LAND
-- BASE
 - EQ_SMALL_BIOME_VALLEY_TRANSITION
 - VERDANT_VALLEYS
+- CARVING_LAND
+- BASE

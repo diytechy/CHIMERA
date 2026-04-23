@@ -29,7 +29,7 @@ samplers:
   riftFarRiverDist:
     <<: *riftCell
     return: NoiseLookup
-    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistSparseFarGrid
     salt-lookup: false
 
   riftWellPlacement:

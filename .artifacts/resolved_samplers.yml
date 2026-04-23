@@ -4152,7 +4152,7 @@ samplers:
         max(continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z+1),
           continentalRiverBlockElevChange(x,z) < continentalRiverBlockElevChange(x,z-1))
       )
-  continentalRiverDistFarGrid:
+  continentalRiverDistSparseFarGrid:
     dimensions: 2
     type: EXPRESSION
     expression: continentalDendryRivers(x,-1.0,z)

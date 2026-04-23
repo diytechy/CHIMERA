@@ -296,13 +296,13 @@ temperature-scale: 1.2
 # hot and cold biomes generating further apart - and vice versa when decreasing it.
 # Default: 0.95
 
-temperature-min: -1.04
+temperature-min: -1.1
 # Default: -1
 
-temperature-max: 1.025
+temperature-max: 1.25
 # Default: 1
 
-temperature-altitude-lapse-rate: 0.8
+temperature-altitude-lapse-rate: 0.5
 # How fast temperature drops with altitude
 # Default: 1.3
 

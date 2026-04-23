@@ -119,7 +119,7 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.elevationDetailed
+          lookup: $math/samplers/elevation.yml:samplers.elevationDetailedSparse
           salt-lookup: false
           
   BiomeShapeLandmassMountains:
@@ -176,7 +176,7 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+          lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistSparseFarGrid
           salt-lookup: false
 
   BiomeShapeLandmassTemperature:

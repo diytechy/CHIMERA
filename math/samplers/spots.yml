@@ -91,7 +91,7 @@ samplers:
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup
-    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistFarGrid
+    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistSparseFarGrid
 
   spotApproxRiverDist:
     <<: *smallCellular
@@ -121,6 +121,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if(spotApproxRiverDist(x,z)>150,1,0)
+    
   spotCenterContinents:
     <<: *smallCellular
     return: NoiseLookup
@@ -143,7 +144,7 @@ samplers:
     salt-lookup: false
     lookup:
       type: EXPRESSION
-      expression: elevation(x, z)
+      expression: elevationSparse(x, z)
 
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2

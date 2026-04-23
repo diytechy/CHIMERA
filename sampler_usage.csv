@@ -91,7 +91,7 @@ elevationFromSpots,0,0,0,0,FALSE
 continentalRiverElev,0,0,0,0,FALSE
 riverEnclosedFactor,0,0,0,0,FALSE
 elevationDetailedWithHoles,0,0,0,0,FALSE
-continentalRiverDistFarGrid,0,0,0,0,FALSE
+continentalRiverDistSparseFarGrid,0,0,0,0,FALSE
 depthVariation,0,0,0,0,FALSE
 continentalRiverBlockDist2Uplift,0,0,0,0,FALSE
 elevationWithSpots,0,0,0,0,FALSE

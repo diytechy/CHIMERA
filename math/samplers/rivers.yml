@@ -61,7 +61,7 @@ river-terrain-variables: &rtv
   # deeper than others, all scaled by the same elliptical profile.
   # IMPORTANT: This is the river bed depth for root level rivers, 
   # This is further augmented in narrower river distribution.
-  riverBedDepth: &riverBedDepth 8                # Base bed depth at river center (blocks)
+  riverBedDepth: &riverBedDepth 10                # Base bed depth at river center (blocks)
   riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
 
   # ─── Biome activation ──────────────────────────────────────────
@@ -128,7 +128,7 @@ samplers:
     type: PERLIN
     frequency: 0.001
 
-  continentalDendryRivers:
+  continentalDendryRiversSparse:
     dimensions: 3
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
@@ -151,6 +151,51 @@ samplers:
       expression: RiverBranchingProbability(x,z)
     default-riverwidth: 30
     default-borderwidth: 75
+    cachepixels: 4.0
+
+  continentalDendryRiversPrecise:
+    dimensions: 3
+    type: DENDRY
+    # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
+    n: 3
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: elevationTerraced(x,z)
+    riverwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverWidth(x,z)
+    borderwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverBoundaryDistance(x,z)
+    branches: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: RiverBranchingProbability(x,z)
+    default-riverwidth: 30
+    default-borderwidth: 75
+    
+  continentalDendryRivers:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      if((round(x) % 4)||(round(z) %4 ),
+      continentalDendryRiversPrecise(x,y,z)+
+      0*continentalDendryRiversPrecise(x,y,z)*
+      continentalDendryRiversPrecise(x,y,z*10000+10000)*
+      continentalDendryRiversPrecise(x*10000-10000,y,z),
+      continentalDendryRiversSparse(x,y,z)
+      )
+      //if((round(x)%4)||(round(z)%4),
+      //continentalDendryRiversPrecise(x,y,z)+
+      //0*continentalDendryRiversPrecise(x,y,z)*
+      //continentalDendryRiversPrecise(x,y,z*10000+10000)*
+      //continentalDendryRiversPrecise(x*10000-10000,y,z),
+      //continentalDendryRiversSparse(x,y,z)
+      //)
+      //continentalDendryRiversSparse(x,y,z)
 
   continentalRiverDist:
     dimensions: 2
@@ -267,10 +312,10 @@ samplers:
           continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
       )
 
-  continentalRiverDistFarGrid:
+  continentalRiverDistSparseFarGrid:
     dimensions: 2
     type: EXPRESSION
-    expression: continentalDendryRivers(x,-1.0,z)
+    expression: continentalDendryRivers(round(x/4)*4,-1.0,round(z/4)*4)
 
   # ─── River terrain noise samplers ──────────────────────────────────
   erosionStrengthVariation: # Used to roughen up the walls

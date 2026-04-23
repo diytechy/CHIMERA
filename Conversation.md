@@ -1133,16 +1133,27 @@ Changes:
 
 2. Update flatness sampler to not include mountain mask, and then reduce flatness to 0.75 max factor instead of 0.95 so that attributes are not suppressed so significantly on "flat" regions.
 
-############################
-
 Somehow rivers still appear to be branching more in arid regions, maybe the sampler is a removal probability and it just has bad semantics?
 
+
 3. Update river distance sampler to user lower resolution river distance if x/z coordinates are on 4th block?  This would significantly improve the river sampler speed for sparse biome lookup as long as it's using the correct coordinates.
+
+
+7. Consider preventing "flat" from overruling mountain range?  But need to be sure mountain ranges are not so aggressive...
+
+
+############################
+
+Fix some flat areas being too flat?
+
+Fix prismatic spiral
+
+Fix craters?
+
+Remove mesas from spot selection
 
 4. For biomes that have "centered" features, make sure they are using the new biome cell distance.
 
 5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
 
 6. Consider shifting mesa structure back to "max" instead of "round function?
-
-7. Consider preventing "flat" from overruling mountain range?  But need to be sure mountain ranges are not so aggressive...

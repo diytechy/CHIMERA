@@ -128,7 +128,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if(mesaFootDist(x,z)>0,1,0)
-    
+
   PeakHeightMultiplierAtPosition:
     dimensions: 2
     type: EXPRESSION
@@ -323,6 +323,12 @@ samplers:
     #  continents: $math/samplers/continents.yml:samplers.continents
     #  spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
 
+  elevationSparse:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      elevation(round(x/4)*4, round(z/4)*4)
+
   # Now place mesas into elevation.
   # Blend the floor and nominal step height based on the distance to ramp from step to step.
   elevation_with_mesas:
@@ -458,6 +464,13 @@ samplers:
     functions: $math/functions/interpolation.yml:functions
     expression: |
       herp(continentalRiverDist(x,z),0,elevationDetailedPreErosion(x,z),1,elevationEroded(x,z))
+
+  elevationDetailedSparse:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      elevationDetailed((round(x/4)*4), (round(z/4)*4))
+
   elevationDetailedBlockHeight:
     dimensions: 2
     variables: *variables

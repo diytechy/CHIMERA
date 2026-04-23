@@ -5,7 +5,7 @@ color: $biomes/colors.yml:SUNFLOWER_PRAIRIE
 extends:
 - DEPOSITS_DEFAULT
 - ORES_DEFAULT
-- CARVING_LAND
+# - CARVING_LAND
 - EQ_SECLUDED_VALLEY
 colors:
   foliage: 16758725

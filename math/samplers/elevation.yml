@@ -463,7 +463,7 @@ samplers:
     dimensions: 2
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      herp(continentalRiverDist(x,z),0,elevationDetailedPreErosion(x,z),1,elevationEroded(x,z))
+      herp(continentalRiverDist(x,z),0,elevationEroded(x,z),1,elevationDetailedPreErosion(x,z))
 
   elevationDetailedSparse:
     type: EXPRESSION
@@ -499,18 +499,28 @@ samplers:
         min(
           min(
             min(lerp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
-            lerp(BiomeShapeLandmassDist2Center(x,z), -1, 1, 0, 0)),
+            lerp(BiomeShapeLandmassDist2Center(x,z), -0.9, 1, 0, 0)),
           lerp(mesaFootDist(x,z), -distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
         lerp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
       lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1))
     functions: $math/functions/interpolation.yml:functions
 
-  dist2BiomeSegments:
+  smallBiomeSmallCenterDist:
     dimensions: 2
     type: EXPRESSION
     variables:
       valley_srt: $customization.yml:valley-srt
       valley_dist: $customization.yml:valley-dist
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
+
+  smallBiomeWideCenterDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: 0.15
+      valley_dist: 0.3
     expression: |
       if(normDistIntoBiome(x,z)<valley_srt, -1,
         if(normDistIntoBiome(x,z)<valley_dist, 0, 1))

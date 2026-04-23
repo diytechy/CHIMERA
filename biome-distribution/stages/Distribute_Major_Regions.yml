@@ -46,7 +46,7 @@ stages:
       SELF: 4
       _pillow_plains: 1
       _secluded_valleys: 1
-      _verdant_valleys: 1
+      VERDANT_VALLEYS: 1
       #_cold_valley: 1
 #Create vast desert distributions
   - type: REPLACE

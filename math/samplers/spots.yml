@@ -14,22 +14,22 @@ variables: &variables
   minVolHeight: 0.2
   
   maxHeight: 0.5
-  prismaticMinHeight: 0.05
-  prismaticMaxHeight: 0.1
+  prismaticMinHeight: 0.00
+  prismaticMaxHeight: 0.0
 
   spotMinEdgeRadius: 0.05
   spotMaxEdgeRadius: 0.2
   
-  prismaticMinEdgeRadius: 0.3
-  prismaticMaxEdgeRadius: 0.5
+  prismaticMinEdgeRadius: 0.4
+  prismaticMaxEdgeRadius: 0.6
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max
   volcanoMinCenterDepth: 0.03
   volcanoMaxCenterDepth: 0.3
 
-  prismaticMinCenterDepth: 0.01
-  prismaticMaxCenterDepth: -0.1
+  prismaticMinCenterDepth: 0.0
+  prismaticMaxCenterDepth: 0.0
 
 smallCellular: &smallCellular
   dimensions: 2

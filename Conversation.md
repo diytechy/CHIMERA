@@ -1142,18 +1142,52 @@ Somehow rivers still appear to be branching more in arid regions, maybe the samp
 7. Consider preventing "flat" from overruling mountain range?  But need to be sure mountain ranges are not so aggressive...
 
 
+Issue is with elevation detailed and herping from river elevaiton???
+Fix desert not rolling down from detailed elevation?
+Why does a normal river have glow lamps that are only for frozen rivers?
 ############################
+Secluded Valley appears to be bugged / not populating with content.
+  Issue might be with palette below 65?
 
-Fix some flat areas being too flat?
+  Now working but biome appears deeper than normal biome, how to restrict?  Need intermediate biome before further cave propagation?
 
-Fix prismatic spiral
+
+Volcanos / Prismatic springs show the same strange artifacts that was seen before with the blending of the 2-d sampler and the 3d sampler across biomes, despite it being configured to be effectively disabled.
+foliage fortress has no transition<- May need to linearize on transition.
+VERDENT_VALLEYS_OUTER looks like trash
+prismatic spring still looks wrong, no crater exists like it does in volcano
+
+Fix some flat areas being too flat? <- Maybe defect in previous sampler set.
 
 Fix craters?
 
-Remove mesas from spot selection
+Tuff Mountains <- Fix ice replacements?
 
-4. For biomes that have "centered" features, make sure they are using the new biome cell distance.
+Arid Arboretum<- Check
+Fossilized Fenlands <- Check
+Bamboo Basins <- Check, this should be large region?
+Rocky refuge<- Check
+Murky Marshlands <- Check
+Marine Monolits <- Check
+
+Pillow Plains not working right
+
+Carving Creaks <- This should be a mesaa type?
+
+Remove mesas from spot selection
 
 5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
 
 6. Consider shifting mesa structure back to "max" instead of "round function?
+
+
+#######################
+
+How to optimize:
+
+New Dendry method to only query distance to diver instead of full elevation construction.
+  - Allow method to create larger / wider cache birth for these samples (special y-value?)
+  - This could then be used for the far river distance?
+
+Remove elevation with rivers from temperature propagation
+  - This way river elevation is not required for biome pipeline.

@@ -13,7 +13,10 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height * biomeInfluence(x,z)
+      -y + base + 
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,BiomeShapeLandmassElevation(x,z)) + 
+      surfaceVariation(x,z) * height * biomeInfluence(x,z)
     functions:
       remapY:
         arguments: [y, base, depth]

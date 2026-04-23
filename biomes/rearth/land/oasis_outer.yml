@@ -3,7 +3,7 @@ type: BIOME
 vanilla: minecraft:desert
 color: $biomes/colors.yml:DESERT_OUTER
 extends:
-- CARVING_LAND
-- BASE
 - EQ_SMALL_BIOME_VALLEY_TRANSITION
 - DESERT
+- CARVING_LAND
+- BASE

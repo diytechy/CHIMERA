@@ -15,7 +15,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + elevationDetailedBlockHeight(x,z)
+      -y + base + BiomeShapeFlattenedElevation(x,z)
       + (flatHeight * surfaceOffset(x,z)
       + max(mountains(x,z), 0) * mountainHeight
       + if (mountains(x,z) > 0.35, clamp((-pillars(x,z) - 0.99) * pillarScale, 0, pillarMaxHeight + mountains(x * 2, z * 2) * 3), 0)) * biomeInfluence(x,z)

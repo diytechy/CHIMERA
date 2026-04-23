@@ -43,4 +43,4 @@ features:
   - FIREFLY_BUSH
   - GRASS
   river-decoration:
-  - COVE_FROZEN_LIGHT
+  - COVE_GLOW_LICHEN

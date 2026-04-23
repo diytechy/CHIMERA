@@ -12,7 +12,7 @@ terrain:
   sampler:
     dimensions: 3
     type: EXPRESSION
-    expression: -y + base + herp(normDistIntoBiome(x, z),valley_dist,0,valley_srt,scale * elevationDetailed(x, z)) - 0.9
+    expression: -y + base + herp(normDistIntoBiome(x, z),valley_srt,scale * elevationDetailed(x, z),valley_dist,0) - 0.9
     variables: *variables
 
   sampler-2d:

@@ -8,51 +8,71 @@ vars: &variables
   "<<":
     - math/samplers/spots.yml:variables
 
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level rises with the river's regional elevation so rivers at higher
+  # terrain still have water in them.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      olevel: $meta.yml:ocean-level
+      base: $customization.yml:terrain-base-y-level
+      scale: $customization.yml:terrain-height
+    expression: |
+      if(spotDistance(x, z)<prismaticEdgeRadius(x, z),
+      olevel + scale *spotBaseElevation(x, z) + 5,
+      olevel)
+
 terrain:
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
   sampler:
     type: EXPRESSION
-    expression: -y + base
+    expression: -y + base + sampler2d(x, z)
     # + elevationDetailedBlockHeight(x,z)
     variables: *variables
-  
-  sampler-2d:
-    type: EXPRESSION
-    variables: *variables
-    expression: |
-      scale * calcHeight(x, z,
-        /*distance*/      spotDistance(x, z),
-        /*erosion*/       (volcanoErosion(x, z)+1)/2,
-        /*outsideHeight*/ elevationDetailed(x, z),
-        /*edge*/          prismaticEdgeRadius(x, z),
-        /*radius*/        spotRadius(x, z),
-        /*centerDepth*/   prismaticCenterDepth(x, z),
-        /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
-                            0, prismaticMinHeight,
-                            1, prismaticMaxHeight
-                          ),
-        /*volcanoBase*/   spotBaseElevation(x, z)
-      )
-    functions:
-      calcHeight:
-        arguments:
-          - x
-          - z
-          - distance
-          - erosion
-          - outsideHeight
-          - edge
-          - radius
-          - centerDepth
-          - volcanoHeight
-          - volcanoBase
+    samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
         expression: |
-          parabolicMap(distance,
-            radius, outsideHeight,
-            radius * edge,
-              volcanoBase + volcanoHeight * (1 - erosion * lerp(distance, radius, 1, radius * edge, 0))
-              - parabolicMap(distance,
-                radius * edge / 3, centerDepth,
-                radius * edge, 0
-              )
+          scale * calcHeight(x, z,
+            /*distance*/      spotDistance(x, z),
+            /*erosion*/       (volcanoErosion(x, z)+1)/2,
+            /*outsideHeight*/ elevationDetailed(x, z),
+            /*edge*/          prismaticEdgeRadius(x, z),
+            /*radius*/        spotRadius(x, z),
+            /*centerDepth*/   prismaticCenterDepth(x, z),
+            /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
+                                0, prismaticMinHeight,
+                                1, prismaticMaxHeight
+                              ),
+            /*volcanoBase*/   spotBaseElevation(x, z)
           )
-        functions: $math/functions/interpolation.yml:functions
+        functions:
+          calcHeight:
+            arguments:
+              - x
+              - z
+              - distance
+              - erosion
+              - outsideHeight
+              - edge
+              - radius
+              - centerDepth
+              - volcanoHeight
+              - volcanoBase
+            expression: |
+              parabolicMap(distance,
+                radius, outsideHeight,
+                radius * edge,
+                  volcanoBase + volcanoHeight * (1 - erosion * lerp(distance, radius, 1, radius * edge, 0))
+                  - parabolicMap(distance,
+                    radius * edge / 3, centerDepth,
+                    radius * edge, 0
+                  )
+              )
+            functions: $math/functions/interpolation.yml:functions

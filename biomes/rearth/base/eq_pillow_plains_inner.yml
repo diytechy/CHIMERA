@@ -16,12 +16,12 @@ terrain:
     expression: |
       // positive / higher = solid
       max(
-      min(-y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height * biomeInfluence(x,z),   // surface heigh, used on both bottom and top of the pillars
+      min(-y + base + BiomeShapeLandmassElevation(x,z) + surfaceVariation(x,z) * height,   // surface heigh, used on both bottom and top of the pillars
           -(flatCells(x,z)                               // basic pillar shape
           + (pillarSizing(x,z) * -0.1) + pillarBaseThinness   // base pillar width
           + pillarWidth(1.13 - remapY(y, base, floorOffset) * 1.15) * 0.035   // curve to adjust the width of the pillar on the Y-axis
         ) * 10),
-        -y + base - floorOffset + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height * biomeInfluence(x,z))
+        -y + base - floorOffset + BiomeShapeLandmassElevation(x,z) + surfaceVariation(x,z) * height)
     functions:
       remapY:
         arguments: [y, base, depth]

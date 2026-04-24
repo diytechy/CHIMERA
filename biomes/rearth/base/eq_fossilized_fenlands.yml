@@ -13,7 +13,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + BiomeShapeSealevelElevation(x,z)
+      -y + base + BiomeShapeFlattenedElevation(x,z)
       + (height * surfaceOffset(x,z) + 6
       + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
     functions:

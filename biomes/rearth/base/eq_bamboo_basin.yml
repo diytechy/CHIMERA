@@ -13,8 +13,8 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base + elevationDetailedBlockHeight(x,z)
-      + (min(-cells(x,z), 0.8) * height
+      -y + base + BiomeShapeSealevelElevation(x,z)
+      + (min(-cells(x,z), 0.8) * height * biomeInfluence(x,z)
       + riverMask(x, y, z) * 40) * biomeInfluence(x,z)
     functions:
       terrace:

@@ -1162,22 +1162,26 @@ Fix some flat areas being too flat? <- Maybe defect in previous sampler set.
 
 
 Tuff Mountains <- Fix ice replacements? (Was actually spires)
+
+
+fenlands <- Change to raised biome elevation
+Bamboo Basin should probably be a swamp region 
 ############################
 
 Fix craters? - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
 
-Marine Monoliths needs glow lichen
-foliage fortress needs glow lichen on mid-bracing
-Bamboo Basin should probably be a swamp region
+Need higher glow lichen feature to go higher, probably from about 20 below ocean upwards of 100 blocks, HIGH_GLOW_LICHEN, probably spaced with padded grid and located only under stone.
+Marine Monoliths needs glow lichen (Use HIGH_GLOW_LICHEN)
+foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN)
 Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted?
-Rocky refuge <- Need glow lichen, under refuge area only?  Possible?
-fenlands <- Change to raised biome elevation
+Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_GLOW_LICHEN might be sufficient since refuge area is the only raised / cave-like feature)
 
-Glow Lichen < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
+COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
+
+Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 
 Prismatic spring <- Need to fix dist of features
 
-Secluded sanctuary <- Consider feature placement above?
 
 Consider expanding continent size and mountain mask size, to get larger features in that space.
 

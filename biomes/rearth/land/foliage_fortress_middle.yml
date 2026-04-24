@@ -1,10 +1,10 @@
-id: FOLIAGE_FORTRESS_INNER
+id: FOLIAGE_FORTRESS_MIDDLE
 type: BIOME
-vanilla: minecraft:plains
+vanilla: minecraft:savanna
 extends:
 - CARVING_LAND
 - BASE
-- EQ_PLATEAO_INNER
+- EQ_foliage_fortress
 color: $biomes/colors.yml:SAVANNA
 colors:
   grass: 8567917
@@ -16,16 +16,25 @@ tags:
 - LAND_CAVES
 - SPECIAL_CAVES
 - TEMPERATE_COAST_FLAT
-vars: $biomes/rearth/land/plateao_middle.yml:vars
 palette:
 - GRASS_VARIATION: 319
+- GRASS_MUSHY: 78
+- MUDDY_BEACH: 63
 - << meta.yml:palette-bottom
+slant:
+- threshold: 0.3
+  palette:
+  - BLOCK:minecraft:stone: 319
+  - << meta.yml:palette-bottom
 features:
-  landforms:
-  - SMALL_GRANITE_BOULDER_PATCHES
+  preprocessors:
+  - foliage_fortress_PILLARS
   flora:
   - GRASS
   - TALL_GRASS
+  - CROSSING_VINES
+  - LARGE_LEAF_VINES
+  - LARGE_CEILING_VINES
   - POPPY_PATCH
   - DANDELION_PATCH
   - ROSE_BUSH_PATCH
@@ -33,5 +42,4 @@ features:
   - LILAC_PATCH
   - LILY_OF_THE_VALLEY_PATCH
   trees:
-  - MESQUITE_TREES
-  - MIXED_TREES
+  - SPARSE_ACACIA_TREES

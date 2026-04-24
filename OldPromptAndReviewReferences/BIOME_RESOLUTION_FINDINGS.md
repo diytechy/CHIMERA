@@ -70,8 +70,8 @@ UNRESOLVED INTERMEDIATE BIOMES:
   _canyon: origen2: 1.5153%, rearth: 4.6154%
   _desert: rearth: 0.0582%
   _pillow_plains: rearth: 0.0369%
-  _plateao: rearth: 0.0369%
-  _plateao_center: rearth: 0.0074%
+  _foliage_fortress: rearth: 0.0369%
+  _foliage_fortress_center: rearth: 0.0074%
   _secluded_valleys: rearth: 0.0185%
   [+ many more intermediate biomes]
 ```

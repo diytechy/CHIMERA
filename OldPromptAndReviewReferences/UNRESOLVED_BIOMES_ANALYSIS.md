@@ -55,8 +55,8 @@ From the rearth preset:
 |-------------------|-----------|-----------|-------------------|
 | `_desert` | 0.0582% | fill_temperature_zones.yml | DESERT, OASIS |
 | `_pillow_plains` | 0.0369% | fill_temperature_zones.yml | PILLOW_PLAINS_INNER/MIDDLE/OUTER |
-| `_plateao` | 0.0369% | fill_temperature_zones.yml | FOLIAGE_FORTRESS_OUTER, _plateao_center |
-| `_plateao_center` | 0.0074% | border_biomes.yml | FOLIAGE_FORTRESS_MIDDLE/INNER |
+| `_foliage_fortress` | 0.0369% | fill_temperature_zones.yml | FOLIAGE_FORTRESS_OUTER, _foliage_fortress_center |
+| `_foliage_fortress_center` | 0.0074% | border_biomes.yml | FOLIAGE_FORTRESS_MIDDLE/INNER |
 | `_secluded_valleys` | 0.0185% | fill_temperature_zones.yml | SECLUDED_VALLEY, SECLUDED_VALLEY_OUTER |
 | `_canyon` | 4.6154% | canyons.yml | ICY_INCISIONS, SANDY_SPLITS |
 

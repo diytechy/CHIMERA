@@ -33,7 +33,7 @@ biome_pipeline_generate                               100.00%  55.11 ms  586.92 
   stage_75_Replace_USE_FROZEN_RIVER_FROZEN_MARSH        0.07%   0.16 ms    0.40 ms     1.00 ms     141.06 ms      355
   stage_55_ReplaceList_USE_RIVER                       26.76%   0.40 ms  157.06 ms   934.82 ms   55755.54 ms      355
   stage_89_Replace_USE_CORAL_TRENCH                     0.29%   0.18 ms    1.69 ms    33.63 ms     599.23 ms      355
-  stage_43_Replace__plateao_center                      0.02%   0.05 ms    0.11 ms     0.98 ms      40.66 ms      355
+  stage_43_Replace__foliage_fortress_center                      0.02%   0.05 ms    0.11 ms     0.98 ms      40.66 ms      355
   stage_68_Replace_USE_RIVER_TEMPERATE_SWAMP            0.08%   0.16 ms    0.47 ms    18.43 ms     167.15 ms      355
   stage_84_ReplaceList_USE_TRENCH                       0.84%   0.23 ms    4.96 ms   204.98 ms    1759.36 ms      355
   stage_25_ReplaceList_hot-crater-lake                  0.03%   0.06 ms    0.18 ms     4.99 ms      64.81 ms      355
@@ -65,7 +65,7 @@ biome_pipeline_generate                               100.00%  55.11 ms  586.92 
   stage_16_Replace_land                                 0.26%   0.06 ms    1.52 ms    45.39 ms     540.90 ms      355
   stage_38_Replace_arid-pale-garden                     0.02%   0.04 ms    0.12 ms     2.43 ms      43.20 ms      355
   stage_2_Replace__ocean_spot                           0.03%   0.05 ms    0.17 ms     5.79 ms      61.62 ms      355
-  stage_42_Replace__plateao                             0.02%   0.05 ms    0.12 ms     1.81 ms      42.63 ms      355
+  stage_42_Replace__foliage_fortress                             0.02%   0.05 ms    0.12 ms     1.81 ms      42.63 ms      355
   stage_37_Replace_maple-groves                         0.03%   0.05 ms    0.20 ms    24.87 ms      70.26 ms      355
   stage_17_Replace_ocean                                0.07%   0.04 ms    0.42 ms     8.54 ms     147.33 ms      355
   stage_28_ReplaceList_hot-desert-flat                  0.03%   0.06 ms    0.15 ms     0.65 ms      54.13 ms      355

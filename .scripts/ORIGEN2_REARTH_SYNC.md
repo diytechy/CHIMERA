@@ -21,7 +21,7 @@ Rearth uses a different biome distribution pipeline:
 1. `spread_temperature_zones.yml`: Splits land → cold/medium/warm
 2. `fill_temperature_zones.yml`: Creates special biomes + intermediate biomes
 3. `fill_patchwork.yml`: Resolves `_patchwork_*` intermediates
-4. `border_biomes.yml`: Resolves remaining intermediates (_pillow_plains, _secluded_valleys, _plateao, _desert)
+4. `border_biomes.yml`: Resolves remaining intermediates (_pillow_plains, _secluded_valleys, _foliage_fortress, _desert)
 
 ### Origen2 Preset Approach
 
@@ -41,13 +41,13 @@ Initial comparison showed 12 biomes in rearth but not in origen2:
 | MARINE_MONOLITHS | 1.5278% | border_biomes.yml needs intermediate |
 | MESA_MONUMENTS | 1.4957% | Direct placement needed |
 | MANGROVE_SWAMP | 1.1905% | Coastal biome |
-| FOLIAGE_FORTRESS_OUTER | 0.6172% | From _plateao intermediate |
+| FOLIAGE_FORTRESS_OUTER | 0.6172% | From _foliage_fortress intermediate |
 | SECLUDED_VALLEY_OUTER | 0.5185% | From _secluded_valleys intermediate |
 | OASIS | 0.3108% | From _desert intermediate |
 | PILLOW_PLAINS_OUTER | 0.1972% | From _pillow_plains intermediate |
 | PILLOW_PLAINS_INNER | 0.1736% | From _pillow_plains intermediate |
-| FOLIAGE_FORTRESS_INNER | 0.0986% | From _plateao intermediate |
-| FOLIAGE_FORTRESS_MIDDLE | 0.0986% | From _plateao intermediate |
+| FOLIAGE_FORTRESS_INNER | 0.0986% | From _foliage_fortress intermediate |
+| FOLIAGE_FORTRESS_MIDDLE | 0.0986% | From _foliage_fortress intermediate |
 | SECLUDED_VALLEY | 0.0986% | From _secluded_valleys intermediate |
 | PILLOW_PLAINS_MIDDLE | 0.0237% | From _pillow_plains intermediate |
 
@@ -65,13 +65,13 @@ temperate-warm-flat:
   - _pillow_plains: 1
   - _secluded_valleys: 1
 temperate-warm:
-  - _plateao: 1
+  - _foliage_fortress: 1
 ```
 
 These intermediates are then processed by `border_biomes.yml` to create:
 - `_pillow_plains` → PILLOW_PLAINS_INNER, PILLOW_PLAINS_MIDDLE, PILLOW_PLAINS_OUTER
 - `_secluded_valleys` → SECLUDED_VALLEY, SECLUDED_VALLEY_OUTER
-- `_plateao` → FOLIAGE_FORTRESS_OUTER → _plateao_center → FOLIAGE_FORTRESS_MIDDLE, FOLIAGE_FORTRESS_INNER
+- `_foliage_fortress` → FOLIAGE_FORTRESS_OUTER → _foliage_fortress_center → FOLIAGE_FORTRESS_MIDDLE, FOLIAGE_FORTRESS_INNER
 
 **Hot desert zones** (lines 402, 412):
 ```yaml
@@ -170,7 +170,7 @@ The script detects 4 intermediate biomes remaining in the default preset:
 UNRESOLVED INTERMEDIATE BIOMES:
   _desert: default: 0.1501%
   _pillow_plains: default: 0.0345%
-  _plateao: default: 0.0460%
+  _foliage_fortress: default: 0.0460%
   _secluded_valleys: default: 0.0345%
 ```
 

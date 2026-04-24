@@ -76,8 +76,8 @@ biomes:
             # - LOOPS_RIVER: 1
             # - MOUNTAIN_MIRRORS_RIVER: 1
             # - MOUNTAIN_RIVER_FROZEN: 1
-            # - PLATEAO_RIVER_INNER: 1
-            # - PLATEAO_RIVER_MIDDLE: 1
+            # - foliage_fortress_RIVER_INNER: 1
+            # - foliage_fortress_RIVER_MIDDLE: 1
             # - SCARLET_SANCTUARY_RIVER: 1
             # - SWAMP_RIVER: 1
             # - VERDANT_RIVER: 1

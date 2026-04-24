@@ -45,7 +45,7 @@ stages:
       OASIS_OUTER: 2
       OASIS: 1
   - type: REPLACE
-    from: _plateao
+    from: _foliage_fortress
     sampler:
       dimensions: 2
       type: EXPRESSION

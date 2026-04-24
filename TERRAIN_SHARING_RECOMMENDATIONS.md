@@ -2,8 +2,8 @@
 
 These biomes have similar enough terrain definitions that they could share a common eq_* base file.
 
-## 1. eq_fossilized_fenlands ≈ eq_plateao_outer
-**Biomes:** `dinosaurs.yml` (FOSSILIZED_FENLANDS), `plateao_outer.yml` (FOLIAGE_FORTRESS_OUTER)
+## 1. eq_fossilized_fenlands ≈ eq_foliage_fortress_outer
+**Biomes:** `dinosaurs.yml` (FOSSILIZED_FENLANDS), `foliage_fortress_outer.yml` (FOLIAGE_FORTRESS_OUTER)
 
 Identical terrain expression and samplers (`plateous`, `surfaceOffset`). Differ only in `base` variable (71 vs 69).
 

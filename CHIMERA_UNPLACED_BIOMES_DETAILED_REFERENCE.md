@@ -107,8 +107,8 @@ This table provides specific placement recommendations for each biome.
 | ORANGE_ARID_PALE_GARDEN_RIVER | Arid Pale Garden | 0.5 | set_biomes... | hot-steppe-river or vast-forest-river | Pale garden river |
 | PALE_GARDEN_RIVER | Pale Garden River | 0.5 | set_biomes... | boreal-vast-forest-river or pale-garden-river | Pale garden river |
 | PERMAFROST_CLIFFS | Hydraxia Cold | 0.5 | set_biomes... | boreal-snowy-highlands | BASE_HYDRAXIA = COLD |
-| PLATEAO_RIVER_INNER | Special River | 0.5 | set_biomes... | plateau-river-inner | Plateau feature river |
-| PLATEAO_RIVER_MIDDLE | Special River | 0.5 | set_biomes... | plateau-river-middle | Plateau feature river |
+| foliage_fortress_RIVER_INNER | Special River | 0.5 | set_biomes... | plateau-river-inner | Plateau feature river |
+| foliage_fortress_RIVER_MIDDLE | Special River | 0.5 | set_biomes... | plateau-river-middle | Plateau feature river |
 | POLAR_PALE_GARDEN_RIVER | Pale Garden River | 0.5 | set_biomes... | polar-vast-forest-river | Pale garden river (polar) |
 | RED_ARID_PALE_GARDEN_RIVER | Arid Pale Garden | 0.5 | set_biomes... | hot-steppe-river or vast-forest-river | Pale garden river (red) |
 | REDWOOD_WOODLANDS | Hydraxia Cold | 0.5 | set_biomes... | boreal-warm-highlands | BASE_HYDRAXIA = COLD |

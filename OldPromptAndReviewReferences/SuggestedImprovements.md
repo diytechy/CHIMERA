@@ -46,8 +46,8 @@ These biome files do not contain a valid color key (expected format: `color: $bi
 | `biomes/rearth/rivers/gloomy_gorge_river.yml` | Add color key |
 | `biomes/rearth/rivers/highmountains_river.yml` | Add color key |
 | `biomes/rearth/rivers/lush_loops_river.yml` | Add color key |
-| `biomes/rearth/rivers/plateao_river_inner.yml` | Add color key |
-| `biomes/rearth/rivers/plateao_river_middle.yml` | Add color key |
+| `biomes/rearth/rivers/foliage_fortress_river_inner.yml` | Add color key |
+| `biomes/rearth/rivers/foliage_fortress_river_middle.yml` | Add color key |
 | `biomes/rearth/rivers/scarlet_sactuary_river.yml` | Add color key |
 | `biomes/rearth/rivers/verdant_valley_river.yml` | Add color key |
 | `biomes/rearth/rivers/vertical_frozen_vistas_river.yml` | Add color key |
@@ -107,9 +107,9 @@ These biome files have a color reference that does not match the biome ID:
 | `biomes/rearth/variants/pillow_plains_inner.yml` | PILLOW_PLAINS_INNER | SAKURA_GROVE |
 | `biomes/rearth/variants/pillow_plains_middle.yml` | PILLOW_PLAINS_MIDDLE | SAKURA_GROVE |
 | `biomes/rearth/variants/pillow_plains_outer.yml` | PILLOW_PLAINS_OUTER | SAKURA_GROVE |
-| `biomes/rearth/variants/plateao_inner.yml` | FOLIAGE_FORTRESS_INNER | SAVANNA |
-| `biomes/rearth/variants/plateao_middle.yml` | FOLIAGE_FORTRESS_MIDDLE | SAVANNA |
-| `biomes/rearth/variants/plateao_outer.yml` | FOLIAGE_FORTRESS_OUTER | SAVANNA |
+| `biomes/rearth/variants/foliage_fortress_inner.yml` | FOLIAGE_FORTRESS_INNER | SAVANNA |
+| `biomes/rearth/variants/foliage_fortress_middle.yml` | FOLIAGE_FORTRESS_MIDDLE | SAVANNA |
+| `biomes/rearth/variants/foliage_fortress_outer.yml` | FOLIAGE_FORTRESS_OUTER | SAVANNA |
 | `biomes/rearth/variants/redwood_forests.yml` | TALL_TIMBERLAND | SEQUOIA_FOREST |
 | `biomes/rearth/variants/sakura_streams.yml` | SAKURA_STREAMS | SAKURA_GROVE |
 | `biomes/rearth/variants/scarlet_sanctuary.yml` | SCARLET_SANCTUARY | BAMBOO_JUNGLE |

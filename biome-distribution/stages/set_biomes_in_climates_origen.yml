@@ -281,7 +281,7 @@ stages:
         - BROADLEAF_FOREST: 1
         - DARK_FOREST: 1
         - WOODED_BUTTES: 1
-        - _plateao: 1
+        - _foliage_fortress: 1
       temperate-warm-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1

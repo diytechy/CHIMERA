@@ -1,27 +1,29 @@
-id: VALLEY_SAKURA_TREES
+id: SECLUDED_SANCTUARY_TREES
 type: FEATURE
 
 distributor:
   type: AND
   distributors:
     - type: PADDED_GRID
-      width: 6
-      padding: 3
-      salt: 5972
+      width: 14
+      padding: 4
+      salt: 93027
     - type: SAMPLER
       sampler:
-        dimensions: 3
-        type: EXPRESSION
-        expression: -abs(y - (-15 + BiomeShapeFlattenedElevation(x,z))) + 10
-      threshold: 0
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 44819
+          frequency: 0.008
+      threshold: 0.3
 
 locator:
   type: AND
   locators:
     - type: TOP
       range: &range
-        min: ${meta.yml:bottom-y}
-        max: 50
+        min: 75
+        max: 115
     - type: PATTERN
       range: *range
       pattern:
@@ -39,6 +41,9 @@ locator:
 
 structures:
   distribution:
-    type: CONSTANT
+    type: WHITE_NOISE
+    seed: 93028
   structures:
-    - cherry_blossom_tree_procedural: 1
+    - oak_tree_procedural: 3
+    - large_oak_tree_procedural: 1
+    - birch_tree_procedural: 2

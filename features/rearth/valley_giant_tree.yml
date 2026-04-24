@@ -2,21 +2,29 @@ id: VALLEY_GIANT
 type: FEATURE
 
 distributor:
-  type: SAMPLER
-  sampler:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0065
-    jitter: 0.3
-  threshold: -0.999 # magic number to hit exactly one block in the middle of the cell
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 0.0065
+        jitter: 0.3
+      threshold: -0.999 # magic number to hit exactly one block in the middle of the cell
+    - type: SAMPLER
+      sampler:
+        dimensions: 3
+        type: EXPRESSION
+        expression: -abs(y - (-15 + BiomeShapeFlattenedElevation(x,z))) + 5
+      threshold: 0
 
 locator:
   type: AND
   locators:
     - type: SURFACE
       range: &range
-        min: 1
-        max: 10
+        min: ${meta.yml:bottom-y}
+        max: 50
     - type: PATTERN
       range: *range
       pattern:

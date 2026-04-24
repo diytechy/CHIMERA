@@ -19,7 +19,7 @@ terrain:
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z)
       + height * terrace(surfaceOffset(x,z) * 4, 3) / 4 * biomeInfluence(x,z)
-      + if (y > base - 15 && y < base + pillarHeight * 1.3,
+      + if (y > base+ BiomeShapeLandmassElevation(x,z) - 15 && y < base+ BiomeShapeLandmassElevation(x,z) + pillarHeight * 1.3,
         max(pillars(x + yCurve(y, 0), y, z + yCurve(y, 0)),
         max(pillars(x - yCurve(y, 0), y, z + yCurve(y, 0)), pillars(x - yCurve(y, 0) + 5000, y, z - yCurve(y, 0)))),
         0)
@@ -33,7 +33,7 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          curve(1 - normalizeY(x, base, pillarHeight)) * pillarHeight * bendFactor
+          curve(1 - normalizeY(x, base+ BiomeShapeLandmassElevation(x,z), pillarHeight)) * pillarHeight * bendFactor
         functions:
           normalizeY:
             arguments: [y, base, height]
@@ -51,10 +51,10 @@ terrain:
             (-pillars(x,z) 
               - pillarCutoff 
               - widthVariation(y, x / 4 + z / 3) * pillarVariation 
-              + (y - base) / pillarHeight / 8
-              + max(base - y + 4, 0) / 200
-              - (1 - abs(base + pillarHeight - y + 25) / pillarHeight)^5
-              // + (min(0, base + pillarHeight - y + 6))^3
+              + (y - base- BiomeShapeLandmassElevation(x,z)) / pillarHeight / 8
+              + max(base+BiomeShapeLandmassElevation(x,z) - y + 4, 0) / 200
+              - (1 - abs(base + BiomeShapeLandmassElevation(x,z) + pillarHeight - y + 25) / pillarHeight)^5
+              // + (min(0, base + BiomeShapeLandmassElevation(x,z) + pillarHeight - y + 6))^3
               - max(-abs(erosion(x,y,z)) + 0.3, 0) * 0.095
               )
               * pillarHeight
@@ -82,7 +82,11 @@ terrain:
             dimensions: 2
             type: CELLULAR
             frequency: 0.009
-            return: CellValue
+            return: NoiseLookup
+            lookup:
+              dimensions: 2
+              type: EXPRESSION
+              expression: if(biomeInfluence(x,z)>0.99,positiveWhiteNoise(x,z),0)
       pillarRand:
         dimensions: 2
         type: CELLULAR

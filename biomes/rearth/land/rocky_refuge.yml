@@ -30,6 +30,8 @@ palette:
 - SAND: 64
 - << meta.yml:palette-bottom
 features:
+  preprocessors:
+  - HIGH_GLOW_LICHEN
   landforms:
   - SPARSE_GIANT_PILLARS
   - SMALL_BOULDER_PATCHES

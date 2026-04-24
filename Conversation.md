@@ -1180,6 +1180,17 @@ COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, s
 
 Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 
+Bamboo basin needs to be distributed in flats.
+
+***********************
+
+Fix lava fluid - should be variable height depending on random interval based on selected max.
+
+Fix arid arborium, change either blending factor, or multiply entire positive block density by biome influence?  Or some other blending method?
+
+#####################################
+
+
 Prismatic spring <- Need to fix dist of features
 
 

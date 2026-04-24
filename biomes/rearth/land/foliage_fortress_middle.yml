@@ -29,6 +29,7 @@ slant:
 features:
   preprocessors:
   - foliage_fortress_PILLARS
+  - HIGH_GLOW_LICHEN
   flora:
   - GRASS
   - TALL_GRASS

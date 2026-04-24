@@ -34,7 +34,7 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          (biomeInfluence(x,z)>0.99) * (
+          pillarsExist(x,z) * (
             -basepillars(x,z) - 0.72    // basic pillars
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
@@ -47,6 +47,13 @@ terrain:
             frequency: 0.022
             jitter: 1
             distance: Euclidean
+          pillarsExist:
+            <<: *pillarConf
+            return: NoiseLookup
+            lookup: 
+              dimensions: 2
+              type: EXPRESSION
+              expression: if(biomeInfluence(x,z)>0.99,1,0)
           basepillarsCenter:
             <<: *pillarConf
             return: CellValue

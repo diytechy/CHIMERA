@@ -49,11 +49,11 @@ biomes:
           - ROCKY_REFUGE: 1
           - MURKY_MARSHLANDS: 1
           - MARINE_MONOLITHS: 1
-        #  - _secluded_valleys: 1
+          - _secluded_valleys: 1
+          - _foliage_fortress: 1
         #  - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
         #  - _pillow_plains: 1
         #  - _desert: 1
-        #  - _foliage_fortress: 1
         #  - FROZEN_SPIRES: 1
         # NEXT:
         #   - GLOOMY_GORGE: 1

@@ -78,6 +78,15 @@ samplers:
           lookup: $math/samplers/elevation.yml:samplers.plainsMaskApplied
           salt-lookup: false
           
+  BiomeShapeLandmassAngle:
+    <<: *midWarpSmall
+    sampler:
+      <<: *innerWarpSmall
+      sampler:
+        <<: *landmassShape
+        distance: Euclidean
+        return: Angle
+
   BiomeShapeLandmassDistance:
     <<: *midWarpSmall
     sampler:

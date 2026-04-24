@@ -1,9 +1,9 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 250
+  cellDistance: 350
   wellDistance: 100
-  cellDistanceLarge: 250
+  cellDistanceLarge: 500
   distAtFullInfluence: 20
   distAtFullNormDist: 50
   #How many blocks deep do we have to be in biome before terrain features for biome

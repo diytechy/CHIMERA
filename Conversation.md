@@ -1173,7 +1173,7 @@ Arid Arboretum <- Pillars are getting lost, likely due to issue in combining thi
 Rocky refuge <- Need glow lichen, under refuge area only?  Possible?
 fenlands <- Change to raised biome elevation
 
-Glow Lichen < - prevent placement in cold regions so they don't melt ice, match glowshroom restrictor
+Glow Lichen < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
 
 Prismatic spring <- Need to fix dist of features
 

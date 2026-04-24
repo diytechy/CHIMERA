@@ -10,15 +10,15 @@ variables: &variables
   minRadius: $customization.yml:spot-radius-min
   maxRadius: $customization.yml:spot-radius-max
 
-  minHeight: 0.05
+  minExtHeight: 0.05
+  maxExtHeight: 0.2
   minVolHeight: 0.2
-  
-  maxHeight: 0.5
+  maxVolHeight: 0.4
   prismaticMinHeight: 0.00
   prismaticMaxHeight: 0.0
 
-  spotMinEdgeRadius: 0.05
-  spotMaxEdgeRadius: 0.2
+  spotMinEdgeRadius: 0.1
+  spotMaxEdgeRadius: 0.25
   
   prismaticMinEdgeRadius: 0.1
   prismaticMaxEdgeRadius: 0.1
@@ -185,18 +185,21 @@ samplers:
   spotEdgeRadiusPercent:
     <<: *smallCellular
     return: NoiseLookup
-    lookup:
-      type: EXPRESSION
-      expression: quinticEaseInOut(noise(x, z))   # Use in/out easing to favour extreme values over middle values
-      samplers:
-        noise:
-          dimensions: 2
-          type: POSITIVE_WHITE_NOISE
-          salt: 5812
-      functions:
-        quinticEaseInOut:
-          arguments: [x]
-          expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
+    lookup:  
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 5812
+   #   type: EXPRESSION
+   #   expression: quinticEaseInOut(noise(x, z))   # Use in/out easing to favour extreme values over middle values
+   #   samplers:
+   #     noise:
+   #       dimensions: 2
+   #       type: POSITIVE_WHITE_NOISE
+   #       salt: 5812
+   #   functions:
+   #     quinticEaseInOut:
+   #       arguments: [x]
+   #       expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
   spotEdgeRadius:
     dimensions: 2
@@ -218,6 +221,14 @@ samplers:
     expression: lerp(spotEdgeRadiusPercent(x, z), 0, prismaticMinEdgeRadius, 1, prismaticMaxEdgeRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
+      
+
+  volcanicEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
 
 
   volcanoCenterDepth:
@@ -232,6 +243,35 @@ samplers:
     expression: lerp(spotSizePercent(x, z), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
+
+  distanceToPrismaticRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * prismaticEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * prismaticEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * prismaticEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    #  prismaticEdgeRadius: $math/samplers/spots.yml:samplers.prismaticEdgeRadius
+
+  distanceToVolcanicRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * volcanicEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * volcanicEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * volcanicEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    #  prismaticEdgeRadius: $math/samplers/spots.yml:samplers.prismaticEdgeRadius
+
   volcanoErosion: # Creates streaks from the center of the volcano, emulating erosion
     dimensions: 2
     type: EXPRESSION

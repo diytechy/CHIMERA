@@ -1,4 +1,4 @@
-id: EQ_PRISMATIC_SPRING
+id: EQ_EXTINCT_VOLCANO
 type: BIOME
 abstract: true
 
@@ -8,6 +8,7 @@ vars: &variables
   "<<":
     - math/samplers/spots.yml:variables
 
+#ocean is overwritten in active volcano biomes.
 ocean:
   level: $meta.yml:ocean-level
   # Water level rises with the river's regional elevation so rivers at higher
@@ -19,18 +20,22 @@ ocean:
       olevel: $meta.yml:ocean-level
       base: $customization.yml:terrain-base-y-level
       scale: $customization.yml:terrain-height
+      "<<":
+        - math/samplers/spots.yml:variables
     expression: |
-      if(distanceToPrismaticRim(x, z) < 0.1,
-      olevel + scale *spotBaseElevation(x, z) + 10,
+      if(distanceToVolcanicRim(x, z) < 0.1,
+      olevel + scale * (spotBaseElevation(x, z) + maxExtHeight),
       olevel)
 
 terrain:
   sampler-2d:
-    dimensions: 2
     type: CONSTANT
   sampler:
     type: EXPRESSION
-    expression: -y + base + sampler2d(x, z)
+    functions: $math/functions/interpolation.yml:functions
+    expression: |
+      -y + base + herp(distanceToVolcanicRim(x, z),0,sampler2d(x,z),
+      1,elevationDetailedBlockHeight(x,z))
     # + elevationDetailedBlockHeight(x,z)
     variables: *variables
     samplers:
@@ -39,19 +44,19 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          scale * calcHeight(x, z,
+          scale * (calcHeight(x, z,
             /*distance*/      spotDistance(x, z),
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
-            /*outsideHeight*/ elevationDetailed(x, z),
-            /*edge*/          prismaticEdgeRadius(x, z),
+            /*outsideHeight*/ 0,
+            /*edge*/          spotEdgeRadius(x, z),
             /*radius*/        spotRadius(x, z),
-            /*centerDepth*/   prismaticCenterDepth(x, z),
+            /*centerDepth*/   volcanoCenterDepth(x, z),
             /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
-                                0, prismaticMinHeight,
-                                1, prismaticMaxHeight
+                                0, minExtHeight,
+                                1, maxExtHeight
                               ),
-            /*volcanoBase*/   spotBaseElevation(x, z)
-          )
+            /*volcanoBase*/   0)
+           + spotBaseElevation(x, z))
         functions:
           calcHeight:
             arguments:

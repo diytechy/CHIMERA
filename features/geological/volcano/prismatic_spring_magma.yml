@@ -19,19 +19,31 @@ distributor:
   threshold: 0.15
 
 locator:
-  type: PATTERN
-  range:
-    min: $meta.yml:bottom-y
-    max: $meta.yml:top-y
-  pattern:
-    type: AND
-    patterns:
-      - type: MATCH
-        block: minecraft:cyan_terracotta
-        offset: 0
-      - type: MATCH
-        block: minecraft:water
-        offset: 1
+  type: AND
+  locators:
+    - type: PATTERN
+      range:
+        min: $meta.yml:bottom-y
+        max: $meta.yml:top-y
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH
+            block: minecraft:cyan_terracotta
+            offset: 0
+          - type: MATCH
+            block: minecraft:water
+            offset: 1
+    - type: SAMPLER_3D
+      sampler:
+        type: EXPRESSION
+        expression: |
+          if(distanceToPrismaticRim(x, z) < 0,
+            -y + base + scale * (spotBaseElevation(x, z) + (prismaticFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
+            -1)
+        variables:
+          base: $customization.yml:terrain-base-y-level
+          scale: $customization.yml:terrain-height
 
 structures:
   distribution:

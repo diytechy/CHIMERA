@@ -213,6 +213,20 @@ samplers:
     lookup:
       type: WHITE_NOISE
       salt: 4128
+
+  volcanoFluidLevel:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      type: WHITE_NOISE
+      salt: 7341
+
+  prismaticFluidLevel:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      type: WHITE_NOISE
+      salt: 3857
       
 
   prismaticEdgeRadius:

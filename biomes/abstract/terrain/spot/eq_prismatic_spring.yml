@@ -10,8 +10,6 @@ vars: &variables
 
 ocean:
   level: $meta.yml:ocean-level
-  # Water level rises with the river's regional elevation so rivers at higher
-  # terrain still have water in them.
   sampler:
     dimensions: 2
     type: EXPRESSION
@@ -20,9 +18,9 @@ ocean:
       base: $customization.yml:terrain-base-y-level
       scale: $customization.yml:terrain-height
     expression: |
-      if(distanceToPrismaticRim(x, z) < 0.1,
-      olevel + scale *spotBaseElevation(x, z) + 10,
-      olevel)
+      if(distanceToPrismaticRim(x, z) < 0,
+        base + scale * (spotBaseElevation(x, z) + (prismaticFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
+        olevel)
 
 terrain:
   sampler-2d:

@@ -182,20 +182,10 @@ samplers:
     type: EXPRESSION
     expression: |
       if((round(x) % 4)||(round(z) %4 ),
-      continentalDendryRiversPrecise(x,y,z)+
-      0*continentalDendryRiversPrecise(x,y,z)*
-      continentalDendryRiversPrecise(x,y,z*10000+10000)*
-      continentalDendryRiversPrecise(x*10000-10000,y,z),
+      continentalDendryRiversPrecise(x,y,z),
       continentalDendryRiversSparse(x,y,z)
       )
-      //if((round(x)%4)||(round(z)%4),
-      //continentalDendryRiversPrecise(x,y,z)+
-      //0*continentalDendryRiversPrecise(x,y,z)*
-      //continentalDendryRiversPrecise(x,y,z*10000+10000)*
-      //continentalDendryRiversPrecise(x*10000-10000,y,z),
-      //continentalDendryRiversSparse(x,y,z)
-      //)
-      //continentalDendryRiversSparse(x,y,z)
+
 
   continentalRiverDist:
     dimensions: 2

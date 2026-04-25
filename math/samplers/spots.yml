@@ -94,6 +94,7 @@ samplers:
     type: EXPRESSION
     expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
     variables: *variables
+    
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup

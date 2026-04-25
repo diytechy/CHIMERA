@@ -1166,7 +1166,7 @@ Tuff Mountains <- Fix ice replacements? (Was actually spires)
 
 fenlands <- Change to raised biome elevation
 ############################
-Update VOLCANO_FLUID so that the max fluid level is no more than 90% to the top of the rim from the cell height (spotBaseElevation)
+Update VOLCANO_FLUID so that the max fluid level is a random height between 10% to 90% of the top of the rim from the cell height (spotBaseElevation).
 
 
 CONFIRMM:
@@ -1188,7 +1188,14 @@ In work:
 Confirm extinct craterss working - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
 Move eq from EQ_EXTINCT_VOLCANO to EQ_VOLCANO and EQ_PRISMATIC_SPRING while retaining height variables of each.
 
+Carefully update the prismatic spring to fix the water related features:
 
+1. Update the water level in the prismatic spring (the "ocean" sampler) is restricted to within the inner ring if not already done, and set the water level similar to the VOLCANO_FLUID locator, but note prismatic springs should be able to go all the way to -max height (so that half the time, no water appears)
+
+2. Make sure the prismatic spring features are restricted to the ring inside the rim times the fluid level in the ring multiplied by the ratio of the water fluid level, so that these features only occur under water.  If there is no water (ocean sampler is below the elevation at the crater), only smoke should rise from the center.
+
+    - PRISMATIC_SPRING_MAGMA
+    - PRISMATIC_SPRING_SMOKE
 
 Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 

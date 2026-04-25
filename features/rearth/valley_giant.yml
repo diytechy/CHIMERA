@@ -10,17 +10,20 @@ distributor:
         type: CELLULAR
         frequency: 0.0065
         jitter: 0.3
-      threshold: -0.999 # magic number to hit exactly one block in the middle of the cell
-    - type: SAMPLER
-      sampler:
-        dimensions: 3
-        type: EXPRESSION
-        expression: -abs(y - (-15 + BiomeShapeFlattenedElevation(x,z))) + 5
-      threshold: 0
+      threshold: -0.995 # magic number to hit exactly one block in the middle of the cell
 
 locator:
   type: AND
   locators:
+    - type: SAMPLER_3D
+      sampler:
+        dimensions: 3
+        type: EXPRESSION
+        variables:
+          valley_low: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_low
+          valley_offset: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_offset
+        expression: valley_low + BiomeShapeFlattenedElevation(x,z) + y
+      threshold: 0
     - type: SURFACE
       range: &range
         min: ${meta.yml:bottom-y}

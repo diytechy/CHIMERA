@@ -1165,44 +1165,36 @@ Tuff Mountains <- Fix ice replacements? (Was actually spires)
 
 
 fenlands <- Change to raised biome elevation
-Bamboo Basin should probably be a swamp region 
 ############################
+
+Fenlands <- Use new locator
+Bamboo Basin <- Move back to swamp
+Secluded Sanctuary <- Fix valley tree locator.
 
 Fix craters? - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
 
 Need higher glow lichen feature to go higher, probably from about 20 below ocean upwards of 100 blocks, HIGH_GLOW_LICHEN, probably spaced with padded grid and located only under stone.
 Marine Monoliths needs glow lichen (Use HIGH_GLOW_LICHEN)
 foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN)
-Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted?
+Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted? <- How to prevent the blocking?  Drop "max" outside pillar range?
 Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_GLOW_LICHEN might be sufficient since refuge area is the only raised / cave-like feature)
 
 COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
 
 Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 
-Bamboo basin needs to be distributed in flats.
-
-***********************
-
 Fix lava fluid - should be variable height depending on random interval based on selected max.
 
 Fix arid arborium, change either blending factor, or multiply entire positive block density by biome influence?  Or some other blending method?
 
-#####################################
-
-
 Prismatic spring <- Need to fix dist of features
-
 
 Consider expanding continent size and mountain mask size, to get larger features in that space.
 
+#####################################
 
-Arid Arboretum<- Check 
-Fossilized Fenlands <- Check
-Bamboo Basins <- Check, this should be large region?
-Rocky refuge<- Check
-Murky Marshlands <- Check
-Marine Monolits <- Check
+
+
 
 Carving Creaks <- This should be a mesaa type?
 

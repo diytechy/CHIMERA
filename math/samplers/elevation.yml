@@ -35,7 +35,7 @@ samplers:
     dimensions: 2
     type: PERLIN
     salt: 0694
-    frequency: 1 / 1500
+    frequency: 1 / 3000
 
   mountain_sampler:
     dimensions: 2

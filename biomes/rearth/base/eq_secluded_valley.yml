@@ -17,7 +17,8 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      min(-y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height * biomeInfluence(x,z), valley(x,y,z) * 10)
+      //max(elevationDetailedBlockHeight(x,z),BiomeShapeFlattenedElevation(x,z))
+      min(-y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height, valley(x,y,z) * 10)
     samplers:
       valley:
         type: EXPRESSION
@@ -61,3 +62,8 @@ terrain:
         dimensions: 2
         type: OPEN_SIMPLEX_2
         frequency: 0.007
+
+sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

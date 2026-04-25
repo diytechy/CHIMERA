@@ -5,5 +5,20 @@ color: $biomes/colors.yml:SUNFLOWER_PRAIRIE_OUTER
 extends:
 - CARVING_LAND
 - BASE
-- EQ_SMALL_BIOME_VALLEY_TRANSITION
 - SECLUDED_VALLEY
+
+terrain:
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: $customization.yml:terrain-base-y-level
+      height: $biomes/rearth/base/eq_secluded_valley.yml:vars.height
+    expression: -y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height *biomeInfluence(x,z)
+    samplers:
+      surfaceVariation: $biomes/rearth/base/eq_secluded_valley.yml:terrain.sampler.samplers.surfaceVariation
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

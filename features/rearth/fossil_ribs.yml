@@ -40,10 +40,8 @@ distributor:
               return: Distance
 
 locator:
-  type: SURFACE
-  range:
-    min: 64
-    max: 300
+  type: locator-surface-noise-3d:TOP_TERRAIN_SURFACE
+  offset: 0
 
 structures:
   distribution:

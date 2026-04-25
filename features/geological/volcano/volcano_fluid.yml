@@ -6,7 +6,7 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(spotDistance(x, z) < spotEdgeRadius(x, z) * spotRadius(x, z), -1, 1)
+    expression: if(distanceToVolcanicRim(x,z)<0, -1, 1)
     variables: $math/samplers/spots.yml:variables
   threshold: 0
 

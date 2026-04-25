@@ -1166,37 +1166,45 @@ Tuff Mountains <- Fix ice replacements? (Was actually spires)
 
 fenlands <- Change to raised biome elevation
 ############################
+Update VOLCANO_FLUID so that the max fluid level is no more than 90% to the top of the rim from the cell height (spotBaseElevation)
 
+
+CONFIRMM:
+
+Carving Creaks <- In flat dry area, confirm rendering
 Fenlands <- Use new locator
-Bamboo Basin <- Move back to swamp
 Secluded Sanctuary <- Fix valley tree locator.
-
-Fix craters? - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
-
+Bamboo Basin <- Move back to swamp
 Need higher glow lichen feature to go higher, probably from about 20 below ocean upwards of 100 blocks, HIGH_GLOW_LICHEN, probably spaced with padded grid and located only under stone.
 Marine Monoliths needs glow lichen (Use HIGH_GLOW_LICHEN)
 foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN)
 Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted? <- How to prevent the blocking?  Drop "max" outside pillar range?
 Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_GLOW_LICHEN might be sufficient since refuge area is the only raised / cave-like feature)
-
 COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
+
+
+
+In work:
+Confirm extinct craterss working - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
+Move eq from EQ_EXTINCT_VOLCANO to EQ_VOLCANO and EQ_PRISMATIC_SPRING while retaining height variables of each.
+
+
 
 Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 
 Fix lava fluid - should be variable height depending on random interval based on selected max.
 
-Fix arid arborium, change either blending factor, or multiply entire positive block density by biome influence?  Or some other blending method?
-
 Prismatic spring <- Need to fix dist of features
 
 Consider expanding continent size and mountain mask size, to get larger features in that space.
+
+Fix carving
 
 #####################################
 
 
 
 
-Carving Creaks <- This should be a mesaa type?
 
 Remove mesas from spot selection
 

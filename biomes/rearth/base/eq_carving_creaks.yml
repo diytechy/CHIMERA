@@ -3,8 +3,9 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  floor: 67
-  base: 110
+  floor: $customization.yml:terrain-base-y-level
+  #Needs to equal 110 or palette needs to be adjusted.
+  baseOffset: 45
   height: 3
   terraceCount: 15
 
@@ -14,9 +15,9 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + elevationDetailedBlockHeight(x,z)
+      -y + baseOffset + floor + elevationDetailedBlockHeight(x,z)
       + (height * baseRandom(x,z)
-      - min(terrace(easeInOut(max(0, -abs(rivers(x,z)) + 0.5)) * terraceCount, 9) / terraceCount * 200, base - floor)
+      - min(terrace(easeInOut(max(0, -abs(rivers(x,z)) + 0.5)) * terraceCount, 9) / terraceCount * 200, baseOffset + 2)
       - max(0, -abs(rivers(x,z)) + 0.23)  * 45) * biomeInfluence(x,z)
     functions:
       easeInOut:

@@ -17,8 +17,9 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      max(clamp(-y + base + elevationDetailedBlockHeight(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z), -1.75, 3),
-      clamp(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24, -1.75, 3))
+      max((-y + base + elevationDetailedBlockHeight(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),
+      max(min(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24,3) - 
+        (biomeInfluence(x,z)-1) * 2, -1.75))
     functions:
       clamp:
         arguments: [x, a, b]

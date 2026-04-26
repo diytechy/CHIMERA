@@ -11,12 +11,21 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
+    # Works but not very much water, with height 3:
+    #expression: |
+    #  // positive / higher = solid
+    #  -y + base + BiomeShapeSealevelElevation(x,z) 
+    #  - 3 * biomeInfluence(x,z)
+    #  + (min(-cells(x,z), 0.8) * height * biomeInfluence(x,z)
+    #  + riverMask(x, y, z) * 10) * biomeInfluence(x,z)
     expression: |
       // positive / higher = solid
       -y + base + BiomeShapeSealevelElevation(x,z) 
-      - 3 * biomeInfluence(x,z)
-      + (min(-cells(x,z), 0.8) * height * biomeInfluence(x,z)
-      + riverMask(x, y, z) * 10) * biomeInfluence(x,z)
+      //Shift elevation down to get near ocean level.
+      - 1.5 * biomeInfluence(x,z)
+      + (min(-cells(x,z), 0.8) * height
+      //Erode for rivers / lakes to form.
+      + riverMask(x, y, z) * 30) * biomeInfluence(x,z)
     samplers:
       cells:
         dimensions: 2

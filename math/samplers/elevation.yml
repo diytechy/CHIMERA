@@ -299,7 +299,7 @@ samplers:
   tempElevationReference:
     dimensions: 2
     type: EXPRESSION
-    expression: max(nonMountainElevation(x,z) ,mountainMask(x,z))
+    expression: max(nonMountainElevation(x,z)*0.2 ,mountainMask(x,z))
 
   rawElevation:
     dimensions: 2

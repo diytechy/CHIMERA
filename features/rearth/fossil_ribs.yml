@@ -40,8 +40,9 @@ distributor:
               return: Distance
 
 locator:
-  type: locator-surface-noise-3d:TOP_TERRAIN_SURFACE
-  offset: 0
+  #type: locator-surface-noise-3d:TOP_TERRAIN_SURFACE
+  type: TOP_TERRAIN_SURFACE
+  offset: -2
 
 structures:
   distribution:

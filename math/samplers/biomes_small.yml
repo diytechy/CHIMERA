@@ -140,7 +140,7 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.mountainMask
+          lookup: $math/samplers/elevation.yml:samplers.mountainsApplied
           salt-lookup: false
           
   BiomeShapeLandmassElevation:

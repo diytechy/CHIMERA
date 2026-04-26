@@ -305,7 +305,7 @@ samplers:
   continentalRiverDistSparseFarGrid:
     dimensions: 2
     type: EXPRESSION
-    expression: continentalDendryRivers(round(x/4)*4,-1.0,round(z/4)*4)
+    expression: continentalDendryRivers(round(x/4)*4,-3.0,round(z/4)*4)
 
   # ─── River terrain noise samplers ──────────────────────────────────
   erosionStrengthVariation: # Used to roughen up the walls

@@ -59,6 +59,7 @@ addons:
   structure-block-shortcut: "1.+"
   terrascript-function-sampler: "1.+"
   locator-slant-noise-3d: "1.+"
+  locator-surface-noise-3d: "1.+"
   dendry-noise: "1.+"
 
 # ---

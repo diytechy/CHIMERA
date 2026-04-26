@@ -69,17 +69,30 @@ samplers:
       frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
       salt: 300
 
+  mountainsApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(lerp(abs(mountainMask(x, z)), mountainMaskZero, 0, mountainMaskFull, 1), lerp(continents(x, z), mountainContZero, 0, mountainContFull, 1))
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
   AppliedMountainHeightA:
     dimensions: 2
     type: EXPRESSION
-    expression: min(lerp(mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, mountains(x, z)), lerp(continents(x, z), mountainContZero, 0, mountainContFull, mountains(x, z)))
+    expression: |
+      if(mountainMask(x, z)>0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountains(x, z)),
+        0)
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
 
   AppliedMountainHeightB:
     dimensions: 2
     type: EXPRESSION
-    expression: min(lerp(-mountainMask(x, z), mountainMaskZero, 0, mountainMaskFull, abs(mountainsB(x, z))), lerp(continents(x, z), mountainContZero, 0, mountainContFull, abs(mountainsB(x, z))))
+    expression: |
+      if(mountainMask(x, z)<0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountainsB(x, z)),
+        0)
     variables: *variables
     functions: $math/functions/interpolation.yml:functions
 
@@ -268,7 +281,7 @@ samplers:
     type: EXPRESSION
     expression: |
       combine(continentalRise(x,z) * (1-flatness(x, z)),
-      hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1-flatness(x, z))),
       0,
       mountainCap)
     variables: *variables
@@ -282,6 +295,11 @@ samplers:
         expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
       lerp: $math/functions/interpolation.yml:functions.lerp
       herp: $math/functions/interpolation.yml:functions.herp
+
+  tempElevationReference:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(nonMountainElevation(x,z) ,mountainMask(x,z))
 
   rawElevation:
     dimensions: 2

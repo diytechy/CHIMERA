@@ -22,12 +22,13 @@ locator:
         variables:
           valley_low: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_low
           valley_offset: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_offset
-        expression: valley_low + BiomeShapeFlattenedElevation(x,z) + y
+          base: $customization.yml:terrain-base-y-level
+        expression: (base + valley_low + BiomeShapeFlattenedElevation(x,z))-y
       threshold: 0
     - type: SURFACE
       range: &range
         min: ${meta.yml:bottom-y}
-        max: 50
+        max: 200
     - type: PATTERN
       range: *range
       pattern:

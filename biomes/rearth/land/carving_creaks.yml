@@ -27,10 +27,10 @@ slant:
   - BLOCK:minecraft:orange_terracotta: 79
   - BLOCK:minecraft:yellow_terracotta: 76
   - BLOCK:minecraft:terracotta: 70
-  - SAND: 63
+  - SAND: 40
 palette:
 - RED_SAND: 319
-- SAND: 64
+- SAND: 40
 - << meta.yml:palette-bottom
 features:
   flora:

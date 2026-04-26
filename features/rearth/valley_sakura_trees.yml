@@ -9,36 +9,7 @@ distributor:
       padding: 3
       salt: 5972
 
-locator:
-  type: AND
-  locators:
-    - type: TOP
-      range: &range
-        min: ${meta.yml:bottom-y}
-        max: 150
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: MATCH_SET
-        blocks: $features/vegetation/meta.yml:plantable-blocks
-        offset: -1
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: MATCH_SET
-        blocks:
-          - minecraft:snow
-          - minecraft:air
-        offset: 0
-    - type: SAMPLER_3D
-      sampler:
-        dimensions: 3
-        type: EXPRESSION
-        variables:
-          valley_low: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_low
-          valley_offset: $biomes/rearth/base/eq_secluded_valley.yml:vars.valley_offset
-        expression: valley_low + BiomeShapeFlattenedElevation(x,z) + y
-      threshold: 0
+locator: $features/rearth/valley_giant.yml:locator
 
 structures:
   distribution:

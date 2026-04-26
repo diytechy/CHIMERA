@@ -1183,7 +1183,7 @@ Arid Arboretum <- Pillars are getting lost, likely due to issue in combining thi
 
 
 In work:
-Confirm extinct craterss working - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
+Confirm extinct craters working - Straight line running through, will need to see if this occurs on standard volcano.  Hole is way smaller than expected - might be due to height and eq method?
 Move eq from EQ_EXTINCT_VOLCANO to EQ_VOLCANO and EQ_PRISMATIC_SPRING while retaining height variables of each.
 
 Carefully update the prismatic spring to fix the water related features:
@@ -1211,7 +1211,7 @@ But how to make sure distance to spots is correct if spot isn't always present? 
 #####################################
 
 Remove water from bamboo basin pallette, let water fill naturally.
-Secluded sanctuary cap appears to be missing, something missed in sampler offfset?
+Secluded sanctuary cap appears to be missing, something missed in sampler offset?
 Secluded sanctuary appears to be missing glow lichen above around 40, need to reduce height?
 Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
 [THIS NEEDS TO BE Cellular flat DUE TO TERRAIN SAMPLER FORM?]  But that breaks other stuff, does it just need to be flat across the board and rely on blending at borders?  That might not work well either...
@@ -1226,15 +1226,18 @@ Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_G
 COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
 foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN) [GLOW LICHEM MISSING]
 
-Craters are not working, and they need a wider radius band.
-A. Water is going above rim.
-B. Still have strang straight band, only ever see this in the crater form.
 
 
 5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
 
 6. Consider shifting mesa structure back to "max" instead of "round function?
 
+
+
+Many volcano / spring fixes need to be made:
+Craters are not working, and they need a wider radius band.
+A. Water is going above rim.
+B. Still have strang straight band, only ever see this in the crater form.
 
 #######################
 

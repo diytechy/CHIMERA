@@ -18,7 +18,7 @@ terrain:
     expression: |
       // positive / higher = solid
       //max(elevationDetailedBlockHeight(x,z),BiomeShapeFlattenedElevation(x,z))
-      min(-y + base + elevationDetailedBlockHeight(x,z) + surfaceVariation(x,z) * height, valley(x,y,z) * 10)
+      min(-y + base + BiomeShapeFlattenedElevation(x,z) + surfaceVariation(x,z) * height, valley(x,y,z) * 10)
     samplers:
       valley:
         type: EXPRESSION

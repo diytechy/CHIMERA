@@ -28,7 +28,9 @@ terrain:
     type: CONSTANT
   sampler:
     type: EXPRESSION
-    expression: -y + base + sampler2d(x, z)
+    expression: |
+      -y + base + herp(distanceToPrismaticRim(x, z),0,sampler2d(x,z),
+      1,elevationDetailedBlockHeight(x,z))
     # + elevationDetailedBlockHeight(x,z)
     variables: *variables
     samplers:
@@ -37,10 +39,10 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          scale * calcHeight(x, z,
+          scale * (calcHeight(x, z,
             /*distance*/      spotDistance(x, z),
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
-            /*outsideHeight*/ elevationDetailed(x, z),
+            /*outsideHeight*/ 0,
             /*edge*/          prismaticEdgeRadius(x, z),
             /*radius*/        spotRadius(x, z),
             /*centerDepth*/   prismaticCenterDepth(x, z),
@@ -48,8 +50,8 @@ terrain:
                                 0, prismaticMinHeight,
                                 1, prismaticMaxHeight
                               ),
-            /*volcanoBase*/   spotBaseElevation(x, z)
-          )
+            /*volcanoBase*/   0)
+           + spotBaseElevation(x, z))
         functions:
           calcHeight:
             arguments:

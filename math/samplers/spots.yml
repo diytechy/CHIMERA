@@ -16,14 +16,14 @@ variables: &variables
   maxVolHeight: 0.4
   prismaticMinHeight: 0.00
   prismaticMaxHeight: 0.0
-  prismaticMinCenterDepth: -0.03
-  prismaticMaxCenterDepth: -0.01
+  prismaticMinCenterDepth: 0.03
+  prismaticMaxCenterDepth: 0.01
 
   spotMinEdgeRadius: 0.1
   spotMaxEdgeRadius: 0.25
   
-  prismaticMinEdgeRadius: 0.5
-  prismaticMaxEdgeRadius: 0.6
+  prismaticMinEdgeRadius: 0.7
+  prismaticMaxEdgeRadius: 0.9
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max

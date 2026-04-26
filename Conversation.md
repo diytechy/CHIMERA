@@ -1188,6 +1188,15 @@ Secluded sanctuary has many many trees surrounding, consequence of new tree feat
 
 STILL IN WORK:
 
+PRISMATIC SPRING IS NOW BUMPING UP AT CENTER, INSTEAD OF TUNNELLING DOWN
+THEORY:
+Erosion is responsible for drilling into form for prismatic sphere.
+Outcomes should be zero.
+How is is center radius getting bumped up?  (When crater height is negative value, and max height is 0)
+NEXT: Try with a max height with a value, and a crater height of 0?
+
+
+
 Move secluded value to smaller pattern in biome.
 
 Make sure bamboo basin actually has water now that it's been shifted down.

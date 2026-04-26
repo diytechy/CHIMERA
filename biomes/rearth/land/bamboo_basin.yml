@@ -8,7 +8,7 @@ extends:
 - EQ_BAMBOO_BASIN
 riverSampler: $biomes/rearth/base/eq_sakura_streams.yml:terrain.sampler.samplers.riverMask
 palette:
-- EUCALYPTUS_MOUNTAIN_RIVER: 319
+- LOW_MOUNTAIN_RIVER: 319
 - << meta.yml:palette-bottom
 features:
   underwater-flora:

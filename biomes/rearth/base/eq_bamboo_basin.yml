@@ -4,7 +4,7 @@ abstract: true
 
 vars: &variables
   base: $customization.yml:terrain-base-y-level
-  height: 0
+  height: 3
 
 terrain:
   sampler:
@@ -13,7 +13,8 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base + BiomeShapeSealevelElevation(x,z)
+      -y + base + BiomeShapeSealevelElevation(x,z) 
+      - 3 * biomeInfluence(x,z)
       + (min(-cells(x,z), 0.8) * height * biomeInfluence(x,z)
       + riverMask(x, y, z) * 10) * biomeInfluence(x,z)
     samplers:

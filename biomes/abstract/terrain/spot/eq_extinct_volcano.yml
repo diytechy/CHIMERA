@@ -24,7 +24,7 @@ ocean:
         - math/samplers/spots.yml:variables
     expression: |
       if(distanceToVolcanicRim(x, z) < 0.1,
-      olevel + scale * (spotBaseElevation(x, z) + maxExtHeight),
+      olevel + scale * (spotBaseElevation(x, z) + minExtHeight),
       olevel)
 
 terrain:

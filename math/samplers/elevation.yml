@@ -549,7 +549,7 @@ samplers:
     variables:
       distAtFullInfluence: $customization.yml:biomeSpread.distAtFullInfluence
       distAtFullNormDist: $customization.yml:biomeSpread.distAtFullNormDist 
-    expression: lerp(normDistIntoBiome(x,z), 0, 0, distAtFullInfluence / distAtFullNormDist, 1)
+    expression: min(max(lerp(normDistIntoBiome(x,z), 0, 0, distAtFullInfluence / distAtFullNormDist, 1),0),1)
     functions: $math/functions/interpolation.yml:functions
   
   biomeInfluence3D:

@@ -182,8 +182,13 @@ samplers:
     type: EXPRESSION
     expression: |
       if((round(x) % 4)||(round(z) %4 ),
-      continentalDendryRiversPrecise(x,y,z),
-      continentalDendryRiversSparse(x,y,z)
+        //If landing on a non-biome sample grid, use the standard sampler.
+        continentalDendryRiversPrecise(x,y,z),
+        //If requesting y value 0 on the biome grid, just use the far distance sampler return type, which has a separate cache
+        //and is significantly faster.
+        if(y!=0,
+          continentalDendryRiversSparse(x,y,z),
+          continentalDendryRiversPrecise(x,-3.0,z))
       )
 
 
@@ -302,10 +307,12 @@ samplers:
           continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
       )
 
+  #This forces a lookup right on the biome pipeline grid, since precision is not imperative and
+  #it's much better to utilize the cached value instead of recalculating the precise cache.
   continentalRiverDistSparseFarGrid:
     dimensions: 2
     type: EXPRESSION
-    expression: continentalDendryRivers(round(x/4)*4,-3.0,round(z/4)*4)
+    expression: continentalDendryRivers(round(x/4)*4,-2.0,round(z/4)*4)
 
   # ─── River terrain noise samplers ──────────────────────────────────
   erosionStrengthVariation: # Used to roughen up the walls

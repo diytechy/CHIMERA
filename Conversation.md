@@ -1207,6 +1207,10 @@ Consider expanding continent size and mountain mask size, to get larger features
 
 Fix carving
 
+Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
+
+But how to make sure distance to spots is correct if spot isn't always present?  Need to and with spot presence.
+
 #####################################
 
 

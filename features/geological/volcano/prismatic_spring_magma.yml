@@ -39,7 +39,7 @@ locator:
         type: EXPRESSION
         expression: |
           if(distanceToPrismaticRim(x, z) < 0,
-            -y + base + scale * (spotBaseElevation(x, z) + (prismaticFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
+            -y + base + scale * (spotBaseElevation(x, z) + (spotFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
             -1)
         variables:
           base: $customization.yml:terrain-base-y-level

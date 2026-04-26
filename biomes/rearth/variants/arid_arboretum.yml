@@ -1,11 +1,14 @@
 id: ARID_ARBORETUM
 type: BIOME
 vanilla: minecraft:plains
-extends: [ CARVING_LAND, BASE , EQ_ARID_ARBORETUM]
+extends: 
+  - CARVING_LAND
+  - BASE 
+  - EQ_ARID_ARBORETUM
 
 tags:
   - USE_RIVER
-  - ARID_COAST_FLAT
+#  - ARID_COAST_FLAT
 
 
 

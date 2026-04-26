@@ -8,7 +8,7 @@ stages:
       expression: smallBiomeSmallCenterDist(x, z)
     to: # 0 = outer, 1 = inner
       SECLUDED_VALLEY_OUTER: 1
-      SECLUDED_VALLEY: 2
+      SECLUDED_VALLEY: 1
   #- type: REPLACE
   #  from: _verdant_valleys
   #  sampler:

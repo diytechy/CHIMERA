@@ -19,7 +19,7 @@ ocean:
       scale: $customization.yml:terrain-height
     expression: |
       if(distanceToPrismaticRim(x, z) < 0,
-        base + scale * (spotBaseElevation(x, z) + (prismaticFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
+        base + scale * (spotBaseElevation(x, z) + (spotFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
         olevel)
 
 terrain:

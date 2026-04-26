@@ -3,7 +3,7 @@ type: BIOME
 vanilla: minecraft:bamboo_jungle
 color: $biomes/colors.yml:EUCALYPTUS_FOREST
 extends:
-- CARVING_LAND
+#- CARVING_LAND
 - BASE
 - EQ_BAMBOO_BASIN
 riverSampler: $biomes/rearth/base/eq_sakura_streams.yml:terrain.sampler.samplers.riverMask
@@ -27,5 +27,5 @@ features:
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES
-- TROPICAL_COAST_FLAT
+# - TROPICAL_COAST_FLAT
 - USE_TROPICAL_RIVER

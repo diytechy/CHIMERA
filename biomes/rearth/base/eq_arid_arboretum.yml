@@ -16,10 +16,14 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
+    # expression: |
+    #   max((-y + base + elevationDetailedBlockHeight(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),
+    #   max(min(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24,3) - 
+    #     (biomeInfluence(x,z)-1.001) * 2, -1.75))
     expression: |
       max((-y + base + elevationDetailedBlockHeight(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),
       max(min(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24,3) - 
-        (biomeInfluence(x,z)-1.001) * 2, -1.75))
+        0, -1.75))
     functions:
       clamp:
         arguments: [x, a, b]
@@ -30,7 +34,7 @@ terrain:
         type: EXPRESSION
         variables: *variables
         expression: |
-          basePillarsExistance(x,z) * (
+          basePillarsExistence(x,z) * (
             -basepillars(x,z) - 0.6
             + basepillarsCenter(x,z) * 0.12
             + pillarWidthRand(y, x / 10) * 0.09
@@ -43,7 +47,7 @@ terrain:
             frequency: 0.013
             jitter: 1
             distance: Euclidean
-          basePillarsExistance:
+          basePillarsExistence:
             <<: *pillarConf
             return: NoiseLookup
             lookup: 

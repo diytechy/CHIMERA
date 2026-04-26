@@ -31,7 +31,7 @@ sampler:
   expression: |
     lerp(spotDistance(x, z),
       spotRadius(x, z), -1,
-      spotRadius(x, z) * spotEdgeRadius(x, z), 1
+      spotRadius(x, z) * volcanicEdgeRadius(x, z), 1
         + volcanoErosion(x, z) * 2
         - parabolicMap(spotDistance(x, z),
           spotRadius(x, z) * 0.6, 0,

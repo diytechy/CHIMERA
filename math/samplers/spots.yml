@@ -16,20 +16,20 @@ variables: &variables
   maxVolHeight: 0.4
   prismaticMinHeight: 0.00
   prismaticMaxHeight: 0.0
+  prismaticMinCenterDepth: -0.03
+  prismaticMaxCenterDepth: -0.01
 
   spotMinEdgeRadius: 0.1
   spotMaxEdgeRadius: 0.25
   
-  prismaticMinEdgeRadius: 0.1
-  prismaticMaxEdgeRadius: 0.1
+  prismaticMinEdgeRadius: 0.5
+  prismaticMaxEdgeRadius: 0.6
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max
   volcanoMinCenterDepth: 0.03
   volcanoMaxCenterDepth: 0.3
 
-  prismaticMinCenterDepth: 0.0
-  prismaticMaxCenterDepth: 0.0
 
 smallCellular: &smallCellular
   dimensions: 2
@@ -94,7 +94,7 @@ samplers:
     type: EXPRESSION
     expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
     variables: *variables
-    
+
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup
@@ -183,13 +183,6 @@ samplers:
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
 
-  spotEdgeRadiusPercent:
-    <<: *smallCellular
-    return: NoiseLookup
-    lookup:  
-      dimensions: 2
-      type: POSITIVE_WHITE_NOISE
-      salt: 5812
    #   type: EXPRESSION
    #   expression: quinticEaseInOut(noise(x, z))   # Use in/out easing to favour extreme values over middle values
    #   samplers:
@@ -202,12 +195,6 @@ samplers:
    #       arguments: [x]
    #       expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
-  spotEdgeRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
-    functions: $math/functions/interpolation.yml:functions
-    variables: *variables
   volcanoActivity:
     <<: *smallCellular
     return: NoiseLookup
@@ -215,20 +202,36 @@ samplers:
       type: WHITE_NOISE
       salt: 4128
 
-  volcanoFluidLevel:
+  spotFluidLevel:
     <<: *smallCellular
     return: NoiseLookup
     lookup:
-      type: WHITE_NOISE
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 7341
 
-  prismaticFluidLevel:
+  spotFluidLevel:
     <<: *smallCellular
     return: NoiseLookup
     lookup:
-      type: WHITE_NOISE
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 3857
       
+  spotEdgeRadiusPercent:  # Returns the percentage of the spot radius that is the edge region, where erosion and height falloff occurs.
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:  
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 5812
+
+  spotEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
 
   prismaticEdgeRadius:
     dimensions: 2

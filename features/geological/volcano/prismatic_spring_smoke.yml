@@ -27,8 +27,8 @@ locator:
         type: EXPRESSION
         expression: |
           if(distanceToPrismaticRim(x, z) < 0,
-            if(prismaticFluidLevel(x, z) > 0,
-              -y + base + scale * (spotBaseElevation(x, z) + (prismaticFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
+            if(spotFluidLevel(x, z) > 0,
+              -y + base + scale * (spotBaseElevation(x, z) + (spotFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
               if(distanceToPrismaticRim(x, z) < -0.5, 1, -1)
             ),
             -1)

@@ -1165,22 +1165,20 @@ Tuff Mountains <- Fix ice replacements? (Was actually spires)
 
 
 fenlands <- Change to raised biome elevation
+Fenlands <- Use new locator <- These look okay, could possibly change to just offset from the cell height, but that might cause new issues.
+
+Consider expanding continent size and mountain mask size, to get larger features in that space.
+
+
 ############################
 Update VOLCANO_FLUID so that the max fluid level is a random height between 10% to 90% of the top of the rim from the cell height (spotBaseElevation).
 
 
 CONFIRMM:
 
-Carving Creaks <- In flat dry area, confirm rendering
-Fenlands <- Use new locator
-Secluded Sanctuary <- Fix valley tree locator.
-Bamboo Basin <- Move back to swamp
-Need higher glow lichen feature to go higher, probably from about 20 below ocean upwards of 100 blocks, HIGH_GLOW_LICHEN, probably spaced with padded grid and located only under stone.
-Marine Monoliths needs glow lichen (Use HIGH_GLOW_LICHEN)
-foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN)
+Volcano is maybe okay, is issue with craters actually due to water placement feature?  Or is it just bad sampler?
+
 Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted? <- How to prevent the blocking?  Drop "max" outside pillar range?
-Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_GLOW_LICHEN might be sufficient since refuge area is the only raised / cave-like feature)
-COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
 
 
 
@@ -1197,13 +1195,12 @@ Carefully update the prismatic spring to fix the water related features:
     - PRISMATIC_SPRING_MAGMA
     - PRISMATIC_SPRING_SMOKE
 
-Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
+Some of this looks better, but 
 
 Fix lava fluid - should be variable height depending on random interval based on selected max.
 
 Prismatic spring <- Need to fix dist of features
 
-Consider expanding continent size and mountain mask size, to get larger features in that space.
 
 Fix carving
 
@@ -1213,11 +1210,26 @@ But how to make sure distance to spots is correct if spot isn't always present? 
 
 #####################################
 
+Remove water from bamboo basin pallette, let water fill naturally.
+Secluded sanctuary cap appears to be missing, something missed in sampler offfset?
+Secluded sanctuary appears to be missing glow lichen above around 40, need to reduce height?
+Secluded sanctuary <- Consider feature placement above?  How to place very space trees above?  Or just keep flat
+[THIS NEEDS TO BE Cellular flat DUE TO TERRAIN SAMPLER FORM?]  But that breaks other stuff, does it just need to be flat across the board and rely on blending at borders?  That might not work well either...
+Secluded sanctuary has many many trees surrounding, consequence of new tree feature or outer ring definition?
+Arid is completely broken
 
+Carving Creaks <- In flat dry area, confirm rendering <- These are lifted much higher than expected, something wrong with terrain modification, or double lifted from hidden 2d sampler?  (Maxing out around 140 blocks high?)
 
+Need higher glow lichen feature to go higher, probably from about 20 below ocean upwards of 100 blocks, HIGH_GLOW_LICHEN, probably spaced with padded grid and located only under stone.
+Marine Monoliths needs glow lichen (Use HIGH_GLOW_LICHEN) <- Still no glow lichen appearing.
+Rocky refuge <- Need glow lichen, under refuge area only?  Possible? (Use HIGH_GLOW_LICHEN might be sufficient since refuge area is the only raised / cave-like feature) [GLOW LICHEM MISSING]
+COVE_GLOW_LICHEN < - prevent placement in cold regions so they don't melt ice, similar to glowshroom locator restriction
+foliage fortress needs glow lichen on mid-bracing (Use HIGH_GLOW_LICHEN) [GLOW LICHEM MISSING]
 
+Craters are not working, and they need a wider radius band.
+A. Water is going above rim.
+B. Still have strang straight band, only ever see this in the crater form.
 
-Remove mesas from spot selection
 
 5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
 

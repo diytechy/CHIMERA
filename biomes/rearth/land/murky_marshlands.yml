@@ -1,7 +1,7 @@
 id: MURKY_MARSHLANDS
 type: BIOME
 extends:
-- CARVING_OCEAN
+#- CARVING_OCEAN
 - BASE
 - EQ_MURKY_MARSHLANDS
 vanilla: minecraft:swamp

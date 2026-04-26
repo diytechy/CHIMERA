@@ -17,8 +17,8 @@ distributor:
 locator:
   type: PATTERN
   range: &range
-    min: ${meta.yml:ocean-level} - 20
-    max: ${meta.yml:ocean-level} + 100
+    min: ${meta.yml:ocean-level} - 25
+    max: ${meta.yml:ocean-level} + 150
   pattern:
     type: AND
     patterns:
@@ -30,4 +30,4 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: glow_lichen
+  structures: glow_berries

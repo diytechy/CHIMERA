@@ -210,13 +210,11 @@ samplers:
       type: POSITIVE_WHITE_NOISE
       salt: 7341
 
-  spotFluidLevel:
-    <<: *smallCellular
-    return: NoiseLookup
-    lookup:
-      dimensions: 2
-      type: POSITIVE_WHITE_NOISE
-      salt: 3857
+  prismaticFluidLevel:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *variables
+    expression: lerp(spotFluidLevel(x, z), 0, 0.5, 1, 1)
       
   spotEdgeRadiusPercent:  # Returns the percentage of the spot radius that is the edge region, where erosion and height falloff occurs.
     <<: *smallCellular

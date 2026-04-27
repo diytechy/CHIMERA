@@ -1184,9 +1184,7 @@ Secluded sanctuary <- Consider feature placement above?  How to place very space
 [THIS NEEDS TO BE Cellular flat DUE TO TERRAIN SAMPLER FORM?]  But that breaks other stuff, does it just need to be flat across the board and rely on blending at borders?  That might not work well either...
 Secluded sanctuary has many many trees surrounding, consequence of new tree feature or outer ring definition?
 
-############################
-
-STILL IN WORK:
+Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted? <- How to prevent the blocking?  Drop "max" outside pillar range?
 
 PRISMATIC SPRING IS NOW BUMPING UP AT CENTER, INSTEAD OF TUNNELLING DOWN
 THEORY:
@@ -1195,22 +1193,9 @@ Outcomes should be zero.
 How is is center radius getting bumped up?  (When crater height is negative value, and max height is 0)
 NEXT: Try with a max height with a value, and a crater height of 0?
 
-
-
 Move secluded value to smaller pattern in biome.
 
 Make sure bamboo basin actually has water now that it's been shifted down.
-
-Need help:
-
-Prismatic shape not making any sense, draws in from far away.
-
-Update VOLCANO_FLUID so that the max fluid level is a random height between 10% to 90% of the top of the rim from the cell height (spotBaseElevation).
-
-Volcano is maybe okay, is issue with craters actually due to water placement feature?  Or is it just bad sampler?
-
-Arid Arboretum <- Pillars are getting lost, likely due to issue in combining this, need to modify like eq_pillars.  Check for cellular elevation lift similar to eq_pillars.  This might also need to be at a lower level depending on how the palette is restricted? <- How to prevent the blocking?  Drop "max" outside pillar range?
-
 
 
 In work:
@@ -1234,7 +1219,33 @@ Prismatic spring <- Need to fix dist of features
 
 Distribution related changes:
 
-Fix carving
+
+Remove water from bamboo basin pallette, let water fill naturally.
+Arid is completely broken
+
+
+Many volcano / spring fixes need to be made:
+Craters are not working, and they need a wider radius band.
+A. Water is going above rim.
+B. Still have strang straight band, only ever see this in the crater form.
+
+Remove elevation with rivers from temperature propagation
+  - This way river elevation is not required for biome pipeline.
+
+############################
+
+STILL IN WORK:
+Volcano/Crater / Extinct / Prismatic / ect:
+  Confirmed crater height must be positive, and should always be less than edge height.
+  Fluid level should be based on height of the current spot, and bottom based on the current bottom.
+  Need sampler for distributor on prismatic spring to be restricted to below water, how to syncronize?  Just reduce sampler size?
+
+Fix sinkhole transition
+Fix sinkhole water level
+  Should be x amount lower than 10 points sampled around the cell?  Using the full elevation sample is okay?  Full elevation without rivers?
+
+
+Fix carving <- Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...
 
 Need coastal biome feature?  Just for carving creek?  It should always be located near ocean to escape?  Need to locate away from rivers and with low continent definition.
 
@@ -1242,23 +1253,9 @@ Change large region to be a grouping of small biomes instead of current allocati
 
 But how to make sure distance to spots is correct if spot isn't always present?  Need to and with spot presence.
 
-#####################################
-
-Remove water from bamboo basin pallette, let water fill naturally.
-Arid is completely broken
+ Consider shifting mesa structure back to "max" instead of "round function?
 
 
-
-5. Consider for valley biomes with centered features to just use an offset from the cell elevation.
-
-6. Consider shifting mesa structure back to "max" instead of "round function?
-
-
-
-Many volcano / spring fixes need to be made:
-Craters are not working, and they need a wider radius band.
-A. Water is going above rim.
-B. Still have strang straight band, only ever see this in the crater form.
 
 #######################
 
@@ -1267,6 +1264,3 @@ How to optimize:
 New Dendry method to only query distance to diver instead of full elevation construction.
   - Allow method to create larger / wider cache birth for these samples (special y-value?)
   - This could then be used for the far river distance?
-
-Remove elevation with rivers from temperature propagation
-  - This way river elevation is not required for biome pipeline.

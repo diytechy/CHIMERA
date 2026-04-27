@@ -27,8 +27,8 @@ terrain:
     #  -y + base + BiomeShapeLandmassElevation(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)
     expression: |
       max(clamp((-y + base + BiomeShapeFlattenedElevation(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),-1.49+clampNoise(x,y,z),1.5+clampNoise(x,y,z)),
-      max(min(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24,2.75+clampNoise(x,y,z)) + 
-        min((biomeInfluence(x,z)-1.001) * 2,0), -1.49+clampNoise(x,y,z)))
+      max(min(pillars(x + noiseBase(y * 0.5, x / 4 + z / 5) * 5, y, z + noiseBase(y * 0.8 + 500, x / 6 + z / 2) * 5) * 24,2.75+clampNoise(x,y,z)) +
+        min((biomeInfluence(x,z)-1.001) * 2,0), -3.5))
     functions:
       clamp:
         arguments: [x, a, b]
@@ -48,7 +48,7 @@ terrain:
             + basepillarsCenter(x,z) * 0.12
             + pillarWidthRand(y, x / 10) * 0.09
             + (min(0, base + (BiomeShapeLandmassElevation(x,z) + pillarHeight) * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3
-          )
+          ) - (1 - basePillarsExistence(x,z))
         samplers:
           basepillars: &pillarConf
             dimensions: 2

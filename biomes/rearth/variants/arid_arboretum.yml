@@ -26,6 +26,7 @@ slant:
 features:
   preprocessors:
     - CROSSING_VINES
+    - HIGH_GLOW_LICHEN
   flora:
     - DEAD_BUSHES
     - DENSE_SUBTROPICAL_BUSHES

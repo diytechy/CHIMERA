@@ -30,9 +30,14 @@ ocean:
           - volcanoCenterDepth(x, z) * (1 - lerp(spotFluidPercent(x, z), 0, -0.8, 1, 0.8))
         ),
         olevel)
-    functions:
+    samplers:
       volcHeight:
-        arguments: [x, z]
+        #arguments: [x, z]
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          "<<":
+            - math/samplers/spots.yml:variables
         expression: |
           lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4) * (1 - spotEdgeRadiusPercent(x, z)),
             0, minExtHeight,

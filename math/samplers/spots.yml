@@ -148,6 +148,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
+    
   spotBaseElevation: # Returns the elevation value at the center of the spot
     <<: *smallCellular
     return: NoiseLookup

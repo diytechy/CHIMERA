@@ -1270,6 +1270,8 @@ Q7: Use the sinkholes own edge radius, as a volcanic rim would be a much smaller
 
 Now can you carefully see how to embed special biomes, which would use their usual small biome shape.  This is probably best done in the "set_biomes_in_climates_origen" stage group, right before all the individual climate biomes are distributes, for the correct biomes (or a tag could be used) the respective climates should be replaced to the following below so long as they are not near the river:
 
+Make changes to "Distribute_Major_Regions":
+
 Add special biomes
       _pillow_plains: 1 (0<temp<0.6, -0.25<precip)
       _secluded_valleys: 1 (0<temp<0.6, -0.25<precip)

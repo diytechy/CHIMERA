@@ -33,22 +33,65 @@ stages:
       SELF: 4
       SNOWY_PLAINS: 1
       
-  #- type: REPLACE
-  #  from: land
-  #  sampler:
-  #    dimensions: 2
-  #    type: EXPRESSION
-  #    expression: if(BiomeShapeLandmassFarRiverDistance(x, z)>riverDistThreshold, BiomeShapeLandmassValue2(x, z), -1)
-  #    variables:
-  #      riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.7
-  #  #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
-  #  to:
-  #    SELF: 4
-  #    far_river_biome: 1
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(BiomeShapeLandmassFarRiverDistance(x, z)>riverDistThreshold, BiomeShapeLandmassValue2(x, z), -1)
+      variables:
+        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 4
+      far_river_biome: 1
+
+  - type: REPLACE
+    from: far_river_biome
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0 && BiomeShapeLandmassTemperature(x, z) < 0.6 && BiomeShapeLandmassPrecipitation(x, z) > -0.25,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 8
+      _pillow_plains: 1
+      _secluded_valleys: 1
+
+  - type: REPLACE
+    from: far_river_biome
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 9
+      CARVING_CREAKS: 1
+
+  - type: REPLACE
+    from: far_river_biome
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > -0.25 && BiomeShapeLandmassTemperature(x, z) < 0.4 && BiomeShapeLandmassPrecipitation(x, z) > 0,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 9
+      GLOOMY_GORGE: 1
+
+      
+  - type: REPLACE
+    from: far_river_biome
+    to: land
+    sampler:
+      dimensions: 2
+      type: CONSTANT
 #
-  #    
-  #    _pillow_plains: 1
-  #    _secluded_valleys: 1
+  #
   #    VERDANT_VALLEYS: 1
       #_cold_valley: 1
 #Create vast desert distributions

@@ -1272,6 +1272,7 @@ Now can you carefully see how to embed special biomes, which would use their usu
 
 Make changes to "Distribute_Major_Regions":
 
+Distribute from "far_river_biome" to the following boimes
 Add special biomes
       _pillow_plains: 1 (0<temp<0.6, -0.25<precip)
       _secluded_valleys: 1 (0<temp<0.6, -0.25<precip)
@@ -1281,12 +1282,12 @@ Add special biomes
 Shift back to standard distribution
       VERDANT_VALLEYS: 1
 
+But how to make sure distance to spots is correct if spot isn't always present?  Need to and with spot presence. (Fixed by using supersampling)
 
-Fix carving <- Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...
+*****************************
 
 Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
 
-But how to make sure distance to spots is correct if spot isn't always present?  Need to and with spot presence.
 
 Consider shifting mesa structure back to "max" instead of "round function?
 
@@ -1301,6 +1302,23 @@ Replace to intermediary cavern vs cave?
 Biome -> Set -> Placeholder
 
 Placeholder -> Cavern, Cave, or Nothing.
+
+Check Hydraxia: Is the carve tesf the only method for producing caverns?  If so, it should be biome-based.
+
+Should just comment out these? ==>
+
+    - CAVE_ENTRANCES
+    - CAVE_CARVERS
+
+CHANGE CAVE EQUATION to substratum
+
+
+Fix caverns: Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...
+
+Caverns: Convert to carving sampler instead of using tesf.
+
+
+
 
 Remove unused files
 

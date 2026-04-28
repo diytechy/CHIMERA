@@ -148,7 +148,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
-    
+
   spotBaseElevation: # Returns the elevation value at the center of the spot
     <<: *smallCellular
     return: NoiseLookup
@@ -262,18 +262,20 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        min(min(min(min(
-          elevationSparse(x + spotRadius(x, z), z),
-          elevationSparse(x - spotRadius(x, z), z)),
-        min(
-          elevationSparse(x, z + spotRadius(x, z)),
-          elevationSparse(x, z - spotRadius(x, z)))),
-        min(
-          elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-          elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
-        min(
-          elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-          elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+        min(1000,
+          min(min(min(min(
+            elevationSparse(x + spotRadius(x, z), z),
+            elevationSparse(x - spotRadius(x, z), z)),
+          min(
+            elevationSparse(x, z + spotRadius(x, z)),
+            elevationSparse(x, z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+        )
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:

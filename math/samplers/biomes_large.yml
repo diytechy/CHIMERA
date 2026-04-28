@@ -1,3 +1,19 @@
+
+BaseBiomeCell: &BaseBiomeCell
+  << math/samplers/biomes_small.yml:BaseBiomeCell
+
+_landmassShape: &landmassShape
+  << math/samplers/biomes_small.yml:_landmassShape
+
+_outerWarpSmall: &outerWarpSmall
+  << math/samplers/biomes_small.yml:_outerWarpSmall
+
+_midWarpSmall: &midWarpSmall
+  << math/samplers/biomes_small.yml:_midWarpSmall
+
+_innerWarpSmall: &innerWarpSmall
+  << math/samplers/biomes_small.yml:_innerWarpSmall
+    
 BaseBiomeCellLarge: &BaseBiomeCellLarge
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.cellDistanceLarge}

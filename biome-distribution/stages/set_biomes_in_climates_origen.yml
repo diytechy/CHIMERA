@@ -267,7 +267,6 @@ stages:
         - OAK_FOREST: 1
         - FOSSILIZED_FENLANDS: 1
         - MURKY_MARSHLANDS: 1
-        - _secluded_valleys: 1
         - ALIEN_MARSH: 1
         - MARSH: 1
         - SWAMP: 1
@@ -351,7 +350,6 @@ stages:
         - DESERT: 4
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
-        - CARVING_CREAKS: 1
         - _desert: 1
       hot-desert-white:
         - DESERT: 1
@@ -602,6 +600,8 @@ stages:
         - ROCKY_ARCHIPELAGO: 1
         - SANDSTONE_ARCHIPELAGO: 1
         - TEMPERATE_SEA_ARCHES: 1
+        - STONEGATE_SEAS: 1
+        - MARINE_MONOLITHS: 1
 
   # =========================================================================
   # Mesa biomes (cellular)
@@ -609,18 +609,20 @@ stages:
   - type: REPLACE_LIST
     sampler:
       type: EXPRESSION
-      expression: BiomeShapeMesaValue(x, z)
+      expression: BiomeShapeLandmassValue(x, z)
     default-from: polar-mesa
     default-to:
-      - COLD_DESERT_MESA: 1
+      - ARCTIC_MESA: 1
     to:
       ice-cap-mesa:
         - ARCTIC_MESA: 1
       boreal-mesa:
+        - COLD_DESERT_MESA: 1
         - BOREAL_MESA: 1
       temperate-mesa:
         - TEMPERATE_MESA: 1
         - MESA_MONUMENTS: 1
+        - BADLANDS_BALCONIES: 1
       desert-mesa:
         - DESERT_MESA: 1
         - MESA_MONUMENTS: 1

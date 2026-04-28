@@ -1270,14 +1270,14 @@ Q7: Use the sinkholes own edge radius, as a volcanic rim would be a much smaller
 
 Now can you carefully see how to embed special biomes, which would use their usual small biome shape.  This is probably best done in the "set_biomes_in_climates_origen" stage group, right before all the individual climate biomes are distributes, for the correct biomes (or a tag could be used) the respective climates should be replaced to the following below so long as they are not near the river:
 
-How to fix non-river placement of biomes:
-      _pillow_plains: 1
-      _secluded_valleys: 1
-      NEW: Carving creaks?  Needs to be near coast?
+Add special biomes
+      _pillow_plains: 1 (0<temp<0.6, -0.25<precip)
+      _secluded_valleys: 1 (0<temp<0.6, -0.25<precip)
+      Carving creaks?  Needs to be near coast? (0.4<temp, precip<0.5,continental<0.05>>)
+      Gloomy gorge (-0.25<temp<0.4, 0<precip)
 
 Shift back to standard distribution
       VERDANT_VALLEYS: 1
-
 
 
 Fix carving <- Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...
@@ -1286,7 +1286,22 @@ Change large region to be a grouping of small biomes instead of current allocati
 
 But how to make sure distance to spots is correct if spot isn't always present?  Need to and with spot presence.
 
- Consider shifting mesa structure back to "max" instead of "round function?
+Consider shifting mesa structure back to "max" instead of "round function?
+
+Make sure features are able to grow to all y heights in the biome's distribution so they aren't lost as biomes grow in height.
+
+See if there is a way for biome extrusion to be based on minimum of cell biome above?
+
+Use "SET" in extrusion instead of base replace?
+
+Replace to intermediary cavern vs cave?
+
+Biome -> Set -> Placeholder
+
+Placeholder -> Cavern, Cave, or Nothing.
+
+Remove unused files
+
 
 
 

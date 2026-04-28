@@ -1254,9 +1254,21 @@ Idea: Make both the bottom of the sinkhole and the sinkhole water level (ocean s
 ******************
 Q1: Active volcanos and lava placement is through the preprocessor only.  Yes 20% - 80%, but note all volcano / crater spots have their terrain lifted by their spot elevation, this should also be considered as an offset to the entire terrain structure.
 
-Q2: Yes, that would be the intent to give greater variety to volcano shapes.
+Q2: Yes, that would be the intent to give greater variety to volcano shapes, but perhaps it should be a combination of both so the shape form still scales with the overall size but still has some height variation.
 
-Q3: 
+Q3: That looks right based on some spot checks.
+
+Q4: This should be broken up so that spot size and fluid level are completely decoupled.
+
+Q5: The can be very light / approximate, just 4 cardinal points on the spot radius as you suggest would likely be sufficient, but all 8 using all combinations of offsets from the center using the radius should be sufficient.
+
+Q6: 0.5 of overall height would be quite deep.  Perhaps depth here should vary (below the minimum height found) just like the volcano height varies, from something like 0.2 to 0.4.
+
+Q7: Use the sinkholes own edge radius, as a volcanic rim would be a much smaller radius, loosing much of the sinkhole detail.
+
+**********************************
+
+Now can you carefully see how to embed special biomes, which would use their usual small biome shape.  This is probably best done in the "set_biomes_in_climates_origen" stage group, right before all the individual climate biomes are distributes, for the correct biomes (or a tag could be used) the respective climates should be replaced to the following below so long as they are not near the river:
 
 How to fix non-river placement of biomes:
       _pillow_plains: 1
@@ -1265,6 +1277,7 @@ How to fix non-river placement of biomes:
 
 Shift back to standard distribution
       VERDANT_VALLEYS: 1
+
 
 
 Fix carving <- Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...

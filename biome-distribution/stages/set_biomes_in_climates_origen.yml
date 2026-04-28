@@ -240,7 +240,7 @@ stages:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
         - SAKURA_STREAMS: 1
-        #- VERDANT_VALLEYS: 1
+        - VERDANT_VALLEYS: 1
       temperate-hot:
         - WOODED_BUTTES: 1
         - TEMPERATE_OVERPASS: 1
@@ -273,7 +273,7 @@ stages:
         - SWAMP: 1
         - SAKURA_STREAMS: 1
         - SAKURA_GROVE: 1
-        #- VERDANT_VALLEYS: 1
+        - VERDANT_VALLEYS: 1
       temperate-warm:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1

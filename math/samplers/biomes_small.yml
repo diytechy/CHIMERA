@@ -156,19 +156,15 @@ samplers:
             type: EXPRESSION
             salt-lookup: false
             expression: |
-              min(elevationSparse(x, z),
-                min(min(min(min(
-                  elevationSparse(x +offset, z),
-                  elevationSparse(x - offset, z)),
+              min(
                 min(
-                  elevationSparse(x, z + offset),
-                  elevationSparse(x, z - offset))),
+                  min(elevationSparse(x + offset, z), elevationSparse(x - offset, z)),
+                  min(elevationSparse(x, z + offset), elevationSparse(x, z - offset))
+                ),
                 min(
-                  elevationSparse(x + offset, z + offset),
-                  elevationSparse(x + offset, z - offset)),
-                min(
-                  elevationSparse(x - offset, z + offset),
-                  elevationSparse(x - offset, z - offset)))
+                  min(elevationSparse(x + offset, z + offset), elevationSparse(x + offset, z - offset)),
+                  min(elevationSparse(x - offset, z + offset), elevationSparse(x - offset, z - offset))
+                )
               )
 
   BiomeShapeLandmassFarRiverDistance:
@@ -188,18 +184,20 @@ samplers:
             salt-lookup: false
             expression: |
               min(continentalRiverDistSparseFarGrid(x, z),
-                min(min(min(min(
-                  continentalRiverDistSparseFarGrid(x +offset, z),
-                  continentalRiverDistSparseFarGrid(x - offset, z)),
                 min(
-                  continentalRiverDistSparseFarGrid(x, z + offset),
-                  continentalRiverDistSparseFarGrid(x, z - offset))),
-                min(
-                  continentalRiverDistSparseFarGrid(x + offset, z + offset),
-                  continentalRiverDistSparseFarGrid(x + offset, z - offset)),
-                min(
-                  continentalRiverDistSparseFarGrid(x - offset, z + offset),
-                  continentalRiverDistSparseFarGrid(x - offset, z - offset)))
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x +offset, z),
+                        continentalRiverDistSparseFarGrid(x - offset, z)),
+                    min(continentalRiverDistSparseFarGrid(x, z + offset),
+                        continentalRiverDistSparseFarGrid(x, z - offset))
+                  ),
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x + offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x + offset, z - offset)),
+                    min(continentalRiverDistSparseFarGrid(x - offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x - offset, z - offset))
+                  )
+                )
               )
 
   BiomeShapeLandmassContinents:

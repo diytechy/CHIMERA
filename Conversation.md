@@ -1235,19 +1235,39 @@ Remove elevation with rivers from temperature propagation
 ############################
 
 STILL IN WORK:
-Volcano/Crater / Extinct / Prismatic / ect:
-  Confirmed crater height must be positive, and should always be less than edge height.
-  Fluid level should be based on height of the current spot, and bottom based on the current bottom.
-  Need sampler for distributor on prismatic spring to be restricted to below water, how to syncronize?  Just reduce sampler size?
+I need your help to carefully go through some other sampler expressions that still have some issues, mostly around fluid level for biome distributed spots.  Please ask questions for clarity where necessary.
 
-Fix sinkhole transition
-Fix sinkhole water level
-  Should be x amount lower than 10 points sampled around the cell?  Using the full elevation sample is okay?  Full elevation without rivers?
+Volcano/Crater / Extinct / Prismatic / ect:
+  Confirmed crater height must be positive, and should always be less than edge height, but can be 0.
+  Fluid level should be based on height of the current spot, and bottom based on the current bottom.
+  The fluid level needs to be computed per each spot type (prismatic spring ranges from crater bottom to top edge, volcano should range from aboue 20 to 80 % full, crater / extinct volcano should range from -80 to 80% full, where anything less than 0 would indicate an empty / unfilled crater.)
+  The fluid level, spot distribution (biome), and height variance should all be based on different random samplers of the cell for full variation per spot.
+
+
+Sinkhole fixes:
+Fix sinkhole terrain equation so the transition so that the edges herp up to the detailed elevation height surrounding it.  This should also rely on the sampler instead of sampler-2d like the other spot equations (like eq_volcano).
+
+Also ensure the sinkhole depth is based on the height of the surrounding terrain.  The sinkhole fluid level should also vary between the lowest elevation and probably about 50% up to the lowest sampled detailed elevation so it does not overflow / create floating water blocks..
+
+Idea: Make both the bottom of the sinkhole and the sinkhole water level (ocean sampler in the expression) a function of a few sample points around the cell to make sure it is always lower than the surrounding terrain.
+
+******************
+Q1: Active volcanos and lava placement is through the preprocessor only.  Yes 20% - 80%, but note all volcano / crater spots have their terrain lifted by their spot elevation, this should also be considered as an offset to the entire terrain structure.
+
+Q2: Yes, that would be the intent to give greater variety to volcano shapes.
+
+Q3: 
+
+How to fix non-river placement of biomes:
+      _pillow_plains: 1
+      _secluded_valleys: 1
+      NEW: Carving creaks?  Needs to be near coast?
+
+Shift back to standard distribution
+      VERDANT_VALLEYS: 1
 
 
 Fix carving <- Revert this to biome specific for consistency?  This would at least hon Hydradix biomes...
-
-Need coastal biome feature?  Just for carving creek?  It should always be located near ocean to escape?  Need to locate away from rivers and with low continent definition.
 
 Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
 

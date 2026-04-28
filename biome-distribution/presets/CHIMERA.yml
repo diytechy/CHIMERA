@@ -16,7 +16,7 @@ biomes:
 
     # Fast-path for stronghold ring position searches (world creation).
     # Replaces full pipeline evaluation for the 415,872 biome queries issued during
-    # initial stronghold placement. A single continentalDistribution noise call per
+    # initial stronghold placement. A single continents noise call per
     # query determines land vs ocean, avoiding the pipeline chunk cache amplification
     # (up to ~2,000x more evaluations than needed for peripheral pipeline chunks).
     # eligible-biome maps to minecraft:plains (in #stronghold_biased_to).
@@ -24,7 +24,7 @@ biomes:
     structure-search:
       classifier:
         type: EXPRESSION
-        expression: continentalDistribution(x, z)
+        expression: continents(x, z)
       threshold: 0.0
       eligible-biome: TEMPERATE_GRASSLAND
       ineligible-biome: OCEAN

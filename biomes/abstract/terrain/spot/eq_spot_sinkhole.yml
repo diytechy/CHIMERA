@@ -8,84 +8,68 @@ vars: &variables
   "<<":
     - math/samplers/spots.yml:variables
 
-terrain:
+ocean:
+  level: $meta.yml:sinkhole-ocean-level
   sampler:
+    dimensions: 2
     type: EXPRESSION
-    expression: -y + base
-    variables: *variables
-  
-  sampler-2d:
-    type: EXPRESSION
-    variables: *variables
+    variables:
+      olevel: $meta.yml:sinkhole-ocean-level
+      base: ${customization.yml:terrain-base-y-level} + 5
+      scale: ${customization.yml:terrain-height}/2
+      "<<":
+        - math/samplers/spots.yml:variables
+    # Water spans from sinkhole bottom (sinkholeFluidPercent=0) to 50% of the way up
+    # to the minimum surrounding terrain (sinkholeFluidPercent=1), guaranteeing no overflow.
+    # sinkholeMinElev is the min of elevationSparse at 8 cardinal+diagonal points at spotRadius,
+    # evaluated once per spot at the cell center for a constant per-spot reference.
     expression: |
-      -scale * calcHeight(x, z,
-        /*distance*/      spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50,
-        /*erosion*/       (volcanoErosion(x, z)+1)/2,
-        /*outsideHeight*/ elevationDetailed(x, z),
-        /*edge*/          lerp(spotEdgeRadiusPercent(x, z), 0, 0.6, 1, 0.7),
-        /*radius*/        spotRadius(x, z),
-        /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
-                            0, 0.5,
-                            1, 0.5
-                          ),
-        /*volcanoBase*/   spotBaseElevation(x, z)
-      )
-    samplers:
-      distanceWarp:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: FBM
-          sampler:
-            type: OPEN_SIMPLEX_2
-            frequency: 0.008
-            salt: 8952
+      if(distanceToSinkholeRim(x, z) < 0,
+        base + scale * (sinkholeMinElev(x, z)
+          - lerp(sinkholeDepthPercent(x, z), 0, 0.2, 1, 0.4)
+            * (1 - sinkholeFluidPercent(x, z) * 0.5)),
+        olevel)
 
-      erosion:
+terrain:
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0
+
+  # Switched from sampler-2d addition to a 3D sampler with herp fade, matching the
+  # eq_extinct_volcano pattern. distanceToSinkholeRim uses the wider sinkholeEdgeRadius
+  # (0.6-0.7) rather than the narrow volcanic rim, preserving wall detail through the fade.
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      -y + base + herp(distanceToSinkholeRim(x, z), 0, sampler2d(x, z), 1, elevationDetailedBlockHeight(x, z))
+    variables: *variables
+    samplers:
+      sampler2d:
         dimensions: 2
         type: EXPRESSION
-        expression: |
-          noise(
-            spotDistance(x, z)                                       + spotSizePercent(x, z) * offsetAmplitude,
-            sin(spotAngle(x, z)) * spotRadius(x, z) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
-            cos(spotAngle(x, z)) * spotRadius(x, z) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
-          )
-        variables:
-          angleFrequency: 1.5
-          offsetAmplitude: 10000
-        samplers:
-          noise:
-            dimensions: 3
-            type: PROBABILITY
-            sampler:
-              type: FBM
-              octaves: 3
-              sampler:
-                type: OPEN_SIMPLEX_2
-                frequency: 0.02
-
-    functions:
-      calcHeight:
-        arguments:
-          - x
-          - z
-          - distance
-          - erosion
-          - outsideHeight
-          - edge
-          - radius
-          - centerHeight
-          - centerBase
+        variables: *variables
+        # innerT maps warped distance to [0,1]: 0 = center, 1 = rim edge.
+        # Warp uses erosion (radial) and distanceWarp (broad) for an irregular bowl.
+        # sinkholeMinElev drives the bottom reference so the floor tracks the lowest
+        # surrounding terrain regardless of local variation. sinkholeDepthPercent gives
+        # each spot a unique depth in [0.2, 0.4] of scale.
+        # The max() of smooth herp and terraceStrata produces ledged sinkhole walls.
         expression: |
           max(
-            parabolicMap(distance,
-              radius * edge, centerBase + centerHeight * lerp(centerBase+centerHeight, 0.9, 1, 1, 0),
-              radius * edge * 1.1, outsideHeight
+            herp(
+              min(1, (spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50)
+                    / (spotRadius(x, z) * sinkholeEdgeRadius(x, z))),
+              0, scale * (sinkholeMinElev(x, z) - lerp(sinkholeDepthPercent(x, z), 0, 0.2, 1, 0.4)),
+              1, elevationDetailedBlockHeight(x, z)
             ),
             terraceStrata(
-              parabolicMap(distance,
-                radius + 50, outsideHeight,
-                radius * edge, centerBase + centerHeight * lerp(centerBase+centerHeight, 0.9, 1, 1, 0) * 0.8
+              herp(
+                min(1, (spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50)
+                      / (spotRadius(x, z) * sinkholeEdgeRadius(x, z))),
+                0, scale * (sinkholeMinElev(x, z) - lerp(sinkholeDepthPercent(x, z), 0, 0.2, 1, 0.4)) * 0.9,
+                1, elevationDetailedBlockHeight(x, z)
               ),
               0.15, 0, 0, 0.25
             )
@@ -94,3 +78,36 @@ terrain:
           "<<":
             - math/functions/interpolation.yml:functions
             - math/functions/terrace.yml:functions
+        samplers:
+          distanceWarp:
+            dimensions: 2
+            type: PROBABILITY
+            sampler:
+              type: FBM
+              sampler:
+                type: OPEN_SIMPLEX_2
+                frequency: 0.008
+                salt: 8952
+
+          erosion:
+            dimensions: 2
+            type: EXPRESSION
+            expression: |
+              noise(
+                spotDistance(x, z)                                        + spotSizePercent(x, z) * offsetAmplitude,
+                sin(spotAngle(x, z)) * spotRadius(x, z) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
+                cos(spotAngle(x, z)) * spotRadius(x, z) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
+              )
+            variables:
+              angleFrequency: 1.5
+              offsetAmplitude: 10000
+            samplers:
+              noise:
+                dimensions: 3
+                type: PROBABILITY
+                sampler:
+                  type: FBM
+                  octaves: 3
+                  sampler:
+                    type: OPEN_SIMPLEX_2
+                    frequency: 0.02

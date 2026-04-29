@@ -1,7 +1,7 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 350
+  cellDistance: 320
   wellDistance: 100
   cellDistanceLarge: 500
   distAtFullInfluence: 20

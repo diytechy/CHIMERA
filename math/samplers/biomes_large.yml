@@ -1,18 +1,38 @@
 
 BaseBiomeCell: &BaseBiomeCell
-  << math/samplers/biomes_small.yml:BaseBiomeCell
+  dimensions: 2
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+  jitter: 0.7
+  distance: Hybrid
 
 _landmassShape: &landmassShape
-  << math/samplers/biomes_small.yml:_landmassShape
+  <<: *BaseBiomeCell
+  salt: 101
 
 _outerWarpSmall: &outerWarpSmall
-  << math/samplers/biomes_small.yml:_outerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
 
 _midWarpSmall: &midWarpSmall
-  << math/samplers/biomes_small.yml:_midWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
 
 _innerWarpSmall: &innerWarpSmall
-  << math/samplers/biomes_small.yml:_innerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
     
 BaseBiomeCellLarge: &BaseBiomeCellLarge
   type: CELLULAR
@@ -97,6 +117,20 @@ samplers:
         sampler:
           <<: *largelandShape
           return: CellValue
+
+  BiomeShapeLargelandValue2:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            type: EXPRESSION
+            dimensions: 2
+            expression: BiomeShapeLargelandValue(x,z)
 
   BiomeShapeLargelandTemperature:
     <<: *outerWarpLarge

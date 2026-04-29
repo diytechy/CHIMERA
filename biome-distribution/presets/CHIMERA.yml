@@ -68,6 +68,7 @@ biomes:
           - _secluded_valleys: 1
           - _foliage_fortress: 1
           - CARVING_CREAKS: 1
+          - GLOOMY_GORGE: 1
         #  - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
         #  - _pillow_plains: 1
         #  - _desert: 1

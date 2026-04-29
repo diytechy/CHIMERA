@@ -1286,13 +1286,6 @@ But how to make sure distance to spots is correct if spot isn't always present? 
 
 *****************************
 
-Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
-
-
-Consider shifting mesa structure back to "max" instead of "round function?
-
-Make sure features are able to grow to all y heights in the biome's distribution so they aren't lost as biomes grow in height.
-
 See if there is a way for biome extrusion to be based on minimum of cell biome above?
 
 Use "SET" in extrusion instead of base replace?
@@ -1318,12 +1311,25 @@ Fix caverns: Revert this to biome specific for consistency?  This would at least
 Caverns: Convert to carving sampler instead of using tesf.
 
 
+*********************************
+
+Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
+
+
+HOLD: Consider shifting mesa structure back to "max" instead of "round function?
+
+Make sure features are able to grow to all y heights in the biome's distribution so they aren't lost as biomes grow in height.
+
+
+
 
 
 Remove unused files
 
 
 Also clean up lookups to use expression instead of instance
+
+Plan a change in Terra that will allow it to use cached sampler values from the biome-based sampler cache if the query point is located inside the current query point.
 
 #######################
 

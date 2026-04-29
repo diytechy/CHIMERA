@@ -40,4 +40,4 @@ samplers:
 ```
 
 ### copy_resolved_samplers.py
-Copies the resolved output to NoiseTool for visualisation.
+Copies the resolved output to NoiseTool for visualization.

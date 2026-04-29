@@ -262,7 +262,7 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        min(1000,
+        max(-100,
           min(min(min(min(
             elevationSparse(x + spotRadius(x, z), z),
             elevationSparse(x - spotRadius(x, z), z)),
@@ -275,7 +275,7 @@ samplers:
           min(
             elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
             elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        )
+        -0.2)
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:
@@ -410,3 +410,8 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
+
+  SinkholeDepth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotBaseElevation(x,z) - sinkholeMinElev(x,z)

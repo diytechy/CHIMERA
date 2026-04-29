@@ -1311,14 +1311,30 @@ Fix caverns: Revert this to biome specific for consistency?  This would at least
 Caverns: Convert to carving sampler instead of using tesf.
 
 
+
 *********************************
 
 Change large region to be a grouping of small biomes instead of current allocation, so that boundaries are respected properly for large biomes (so they share small biome sets)
 
+*************************************
+
+It looks like the outer ring of the sinkhole is raising up instead of dropping into the ground, but a small space near the center does spike down.  Can you investigate the changes you made to "biomes\abstract\terrain\spot\eq_spot_sinkhole.yml" previously an diagnose?
+
+Sinkholes are inverted?  They are coming up instead of dropping down near ridge, maybe due to where edge is located on spot and herping function?
 
 HOLD: Consider shifting mesa structure back to "max" instead of "round function?
 
-Make sure features are able to grow to all y heights in the biome's distribution so they aren't lost as biomes grow in height.
+Make sure features are able to grow to all y heights in the biome's distribution so they aren't lost as biomes grow in height:
+
+In any land biome that is not distributed from a flat region (set_biomes_in_climates_origen) or those that are distributed from land in "Distribute_Major_Regions" may see elevations above y values of 200.  But many have features that do not reach these levels, for instance DENSE_OAK_TREE_PATCHES:
+
+      range: &range
+        min: ${meta.yml:sinkhole-ocean-level} + 3
+        max: ${meta.yml:ocean-level} + 119
+		
+Here the range limit maxes out at about 180, when they should just be allowed all the way to "top-y" from meta.
+
+Can you create a plan for identifying and resolving various features that have locator range definitions that are too restrictive for biomes that can actual settle in high terrain?
 
 
 
@@ -1330,6 +1346,12 @@ Remove unused files
 Also clean up lookups to use expression instead of instance
 
 Plan a change in Terra that will allow it to use cached sampler values from the biome-based sampler cache if the query point is located inside the current query point.
+
+NEW ISSUE: River is getting placed every 4th block, this is most likely due to differences in the return from the sparse distance compared to the high resolution distance, but what's driving this?
+
+Change biome distribution to use far river distance?
+Normalize far river distance to be evaluated per level?
+^- Note then need to evaluate the estimated river width and border distance per level.
 
 #######################
 

@@ -3,7 +3,9 @@ stages:
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      expression: if(((continentalRiverDist(x, z)>=1)&&(continents(x,z)>0.15)),1,-1)
+      variables:
+        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+      expression: if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&(continents(x,z)>0.1)),1,-1)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}

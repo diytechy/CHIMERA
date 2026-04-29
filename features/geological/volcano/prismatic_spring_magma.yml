@@ -2,21 +2,18 @@ id: PRISMATIC_SPRING_MAGMA
 type: FEATURE
 
 distributor:
-  type: SAMPLER
-  sampler:
-    type: LINEAR
-    min: 1
-    max: -1
-    sampler:
-      type: FBM
-      octaves: 3
-      gain: 1
+  type: AND
+  distributors:
+    - type: SAMPLER
       sampler:
-        type: CELLULAR
-        return: Distance2Div
-        frequency: 0.03
-        distance: Euclidean
-  threshold: 0.15
+        dimensions: 2
+        type: EXPRESSION
+        expression: distanceToPrismaticRim(x, z)-spotFluidPercent(x, z)
+    - type: PADDED_GRID
+      width: 6
+      padding: 4
+      salt: 27377
+
 
 locator:
   type: AND
@@ -34,16 +31,6 @@ locator:
           - type: MATCH
             block: minecraft:water
             offset: 1
-    - type: SAMPLER_3D
-      sampler:
-        type: EXPRESSION
-        expression: |
-          if(distanceToPrismaticRim(x, z) < 0,
-            -y + base + scale * (spotBaseElevation(x, z) + (spotFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
-            -1)
-        variables:
-          base: $customization.yml:terrain-base-y-level
-          scale: $customization.yml:terrain-height
 
 structures:
   distribution:

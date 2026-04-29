@@ -22,8 +22,8 @@ variables: &variables
   spotMinEdgeRadius: 0.1
   spotMaxEdgeRadius: 0.25
   
-  prismaticMinEdgeRadius: 0.7
-  prismaticMaxEdgeRadius: 0.9
+  prismaticMinEdgeRadius: 0.5
+  prismaticMaxEdgeRadius: 0.7
 
   sinkholeMinEdgeRadius: 0.6
   sinkholeMaxEdgeRadius: 0.7
@@ -275,7 +275,7 @@ samplers:
           min(
             elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
             elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        -0.2)
+        -0.6)
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:

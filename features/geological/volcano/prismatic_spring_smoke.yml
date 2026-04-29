@@ -2,10 +2,17 @@ id: PRISMATIC_SPRING_SMOKE
 type: FEATURE
 
 distributor:
-  type: PADDED_GRID
-  width: 5
-  padding: 3
-  salt: 6478
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        dimensions: 2
+        type: EXPRESSION
+        expression: distanceToPrismaticRim(x, z)-spotFluidPercent(x, z)
+    - type: PADDED_GRID
+      width: 6
+      padding: 4
+      salt: 27377
 
 locator:
   type: AND
@@ -22,19 +29,6 @@ locator:
             offset: 1
           - type: MATCH_SOLID
             offset: 0
-    - type: SAMPLER_3D
-      sampler:
-        type: EXPRESSION
-        expression: |
-          if(distanceToPrismaticRim(x, z) < 0,
-            if(spotFluidLevel(x, z) > 0,
-              -y + base + scale * (spotBaseElevation(x, z) + (spotFluidLevel(x, z) - 1) * prismaticCenterDepth(x, z)),
-              if(distanceToPrismaticRim(x, z) < -0.5, 1, -1)
-            ),
-            -1)
-        variables:
-          base: $customization.yml:terrain-base-y-level
-          scale: $customization.yml:terrain-height
 
 structures:
   distribution:

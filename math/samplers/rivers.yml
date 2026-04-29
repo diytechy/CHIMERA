@@ -575,16 +575,17 @@ samplers:
         expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
     expression: |
       //If within river bounds, provide support up to the river elevation, otherwise no support (-1).
-      if((y>RiverBedElev(x,z) && continents(x,z)>-0.05 && y<RiverElev(x,z)),
+      if((y>RiverBedElev(x,z) && continents(x,z)>-0.05 && y<=RiverElev(x,z)),
         //If outside the river, provide support rolling up to minimum bank.
         //If this creates too much material, the else condition should work for
         // both inside and outside the river.
         if(continentalRiverDist(x,z)>0,
-          -y+herp(continentalRiverDist(x,z),0,RiverElev(x,z),riverBiomeActivationThreshold,Base),
+          -y+herp(continentalRiverDist(x,z),riverBiomeActivationThreshold/2,RiverElev(x,z),riverBiomeActivationThreshold,Base)+1,
           //If inside the river, provide linear support.
-          insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4)
+          //insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4)
+          -10
          ),
-        -1
+        -10
       )
     functions:
       "<<":

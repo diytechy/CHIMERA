@@ -1353,6 +1353,13 @@ Change biome distribution to use far river distance?
 Normalize far river distance to be evaluated per level?
 ^- Note then need to evaluate the estimated river width and border distance per level.
 
+Allow rivers in gorge and carving creeks.
+Change river for carving creeks to be badlands balcoonies.
+
+Fix bones replacing blocks with air - should not replace with air.
+
+Change smoke in prismatic spring - Tighten radius, and sparse out clustering of magma blocks.
+
 #######################
 
 How to optimize:

@@ -1,2 +1,3 @@
-Screenshots:
+Screenshots, with test biome distribution:
 c1: 1464,100,2550 <- River crossing near ocean.
+c1: 1500,130,4680 <- Dino

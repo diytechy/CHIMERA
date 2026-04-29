@@ -21,6 +21,8 @@ terrain:
   min-density:
     sampler:
       dimensions: 3
+      #type: CONSTANT
+      #value: 1
       type: EXPRESSION
       expression: RiverSupportDensity(x,y,z)
     smooth: false      # Smooth or hard

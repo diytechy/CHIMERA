@@ -14,7 +14,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:bottom-y} + 22
-        max: ${meta.yml:ocean-level} - 23
+        max: $meta.yml:top-y
       pattern:
         type: MATCH_AIR
         offset: 0

@@ -15,7 +15,7 @@ locator:
     - type: RANDOM
       height: &range
         min: ${meta.yml:bottom-y} + 14
-        max: ${meta.yml:ocean-level} - 20
+        max: $meta.yml:top-y
       amount: 1
       salt: 2913
     # Require either air or water

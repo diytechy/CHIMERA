@@ -14,7 +14,7 @@ locator:
       amount: 1
       height: &range
         min: ${meta.yml:deepslate-top} + 5
-        max: ${meta.yml:ocean-level} - 20
+        max: $meta.yml:top-y
     - type: PATTERN
       range: *range
       pattern:

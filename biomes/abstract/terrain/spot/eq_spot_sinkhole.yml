@@ -33,8 +33,9 @@ terrain:
     type: EXPRESSION
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      -y + base + herp(distanceToSpotEdge(x, z),0.8,scale*(spotMinElev(x,z)+SinkholeDepth(x,z)*sampler2d(x,z)),
+      -y + base + lerp(distanceToSpotEdge(x, z),0.8,scale*spotMinElev(x,z)+sampler2d(x,z),
       1.0,elevationDetailedBlockHeight(x,z))
+      //SinkholeDepth(x,z)*
     variables: *variables
     samplers:
       sampler2d:
@@ -44,13 +45,16 @@ terrain:
         # This returns the normalized sinkhole shape from 0 (no sinkhole)
         # to 1 (max depth)
         expression: |
-          -calcHeight(x, z,
+          -scale * calcHeight(x, z,
             /*distance*/      spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50,
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
             /*outsideHeight*/ 0,
             /*edge*/          lerp(spotEdgeRadiusPercent(x, z), 0, 0.6, 1, 0.7),
             /*radius*/        spotRadius(x, z),
-            /*volcanoHeight*/ 1,
+            /*volcanoHeight*/ lerp(spotSizePercent(x, z) * (1 - spotEdgeRadiusPercent(x, z)),
+                                0, 0.5,
+                                1, 0.5
+                              ),
             /*volcanoBase*/   0
           )
         samplers:

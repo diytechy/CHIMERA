@@ -23,9 +23,9 @@ ocean:
     # evaluated once per spot at the cell center for a constant per-spot reference.
     expression: |
       if(distanceToSpotEdge(x, z) < 0.9,
-        max(base + scale * (sinkholeMinElev(x, z)
+        base + scale * (sinkholeMinElev(x, z)
           + lerp(sinkholeFluidPercent(x, z), 0, 0.2, 1, 0.4)
-            * SinkholeDepth(x,z)),olevel),
+            * SinkholeDepth(x,z)),
         olevel)
 
 terrain:
@@ -33,8 +33,8 @@ terrain:
     type: EXPRESSION
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      -y + base + herp(distanceToSpotEdge(x, z),0.5,scale*(spotMinElev(x,z)+SinkholeDepth(x,z)*sampler2d(x,z)),
-      0.9,elevationDetailedBlockHeight(x,z))
+      -y + base + herp(distanceToSpotEdge(x, z),0.8,scale*(spotMinElev(x,z)+SinkholeDepth(x,z)*sampler2d(x,z)),
+      1.0,elevationDetailedBlockHeight(x,z))
     variables: *variables
     samplers:
       sampler2d:
@@ -47,11 +47,11 @@ terrain:
           -calcHeight(x, z,
             /*distance*/      spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50,
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
-            /*outsideHeight*/ elevationDetailed(x, z),
+            /*outsideHeight*/ 0,
             /*edge*/          lerp(spotEdgeRadiusPercent(x, z), 0, 0.6, 1, 0.7),
             /*radius*/        spotRadius(x, z),
             /*volcanoHeight*/ 1,
-            /*volcanoBase*/   spotBaseElevation(x, z)
+            /*volcanoBase*/   0
           )
         samplers:
           distanceWarp:

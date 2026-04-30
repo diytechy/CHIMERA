@@ -30,7 +30,7 @@ locator:
   type: PATTERN
   range: &range
     min: ${meta.yml:ocean-level} + 3
-    max: ${meta.yml:ocean-level} + 112
+    max: $meta.yml:top-y
   pattern:
     type: AND
     patterns:

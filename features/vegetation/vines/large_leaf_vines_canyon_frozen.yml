@@ -19,7 +19,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${customization.yml:biomeSpread.canyons.minY}
-        max: ${meta.yml:ocean-level} + 30
+        max: $meta.yml:top-y
       pattern:
         type: MATCH_AIR
         offset: 0

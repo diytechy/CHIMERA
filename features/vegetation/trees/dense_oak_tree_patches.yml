@@ -22,7 +22,7 @@ locator:
     - type: TOP
       range: &range
         min: ${meta.yml:sinkhole-ocean-level} + 3
-        max: ${meta.yml:ocean-level} + 119
+        max: $meta.yml:top-y
     - type: PATTERN
       range: *range
       pattern:

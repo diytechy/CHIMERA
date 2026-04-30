@@ -15,6 +15,7 @@ tags:
 ocean:
   palette: FROZEN_OCEAN
   level: $meta.yml:sinkhole-ocean-level
+  sampler: $biomes/abstract/terrain/spot/eq_spot_sinkhole.yml:ocean.sampler
 
 palette:
   - SNOW: $meta.yml:top-y

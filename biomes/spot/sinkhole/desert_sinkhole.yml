@@ -15,3 +15,4 @@ tags:
 ocean:
   palette: BLOCK:minecraft:water
   level: $meta.yml:sinkhole-ocean-level
+  sampler: $biomes/abstract/terrain/spot/eq_spot_sinkhole.yml:ocean.sampler

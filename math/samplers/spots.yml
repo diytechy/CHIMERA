@@ -254,7 +254,7 @@ samplers:
   # Minimum of elevationSparse sampled at 8 cardinal+diagonal points at spotRadius from
   # the cell center. Evaluated once per spot via NoiseLookup, giving a constant per-spot
   # reference that is guaranteed to be below the surrounding terrain boundary.
-  sinkholeMinElev:
+  spotMinElev:
     <<: *smallCellular
     return: NoiseLookup
     salt-lookup: false
@@ -275,7 +275,7 @@ samplers:
           min(
             elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
             elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        -0.6)
+        )
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:
@@ -343,6 +343,11 @@ samplers:
     type: EXPRESSION
     expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
     variables: *variables
+
+  distanceToSpotEdge:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotDistance(x, z) / spotRadius(x, z)
 
   distanceToPrismaticRim:
     dimensions: 2
@@ -414,4 +419,9 @@ samplers:
   SinkholeDepth:
     dimensions: 2
     type: EXPRESSION
-    expression: spotBaseElevation(x,z) - sinkholeMinElev(x,z)
+    expression: lerp(spotHeightPercent(x,z),0,0.1,1,0.3)
+
+  sinkholeMinElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotMinElev(x,z) - SinkholeDepth(x,z)

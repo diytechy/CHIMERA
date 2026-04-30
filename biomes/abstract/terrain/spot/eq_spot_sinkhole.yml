@@ -3,8 +3,9 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: ${customization.yml:terrain-base-y-level} + 5
+  base: ${customization.yml:terrain-base-y-level}
   scale: ${customization.yml:terrain-height}
+  olevel: $meta.yml:sinkhole-ocean-level
   "<<":
     - math/samplers/spots.yml:variables
 
@@ -14,17 +15,14 @@ ocean:
     dimensions: 2
     type: EXPRESSION
     variables:
-      olevel: $meta.yml:sinkhole-ocean-level
-      base: ${customization.yml:terrain-base-y-level} + 5
-      scale: ${customization.yml:terrain-height}/2
-      #"<<":
-      #  - math/samplers/spots.yml:variables
+      "<<":
+        - biomes/abstract/terrain/spot/eq_spot_sinkhole.yml:vars
     # Water spans from sinkhole bottom (sinkholeFluidPercent=0) to 50% of the way up
     # to the minimum surrounding terrain (sinkholeFluidPercent=1), guaranteeing no overflow.
     # sinkholeMinElev is the min of elevationSparse at 8 cardinal+diagonal points at spotRadius,
     # evaluated once per spot at the cell center for a constant per-spot reference.
     expression: |
-      if(spotEdgeRadiusPercent(x, z) < 0.9,
+      if(distanceToSpotEdge(x, z) < 0.9,
         max(base + scale * (sinkholeMinElev(x, z)
           + lerp(sinkholeFluidPercent(x, z), 0, 0.2, 1, 0.4)
             * SinkholeDepth(x,z)),olevel),
@@ -35,7 +33,7 @@ terrain:
     type: EXPRESSION
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      -y + base + herp(spotEdgeRadiusPercent(x, z),0.5,scale*(spotBaseElevation(x,z)+SinkholeDepth(x,z)*sampler2d(x,z)),
+      -y + base + herp(distanceToSpotEdge(x, z),0.5,scale*(spotMinElev(x,z)+SinkholeDepth(x,z)*sampler2d(x,z)),
       0.9,elevationDetailedBlockHeight(x,z))
     variables: *variables
     samplers:

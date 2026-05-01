@@ -4,7 +4,7 @@ type: FEATURE
 distributor:
   type: PADDED_GRID
   width: 27
-  padding: 19
+  padding: 27
   salt: 3546
 
 locator:
@@ -13,7 +13,7 @@ locator:
     - type: SURFACE
       range: &range
         min: ${meta.yml:bottom-y} + 18
-        max: $meta.yml:top-y
+        max: ${meta.yml:ocean-level} - 20
     - type: PATTERN
       range: *range
       pattern:

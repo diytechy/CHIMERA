@@ -10,6 +10,7 @@ cave-top:    200    # Y level where caves stop generating
 cave-bottom: -40    # Y level where caves stop generating
 bedrock-top: -60     # Y level where deepslate starts to be replaced by bedrock
 bottom-y: -64
+water-decoration-max: 200
 
 palette-slant-generic:
   - BLOCK:minecraft:stone: $meta.yml:top-y

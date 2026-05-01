@@ -32,7 +32,7 @@ locator:
         offset: -1
   range:
     min: ${meta.yml:ocean-level} - 8
-    max: $meta.yml:ocean-level
+    max: $meta.yml:water-decoration-max
 
 structures:
   distribution:

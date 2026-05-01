@@ -12,7 +12,7 @@ locator:
   type: PATTERN
   range:
     min: ${meta.yml:ocean-level} - ${customization.yml:terrain-ocean-depth}
-    max: $meta.yml:ocean-level
+    max: $meta.yml:water-decoration-max
   pattern:
     type: AND
     patterns:

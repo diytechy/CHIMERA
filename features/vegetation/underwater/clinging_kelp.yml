@@ -10,7 +10,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:deepslate-top} - 7
-        max: $meta.yml:ocean-level
+        max: $meta.yml:water-decoration-max
       pattern:
         type: AND
         patterns:

@@ -17,8 +17,9 @@ extrusions:
       dimensions: 2
       variables:
         max_lower_limit: ${meta.yml:ocean-level} - 13
+        base: ${customization.yml:terrain-base-y-level}
       expression: |
-        max(max_lower_limit,BiomeShapeMinimumElevation(x,z)-20)
+        max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
     sampler:
       type: EXPRESSION
       #If above the distribution threshold, set it to an actual biome, else keep current self.

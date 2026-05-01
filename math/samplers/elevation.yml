@@ -500,7 +500,7 @@ samplers:
   caveElevationPlacementMaximum:
     dimensions: 2
     type: EXPRESSION
-    expression: BiomeShapeMinimumElevation(x,z)-15
+    expression: BiomeShapeMinimumElevation(x,z)-20
 
   caveWithinBounds:
     dimensions: 3

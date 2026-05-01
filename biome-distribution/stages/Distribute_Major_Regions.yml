@@ -61,18 +61,13 @@ stages:
 
   - type: REPLACE
     from: far_river_biome
+    to: land
     sampler:
       dimensions: 2
-      type: EXPRESSION
-      expression: |
-        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
-          BiomeShapeLandmassValue(x, z), -1)
-    to:
-      SELF: 9
-      CARVING_CREAKS: 1
+      type: CONSTANT
 
   - type: REPLACE
-    from: far_river_biome
+    from: land
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -82,14 +77,18 @@ stages:
     to:
       SELF: 9
       GLOOMY_GORGE: 1
-
       
   - type: REPLACE
-    from: far_river_biome
-    to: land
+    from: land
     sampler:
       dimensions: 2
-      type: CONSTANT
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 9
+      CARVING_CREAKS: 1
 #
   #
   #    VERDANT_VALLEYS: 1

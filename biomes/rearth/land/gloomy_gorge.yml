@@ -2,7 +2,7 @@ id: GLOOMY_GORGE
 type: BIOME
 vanilla: minecraft:plains
 extends:
-- EQ_ERODED_VALLEY_MOUNTAINS
+- EQ_ERODED_VALLEY_MOUNTAINS_SEALEVEL
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:DARK_FOREST

@@ -1360,6 +1360,7 @@ Fix bones replacing blocks with air - should not replace with air.
 
 Change smoke in prismatic spring - Tighten radius, and sparse out clustering of magma blocks.
 
+From commit "d7f7aa053d020e202bec2a75d3caccd60b233bce", change all files that were updated to "max-y" to instead be a "SAMPLER_3D" type calling caveWithinBounds
 #######################
 
 How to optimize:

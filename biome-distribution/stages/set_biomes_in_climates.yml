@@ -426,6 +426,7 @@ stages:
         - DRYBRUSH: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
+        - DRIPSTONE_BARRENS: 1
 
       cold-desert-flat:
         - SALT_FLATS: 1

@@ -110,6 +110,7 @@ stages:
         - TAIGA_CLEARING: 1
         - FIR_FIELDS: 1
         - LAVENDER_FIELDS: 2
+        - SCULK_SWAMP: 1
       boreal-cold:
         - TAIGA_CLEARING: 1
         - TAIGA: 2
@@ -134,7 +135,6 @@ stages:
       boreal-snowy-flat:
         - SNOWY_MEADOW: 2
         - SNOWY_PLAINS: 1
-        - WHITE_WALLOWS: 1
         - FROSTCOATED_BOG: 1
         - FROZEN_MARSH: 1
         - SNOWSWEPT_MEADOWS: 1
@@ -151,7 +151,6 @@ stages:
         - ALPINE_ASCENDANCY: 1
         - BARE_BOULDERFIELDS: 1
         - FIR_HIGHLANDS: 1
-        - SEARING_TORS: 1
         - VERTICAL_VISTAS: 1
 
       boreal-hot-dry-flat:
@@ -301,6 +300,7 @@ stages:
         - FOSSILIZED_FENLANDS: 1
         - MURKY_MARSHLANDS: 1
         - ALIEN_MARSH: 1
+        - WHITE_WALLOWS: 1
       temperate-cold:
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -311,6 +311,7 @@ stages:
         - BLACK_FOREST: 1
         - GLOOMY_GORGE: 1
         - TALL_TIMBERLAND: 1
+        - WHITE_WALLOWS: 1
       temperate-cold-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
@@ -406,6 +407,7 @@ stages:
       hot-steppe-highlands-white:
         - XERIC_MOUNTAINS: 1
         - DIKSAM_PLATEAU: 1
+        - DRIPSTONE_BARRENS: 1
 
       # Temperate - Desert border
       temperate-steppe-flat:
@@ -434,6 +436,7 @@ stages:
         - DRY_FIR_FIELDS: 1
       cold-steppe-highlands:
         - COLD_STEPPE: 1
+        - DRIPSTONE_BARRENS: 1
 
 
 
@@ -485,6 +488,7 @@ stages:
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
+        - SEARING_TORS: 1
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1

@@ -1,0 +1,19 @@
+id: SEARING_TORS_RIVER
+type: BIOME
+extends:
+  - EQ_GLOBAL_RIVER
+  - CARVING_OCEAN
+  - SEARING_TORS
+features:
+  # flora:
+  # - CACTUS_SPARSE
+  # - DEAD_BUSHES
+  # - DRY_GRASS
+  # structures:
+  # - MOB_ROOMS
+  # - DESERT_WELLS
+  # - SPARSE_FOSSILS
+  processors:
+  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN

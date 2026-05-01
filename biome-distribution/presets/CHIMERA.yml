@@ -55,49 +55,49 @@ biomes:
           sampler:
             type: EXPRESSION
             expression: continentalDistribution(x, z)
-            
-        - type: REPLACE
-          from: land
-          to:
-          - FROSTCOATED_BOG: 6
-          - LAVENDER_FIELDS: 4
-          - MUSKEG: 4
-          - SCULK_SWAMP: 2
-          - SNOWSWEPT_MEADOWS: 4
-          - TUNDRA: 4
-          - GLACIAL_OVERHANGS: 5
-          - AUTUMNAL_WOODLANDS: 4
-          - BIRCH_WOODLANDS: 5
-          - MAPLE_WOODLANDS: 4
-          - DARK_OAK_WOODLANDS: 5
-          - OAK_WOODLANDS: 5
-          - SPRUCE_WOODLANDS: 5
-          - TUNDRA: 4
-          - GLACIAL_OVERHANGS: 6
-          - AUTUMNAL_WOODLANDS: 4
-          - BIRCH_WOODLANDS: 6
-          - MAPLE_WOODLANDS: 4
-          - DARK_OAK_WOODLANDS: 6
-          - OAK_WOODLANDS: 6
-          - SPRUCE_WOODLANDS: 8
-          - SPRUCE_WOODLANDS: 2
-          - FROZEN_SPIRES: 2
-          - FROZEN_SPIRES: 4
-          - FROZEN_SPIRES: 2
-          - SAKURA_WOODLANDS: 4
-          - FRIGID_WASTELANDS: 4
-          - FIR_HIGHLANDS: 5
-          - ENCHANTED_WOODLANDS: 1
-          - BITTER_HEIGHTS: 4
-          - DRIPSTONE_BARRENS: 4
-          - REDWOOD_WOODLANDS: 4
-          - LAVENDER_CRAGS: 4
-          - ICEBOUND_JUNGLE: 8
-          - SUGAR_PINE_WOODLANDS: 6
-          - ARCTIC_MESA: 3
-          - FROSTBOUND_CHASMS: 4
-          - PERMAFROST_CLIFFS: 3
-          - SEARING_TORS: 1
+        #    
+        #- type: REPLACE
+        #  from: land
+        #  to:
+        #  - FROSTCOATED_BOG: 6
+        #  - LAVENDER_FIELDS: 4
+        #  - MUSKEG: 4
+        #  - SCULK_SWAMP: 2
+        #  - SNOWSWEPT_MEADOWS: 4
+        #  - TUNDRA: 4
+        #  - GLACIAL_OVERHANGS: 5
+        #  - AUTUMNAL_WOODLANDS: 4
+        #  - BIRCH_WOODLANDS: 5
+        #  - MAPLE_WOODLANDS: 4
+        #  - DARK_OAK_WOODLANDS: 5
+        #  - OAK_WOODLANDS: 5
+        #  - SPRUCE_WOODLANDS: 5
+        #  - TUNDRA: 4
+        #  - GLACIAL_OVERHANGS: 6
+        #  - AUTUMNAL_WOODLANDS: 4
+        #  - BIRCH_WOODLANDS: 6
+        #  - MAPLE_WOODLANDS: 4
+        #  - DARK_OAK_WOODLANDS: 6
+        #  - OAK_WOODLANDS: 6
+        #  - SPRUCE_WOODLANDS: 8
+        #  - SPRUCE_WOODLANDS: 2
+        #  - FROZEN_SPIRES: 2
+        #  - FROZEN_SPIRES: 4
+        #  - FROZEN_SPIRES: 2
+        #  - SAKURA_WOODLANDS: 4
+        #  - FRIGID_WASTELANDS: 4
+        #  - FIR_HIGHLANDS: 5
+        #  - ENCHANTED_WOODLANDS: 1
+        #  - BITTER_HEIGHTS: 4
+        #  - DRIPSTONE_BARRENS: 4
+        #  - REDWOOD_WOODLANDS: 4
+        #  - LAVENDER_CRAGS: 4
+        #  - ICEBOUND_JUNGLE: 8
+        #  - SUGAR_PINE_WOODLANDS: 6
+        #  - ARCTIC_MESA: 3
+        #  - FROSTBOUND_CHASMS: 4
+        #  - PERMAFROST_CLIFFS: 3
+        #  - SEARING_TORS: 1
 
         #  - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
         #  - _pillow_plains: 1
@@ -108,10 +108,10 @@ biomes:
         #   - SNOWY_SPIRES: 1
         #   - CARVING_CREAKS: 1 (Likely needs to be mesa replacement, maybe around river?  Likely has it's own river that must be removed.)
         #   - CANOPY_C
-          sampler:
-            #type: CONSTANT
-            type: EXPRESSION
-            expression: BiomeShapeLandmassValue(x, z)
+        #  sampler:
+        #    #type: CONSTANT
+        #    type: EXPRESSION
+        #    expression: BiomeShapeLandmassValue(x, z)
         #  sampler:
         #    #type: CONSTANT
         #    type: EXPRESSION

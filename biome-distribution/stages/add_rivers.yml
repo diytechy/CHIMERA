@@ -83,6 +83,12 @@ stages:
       VERDANT_VALLEYS: #USE_VERDANT_RIVER:
         - SELF: 1
         - VERDANT_RIVER: 1
+      SEARING_TORS: #USE_VERDANT_RIVER:
+        - SELF: 1
+        - SEARING_TORS_RIVER: 1
+      DRIPSTONE_BARRENS:
+        - SELF: 1
+        - DRIPSTONE_BARRENS_RIVER: 1
       VERTICAL_VISTAS:
         - SELF: 1
         - VISTAS_RIVER: 1

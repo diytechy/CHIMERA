@@ -39,8 +39,8 @@ stages:
     to:
       _cold_rift: 2
       _cold_well: 4
-      land: 11
-      _warm_well: 3
+      land: 15
+      _warm_well: 2
       _warm_rift: 1
 
   - type: REPLACE_LIST

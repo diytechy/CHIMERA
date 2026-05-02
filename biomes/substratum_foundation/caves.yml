@@ -1,6 +1,6 @@
 id: CAVES
 type: BIOME
-extends: [ BASE, CAVE ]
+extends: [ CAVE ]
 vanilla: minecraft:windswept_hills
 color: $biomes/substratum_cave_colors.yml:CAVES
 

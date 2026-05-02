@@ -1,6 +1,6 @@
 id: STANDARD_CAVES
 type: BIOME
-extends: [ CAVE, BASE ]
+extends: [ CAVE ]
 tags:
   - STANDARD_CAVES
 vanilla: minecraft:dripstone_caves

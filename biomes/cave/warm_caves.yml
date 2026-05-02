@@ -1,6 +1,6 @@
 id: WARM_CAVES
 type: BIOME
-extends: [ CAVE, BASE ]
+extends: [ CAVE ]
 tags:
   - WARM_CAVES
   #- STANDARD_CAVES

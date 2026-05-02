@@ -1,6 +1,6 @@
 id: COLD_CAVES
 type: BIOME
-extends: [ CAVE, BASE ]
+extends: [ CAVE ]
 tags:
   - COLD_CAVES
   #- STANDARD_CAVES

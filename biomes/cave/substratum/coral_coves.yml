@@ -1,6 +1,6 @@
 id: CORAL_COVES
 type: BIOME
-extends: [ CAVE, BASE ]
+extends: [ CAVE ]
 vanilla: minecraft:dripstone_caves
 color: $biomes/substratum_cave_colors.yml:CORAL_COVES
 

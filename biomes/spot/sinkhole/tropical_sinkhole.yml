@@ -10,6 +10,7 @@ color: $biomes/colors.yml:TROPICAL_SINKHOLE
 vanilla: minecraft:jungle
 
 tags:
+  - LOW_CAVES
   - SINKHOLE
 
 ocean:

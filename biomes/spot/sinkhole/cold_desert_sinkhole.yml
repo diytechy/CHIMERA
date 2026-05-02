@@ -10,6 +10,7 @@ color: $biomes/colors.yml:COLD_DESERT_SINKHOLE
 vanilla: minecraft:snowy_plains
 
 tags:
+  - LOW_CAVES
   - SINKHOLE
 
 ocean:

@@ -10,6 +10,7 @@ color: $biomes/colors.yml:DESERT_SINKHOLE
 vanilla: minecraft:desert
 
 tags:
+  - LOW_CAVES
   - SINKHOLE
 
 ocean:

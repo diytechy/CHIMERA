@@ -10,6 +10,7 @@ color: $biomes/colors.yml:COLD_SINKHOLE
 vanilla: minecraft:frozen_peaks
 
 tags:
+  - LOW_CAVES
   - SINKHOLE
 
 ocean:

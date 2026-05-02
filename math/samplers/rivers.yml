@@ -131,7 +131,17 @@ samplers:
   riverElevationInput:
     dimensions: 2
     type: EXPRESSION
-    expression: elevationTerraced(x,z)
+    variables:
+      threshold: $customization.yml:flatness-percent
+      blend: $customization.yml:flatness-blend
+    expression: |
+      min(
+        min(
+          herp(continents(x,z), 0.05, 0, 0.1, elevationTerraced(x,z)),
+          herp(rawFlatness(x, z), threshold-blend, 0, threshold, elevationTerraced(x,z))
+        ),
+      elevationTerraced(x,z))
+    #expression: elevationTerraced(x,z)
 
   continentalDendryRiversSparse:
     dimensions: 3

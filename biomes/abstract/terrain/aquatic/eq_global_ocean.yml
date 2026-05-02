@@ -17,7 +17,7 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + 0.9
+    expression: -y + base - 0.9
     variables: *variables
 
   sampler-2d:

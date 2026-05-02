@@ -1,0 +1,11 @@
+id: COLD_CAVES
+type: BIOME
+extends: [ CAVE, BASE ]
+tags:
+  - COLD_CAVES
+  - STANDARD_CAVES
+vanilla: minecraft:cave
+palette:
+  - GRANITE_MINES: 319
+  - GRANITE_MINES_DEEPSLATE: $substratum_meta.yml:strata.deepslate.top
+  - << substratum_meta.yml:palette-bedrock

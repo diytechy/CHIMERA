@@ -14,7 +14,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:deepslate-top} - 7
-        max: $meta.yml:water-decoration-max
+        max: ${meta.yml:ocean-level} - 16
       pattern:
         type: MATCH
         block: minecraft:water

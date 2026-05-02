@@ -1,5 +1,14 @@
-extrusions:
+vars: &variables
+  cave_percentage: &cave_percentage 0.8 #Percentage of area under land biomes that are switched to other cave biome.
+  temp_edge_biomes: &temp_edge_biomes 6
+  gen_biomes: &gen_biomes 100
+  temp_edge_threshold: &temp_edge_threshold 0.5
+  non_temp_percentage: &non_temp_percentage 0.9 #For biomes in the temp threshold, how often should the prescribe to non-temp biomes
 
+# If inside cave percentages-temp threshold, prescribe to inner biome dist.
+#Else if just inside temp threshold, prescribe to edge biome dist or random inner dist based on randomizer.
+#Else outside all, set to self.
+extrusions:
   - type: REPLACE
     from: LAVA_TUBES
     sampler:
@@ -22,17 +31,47 @@ extrusions:
         max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
     sampler:
       type: EXPRESSION
+      variables: *variables
       #If above the distribution threshold, set it to an actual biome, else keep current self.
       #Actual distribution weight must match selected threshold.
       #Default case is >0, which puts half of the samples below 0.
-      expression: &exp if((BiomeShapeOceanValue(x,z)<0.5)&&(BiomeShapeOceanValue(x,z)>-0.5),max(((BiomeShapeOceanTemperature(x,z)+1)/2)+BiomeShapeOceanValue(x,z)*0.3,0),-1)
+      expression: BiomeShapeOceanTemperature(x,z)
+
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
     from: LAND_CAVES
     to:
-      - SELF: 112
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+
+      
+  - type: REPLACE
+    from: COLD_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+    range:
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
       - ICE_CAVES: 3
       - ICE_MUSHROOM_CAVES: 1
       - FROSTED_CAVERNS: 2
       - FROZEN_CAVERNS: 1
+      - STANDARD_CAVES: 50
+
+  - type: REPLACE
+    from: STANDARD_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+    range:
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
       - SPIDER_CAVES: 1
       - ANCIENT_CAVES: 2
       - RESIN_ROOTS: 3

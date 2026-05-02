@@ -15,6 +15,7 @@ terrain:
     variables: *variables
     expression: |
       -y + base +
+      elevation(x, z) * scale -0.9 +
       erode(
         erosionBottom + bottom(x, z) * bottomVariation,
         base,
@@ -58,7 +59,4 @@ terrain:
         functions: $math/functions/interpolation.yml:functions
 
   sampler-2d:
-    type: EXPRESSION
-    variables: *variables
-    samplers: *samplers
-    expression: elevation(x, z) * scale
+    type: CONSTANT

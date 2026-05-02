@@ -10,4 +10,5 @@ color: $biomes/colors.yml:BOREAL_EXTINCT_VOLCANO
 vanilla: minecraft:taiga
 
 tags:
+  - LOW_CAVES
   - USE_COLD_RIVER

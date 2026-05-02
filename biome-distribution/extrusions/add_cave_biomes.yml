@@ -19,6 +19,29 @@ extrusions:
       min: $meta.yml:bottom-y
       max: ${meta.yml:ocean-level}
       
+    # Replace from low land spots (rifts / sinkholes)
+  - type: REPLACE
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${customization.yml:biomeSpread.canyons.minY} - 20
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: BiomeShapeOceanTemperature(x,z)
+
+    # Replace from standard elevation sections.
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: LOW_CAVES
+    to:
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
+      
   - type: REPLACE_MAX_Y_SAMPLER
     min-y: $meta.yml:cave-bottom
     max-y-sampler:

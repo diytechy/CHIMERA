@@ -9,4 +9,5 @@ color: $biomes/colors.yml:TROPICAL_MESA
 tags:
 - USE_TROPICAL_RIVER
 - TROPICAL_COAST_FLAT
+- LAND_CAVES
 vanilla: minecraft:jungle

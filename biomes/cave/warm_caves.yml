@@ -1,8 +1,8 @@
-id: COLD_CAVES
+id: WARM_CAVES
 type: BIOME
 extends: [ CAVE, BASE ]
 tags:
-  - COLD_CAVES
+  - WARM_CAVES
   #- STANDARD_CAVES
 vanilla: minecraft:cave
 palette:

@@ -8,6 +8,7 @@ color: $biomes/colors.yml:BOREAL_MESA
 tags:
 - USE_COLD_RIVER
 - BOREAL_COAST_FLAT
+- LAND_CAVES
 vanilla: minecraft:taiga
 colors:
   grass: 8828803

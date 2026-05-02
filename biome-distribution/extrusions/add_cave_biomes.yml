@@ -44,6 +44,7 @@ extrusions:
     to:
       - COLD_CAVES: 1
       - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
 
       
   - type: REPLACE
@@ -60,7 +61,22 @@ extrusions:
       - ICE_MUSHROOM_CAVES: 1
       - FROSTED_CAVERNS: 2
       - FROZEN_CAVERNS: 1
-      - STANDARD_CAVES: 50
+      - STANDARD_CAVES: 13
+      
+  - type: REPLACE
+    from: WARM_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+    range:
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
+      - MAGMA_CAVERNS: 2
+      - BASALT_CAVERNS: 2
+      - MOLTEN_PASSAGES: 2
+      - STANDARD_CAVES: 16
 
   - type: REPLACE
     from: STANDARD_CAVES
@@ -119,6 +135,3 @@ extrusions:
       - DIORITE_MINES: 1
       - TROPICAL_MUSHROOM_CAVES: 1
       - JUNGLE_CAVES: 3
-      - MAGMA_CAVERNS: 2
-      - BASALT_CAVERNS: 2
-      - MOLTEN_PASSAGES: 2

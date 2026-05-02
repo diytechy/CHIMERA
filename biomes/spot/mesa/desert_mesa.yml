@@ -9,5 +9,6 @@ color: $biomes/colors.yml:DESERT_MESA
 
 tags:
   - USE_DESERT_RIVER
+  - LAND_CAVES
 
 vanilla: minecraft:desert

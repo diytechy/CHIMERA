@@ -5,6 +5,9 @@ color: $biomes/colors.yml:SHALLOW_CORAL_OCEAN
 
 vanilla: minecraft:warm_ocean
 
+tags:
+  - OCEAN_CAVES
+
 features:
   flora:
     - CORAL_PLANTS

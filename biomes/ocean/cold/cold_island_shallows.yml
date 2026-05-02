@@ -8,4 +8,5 @@ color: $biomes/colors.yml:COLD_ISLAND_SHALLOWS
 vanilla: minecraft:ocean
 
 tags:
+  - OCEAN_CAVES
   - OCEAN

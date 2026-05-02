@@ -7,6 +7,9 @@ color: $biomes/colors.yml:FROZEN_DEEP_DEPTHS
 
 vanilla: minecraft:deep_frozen_ocean
 
+tags:
+  - OCEAN_CAVES
+
 features:
   preprocessors:
     - SCULK_WEBS

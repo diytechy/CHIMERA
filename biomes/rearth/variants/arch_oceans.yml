@@ -5,6 +5,9 @@ extends: [ CARVING_OCEAN, BASE , EQ_ARCH_OCEAN]
 vanilla: minecraft:river
 color: $biomes/colors.yml:SANDSTONE_ARCHIPELAGO
 
+tags:
+  - OCEAN_CAVES
+
 colors:
   fog: 0xc0d8ff
   water: 0x1787D4

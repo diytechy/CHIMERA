@@ -6,3 +6,6 @@ extends:
 color: $biomes/colors.yml:SUBTROPICAL_DEEP_OCEAN
 
 vanilla: minecraft:deep_lukewarm_ocean
+
+tags:
+  - OCEAN_CAVES

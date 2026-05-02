@@ -7,6 +7,9 @@ color: $biomes/colors.yml:TROPICAL_DEEP_DEPTHS
 
 vanilla: minecraft:warm_ocean
 
+tags:
+  - OCEAN_CAVES
+
 features:
   preprocessors:
     - SCULK_WEBS

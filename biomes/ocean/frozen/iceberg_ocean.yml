@@ -7,6 +7,9 @@ color: $biomes/colors.yml:ICEBERG_OCEAN
 
 vanilla: minecraft:deep_frozen_ocean
 
+tags:
+  - OCEAN_CAVES
+
 ocean:
   palette: FROZEN_OCEAN
 

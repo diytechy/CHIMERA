@@ -6,6 +6,7 @@ extends:
 color: $biomes/colors.yml:SUBTROPICAL_OCEAN_SLOPES
 
 tags:
+  - OCEAN_CAVES
   - USE_SUBTROPICAL_TRENCH
 
 vanilla: minecraft:lukewarm_ocean

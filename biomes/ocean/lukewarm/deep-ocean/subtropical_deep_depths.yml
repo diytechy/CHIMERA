@@ -7,6 +7,9 @@ color: $biomes/colors.yml:SUBTROPICAL_DEEP_DEPTHS
 
 vanilla: minecraft:deep_lukewarm_ocean
 
+tags:
+  - OCEAN_CAVES
+
 features:
   preprocessors:
     - SCULK_WEBS

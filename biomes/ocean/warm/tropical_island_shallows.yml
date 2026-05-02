@@ -6,4 +6,5 @@ extends:
 color: $biomes/colors.yml:TROPICAL_ISLAND_SHALLOWS
 
 tags:
+  - OCEAN_CAVES
   - OCEAN

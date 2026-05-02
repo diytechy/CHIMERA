@@ -11,6 +11,7 @@ color: $biomes/colors.yml:SEAGRASS_MEADOW
 vanilla: minecraft:ocean
 
 tags:
+  - OCEAN_CAVES
   - USE_TRENCH
 
 colors:

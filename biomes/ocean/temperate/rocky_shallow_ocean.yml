@@ -7,6 +7,9 @@ color: $biomes/colors.yml:ROCKY_SHALLOW_OCEAN
 
 vanilla: minecraft:ocean
 
+tags:
+  - OCEAN_CAVES
+
 colors:
   grass: 0x8eb971
   foliage: 0x71a74d

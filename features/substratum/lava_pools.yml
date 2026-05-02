@@ -14,15 +14,16 @@ distributor:
 locator:
   type: AND
   locators:
-    - type: SAMPLER
-      samplers:
-        dimensions: 2
-        type: EXPRESSION
-        variables:
-          max_lower_limit: ${meta.yml:ocean-level} - 13
-          base: ${customization.yml:terrain-base-y-level}
-        expression: |
-          max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
+    #- type: SAMPLER_MAX_Y
+    #  min-y: $meta.yml:cave-bottom
+    #  max-y-sampler:
+    #    type: EXPRESSION
+    #    dimensions: 2
+    #    variables:
+    #      max_lower_limit: ${meta.yml:ocean-level} - 13
+    #      base: ${customization.yml:terrain-base-y-level}
+    #    expression: |
+    #      max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
     - type: PATTERN
       range: &range
         min: -69

@@ -2,7 +2,6 @@ id: RESIN_ROOTS
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:RESIN_ROOTS
 
 vanilla: minecraft:dripstone_caves

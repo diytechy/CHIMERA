@@ -2,7 +2,6 @@ id: MUSHROOM_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:MUSHROOM_CAVES
 
 vanilla: minecraft:dripstone_caves

@@ -2,7 +2,6 @@ id: ICE_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:ICE_CAVES
 
 vanilla: minecraft:dripstone_caves

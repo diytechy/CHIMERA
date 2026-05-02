@@ -2,7 +2,6 @@ id: SPIDER_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
   - MOB_SPIDER
 color: $biomes/colors.yml:SPIDER_CAVES
 

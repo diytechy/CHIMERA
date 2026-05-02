@@ -2,7 +2,6 @@ id: ANCIENT_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:ANCIENT_CAVES
 
 vanilla: minecraft:dripstone_caves

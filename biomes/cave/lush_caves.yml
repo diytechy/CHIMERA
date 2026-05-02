@@ -2,7 +2,6 @@ id: LUSH_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:LUSH_CAVES
 
 vanilla: minecraft:lush_caves

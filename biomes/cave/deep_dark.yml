@@ -2,7 +2,6 @@ id: DEEP_DARK
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:DEEP_DARK
 
 vanilla: minecraft:deep_dark

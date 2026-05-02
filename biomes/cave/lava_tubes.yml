@@ -2,7 +2,6 @@ id: LAVA_TUBES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:LAVA_TUBES
 
 vanilla: minecraft:dripstone_caves

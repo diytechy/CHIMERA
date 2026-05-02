@@ -3,7 +3,6 @@ type: BIOME
 extends:
   - CAVE
   - EQ_GLOBAL_OCEAN
-  - BASE
 color: $biomes/colors.yml:DEEP_DARK_GROVE
 
 vanilla: minecraft:deep_dark

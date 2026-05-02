@@ -2,7 +2,6 @@ id: JUNGLE_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
   - MOB_JUNGLE
 color: $biomes/colors.yml:JUNGLE_CAVES
 

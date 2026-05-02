@@ -25,6 +25,7 @@ slant:
       - << meta.yml:palette-bottom
 tags:
 - BORDER_LAND_CAVES
+- LOW_CAVES
 
 features:
   landforms:

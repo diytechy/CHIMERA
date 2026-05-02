@@ -1372,7 +1372,8 @@ New Dendry method to only query distance to diver instead of full elevation cons
 Remove "BASE" from the extends of CAVE biomes (Biome yml files that extend "CAVES" should no longer include "BASE" in the extends section), 
 
 
-change expression for extrusion to accomidate more biomes.  Currently uses "BiomeShapeMinimumElevation(x,z)-20" from add_cave_biomes.yml.  Change to a composite view:
+change expression for extrusion to accommodate more biomes.  Currently uses "BiomeShapeMinimumElevation(x,z)-20" from add_cave_biomes.yml.  Change to a composite view:
 
-If on a spot
-If continents < 1: in ocean, max should be ocean elevation (oceanElevation) - 20
+If continents < 1: in ocean, max should be ocean elevation (oceanElevation) - 20, else if continents >1: On land, max should follow current expression currently used.
+
+On all biomes except abyssal ocean should have a tag "OCEAN_CAVES" added.

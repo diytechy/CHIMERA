@@ -4,7 +4,7 @@ extends: [ CAVE, BASE ]
 tags:
   - WARM_CAVES
   #- STANDARD_CAVES
-vanilla: minecraft:cave
+vanilla: minecraft:dripstone_caves
 palette:
   - GRANITE_MINES: 319
   - GRANITE_MINES_DEEPSLATE: $substratum_meta.yml:strata.deepslate.top

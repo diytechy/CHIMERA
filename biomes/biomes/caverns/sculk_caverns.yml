@@ -1,6 +1,6 @@
 id: SCULK_CAVERNS
 type: BIOME
-extends: [ EQ_CAVE_BIOME, BASE_HYDRAXIA, HYDRAXIA_ORES_DIAMOND ]
+extends: [ BASE_HYDRAXIA_CAVERN, HYDRAXIA_ORES_DIAMOND ]
 vanilla: minecraft:deep_dark
 
 palette:

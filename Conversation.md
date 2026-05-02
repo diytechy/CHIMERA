@@ -1368,3 +1368,10 @@ How to optimize:
 New Dendry method to only query distance to diver instead of full elevation construction.
   - Allow method to create larger / wider cache birth for these samples (special y-value?)
   - This could then be used for the far river distance?
+
+Remove "BASE" from the extends of CAVE biomes (Biome yml files that extend "CAVES" should no longer include "BASE" in the extends section), 
+
+
+change expression for extrusion (currently uses "BiomeShapeMinimumElevation(x,z)-20" from add_cave_biomes.yml) change to:
+
+If continents < 1: in ocean, max should be ocean elevation (oceanElevation) - 20

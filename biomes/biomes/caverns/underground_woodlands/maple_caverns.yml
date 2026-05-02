@@ -1,6 +1,6 @@
 id: MAPLE_CAVERNS
 type: BIOME
-extends: [ EQ_CAVE_BIOME, BASE_HYDRAXIA ]
+extends: [ BASE_HYDRAXIA_CAVERN ]
 vanilla: minecraft:forest
 
 colors:

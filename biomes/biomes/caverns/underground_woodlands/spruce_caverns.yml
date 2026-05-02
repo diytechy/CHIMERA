@@ -1,6 +1,6 @@
 id: SPRUCE_CAVERNS
 type: BIOME
-extends: [ EQ_CAVE_BIOME, BASE_HYDRAXIA, HYDRAXIA_ORES_COAL ]
+extends: [ BASE_HYDRAXIA_CAVERN, HYDRAXIA_ORES_COAL ]
 vanilla: minecraft:forest
 
 palette:

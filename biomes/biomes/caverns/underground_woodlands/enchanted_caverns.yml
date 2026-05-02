@@ -1,6 +1,6 @@
 id: ENCHANTED_CAVERNS
 type: BIOME
-extends: [ EQ_CAVE_BIOME, BASE_HYDRAXIA, HYDRAXIA_ORES_EMERALD ]
+extends: [ BASE_HYDRAXIA_CAVERN, HYDRAXIA_ORES_EMERALD ]
 vanilla: minecraft:forest
 
 colors:

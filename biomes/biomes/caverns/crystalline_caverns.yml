@@ -1,6 +1,6 @@
 id: CRYSTALLINE_CAVERNS
 type: BIOME
-extends: [ EQ_CAVE_BIOME, BASE_HYDRAXIA, HYDRAXIA_ORES_REDSTONE ]
+extends: [ BASE_HYDRAXIA_CAVERN, HYDRAXIA_ORES_REDSTONE ]
 vanilla: minecraft:snowy_plains
 
 colors:

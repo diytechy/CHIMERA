@@ -18,7 +18,7 @@ terrain:
     variables: *variables
     expression: |
       max(clamp(-y+base + elevationDetailedBlockHeight(x,z)+ (5 + noiseBase(x,z) * height)*biomeInfluence(x,z), -1.75, 3),
-      clamp((pillars(x,y,z)) * 24, -2, 3))
+      clamp((pillars(x,y,z)) * 24, -3.5, 3))
       
       //clamp(clamp((pillars(x,y,z)) * 24, -2, 3)+biomeInfluenceOffset(x,y,z), -2, 3))
       //clamp(min(pillars(x,y,z),biomeInfluence3D(x,y,z)*pillars(x,y,z)) * 24, -2, 3))
@@ -39,7 +39,7 @@ terrain:
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
             + (min(0, base  + (BiomeShapeLandmassElevation(x,z) + pillarHeight) * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
-          )
+          ) - (1 - pillarsExist(x,z))
         samplers:
           basepillars: &pillarConf
             dimensions: 2

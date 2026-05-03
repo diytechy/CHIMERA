@@ -612,3 +612,10 @@ samplers:
             1,
             if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, -1, 1)
           )
+
+  RiverOceanTransitioner:
+    #As you get further from river mouth in ocean, this 
+    # value increases from 0 to 1.
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(-continents(x,z)*10,continentalRiverDist(x,z))

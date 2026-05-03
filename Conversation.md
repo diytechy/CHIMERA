@@ -1383,4 +1383,7 @@ On all biomes except abyssal ocean should have a tag "OCEAN_CAVES" added.
 
 Fix river transitions into ocean:
 
-1. Since elevation is 
+#############################
+
+Fix distributions - tighten precipitation based biome distribution?
+Increase ore concentrations due to more prolific cave generation taking away block space.

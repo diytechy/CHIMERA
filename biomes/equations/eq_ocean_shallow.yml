@@ -7,8 +7,17 @@ abstract: true
 terrain:
   sampler:
     dimensions: 3
-    type: LINEAR_HEIGHTMAP
-    base: 40
+    type: EXPRESSION
+    expression: |
+      max(
+        -y + base
+      ,
+        -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
+      )
+    variables:
+      base: 40
+      ocean_level: $meta.yml:ocean-level
+      scale: $customization.yml:terrain-ocean-depth
   sampler-2d:
     dimensions: 2
     type: EXPRESSION

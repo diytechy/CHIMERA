@@ -11,6 +11,9 @@ palette:
   - MUDDY_BEACH: 61
   - << meta.yml:palette-bottom
 
+tags:
+  - LOW_CAVES
+
 
 features:
   global-preprocessors:

@@ -18,7 +18,7 @@ distributor:
       sampler:
         type: EXPRESSION
         expression: -temperature(x,z)
-      threshold: -0.3
+      threshold: 0.3 #Becomes -0.3 to not melt ice structures.
   
 
     #- type: SAMPLER

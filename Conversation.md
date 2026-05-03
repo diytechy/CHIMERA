@@ -1377,3 +1377,10 @@ change expression for extrusion to accommodate more biomes.  Currently uses "Bio
 If continents < 1: in ocean, max should be ocean elevation (oceanElevation) - 20, else if continents >1: On land, max should follow current expression currently used.
 
 On all biomes except abyssal ocean should have a tag "OCEAN_CAVES" added.
+
+
+####################################3
+
+Fix river transitions into ocean:
+
+1. Since elevation is 

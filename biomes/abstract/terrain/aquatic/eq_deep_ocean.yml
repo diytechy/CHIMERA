@@ -5,7 +5,8 @@ abstract: true
 vars: &variables
   base: 29
   scale: 12
-  
+  ocean_level: $meta.yml:ocean-level
+
   detailFactor: 0.1
   detailStart: 0.2
   detailEnd: -0.5
@@ -17,7 +18,12 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base
+    expression: |
+      max(
+        -y + base
+      ,
+        -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
+      )
     variables: *variables
 
   sampler-2d:

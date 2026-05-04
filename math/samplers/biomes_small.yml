@@ -55,7 +55,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/simplex.yml:samplers.whiteNoiseExp
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: whiteNoiseExp(x,z)
           salt-lookup: false
 
   BiomeShapeLandmassPlainsMask:
@@ -67,7 +70,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.plainsMaskApplied
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: plainsMaskApplied(x,z)
           salt-lookup: false
           
   BiomeShapeLandmassDist2Center:
@@ -91,7 +97,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.elevationDetailed
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: elevationDetailed(x,z)
           salt-lookup: false
           
   BiomeShapeLandmassMountains:
@@ -103,7 +112,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.mountainsApplied
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: mountainsApplied(x,z)
           salt-lookup: false
           
   BiomeShapeLandmassElevation:
@@ -122,7 +134,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.flatness
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: flatness(x,z)
           salt-lookup: false
 
   BiomeShapeFlattenedElevation:
@@ -209,7 +224,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/continents.yml:samplers.continents
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
           salt-lookup: false
 
   BiomeShapeLandmassTemperature:
@@ -221,7 +239,10 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
           salt-lookup: false
 
   BiomeShapeLandmassPrecipitation:
@@ -233,5 +254,8 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
-          lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
           salt-lookup: false

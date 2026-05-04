@@ -1393,3 +1393,18 @@ There are still some elevations that are "blocky" near 0 / base terrain height d
 Get rid of sampler instances that are now pack-level samplers.
 
 For lookups - make sure they are expressions referencing pack-level sampler.
+
+Plan / investigate a method to find all pack samplers that are aliased / duplicated and remove the aliases so that the expressions / samplers they are used in directly use the pack-level sampler.  For example, some samplers redefine the pack level sampler (like "rawElevation: $math/samplers/elevation.yml:samplers.rawElevation") which causes the "rawElevation" sampler to get duplicated in that instance.  When the expression should simply omit this "$" reference and use the pack level sampler by name.
+
+For pattern C type lookup samplers, these should be converted to an expression, for instance:
+
+lookup: $math/samplers/trenches.yml:samplers.trenchSampler
+
+should become ==>
+
+lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: trenchSampler(x,z)
+
+Investigate a method to find all yml files that are unused in this pack structure, for example, the file "biome-distribution\stages\special\build_rift_regions_2.yml" exists but no content from it is used.

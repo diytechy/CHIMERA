@@ -1,7 +1,0 @@
-stages:
-  #Distribute land into large temperature breaks to seperate major canyon sections, since canyons changing vegitation mid trench is a little strange.
-  - type: REPLACE
-    sampler:
-      type: CONSTANT
-    from: land-sea-border
-    to: land

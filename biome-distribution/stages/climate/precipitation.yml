@@ -9,7 +9,7 @@ stages:
 
     default-from: tropical-rainforest
     default-to:
-      - hot-desert: &desert       4
+      - hot-desert: &desert       3
       - hot-desert: &desertBorder 1
       - hot-steppe: &semiArid     1
       - tropical-savanna-dry: &mid          1

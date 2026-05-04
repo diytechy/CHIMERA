@@ -17,19 +17,28 @@ samplers:
   riftTemperature:
     <<: *riftCell
     return: NoiseLookup
-    lookup: $math/samplers/temperature.yml:samplers.temperature
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: temperature(x,z)
     salt-lookup: false
 
   riftInRangeOfSpot:
     <<: *riftCell
     return: NoiseLookup
-    lookup: $math/samplers/spots.yml:samplers.nearSpotRift
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: nearSpotRift(x,z)
     salt-lookup: false
 
   riftFarRiverDist:
     <<: *riftCell
     return: NoiseLookup
-    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistSparseFarGrid
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverDistSparseFarGrid(x,z)
     salt-lookup: false
 
   riftWellPlacement:

@@ -62,7 +62,6 @@ samplers:
           )
         variables: *variables
         samplers:
-          trenchDistance: $math/samplers/trenches.yml:samplers.trenchDistance
           trenchKerneled:
             dimensions: 3
             type: KERNEL # Edge detection
@@ -71,8 +70,6 @@ samplers:
               type: EXPRESSION
               expression: trenchNoise(x*y*trenchFrequency, z*y*trenchFrequency)>0
               variables: *variables
-              samplers:
-                trenchNoise: $math/samplers/trenches.yml:samplers.trenchNoise
 
   trenchSampler:
     dimensions: 2
@@ -92,8 +89,6 @@ samplers:
         - borderPredicate
         expression: if(trench <= trenchValue, 1, if((trench <= borderValue) && borderPredicate, -0.4, -1))
     samplers:
-      trenchBiomeMap: $math/samplers/trenches.yml:samplers.trenchBiomeMap
-      elevation: $math/samplers/elevation.yml:samplers.elevation
       borderMask:
         dimensions: 2
         type: PROBABILITY

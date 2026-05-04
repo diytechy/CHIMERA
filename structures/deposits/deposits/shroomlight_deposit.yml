@@ -1,9 +1,0 @@
-id: SHROOMLIGHT_DEPOSIT
-type: ORE
-extends: ABSTRACT_ORE
-
-material: minecraft:shroomlight
-
-size: 1
-
-exposed: 0.2

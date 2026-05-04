@@ -101,7 +101,10 @@ samplers:
   spotCenterRiverDistFar:
     <<: *smallCellular
     return: NoiseLookup
-    lookup: $math/samplers/rivers.yml:samplers.continentalRiverDistSparseFarGrid
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverDistSparseFarGrid(x,z)
 
   spotApproxRiverDist:
     <<: *smallCellular
@@ -390,9 +393,6 @@ samplers:
       angleFrequency: 150
       offsetAmplitude: 10000   # Translates sample position per cell so the erosion pattern is unique for each volcano
     samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotAngle: $math/samplers/spots.yml:samplers.spotAngle
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
       noise:
         dimensions: 3
         type: FBM

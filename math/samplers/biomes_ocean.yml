@@ -54,7 +54,10 @@ samplers:
         sampler:
           <<: *oceanShape
           return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
           salt-lookup: false
 
   BiomeShapeOceanContinents:
@@ -66,7 +69,10 @@ samplers:
         sampler:
           <<: *oceanShape
           return: NoiseLookup
-          lookup: $math/samplers/continents.yml:samplers.continents
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
           salt-lookup: false
 
   BiomeShapeOceanElevation:
@@ -78,6 +84,9 @@ samplers:
         sampler:
           <<: *oceanShape
           return: NoiseLookup
-          lookup: $math/samplers/elevation.yml:samplers.oceanElevation
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: oceanElevation(x,z)
           salt-lookup: false
 

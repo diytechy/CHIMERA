@@ -158,7 +158,7 @@ continental-hill2hill-distance: 150
 continental-MaxHillElevRatio: 0.3
 
 
-continental-scale: 2
+continental-scale: 1
 # Controls the scale of land / coastal / oceanic distribution. Increasing
 # this produces larger landmasses and larger oceans, and vice-versa when
 # this is decreased.
@@ -168,7 +168,7 @@ continental-island-threshold: -0.35
 # to prepare for islands.
 # Default: -0.3
 
-continental-land-threshold: -0.20
+continental-land-threshold: -0.05
 # Threshold the continental_sampler must exceed for standard continents to appear.
 # Higher values result in smaller continents.
 # Default: 0.1
@@ -200,7 +200,7 @@ continental-coast-cutoff: 0.02
 # correspons to the highest elevation.
 # These options are primarily used in the math/samplers/elevation.yml config file.
 
-elevation-scale: 1.05
+elevation-scale: 1.00
 # Controls the scale of the elevation noise map. A larger scale results in larger distances
 # between aspects like mountain ranges and flat areas. If you want more gradual changes in
 # elevation, you can increase this. Conversely, if you want more sudden changes in elevation,

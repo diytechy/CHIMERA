@@ -93,7 +93,10 @@ samplers:
         sampler:
           <<: *mesaShape
           return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
           salt-lookup: false
 
   BiomeShapeMesaPrecipitation:
@@ -105,7 +108,10 @@ samplers:
         sampler:
           <<: *mesaShape
           return: NoiseLookup
-          lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
           salt-lookup: false
 
   BiomeShapeLargelandValue:
@@ -141,7 +147,10 @@ samplers:
         sampler:
           <<: *largelandShape
           return: NoiseLookup
-          lookup: $math/samplers/temperature.yml:samplers.temperature
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
           salt-lookup: false
 
   BiomeShapeLargelandPrecipitation:
@@ -153,5 +162,8 @@ samplers:
         sampler:
           <<: *largelandShape
           return: NoiseLookup
-          lookup: $math/samplers/precipitation.yml:samplers.precipitation
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
           salt-lookup: false

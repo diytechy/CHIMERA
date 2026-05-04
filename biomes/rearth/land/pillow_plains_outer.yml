@@ -8,7 +8,7 @@ extends:
 - EQ_PILLOW_PLAINS_FLAT
 tags:
 - USE_COLD_RIVER
-- LAND_CAVES
+- LOW_CAVES
 - SPECIAL_CAVES
 colors:
   grass: 7399021

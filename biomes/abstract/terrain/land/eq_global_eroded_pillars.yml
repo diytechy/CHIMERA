@@ -36,7 +36,7 @@ terrain:
             // Erode
             - lerp(y,
               pillarErosionTop, 0,
-              pillarErosionBottom, pillarErosionStrength * lerp(|pillarErosion(x,y,z)|,0,1,0.25,0) * (-y+pillarErosionTop)
+              pillarErosionBottom, pillarErosionStrength * max(0, lerp(|pillarErosion(x,y,z)|,0,1,0.25,0)) * (-y+pillarErosionTop)
             ),
             // Mask parameters
             0.45, 0.75, pillarMask(

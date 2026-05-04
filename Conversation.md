@@ -1387,3 +1387,9 @@ Fix river transitions into ocean:
 
 Fix distributions - tighten precipitation based biome distribution?
 Increase ore concentrations due to more prolific cave generation taking away block space.
+
+There are still some elevations that are "blocky" near 0 / base terrain height due to stripping out all the other offfset calculations.  Maybe need to look at ffixing this in all the files...
+
+Get rid of sampler instances that are now pack-level samplers.
+
+For lookups - make sure they are expressions referencing pack-level sampler.

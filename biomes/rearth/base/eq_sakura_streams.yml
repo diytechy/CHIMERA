@@ -81,3 +81,7 @@ terrain:
             jitter: ${customization.yml:biomeSpread.cellJitter}
             distance: Euclidean
             return: CellValue
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

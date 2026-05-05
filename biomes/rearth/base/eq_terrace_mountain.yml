@@ -45,3 +45,7 @@ terrain:
         octaves: 3
         lacunarity: 3.6
         gain: 0.37
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -70,3 +70,7 @@ terrain:
               type: CELLULAR
               frequency: 0.012
               jitter: 0.2
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

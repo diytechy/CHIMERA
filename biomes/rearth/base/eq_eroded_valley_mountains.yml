@@ -40,3 +40,7 @@ terrain:
         frequency: 0.005
         distance: Euclidean
         return: Distance2Sub
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

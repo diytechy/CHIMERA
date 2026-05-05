@@ -8,7 +8,7 @@ extends:
 color: $biomes/colors.yml:DARK_FOREST
 tags:
 - USE_GLOOMY_GORGE_RIVER
-- LAND_CAVES
+- LOW_CAVES
 - SPECIAL_CAVES
 - BOREAL_COAST_FLAT
 colors:

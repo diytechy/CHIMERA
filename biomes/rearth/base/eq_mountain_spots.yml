@@ -53,3 +53,8 @@ terrain:
             surfaceOffset(x,z)
           samplers:
             surfaceOffset: *baseFBM
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

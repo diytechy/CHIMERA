@@ -12,3 +12,7 @@ terrain:
     variables: *variables
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z)
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

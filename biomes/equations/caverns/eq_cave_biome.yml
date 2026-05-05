@@ -13,3 +13,7 @@ terrain:
     type: CONSTANT
     dimensions: 3
     value: 10
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

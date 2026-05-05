@@ -58,3 +58,7 @@ terrain:
         frequency: 0.018
         jitter: 1
         return: CellValue
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

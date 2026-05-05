@@ -57,3 +57,7 @@ terrain:
               dimensions: 2
               type: OPEN_SIMPLEX_2S
               frequency: 0.06
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

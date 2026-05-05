@@ -127,3 +127,7 @@ terrain:
               type: CELLULAR
               frequency: 0.04
               salt: 1
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

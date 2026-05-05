@@ -6,3 +6,7 @@ terrain:
   sampler:
     type: EXPRESSION
     expression: -y + 70
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

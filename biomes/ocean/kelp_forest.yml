@@ -9,6 +9,7 @@ extends:
 color: $biomes/colors.yml:KELP_FOREST
 
 tags:
+  - OCEAN_CAVES
   - USE_TRENCH
 
 vanilla: minecraft:ocean

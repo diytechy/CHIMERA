@@ -6,3 +6,6 @@ extends:
 color: $biomes/colors.yml:CORAL_OCEAN_SLOPES
 
 vanilla: minecraft:warm_ocean
+
+tags:
+  - OCEAN_CAVES

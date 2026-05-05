@@ -1,0 +1,35 @@
+id: OASIS
+type: BIOME
+vanilla: minecraft:beach
+extends:
+- EQ_SMALL_BIOME_VALLEY
+# - CARVING_LAND
+- BASE
+color: $biomes/colors.yml:DESERT
+colors:
+  grass: 7844664
+  foliage: 5157688
+  water: 4570768
+  water-fog: 4501493
+tags:
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+vars: &id001
+  base: 64
+  height: 8
+  offset: 0.995
+
+palette:
+- SANDY_GRASS: 319
+- MUDDY_BEACH: 62
+- << meta.yml:palette-bottom
+features:
+  landforms:
+  - SMALL_BOULDER_PATCHES
+  trees:
+  - OASIS_PALM_TREES
+  flora:
+  - GRASS
+  - JUNGLE_BUSHES
+  - SUGAR_CANE

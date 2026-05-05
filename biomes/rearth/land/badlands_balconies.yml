@@ -1,0 +1,38 @@
+id: BADLANDS_BALCONIES
+type: BIOME
+vanilla: minecraft:badlands
+color: $biomes/colors.yml:BADLANDS_BUTTES
+extends:
+- CARVING_LAND
+- BASE
+- EQ_BADLANDS_BALCONIES
+tags:
+- USE_BAD_BALCOONIES_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+- TROPICAL_COAST_FLAT
+colors:
+  grass: 12433235
+  foliage: 11379754
+  water: 13494015
+  water-fog: 13494015
+slant-depth: 20
+slant:
+- threshold: 0.7
+  palette:
+  - TERRACOTTA_STRATA_RED: 319
+  - TERRACOTTA_STRATA: 98
+  - TERRACOTTA_STRATA_VERTICAL: 82
+  - SAND: 63
+palette:
+- WOODED_BADLANDS: 319
+- WOODED_BADLANDS_LOW: 75
+- SAND: 64
+- << meta.yml:palette-bottom
+features:
+  flora:
+  - GRASS_SPARSE
+  trees:
+  - BADLANDS_OAK_TREES
+  - OAK_BUSH_PATCHES
+  - DEAD_TREES_SPARSE

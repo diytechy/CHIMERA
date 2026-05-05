@@ -1,0 +1,19 @@
+id: EQ_PLAINS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  height: 10
+
+terrain:
+  sampler:
+    type: EXPRESSION
+    dimensions: 3
+    variables: *variables
+    expression: -y + base + elevationDetailedBlockHeight(x,z) + (simplex2(x, z)+1)/2 * height * biomeInfluence(x,z)
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -32,9 +32,15 @@ colors:
   water: 0x0084ff
   water-fog: 0x0084ff
 
+tags:
+- LAND_CAVES
 features:
+  processors:
+  - RIVER_SOULSAND
   flora:
-    - SUGAR_CANE
-    - OAK_BUSHES
-    - FIREFLY_BUSH
-    - GRASS
+  - SUGAR_CANE
+  - OAK_BUSHES
+  - FIREFLY_BUSH
+  - GRASS
+  river-decoration:
+  - COVE_GLOW_LICHEN

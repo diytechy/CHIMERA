@@ -11,6 +11,8 @@ vanilla: minecraft:bamboo_jungle
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
+  - JUNGLE_CAVES
   - USE_RIVER_TEMPERATE_SWAMP
 
 palette:
@@ -47,6 +49,6 @@ features:
     - PALM_TREES
     - SPARSE_FALLEN_PALM_TREES
     - ACACIA_TREES
-    - SWAMP_TREES
+    - SPARSE_SWAMP_TREES
   postprocessors:
     - FLOW_STILL_WATER

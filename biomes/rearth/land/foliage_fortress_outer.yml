@@ -1,0 +1,39 @@
+id: FOLIAGE_FORTRESS_OUTER
+type: BIOME
+vanilla: minecraft:savanna
+extends:
+- CARVING_LAND
+- BASE
+- EQ_foliage_fortress_OUTER
+color: $biomes/colors.yml:SAVANNA_OUTER
+colors:
+  grass: 8567917
+  foliage: 6662473
+  water: 937679
+  water-fog: 12638463
+tags:
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+- TEMPERATE_COAST_FLAT
+palette:
+- GRASS_MUSHY: 319
+- MUDDY_BEACH: 63
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.75
+  palette:
+  - CALCITE_DIORITE_MIX: 319
+  - << meta.yml:palette-bottom
+features:
+  flora:
+  - GRASS
+  - TALL_GRASS
+  - POPPY_PATCH
+  - DANDELION_PATCH
+  - ROSE_BUSH_PATCH
+  - PEONY_PATCH
+  - LILAC_PATCH
+  - LILY_OF_THE_VALLEY_PATCH
+  trees:
+  - ACACIA_TREES

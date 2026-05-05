@@ -1,0 +1,5 @@
+id: tropical-coast-flat
+type: BIOME
+abstract: true
+tags:
+  - coast

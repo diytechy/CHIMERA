@@ -1,0 +1,92 @@
+Base Name,Vanilla ID,ID,Category,Used In BiomeTable
+Ocean,BIOME_OCEAN,0,ocean,Yes
+Plains,BIOME_PLAINS,1,land,Yes
+Desert,BIOME_DESERT,2,land,Yes
+Windswept Hills,BIOME_WINDSWEPT_HILLS,3,land,Yes
+Forest,BIOME_FOREST,4,land,Yes
+Taiga,BIOME_TAIGA,5,land,Yes
+Swamp,BIOME_SWAMP,6,wetland,Yes
+River,BIOME_RIVER,7,river,Yes
+Nether Wastes,BIOME_NETHER_WASTES,8,nether,No
+The End,BIOME_THE_END,9,void,No
+Frozen Ocean,BIOME_FROZEN_OCEAN,10,ocean,Yes
+Frozen River,BIOME_FROZEN_RIVER,11,river,Yes
+Snowy Plains,BIOME_SNOWY_PLAINS,12,land,Yes
+Snowy Mountains,BIOME_SNOWY_MOUNTAINS,13,land,No
+Mushroom Fields,BIOME_MUSHROOM_FIELDS,14,land,Yes
+Mushroom Field Shore,BIOME_MUSHROOM_FIELD_SHORE,15,land,No
+Beach,BIOME_BEACH,16,land,Yes
+Desert Hills,BIOME_DESERT_HILLS,17,land,No
+Wooded Hills,BIOME_WOODED_HILLS,18,land,No
+Taiga Hills,BIOME_TAIGA_HILLS,19,land,No
+Mountain Edge,BIOME_MOUNTAIN_EDGE,20,land,No
+Jungle,BIOME_JUNGLE,21,land,Yes
+Jungle Hills,BIOME_JUNGLE_HILLS,22,land,No
+Jungle Edge,BIOME_JUNGLE_EDGE,23,land,No
+Deep Ocean,BIOME_DEEP_OCEAN,24,ocean,Yes
+Stone Shore,BIOME_STONE_SHORE,25,land,No
+Snowy Beach,BIOME_SNOWY_BEACH,26,land,Yes
+Birch Forest,BIOME_BIRCH_FOREST,27,land,Yes
+Birch Forest Hills,BIOME_BIRCH_FOREST_HILLS,28,land,No
+Dark Forest,BIOME_DARK_FOREST,29,land,Yes
+Snowy Taiga,BIOME_SNOWY_TAIGA,30,land,Yes
+Snowy Taiga Hills,BIOME_SNOWY_TAIGA_HILLS,31,land,No
+Giant Tree Taiga,BIOME_OLD_GROWTH_PINE_TAIGA,32,land,Yes
+Giant Tree Taiga Hills,BIOME_GIANT_TREE_TAIGA_HILLS,33,land,No
+Wooded Mountains,BIOME_WOODED_MOUNTAINS,34,land,No
+Savanna,BIOME_SAVANNA,35,land,Yes
+Savanna Plateau,BIOME_SAVANNA_PLATEAU,36,land,Yes
+Badlands,BIOME_BADLANDS,37,land,Yes
+Wooded Badlands Plateau,BIOME_WOODED_BADLANDS_PLATEAU,38,land,No
+Badlands Plateau,BIOME_BADLANDS_PLATEAU,39,land,No
+Small End Islands,BIOME_SMALL_END_ISLANDS,40,void,No
+End Midlands,BIOME_END_MIDLANDS,41,void,No
+End Highlands,BIOME_END_HIGHLANDS,42,void,No
+End Barrens,BIOME_END_BARRENS,43,void,No
+Warm Ocean,BIOME_WARM_OCEAN,44,ocean,Yes
+Lukewarm Ocean,BIOME_LUKEWARM_OCEAN,45,ocean,Yes
+Cold Ocean,BIOME_COLD_OCEAN,46,ocean,Yes
+Deep Warm Ocean,BIOME_DEEP_WARM_OCEAN,47,ocean,No
+Deep Lukewarm Ocean,BIOME_DEEP_LUKEWARM_OCEAN,48,ocean,Yes
+Deep Cold Ocean,BIOME_DEEP_COLD_OCEAN,49,ocean,Yes
+Deep Frozen Ocean,BIOME_DEEP_FROZEN_OCEAN,50,ocean,Yes
+The Void,BIOME_THE_VOID,127,void,No
+Sunflower Plains,BIOME_SUNFLOWER_PLAINS,129,land,Yes
+Desert Lakes,BIOME_DESERT_LAKES,130,land,No
+Gravelly Mountains,BIOME_WINDSWEPT_GRAVELLY_HILLS,131,land,No
+Flower Forest,BIOME_FLOWER_FOREST,132,land,Yes
+Taiga Mountains,BIOME_TAIGA_MOUNTAINS,133,land,No
+Swamp Hills,BIOME_SWAMP_HILLS,134,wetland,No
+Ice Spikes,BIOME_ICE_SPIKES,140,land,Yes
+Modified Jungle,BIOME_MODIFIED_JUNGLE,149,land,No
+Modified Jungle Edge,BIOME_MODIFIED_JUNGLE_EDGE,151,land,No
+Tall Birch Forest,BIOME_OLD_GROWTH_BIRCH_FOREST,155,land,No
+Tall Birch Hills,BIOME_BIRCH_FOREST_HILLS,156,land,No
+Dark Forest Hills,BIOME_DARK_FOREST_HILLS,157,land,No
+Snowy Taiga Mountains,BIOME_SNOWY_TAIGA_MOUNTAINS,158,land,No
+Giant Spruce Taiga,BIOME_OLD_GROWTH_SPRUCE_TAIGA,160,land,Yes
+Giant Spruce Taiga Hills,BIOME_GIANT_SPRUCE_TAIGA_HILLS,161,land,No
+Gravelly Mountains+,BIOME_MODIFIED_GRAVELLY_MOUNTAINS,162,land,No
+Shattered Savanna,BIOME_SHATTERED_SAVANNA,163,land,No
+Shattered Savanna Plateau,BIOME_SHATTERED_SAVANNA_PLATEAU,164,land,No
+Eroded Badlands,BIOME_ERODED_BADLANDS,165,land,No
+Modified Wooded Badlands Plateau,BIOME_MODIFIED_WOODED_BADLANDS_PLATEAU,166,land,No
+Modified Badlands Plateau,BIOME_MODIFIED_BADLANDS_PLATEAU,167,land,No
+Bamboo Jungle,BIOME_BAMBOO_JUNGLE,168,land,Yes
+Bamboo Jungle Hills,BIOME_BAMBOO_JUNGLE_HILLS,169,land,No
+Soul Sand Valley,BIOME_SOUL_SAND_VALLEY,170,nether,No
+Crimson Forest,BIOME_CRIMSON_FOREST,171,nether,No
+Warped Forest,BIOME_WARPED_FOREST,172,nether,No
+Basalt Deltas,BIOME_BASALT_DELTAS,173,nether,Yes
+Dripstone Caves,BIOME_DRIPSTONE_CAVES,174,cave,Yes
+Lush Caves,BIOME_LUSH_CAVES,175,cave,Yes
+Pale Garden,BIOME_PALE_GARDEN,245,land,Yes
+Cherry grove,BIOME_CHERRY_GROVE,246,land,Yes
+Mangrove swamp,BIOME_MANGROVE_SWAMP,247,wetland,Yes
+Deep Dark,BIOME_DEEP_DARK,248,cave,Yes
+Frozen Peaks,BIOME_FROZEN_PEAKS,249,land,Yes
+Grove,BIOME_GROVE,250,land,Yes
+Jagged Peaks,BIOME_JAGGED_PEAKS,251,land,Yes
+Meadow,BIOME_MEADOW,252,land,Yes
+Snowy Slopes,BIOME_SNOWY_SLOPES,253,land,Yes
+Stony Peaks,BIOME_STONY_PEAKS,254,land,No

@@ -1,0 +1,5 @@
+id: hot-ocean
+type: BIOME
+abstract: true
+tags:
+  - ocean

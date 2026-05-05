@@ -12,3 +12,12 @@ colors:
   foliage: 0x6da36b
   water: 0x007bf7
   water-fog: 0x007bf7
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  - MOUNTAIN_RIVER_DRIPSTONE_DEPOSITS
+  - MOUNTAIN_RIVER_POINTED_DRIPSTONE
+  - LARGE_CEILING_VINES
+  - COVE_GLOW_LICHEN
+  processors:
+  - RIVER_SOULSAND

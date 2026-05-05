@@ -1,0 +1,129 @@
+# ExploreExpand preset - Biomes NOT in default, origen2, or rearth presets
+# This preset contains only biomes that don't appear in the main presets,
+# allowing exploration of rare/unused biomes. Not intended for normal gameplay.
+
+biomes:
+  type: EXTRUSION
+  extrusions:
+    # All cave extrusions
+    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
+    - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+    - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
+  provider:
+    type: PIPELINE
+    resolution: 4
+    blend:
+      amplitude: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.012
+    pipeline:
+      source:
+        type: SAMPLER
+        sampler:
+          type: CELLULAR
+          jitter: ${customization.yml:biomeSpread.cellJitter}
+          return: NoiseLookup
+          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+          lookup:
+            type: EXPRESSION
+            expression: continents(x, z)
+        biomes:
+          ocean: 1
+          land: 3
+      stages:
+        # ========================================
+        # LAND BIOMES - Only biomes NOT in other presets
+        # ========================================
+        - type: REPLACE
+          from: land
+          to:
+            # Unique land biomes
+            - ALIEN_MARSH: 1
+            - OAK_SAVANNA: 1
+            - RED_DRY_PALM_FOREST: 1
+            - SNOWY_PLAINS: 1
+            - TEMPERATE_GRASSLAND: 1
+            #Has nothing:
+            # - YELLOWSTONE: 1
+            # Crater lake biomes (not generated in other presets)
+            #These should already exist, just need to uncomment:
+            - BOREAL_CRATER_LAKE: 1
+            - COLD_CRATER_LAKE: 1
+            - DESERT_CRATER_LAKE: 1
+            - TEMPERATE_CRATER_LAKE: 1
+            - TROPICAL_CRATER_LAKE: 1
+            # Sinkhole biomes
+            # - SINKHOLE_FOREST: 1
+            - SINKHOLE_FROZEN: 1
+            - SINKHOLE_JUNGLE: 1
+            # - SINKHOLE_OUTER: 1
+            # Archipelago biomes
+            # Mushroom biomes
+            - TROPICAL_MUSHROOM_FIELDS: 1
+            - TROPICAL_MUSHROOM_COAST: 1
+            # Coast biomes
+            - ARID_PALE_GARDEN_COAST: 1
+            - ORANGE_ARID_PALE_GARDEN_COAST: 1
+            - RED_ARID_PALE_GARDEN_COAST: 1
+            - PALE_GARDEN_COAST: 1
+            - POLAR_PALE_GARDEN_COAST: 1
+            # River biomes (unique variants)
+            # - ALPINE_ASCENDANCY_RIVER: 1
+            # - BAD_BALCOONIES_RIVER: 1
+            # - FROZEN_FUNGI_RIVER: 1
+            # - GLOOMY_GORGE_RIVER: 1
+            # - LOOPS_RIVER: 1
+            # - MOUNTAIN_MIRRORS_RIVER: 1
+            # - MOUNTAIN_RIVER_FROZEN: 1
+            # - foliage_fortress_RIVER_INNER: 1
+            # - foliage_fortress_RIVER_MIDDLE: 1
+            # - SCARLET_SANCTUARY_RIVER: 1
+            # - SWAMP_RIVER: 1
+            # - VERDANT_RIVER: 1
+            # - VERTICAL_JUNGLE_RIVER: 1
+            # - VISTAS_RIVER: 1
+            #
+            # Other things that generate it water???
+            #- ARCHIPELAGO: 1
+            #- FROZEN_ARCHIPELAGO: 1
+          sampler:
+            type: CELLULAR
+            return: CellValue
+            frequency: 1 / 200
+            salt: 1001
+
+        # ========================================
+        # OCEAN BIOMES - Only biomes NOT in other presets
+        # ========================================
+        - type: REPLACE
+          from: ocean
+          to:
+            # Subtropical ocean biomes (unique to this preset)
+            - SUBTROPICAL_OCEAN: 1
+            - SUBTROPICAL_DEEP_OCEAN: 1
+            - SUBTROPICAL_DEEP_DEPTHS: 1
+            - SUBTROPICAL_OCEAN_SLOPES: 1
+            - SUBTROPICAL_OCEAN_OVERHANGS: 1
+            - SUBTROPICAL_OCEAN_TRENCH: 1
+            - SUBTROPICAL_DEEP_OCEAN_VENTS: 1
+            - SUBTROPICAL_DEEP_DEPTHS_TRENCH: 1
+            - SUBTROPICAL_ISLAND_SHALLOWS: 1
+            # Tropical variants not in other presets
+            - TROPICAL_OCEAN_TRENCH: 1
+            - TROPICAL_DEEP_OCEAN_VENTS: 1
+          sampler:
+            type: CELLULAR
+            return: CellValue
+            frequency: 1 / 200
+            salt: 2002
+
+        # ========================================
+        # SMOOTHING PASSES
+        # ========================================
+        - type: FRACTAL_EXPAND
+          sampler:
+            type: WHITE_NOISE
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE

@@ -9,13 +9,17 @@ color: $biomes/colors.yml:TEMPERATE_SEA_ARCHES
 vanilla: minecraft:beach
 
 vars: &variables
-  base: 80
+  base: $customization.yml:legacy-terrain-base-y-level
   erosionTop: 100
   erosionMiddle: 65
   erosionBottom: 55
   erosionStrength: 4
 
 terrain:
+  blend:
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 2
+    weight: 1.5
   sampler:
     type: EXPRESSION
     dimensions: 3
@@ -45,8 +49,8 @@ terrain:
     expression: (simplex(x/3, z/3)+1)/2*10
 
 tags:
-  - LAND_CAVES
-  - USE_RIVER
+  - LOW_CAVES
+  - SPECIAL_CAVES
 
 palette:
   - GRASS: $meta.yml:top-y
@@ -63,3 +67,5 @@ slant:
 features:
   flora:
     - GRASS
+  river-decoration:
+    - SEA_ARCH_GLOW_LICHEN

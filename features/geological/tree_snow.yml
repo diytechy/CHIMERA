@@ -7,7 +7,7 @@ distributor:
 locator:
   type: PATTERN
   range:
-    min: ${meta.yml:ocean-level} + 1
+    min: ${meta.yml:sinkhole-ocean-level} + 1
     max: $meta.yml:top-y
   pattern:
     type: AND

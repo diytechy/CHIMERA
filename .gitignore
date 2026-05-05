@@ -2,3 +2,7 @@
 *.iml
 *.ipr
 *.jar
+*.bak
+.scripts/__pycache__
+.gradle
+build

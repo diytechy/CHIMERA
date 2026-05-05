@@ -21,7 +21,7 @@ locator:
   type: SURFACE
   range:
     min: ${meta.yml:deepslate-top} - 23
-    max: ${meta.yml:ocean-level} - 14
+    max: $meta.yml:top-y
 
 structures:
   distribution:

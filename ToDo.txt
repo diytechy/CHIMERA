@@ -1,0 +1,83 @@
+Omit "OldPromptAndReviewReferences" from generated pack folder?
+
+Allow BiomeTable and Suggested Improvements to be generated in artifacts.
+
+Fix pack to allow multiple preset selections?  Or still need to try this?
+
+If this works, only create artifacts based on presets in the pack file, not in the presets folder.
+
+Slow down temperature changes???
+
+Fix crater lake water generation?
+
+Add caves to coasts / rivers / arches / islands / mesa / vast-forest?
+	Implement as a part of the attribute tagging script?
+
+Integrate usage to readme.md?  Or into DESIGN.md?
+
+Need to shift biome generation location on top of salt?  Is salt set?  Need to verify no duplicates.
+
+Need to fuzz temperature, elevation, precipitation?  Or change overall distribution mechanism.
+
+Add lakes?
+
+To maintain shape: Frequencies should all scale together, amplitude should scale inversly.
+
+Basic noise evaluation:
+
+Temperature takes a long time to evaluate.  Is it overly complex?  Is it doing something with elevation?
+	Answer - yes, elevation is clearing impacting this.
+
+Precipitation isn't bad in terms of processing.
+	Range from -.8 to 1
+
+Q: Can I create a composite function that performs a full climate computation?  Just gets x/y, and uses continents function, and outputs a layered output from some number to some number that represents distinct zones?
+
+Like Axx - elevation
+xBx - temperature
+xxC - precipitation?
+
+Or derive more complex biome zones?  Need to evaluate current grouping?
+
+Since all need to be executed, this would be very challenging to back-trace, better to make sure precipitation / temperature can be resolved very easily.
+
+When building out terrain, should have major regions:
+Mountains / Mesas / Giant Forests, these can all be distributed with perlin noise.
+
+These need not necessarily be scaled to continental size or biome size.
+
+Mountains / Mesas should be able to merge if applicable, based on low-frequency non fractalized threshold?
+
+1. Verify continental layout, island generation, hill / rough / flat distribution, do this all via the customization function impacting the frequency of the corresponding functions.  Add offset and salt as needed.
+2. Verify mountain / mesa distribution, and method of adding into output.
+3. Update precipitation / temperature functions to use simplified elevation estimations.
+4. Update all biome distribution within mountain regions, mesa regions, forest regions, how to apply noise to biome phase?
+5. Update all other biome distribution?
+6. Use method to update colors of all biome YML files.
+7. Update ore distribution for base biome.
+8. 
+
+Review both terrain generations, considerations:
+
+Original allows land below sea level
+Original has interesting mountain generation - but may be costly.
+
+
+Newer has more interesting continental interactions.
+
+
+Target - Take original, change constellation expression to match new.
+Take mountain mask, and generate two types of mountains based on either end of the updated mask function.
+
+User herp for mesa height transition instead of current exponential?
+
+Note: Continental can also be used to drive island creation... an interesting idea.
+
+Regions:
+
+Hills
+Rough Patch
+Flat (Generates naturally from continental?)
+Mountian (A and B type)
+Mesa
+Sand Dunes

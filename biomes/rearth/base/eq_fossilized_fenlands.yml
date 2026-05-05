@@ -1,0 +1,42 @@
+id: EQ_FOSSILIZED_FENLANDS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  height: 11
+  stepHeight: 4
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + base + BiomeShapeFlattenedElevation(x,z)
+      + (height * surfaceOffset(x,z) + 6
+      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
+    functions:
+      clamp:
+        arguments: [x, a, b]
+        expression: min(max(x, a), b)
+    samplers:
+      plateous:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2S
+        frequency: 0.01
+        salt: 4
+      surfaceOffset:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.006
+        octaves: 3
+        lacunarity: 2.4
+        gain: 0.5
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

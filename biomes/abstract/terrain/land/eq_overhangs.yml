@@ -5,13 +5,13 @@ abstract: true
 variables: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
-  
+
   overhangStrength: 20
 
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + overhangs(x, y*3, z) * overhangStrength
+    expression: -y + base + elevationDetailedBlockHeight(x,z) + overhangs(x, y*3, z) * overhangStrength
     variables: *variables
     samplers:
       overhangs:
@@ -24,6 +24,6 @@ terrain:
           salt: 4957
 
   sampler-2d:
-    type: EXPRESSION
-    expression: scale * elevationDetailed(x, z)
-    variables: *variables
+    dimensions: 2
+    type: CONSTANT
+    value: 0

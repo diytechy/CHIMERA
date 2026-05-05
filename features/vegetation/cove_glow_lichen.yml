@@ -1,0 +1,45 @@
+id: COVE_GLOW_LICHEN
+type: FEATURE
+
+distributor:
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 2313
+      threshold: 0.05
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        expression: continentalRiverDist(x,z)
+      threshold: 0.0
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        expression: -temperature(x,z)
+      threshold: 0.3 #Becomes -0.3 to not melt ice structures.
+  
+
+    #- type: SAMPLER
+    #  samplers:
+    #    type: EXPRESSION
+    #    expression: glowLichenRange(x,y,z)
+    #  threshold: 0.1
+locator:
+  type: PATTERN
+  range: &range
+    min: ${meta.yml:ocean-level} + 3
+    max: $meta.yml:top-y
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_AIR
+        offset: 0
+      - type: MATCH_SOLID
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: glow_berries

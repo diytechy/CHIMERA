@@ -2,7 +2,6 @@ id: ANCIENT_CAVES
 type: BIOME
 extends:
   - CAVE
-  - BASE
 color: $biomes/colors.yml:ANCIENT_CAVES
 
 vanilla: minecraft:dripstone_caves
@@ -24,6 +23,8 @@ features:
     - SUSPICIOUS_GRAVEL_DEPOSITS
   postprocessors:
     - TRIAL_RUIN_REMNANTS
+    - SUSPICIOUS_SAND
+    - SUSPICIOUS_GRAVEL
   landforms:
     - GREAT_BAOBAB_TREES
     - FOSSILS

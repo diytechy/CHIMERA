@@ -8,3 +8,9 @@ extends:
 color: $biomes/colors.yml:MUSHROOM_RIVER
 
 vanilla: minecraft:river
+features:
+  river-decoration:
+  - CLAY_DEPOSITS
+  - COVE_GLOW_LICHEN
+  processors:
+  - RIVER_SOULSAND

@@ -1,7 +1,7 @@
 id: DESERT_MESA
 type: BIOME
 extends:
-  - EQ_SPOT_MESA
+  - EQ_MESA
   - CARVING_OCEAN
   - ROCKY_DESERT
   - BASE
@@ -9,5 +9,6 @@ color: $biomes/colors.yml:DESERT_MESA
 
 tags:
   - USE_DESERT_RIVER
+  - LAND_CAVES
 
 vanilla: minecraft:desert

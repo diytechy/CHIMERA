@@ -5,14 +5,14 @@ abstract: true
 variables: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
-  
+
   duneFactor: 0.03
   duneStart: 0
   duneEnd: 0.4
   mountainPeakStart: 0.5
   mountainPeakEnd: 0.8
   mountainPeakFactor: 0.1
-  
+
   duneSpacing: 7 # Higher number = more spacing between dunes
   duneFrequency: 0.3 # Overall dune frequency
   duneRotationRange: pi/3 # How much dune cells are randomly rotated, 0 = anisotrophic, pi = isotrophic
@@ -20,22 +20,18 @@ variables: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base
-    variables: *variables
-  
-  sampler-2d:
-    type: EXPRESSION
     expression: |
+      -y + base + elevationDetailedBlockHeight(x,z) +
       scale *
       combine(
         combine(
-          elevation(x, z) * 0.1,
+          elevation(x, z),
           mountainPeakStart, 0,
           mountainPeakEnd, mountainPeaks(x,z) * mountainPeakFactor
         ),
         duneStart, dunes(x*duneFrequency,z*duneFrequency) * duneFactor,
         duneEnd, 0
-      )
+      ) * biomeInfluence(x,z)
     variables: *variables
     samplers:
       dunes: # Dune height map [0, 1]
@@ -95,3 +91,8 @@ terrain:
           - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

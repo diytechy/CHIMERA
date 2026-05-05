@@ -1,0 +1,95 @@
+id: EQ_FROSTY_FINGERS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:origen-terrain-height
+  duneFactor: 0.4
+  duneStart: 0
+  duneEnd: 0.8
+  mountainPeakStart: 0.5
+  mountainPeakEnd: 0.9
+  mountainPeakFactor: 0.2
+  duneSpacing: 15
+  duneFrequency: 0.24
+  duneRotationRange: 0.07
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (scale *
+      combine(
+        combine(
+          elevation(x, z) * 0.1,
+          mountainPeakStart, 0,
+          mountainPeakEnd, mountainPeaks(x,z) * mountainPeakFactor
+        ),
+        duneStart, dunes(x*duneFrequency,z*duneFrequency) * duneFactor,
+        duneEnd, 0
+      )) * biomeInfluence(x,z)
+    samplers:
+      dunes:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 5
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.04
+        sampler:
+          type: DOMAIN_WARP
+          amplitude: 15
+          warp:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.02
+            salt: 1
+          sampler:
+            type: EXPRESSION
+            variables: *variables
+            expression: |
+              -mask(x, z) * (-|sin((
+                 x*sin(rotation(x,z)*duneRotationRange)
+                +z*cos(rotation(x,z)*duneRotationRange))/duneSpacing)|+1)
+            samplers:
+              height:
+                dimensions: 2
+                type: CELLULAR
+                frequency: 0.01
+              rotation:
+                dimensions: 2
+                type: CELLULAR
+                frequency: 0.01
+                return: CellValue
+              mask:
+                dimensions: 2
+                type: CELLULAR
+                frequency: 0.01
+                return: Distance2Div
+      mountainPeaks:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 5
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.03
+          salt: 812
+        sampler:
+          type: RIDGED
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.005
+            salt: 7129
+    functions:
+      combine:
+        arguments: [x, at, a, bt, b]
+        expression: x+lerp(x,at,a,bt,b)
+        functions: $math/functions/interpolation.yml:functions
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -1,0 +1,87 @@
+id: EQ_ARID_ARBORETUM
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: 68
+  height: 9
+  pillarHeight: 40
+
+terrain:
+  blend:
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 1
+    weight: 1.0
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    #Working but still blocky
+    #expression: |
+    #  max(clamp((-y + base + BiomeShapeLandmassElevation(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),-1.99,1.99),
+    #  max(min(pillars(x + noiseBase(y * 3, x / 4 + z / 5) * 5, y, z + noiseBase(y * 2.5 + 500, x / 6 + z / 2) * 5) * 24,2.99) + 
+    #    min((biomeInfluence(x,z)-1.001) * 2,0), -1.99))
+
+    # Reference, no blockinng, but no pillars:
+    #expression: |
+    #  -y + base + BiomeShapeLandmassElevation(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)
+    expression: |
+      max(clamp((-y + base + BiomeShapeFlattenedElevation(x,z) + noiseBase(x,z) * height * biomeInfluence(x,z)),-1.49+clampNoise(x,y,z),1.5+clampNoise(x,y,z)),
+      max(min(pillars(x + noiseBase(y * 0.5, x / 4 + z / 5) * 5, y, z + noiseBase(y * 0.8 + 500, x / 6 + z / 2) * 5) * 24,2.75+clampNoise(x,y,z)) +
+        min((biomeInfluence(x,z)-1.001) * 2,0), -3.5))
+    functions:
+      clamp:
+        arguments: [x, a, b]
+        expression: min(max(x, a), b)
+    samplers:
+      clampNoise:
+        dimensions: 3
+        type: WHITE_NOISE
+        salt: 5432
+      pillars:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          basePillarsExistence(x,z) * (
+            -basepillars(x,z) - 0.6
+            + basepillarsCenter(x,z) * 0.12
+            + pillarWidthRand(y, x / 10) * 0.09
+            + (min(0, base + (BiomeShapeLandmassElevation(x,z) + pillarHeight) * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3
+          ) - (1 - basePillarsExistence(x,z))
+        samplers:
+          basepillars: &pillarConf
+            dimensions: 2
+            type: CELLULAR
+            frequency: 0.013
+            jitter: 1
+            distance: Euclidean
+          basePillarsExistence:
+            <<: *pillarConf
+            return: NoiseLookup
+            lookup: 
+              dimensions: 2
+              type: EXPRESSION
+              expression: if(biomeInfluence(x,z)>0.99,1,0)
+          basepillarsCenter:
+            <<: *pillarConf
+            return: CellValue
+          pillarWidthRand:
+            dimensions: 2
+            type: FBM
+            sampler:
+              dimensions: 2
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.1
+            octaves: 2
+            lacunarity: 2
+            gain: 0.35
+      noiseBase:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2S
+        frequency: 0.011
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -1,0 +1,14 @@
+id: RED_ARID_PALE_GARDEN_COAST
+type: BIOME
+extends:
+- PALE_GARDEN_COAST
+color: $biomes/colors.yml:RED_ARID_PALE_GARDEN_COAST
+vanilla: minecraft:pale_garden
+tags:
+- RESIN_ROOTS
+- USE_ARID_PALE_GARDEN_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+palette:
+- RED_SAND: $meta.yml:top-y
+- << meta.yml:palette-bottom

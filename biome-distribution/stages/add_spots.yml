@@ -1,0 +1,57 @@
+stages:
+#  - type: REPLACE
+#    from: _non_spot
+#    to:
+#      - ocean: 1
+#      - land: 1
+#    sampler:
+#      type: EXPRESSION
+#      expression: continentalDistribution(x, z)
+
+  #land spot
+  - type: REPLACE
+    from: _land_spot
+    to:
+      - sinkhole: 2
+      - live-volcano: 2
+      - PRISMATIC_SPRING: 1
+      - COLD_EXTINCT_VOLCANO: 3
+    sampler:
+      type: EXPRESSION
+      expression: spotSizePercent(x, z)*2-1
+
+  #ocean spot
+  - type: REPLACE
+    from: _ocean_spot
+    to:
+      - live-volcano: 2
+      - PRISMATIC_SPRING: 1
+      - COLD_EXTINCT_VOLCANO: 3
+    sampler:
+      type: EXPRESSION
+      expression: spotSizePercent(x, z)*2-1
+
+  - type: BORDER
+    from: live-volcano
+    replace: ocean
+    to:
+      - ocean: 1
+      - volcano-coast: 1
+    sampler:
+      type: EXPRESSION
+      expression: nearSpot(x, z)
+      variables: $math/samplers/spots.yml:variables
+
+  - type: BORDER
+    from: sinkhole
+    replace: land
+    to: sinkhole-border
+    sampler:
+      type: CONSTANT
+
+  - type: BORDER
+    from: sinkhole
+    replace: ocean
+    to: sinkhole-border-ocean
+    sampler:
+      type: CONSTANT

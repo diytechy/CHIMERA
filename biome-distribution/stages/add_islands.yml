@@ -10,3 +10,11 @@ stages:
     to:
       island-coast:
         - mushroom-coast: 1
+      polar-island:
+        - polar-mushroom: 1
+      polar-island-coast:
+        - polar-mushroom-coast: 1
+      tropical-island:
+        - tropical-mushroom: 1
+      tropical-island-coast:
+        - tropical-mushroom-coast: 1

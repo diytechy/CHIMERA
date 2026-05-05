@@ -5,3 +5,17 @@ extends:
   - CARVING_OCEAN
   - TAR_PITS
 color: $biomes/colors.yml:TAR_PIT_RIVER
+features:
+  flora:
+  - GRASS
+  - DEAD_BUSHES
+  - POPPY_PATCH
+  - DANDELION_PATCH
+  trees:
+  - PALM_TREES
+  - MESQUITE_TREES
+  - SPARSE_FALLEN_PALM_TREES
+  processors:
+  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN

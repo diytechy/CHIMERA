@@ -1,0 +1,49 @@
+id: CARVING_CREAKS
+type: BIOME
+vanilla: minecraft:badlands
+extends:
+- CARVING_LAND
+- BASE
+- EQ_CARVING_CREAKS
+color: $biomes/colors.yml:DESERT_MESA
+slant-depth: 4
+slant:
+- threshold: 0
+  palette:
+  - RED_SAND: 319
+  - SAND: 64
+- threshold: 3
+  palette:
+  - BLOCK:minecraft:orange_terracotta: 319
+  - BLOCK:minecraft:terracotta: 108
+  - BLOCK:minecraft:yellow_terracotta: 106
+  - BLOCK:minecraft:brown_terracotta: 104
+  - BLOCK:minecraft:pink_terracotta: 101
+  - BLOCK:minecraft:yellow_terracotta: 97
+  - BLOCK:minecraft:terracotta: 94
+  - BLOCK:minecraft:light_gray_terracotta: 90
+  - BLOCK:minecraft:white_terracotta: 85
+  - BLOCK:minecraft:terracotta: 82
+  - BLOCK:minecraft:orange_terracotta: 79
+  - BLOCK:minecraft:yellow_terracotta: 76
+  - BLOCK:minecraft:terracotta: 70
+  - SAND: 40
+palette:
+- RED_SAND: 319
+- SAND: 40
+- << meta.yml:palette-bottom
+features:
+  flora:
+  - CACTUS_SPARSE
+  - DEAD_BUSHES
+  trees:
+  - OAK_BUSH_PATCHES
+  - DEAD_TREES_SPARSE
+  landforms:
+  - GRANITE_BOULDERS
+  - SMALL_GRANITE_BOULDER_PATCHES
+tags:
+- LOW_CAVE
+- SPECIAL_CAVES
+- ARID_COAST_FLAT
+- USE_BADLANDS_RIVER

@@ -1,0 +1,98 @@
+id: EQ_EXTINCT_VOLCANO
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:terrain-height
+  "<<":
+    - math/samplers/spots.yml:variables
+
+#ocean is overwritten in active volcano biomes.
+ocean:
+  level: $meta.yml:ocean-level
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      olevel: $meta.yml:ocean-level
+      base: $customization.yml:terrain-base-y-level
+      scale: $customization.yml:terrain-height
+      "<<":
+        - math/samplers/spots.yml:variables
+    # Fluid level = base + scale * (spotBase + volcHeight - centerDepth * (1 - fillPct))
+    # fillPct = lerp(spotFluidPercent, 0, -0.8, 1, 0.8): negative = dry crater, positive = water.
+    # Water only appears when fillPct > 0, i.e. spotFluidPercent > 0.5 (~50% of craters are dry).
+    expression: |
+      if(distanceToVolcanicRim(x, z) < 0.05 && spotFluidPercent(x, z) > 0.5,
+        base + scale * (
+          spotBaseElevation(x, z) + volcHeight(x, z)
+          - volcanoCenterDepth(x, z) * (1 - lerp(spotFluidPercent(x, z), 0, -0.8, 1, 0.8))
+        ),
+        olevel)
+    samplers:
+      volcHeight:
+        #arguments: [x, z]
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          "<<":
+            - math/samplers/spots.yml:variables
+        expression: |
+          lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4) * (1 - spotEdgeRadiusPercent(x, z)),
+            0, minExtHeight,
+            1, maxExtHeight)
+
+terrain:
+  sampler-2d:
+    type: CONSTANT
+  sampler:
+    type: EXPRESSION
+    functions: $math/functions/interpolation.yml:functions
+    expression: |
+      -y + base + herp(distanceToVolcanicRim(x, z),0,sampler2d(x,z),
+      1,elevationDetailedBlockHeight(x,z))
+    variables: *variables
+    samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          scale * (calcHeight(x, z,
+            /*distance*/      spotDistance(x, z),
+            /*erosion*/       (volcanoErosion(x, z)+1)/2,
+            /*outsideHeight*/ 0,
+            /*edge*/          volcanicEdgeRadius(x, z),
+            /*radius*/        spotRadius(x, z),
+            /*centerDepth*/   volcanoCenterDepth(x, z),
+            /*volcanoHeight*/ lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4) * (1 - spotEdgeRadiusPercent(x, z)),
+                                0, minExtHeight,
+                                1, maxExtHeight
+                              ),
+            /*volcanoBase*/   0)
+           + spotBaseElevation(x, z))
+        functions:
+          calcHeight:
+            arguments:
+              - x
+              - z
+              - distance
+              - erosion
+              - outsideHeight
+              - edge
+              - radius
+              - centerDepth
+              - volcanoHeight
+              - volcanoBase
+            expression: |
+              parabolicMap(distance,
+                radius, outsideHeight,
+                radius * edge,
+                  volcanoBase + volcanoHeight * (1 - erosion * lerp(distance, radius, 1, radius * edge, 0))
+                  - parabolicMap(distance,
+                    radius * edge / 3, centerDepth,
+                    radius * edge, 0
+                  )
+              )
+            functions: $math/functions/interpolation.yml:functions

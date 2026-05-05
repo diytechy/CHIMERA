@@ -1,0 +1,87 @@
+id: EQ_SAKURA_STREAMS
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: 65
+  height: 30
+  variation: 13
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      // positive / higher = solid
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (lerp(biomeInfluence(x,z),
+        0.7, terrace(min(biomeInfluence(x,z), 0.75)* 5, 11) / 4 * height * (mountainRandomness(x,z) * 0.4 + 1),
+        0.25, surfaceVariation(x + 5000, z) * variation)
+      + surfaceVariation(x,z) * variation) * biomeInfluence(x,z)
+      + riverMask(x, y, z) * 60
+    functions:
+      terrace:
+        arguments: [x, terraceStrength]
+        expression: round(x) + 0.5 * (2*(x - round(x)))^terraceStrength
+    samplers:
+      cellMountains:
+        dimensions: 2
+        type: LINEAR
+        min: -1
+        max: 0.2
+        sampler: &cellMountainsSampler
+          dimensions: 2
+          type: CELLULAR
+          frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+          jitter: ${customization.yml:biomeSpread.cellJitter}
+          distance: Euclidean
+      mountainRandomness:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+        jitter: ${customization.yml:biomeSpread.cellJitter}
+        distance: Euclidean
+        return: CellValue
+      surfaceVariation:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.002
+        octaves: 3
+        lacunarity: 3.6
+        gain: 0.37
+      riverMask:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          clamp(abs(abs(riverBaseAngle(x,z) * 3) +    // basic line from center
+            riverAngleVariation(cellMountains(x,z) * 300, 0) * 0.27   // vary angle slightly going outwards
+            - rivers(x,z)) % (6.28 / 5) * lerp(cellMountains(x,z), -0.98, -0.4, -0.2, 3.5) // ensure river has proper width
+            - 0.175 + riverAngleVariation(cellMountains(x,z) * 400, x / 300 + z / 200) * 0.02, -0.13, 0)   // vary the river width going outwad, then clamp it to a min and max height
+        samplers:
+          cellMountains: *cellMountainsSampler
+          rivers:
+            dimensions: 2
+            type: CELLULAR
+            frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+            jitter: ${customization.yml:biomeSpread.cellJitter}
+            distance: Euclidean
+            return: Angle
+          riverAngleVariation:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2S
+            frequency: 0.014
+          riverBaseAngle:
+            dimensions: 2
+            type: CELLULAR
+            frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+            jitter: ${customization.yml:biomeSpread.cellJitter}
+            distance: Euclidean
+            return: CellValue
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

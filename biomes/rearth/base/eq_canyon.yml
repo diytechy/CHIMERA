@@ -5,7 +5,12 @@ abstract: true
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + 73
+    dimensions: 3
+    expression: -y + 73 + elevationDetailedBlockHeight(x,z)
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0
 
 variables: &variables
   canyonFloor: ${customization.yml:biomeSpread.canyons.minY} + 3
@@ -30,11 +35,11 @@ carving:
       base:
         dimensions: 2
         type: OPEN_SIMPLEX_2S
-        frequency: 1 / ${customization.yml:biomeSpread.cellDistance} * 1
+        frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 1
       mask:
         dimensions: 2
         type: CELLULAR
-        frequency: 1 / ${customization.yml:biomeSpread.cellDistance} * 0.15
+        frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 0.15
         seed: 23456345
       walls:
         dimensions: 3

@@ -5,3 +5,4 @@ abstract: true
 features:
   river-decoration:
     - CLAY_DEPOSITS
+    - COVE_GLOW_LICHEN

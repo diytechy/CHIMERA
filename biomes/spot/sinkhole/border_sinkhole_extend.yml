@@ -1,0 +1,6 @@
+id: BORDER_SINKHOLE_EXTEND
+type: BIOME
+abstract: true
+
+tags:
+  - SINKHOLE

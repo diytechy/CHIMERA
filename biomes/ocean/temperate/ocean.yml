@@ -11,6 +11,7 @@ color: $biomes/colors.yml:OCEAN
 vanilla: minecraft:ocean
 
 tags:
+  - OCEAN_CAVES
   - USE_TRENCH
 
 features:

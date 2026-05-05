@@ -1,0 +1,53 @@
+id: SECLUDED_VALLEY
+type: BIOME
+vanilla: minecraft:plains
+color: $biomes/colors.yml:SUNFLOWER_PRAIRIE
+extends:
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+# - CARVING_LAND
+- EQ_SECLUDED_VALLEY
+colors:
+  foliage: 16758725
+  grass: 11983713
+  water: 6141935
+  water-fog: 1352389
+slant:
+- threshold: 0.4
+  palette:
+  - MOSS_TUFF: 319
+  - MOSSY_COBBLESTONE_STONE: 71
+  - BLOCK:minecraft:moss_block: 55
+slant-depth: 4
+palette:
+- GRASS: 319
+- SAND: 64
+- MUDDY_BEACH: 61
+- MOSS_TUFF: 50
+- << meta.yml:palette-bottom
+features:
+  global-preprocessors:
+  - LAVA_FLOOR
+  - UNDERGROUND_LAVA_COLUMNS
+  - CONTAIN_FLOATING_WATER
+  - TEXTURED_STONE_SLANT
+  trees:
+  - VALLEY_GIANT
+  - VALLEY_SAKURA_TREES
+  - SECLUDED_SANCTUARY_TREES
+  flora:
+  - LARGE_LEAF_VINES_UNDERGROUND
+  - MOSS_CARPET
+  - VALLEY_PETALS
+  - CAVE_GLOW_BERRIES
+  - CAVE_SPORE_BLOSSOMS
+  - SMALL_DRIPLEAF_CAVES
+  - BIG_DRIPLEAF_CAVES
+  - GRASS_CAVES
+  - VALLEY_GIANT_GLOW_BERRIES
+  - SUNFLOWER_COVER
+  - CARROT_PATCHES
+tags:
+- LOWER_CAVES
+- SPECIAL_CAVES
+- USE_RIVER

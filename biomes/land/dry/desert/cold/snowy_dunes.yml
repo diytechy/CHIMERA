@@ -11,7 +11,8 @@ vanilla: minecraft:snowy_plains
 
 tags:
   - LAND_CAVES
-  - USE_DESERT_RIVER
+  - SPECIAL_CAVES
+  - USE_FROZEN_RIVER
 
 palette:
   - SNOW: $meta.yml:top-y
@@ -25,5 +26,7 @@ slant:
       - << meta.yml:palette-bottom
 
 features:
+  postprocessors:
+    - BLEND_SNOW
   slabs:
     - SNOW_LAYERS

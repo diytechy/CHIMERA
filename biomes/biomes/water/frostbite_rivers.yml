@@ -1,0 +1,42 @@
+id: FROSTBITE_RIVERS #for ice mountain biomes
+type: BIOME
+extends: 
+ - EQ_GLOBAL_RIVER
+ - FROZEN_SPIRES
+
+#original-noise: &originalNoise $biomes/equations/eq_terraced_mountains.yml:terrain.sampler # Original noise to be turned into river
+#
+#vars: &variables
+#  ceilingHeight:    90  # Base Y level of the ceiling
+#  ceilingVariation: 0   # How many blocks upwards ceiling height can vary
+#  originalStrength: 1   # How much the original noise contributes to ceiling shape
+#  ceilingSpikeVar:  18  # How many blocks down ceiling spikes will go
+#  
+#  floorHeight:      45  # Base Y level of the floor
+#  floorVariation:   0   # How many blocks* upwards floor height can vary
+#  floorSpikeBias:   1   # How biased spikes are to going up or down, greater = more upwards
+#  floorStrength:    0.5 # Strength of negation above the floor, used for carving adjacent biomes
+#  floorSpikeVar:    18  # How many blocks* upwards spikes will come up from the floor
+#  #  * Gets factored by floorStrength
+
+vanilla: minecraft:frozen_peaks
+
+palette:
+  - SNOWY_ICE: 319
+  - << palettes/rock_layers.yml:palette
+
+slant:
+  - threshold: 2.7
+    palette:
+      - BLOCK:minecraft:ice: 319
+      - << palettes/rock_layers.yml:palette
+      
+features:
+  landforms:
+  - ICE_PILLARS_CEILING
+  snow:
+  - SNOW_LAYERS
+  river-decoration:
+  - COVE_FROZEN_LIGHT
+  postprocessors:
+  - RIVER_SOULSAND

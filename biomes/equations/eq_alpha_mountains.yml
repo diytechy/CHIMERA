@@ -1,0 +1,34 @@
+id: EQ_ALPHA_MOUNTAINS
+type: BIOME
+abstract: true
+vars: &id001
+  base: $customization.yml:legacy-terrain-base-y-level
+  height: 140
+  blobStrength: 30
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: 
+      -y + base + elevationDetailedBlockHeight(x,z) +
+      (noise(x, z)+1)/2 * height * biomeInfluence(x,z) + 
+      (noise3(x, y*3, z)+1)/2 * blobStrength
+    variables: *id001
+    samplers:
+      noise:
+        dimensions: 2
+        type: FBM
+        octaves: 5
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.005
+      noise3:
+        dimensions: 3
+        type: OPEN_SIMPLEX_2
+        frequency: 0.018
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0
+tags:
+- BOREAL_COAST_HIGHLANDS

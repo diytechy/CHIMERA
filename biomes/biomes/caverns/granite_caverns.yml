@@ -1,0 +1,13 @@
+id: GRANITE_CAVERNS
+type: BIOME
+extends: [ BASE_HYDRAXIA_CAVERN ]
+vanilla: minecraft:snowy_plains
+
+palette:
+  - GRANITE_CAVERNS: 319
+  - GRANITE_CAVERNS_DEEPSLATE: 7
+  - << palettes/rock_layers.yml:palette-bedrock
+  
+features:
+  entities:
+    - BATS

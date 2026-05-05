@@ -2,18 +2,16 @@ id: EQ_MANGROVE_SWAMP
 type: BIOME
 abstract: true
 
+vars: &variables
+  base: ${customization.yml:terrain-base-y-level} - 9
+  height: 14
+
 terrain:
   sampler:
     dimensions: 3
-    type: LINEAR_HEIGHTMAP
-    base: ${customization.yml:terrain-base-y-level} - 9
-
-  sampler-2d:
-    dimensions: 2
     type: EXPRESSION
-    variables:
-      height: 14
-    expression: (noise(x,z)+1)/2 * height
+    variables: *variables
+    expression: -y + base + BiomeShapeSealevelElevation(x,z) + (noise(x,z)+1)/2 * height * biomeInfluence(x,z)
     samplers:
       noise:
         dimensions: 2
@@ -28,3 +26,8 @@ terrain:
           sampler:
             type: OPEN_SIMPLEX_2
             frequency: 0.0275
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

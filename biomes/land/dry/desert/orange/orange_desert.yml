@@ -5,6 +5,7 @@ color: $biomes/colors.yml:ORANGE_DESERT
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_ORANGE_DESERT_RIVER
 
 palette:

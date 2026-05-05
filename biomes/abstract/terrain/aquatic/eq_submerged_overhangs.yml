@@ -5,6 +5,7 @@ abstract: true
 variables: &variables
   base: $customization.yml:terrain-ocean-base-y-level
   scale: $customization.yml:terrain-ocean-depth
+  ocean_level: $meta.yml:ocean-level
   overhangStrength: 50
   overhangStartPercent: 0.1 # Percentage from base max depth where
                             # overhangs become full strength, strength
@@ -16,10 +17,14 @@ terrain:
   sampler:
     type: EXPRESSION
     expression: |
-      -y + base
-      + overhangs(x, y*3, z) * parabolicMap(y,
-        base - scale * overhangStartPercent,
-        overhangStrength, base, 0)
+      max(
+        -y + base
+        + overhangs(x, y*3, z) * parabolicMap(y,
+          base - scale * overhangStartPercent,
+          overhangStrength, base, 0)
+      ,
+        -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
+      )
     variables: *variables
     samplers:
       overhangs:
@@ -34,5 +39,6 @@ terrain:
             salt: 4957
   sampler-2d:
     type: EXPRESSION
-    expression: scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
+    expression: |
+      scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
     variables: *variables

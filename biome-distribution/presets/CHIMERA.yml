@@ -1,0 +1,169 @@
+# ExploreExpand preset - Biomes NOT in default, origen2, or rearth presets
+# This preset contains only biomes that don't appear in the main presets,
+# allowing exploration of rare/unused biomes. Not intended for normal gameplay.
+
+biomes:
+  type: EXTRUSION
+  extrusions:
+    # All cave extrusions
+    - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
+    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
+    - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+  provider:
+    type: PIPELINE
+    resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
+    y-resolution: 8
+
+    # Fast-path for stronghold ring position searches (world creation).
+    # Replaces full pipeline evaluation for the 415,872 biome queries issued during
+    # initial stronghold placement. A single continents noise call per
+    # query determines land vs ocean, avoiding the pipeline chunk cache amplification
+    # (up to ~2,000x more evaluations than needed for peripheral pipeline chunks).
+    # eligible-biome maps to minecraft:plains (in #stronghold_biased_to).
+    # ineligible-biome maps to minecraft:ocean (not in the tag).
+    structure-search:
+      classifier:
+        type: EXPRESSION
+        expression: continents(x, z)
+      threshold: 0.0
+      eligible-biome: TEMPERATE_GRASSLAND
+      ineligible-biome: OCEAN
+
+    blend:
+      amplitude: 3
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.05
+    pipeline:
+      source:
+        type: SAMPLER
+        sampler:
+          type: EXPRESSION
+          expression: spotPlacer(x, z)
+        #Note ocean and land spots are always at end, the "20" here is just to give approximate 
+        #distribution, but weather 20, 200, or 1 for non_spots, the same result will be yielded.
+        biomes:
+          _ocean_spot: 1
+          _non_spot: 20
+          _land_spot: 1
+      stages:
+        - type: REPLACE
+          from: _non_spot
+          to:
+            - ocean: 1
+            - land: 1
+          sampler:
+            type: EXPRESSION
+            expression: continentalDistribution(x, z)
+        #    
+        #- type: REPLACE
+        #  from: land
+        #  to:
+        #  - FROSTCOATED_BOG: 6
+        #  - LAVENDER_FIELDS: 4
+        #  - MUSKEG: 4
+        #  - SCULK_SWAMP: 2
+        #  - SNOWSWEPT_MEADOWS: 4
+        #  - TUNDRA: 4
+        #  - GLACIAL_OVERHANGS: 5
+        #  - AUTUMNAL_WOODLANDS: 4
+        #  - BIRCH_WOODLANDS: 5
+        #  - MAPLE_WOODLANDS: 4
+        #  - DARK_OAK_WOODLANDS: 5
+        #  - OAK_WOODLANDS: 5
+        #  - SPRUCE_WOODLANDS: 5
+        #  - TUNDRA: 4
+        #  - GLACIAL_OVERHANGS: 6
+        #  - AUTUMNAL_WOODLANDS: 4
+        #  - BIRCH_WOODLANDS: 6
+        #  - MAPLE_WOODLANDS: 4
+        #  - DARK_OAK_WOODLANDS: 6
+        #  - OAK_WOODLANDS: 6
+        #  - SPRUCE_WOODLANDS: 8
+        #  - SPRUCE_WOODLANDS: 2
+        #  - FROZEN_SPIRES: 2
+        #  - FROZEN_SPIRES: 4
+        #  - FROZEN_SPIRES: 2
+        #  - SAKURA_WOODLANDS: 4
+        #  - FRIGID_WASTELANDS: 4
+        #  - FIR_HIGHLANDS: 5
+        #  - ENCHANTED_WOODLANDS: 1
+        #  - BITTER_HEIGHTS: 4
+        #  - DRIPSTONE_BARRENS: 4
+        #  - REDWOOD_WOODLANDS: 4
+        #  - LAVENDER_CRAGS: 4
+        #  - ICEBOUND_JUNGLE: 8
+        #  - SUGAR_PINE_WOODLANDS: 6
+        #  - ARCTIC_MESA: 3
+        #  - FROSTBOUND_CHASMS: 4
+        #  - PERMAFROST_CLIFFS: 3
+        #  - SEARING_TORS: 1
+
+        #  - VERDANT_VALLEYS: 1 # _verdant_valleys: 1
+        #  - _pillow_plains: 1
+        #  - _desert: 1
+        #  - FROZEN_SPIRES: 1
+        # NEXT:
+        #   - GLOOMY_GORGE: 1
+        #   - SNOWY_SPIRES: 1
+        #   - CARVING_CREAKS: 1 (Likely needs to be mesa replacement, maybe around river?  Likely has it's own river that must be removed.)
+        #   - CANOPY_C
+        #  sampler:
+        #    #type: CONSTANT
+        #    type: EXPRESSION
+        #    expression: BiomeShapeLandmassValue(x, z)
+        #  sampler:
+        #    #type: CONSTANT
+        #    type: EXPRESSION
+        #    expression: BiomeShapeLandmassValue(x, z)
+        
+        #********* This section should only be uncommented to test intermittent distribution before climate
+        #Input: All distributions so far
+        #Resolvable biomes
+        #- << biome-distribution/stages/PopulateTestBiomes.yml:stages
+        #- << biome-distribution/stages/PopulateTestStage.yml:stages
+        #*************************************
+        
+        ##Add spots to drop large POIs like volcanos / mesas
+        ##Input: ocean / land
+        ##Output: ocean / land / various spot locations (mesa / volcano) / coastal regions.
+        - << biome-distribution/stages/add_spots.yml:stages
+        #
+        ##Segment temperature regions for respective canyon valleys / sinkholes
+        - << biome-distribution/stages/special/build_rift_regions.yml:stages
+        #
+        ##Output: land / vast-forest / island / ocean / island-coast
+        - << biome-distribution/stages/Distribute_Major_Regions.yml:stages
+        
+        ###Build out climate regions
+        - << biome-distribution/stages/climate/temperature.yml:stages
+        - << biome-distribution/stages/climate/precipitation.yml:stages
+        - << biome-distribution/stages/climate/elevation.yml:stages
+#
+        - << biome-distribution/stages/climate/color.yml:stages
+        - << biome-distribution/stages/add_travertine_terraces.yml:stages
+        #
+        - << biome-distribution/stages/set_biomes_in_climates_origen.yml:stages
+        - << biome-distribution/stages/add_biome_color_variants.yml:stages
+        - << biome-distribution/stages/special/border_biomes.yml:stages
+        - << biome-distribution/stages/add_coast.yml:stages
+        # ========================================
+        # SMOOTHING PASSES
+        # ========================================
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
+
+        - << biome-distribution/stages/add_rivers.yml:stages
+        #- << biome-distribution/stages/PopulateTestStage.yml:stages
+
+        - << biome-distribution/stages/add_trenches.yml:stages
+        
+

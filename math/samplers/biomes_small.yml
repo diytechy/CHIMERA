@@ -1,0 +1,268 @@
+
+BaseBiomeCell: &BaseBiomeCell
+  dimensions: 2
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+  jitter: 0.7
+  distance: Hybrid
+
+_landmassShape: &landmassShape
+  <<: *BaseBiomeCell
+  salt: 101
+
+_outerWarpSmall: &outerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarpSmall: &midWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarpSmall: &innerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
+samplers:
+
+  BiomeShapeLandmassValue:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: CellValue
+          
+  BiomeShapeLandmassValue2:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: whiteNoiseExp(x,z)
+          salt-lookup: false
+
+  BiomeShapeLandmassPlainsMask:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: plainsMaskApplied(x,z)
+          salt-lookup: false
+          
+  BiomeShapeLandmassDist2Center:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: Distance2Div
+          distance: Euclidean
+          #distance: EuclideanSq
+          
+  BiomeShapeLandmassElevationDetailed:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: elevationDetailed(x,z)
+          salt-lookup: false
+          
+  BiomeShapeLandmassMountains:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: mountainsApplied(x,z)
+          salt-lookup: false
+          
+  BiomeShapeLandmassElevation:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: BiomeShapeLandmassElevationDetailed(x,z) * scale
+          
+  BiomeShapeLandmassFlatness:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: flatness(x,z)
+          salt-lookup: false
+
+  BiomeShapeFlattenedElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  BiomeShapeLandmassElevation(x,z))
+
+  BiomeShapeFlattenedHalfElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  BiomeShapeLandmassElevation(x,z) * 0.5)
+
+  BiomeShapeSealevelElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  0)
+
+
+  BiomeShapeMinimumElevation:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            variables:
+              offset: ${customization.yml:biomeSpread.cellDistance} * 0.4
+            type: EXPRESSION
+            salt-lookup: false
+            expression: |
+              min(
+                min(
+                  min(elevationSparse(x + offset, z), elevationSparse(x - offset, z)),
+                  min(elevationSparse(x, z + offset), elevationSparse(x, z - offset))
+                ),
+                min(
+                  min(elevationSparse(x + offset, z + offset), elevationSparse(x + offset, z - offset)),
+                  min(elevationSparse(x - offset, z + offset), elevationSparse(x - offset, z - offset))
+                )
+              )
+
+  BiomeShapeLandmassFarRiverDistance:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          salt-lookup: false
+          lookup:
+            variables:
+              offset: ${customization.yml:biomeSpread.cellDistance} * 0.4
+            type: EXPRESSION
+            salt-lookup: false
+            expression: |
+              min(continentalRiverDistSparseFarGrid(x, z),
+                min(
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x +offset, z),
+                        continentalRiverDistSparseFarGrid(x - offset, z)),
+                    min(continentalRiverDistSparseFarGrid(x, z + offset),
+                        continentalRiverDistSparseFarGrid(x, z - offset))
+                  ),
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x + offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x + offset, z - offset)),
+                    min(continentalRiverDistSparseFarGrid(x - offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x - offset, z - offset))
+                  )
+                )
+              )
+
+  BiomeShapeLandmassContinents:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
+          salt-lookup: false
+
+  BiomeShapeLandmassTemperature:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+
+  BiomeShapeLandmassPrecipitation:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *landmassShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
+          salt-lookup: false

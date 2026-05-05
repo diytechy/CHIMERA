@@ -2,7 +2,11 @@ id: CLINGING_KELP
 type: FEATURE
 
 distributor:
-  type: "YES"
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 72341
+  threshold: 0.6
 
 locator:
   type: AND
@@ -10,7 +14,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:deepslate-top} - 7
-        max: $meta.yml:ocean-level
+        max: $meta.yml:water-decoration-max
       pattern:
         type: AND
         patterns:

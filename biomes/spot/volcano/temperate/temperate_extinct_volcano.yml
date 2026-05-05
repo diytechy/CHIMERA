@@ -1,7 +1,7 @@
 id: TEMPERATE_EXTINCT_VOLCANO
 type: BIOME
 extends:
-  - EQ_VOLCANO
+  - EQ_EXTINCT_VOLCANO
   - CARVING_OCEAN
   - WOODED_BUTTES
   - BASE
@@ -10,4 +10,5 @@ color: $biomes/colors.yml:TEMPERATE_EXTINCT_VOLCANO
 vanilla: minecraft:plains
 
 tags:
+  - LOW_CAVES
   - USE_RIVER

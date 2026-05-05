@@ -10,6 +10,7 @@ variables: &variables
 
   base: $customization.yml:terrain-ocean-base-y-level
   scale: $customization.yml:terrain-ocean-depth
+  ocean_level: $meta.yml:ocean-level
 
   spikeSlantStrength: 1
   spikeCap: 1 # Cuts off the tips of spikes to mitigate floating terrain, 1 = no cap
@@ -37,12 +38,16 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base
-      + scale * spikes(
-        x+y*spikeSlantStrength*spikeDirection(x, z),
-        z+y*spikeSlantStrength*spikeDirection(x, z+1000)
+      max(
+        -y + base
+        + scale * spikes(
+          x+y*spikeSlantStrength*spikeDirection(x, z),
+          z+y*spikeSlantStrength*spikeDirection(x, z+1000)
+        )
+        * herp(y, base, 1, base - scale * elevationCutoff, 0)
+      ,
+        -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
-      * herp(y, base, 1, base - scale * elevationCutoff, 0)
     samplers:
       spikeDirection: # Determines the direction large spikes slant towards
         dimensions: 2
@@ -98,5 +103,6 @@ terrain:
               salt: 2
   sampler-2d:
     type: EXPRESSION
-    expression: scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
+    expression: |
+      scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
     variables: *variables

@@ -1,0 +1,19 @@
+id: EQ_foliage_fortress_INNER
+type: BIOME
+abstract: true
+
+vars: &variables
+  top: 109
+  scale: $customization.yml:terrain-height
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + top + elevationDetailedBlockHeight(x,z)
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

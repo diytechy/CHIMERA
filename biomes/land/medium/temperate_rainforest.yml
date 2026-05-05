@@ -1,73 +1,69 @@
 id: TEMPERATE_RAINFOREST
 type: BIOME
 extends:
-  - ENVIRONMENT_LAND_TEMPERATE_SUBTROPICAL_HUMID
-  - EQ_MULTI_TERRACED_LAND
-  - CARVING_LAND
-  - BASE
+- ENVIRONMENT_LAND_TEMPERATE_SUBTROPICAL_HUMID
+- EQ_MULTI_TERRACED_LAND
+- CARVING_LAND
+- BASE
 color: $biomes/colors.yml:TEMPERATE_RAINFOREST
-
 tags:
-  - LAND_CAVES
-  - USE_RIVER
-
-vanilla: minecraft:jungle
-
+- LAND_CAVES
+- SPECIAL_CAVES
+- USE_RIVER
+- TEMPERATE_COAST_FLAT
+vanilla: minecraft:sparse_jungle
 colors:
-  grass: 0x7ac465
-  foliage: 0x5fa649
-  water: 0x637d72
-  water-fog: 0x637d72
-
+  grass: 8045669
+  foliage: 6268489
+  water: 6520178
+  water-fog: 6520178
 palette:
+- GRASS: $meta.yml:top-y
+- GRASS_VARIATION: ${meta.yml:ocean-level} + 35
+- GRASS_MOSSY: ${meta.yml:ocean-level} + 25
+- << meta.yml:palette-underwater
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.8
+  palette:
   - GRASS: $meta.yml:top-y
   - GRASS_VARIATION: ${meta.yml:ocean-level} + 35
   - GRASS_MOSSY: ${meta.yml:ocean-level} + 25
   - << meta.yml:palette-underwater
   - << meta.yml:palette-bottom
-
-slant:
-  - threshold: 0.8
-    palette:
-      - GRASS: $meta.yml:top-y
-      - GRASS_VARIATION: ${meta.yml:ocean-level} + 35
-      - GRASS_MOSSY: ${meta.yml:ocean-level} + 25
-      - << meta.yml:palette-underwater
-      - << meta.yml:palette-bottom
-  - threshold: 0.5
-    palette:
-      - MOSS_STONE: $meta.yml:top-y
-      - << meta.yml:palette-bottom
-  - threshold: 0.45
-    palette:
-      - ANDESITE: $meta.yml:top-y
-      - << meta.yml:palette-bottom
-  - threshold: 0.4
-    palette:
-      - BLOCK:minecraft:stone: $meta.yml:top-y
-      - << meta.yml:palette-bottom
-
+- threshold: 0.5
+  palette:
+  - MOSS_STONE: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+- threshold: 0.45
+  palette:
+  - ANDESITE: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+- threshold: 0.4
+  palette:
+  - BLOCK:minecraft:stone: $meta.yml:top-y
+  - << meta.yml:palette-bottom
 features:
   flora:
-    - GRASS
-    - POPPY_PATCH
-    - DANDELION_PATCH
-    - ROSE_BUSH_PATCH
-    - PEONY_PATCH
-    - LILAC_PATCH
-    - LILY_OF_THE_VALLEY_PATCH
-    - FERNS
-    - BEETROOT_PATCHES
-    - WILDFLOWERS
-    - BUSH
+  - GRASS
+  - POPPY_PATCH
+  - DANDELION_PATCH
+  - ROSE_BUSH_PATCH
+  - PEONY_PATCH
+  - LILAC_PATCH
+  - LILY_OF_THE_VALLEY_PATCH
+  - FERNS
+  - BEETROOT_PATCHES
+  - WILDFLOWERS
+  - BUSH
   trees:
-    - DENSE_OAK_TREE_PATCHES
-    - OAK_BUSHES
-    - SUBTROPICAL_BUSHES
-    - SPRUCE_BUSHES
-    - SPRUCE_TREES
-    - SPARSE_FALLEN_THIN_PINE_TREES
-    - SPARSE_FALLEN_OAK_TREES
-    - SPARSE_FALLEN_SPRUCE_TREES
+  - DENSE_OAK_TREE_PATCHES
+  - OAK_BUSHES
+  - SUBTROPICAL_BUSHES
+  - SPRUCE_BUSHES
+  - SPRUCE_TREES
+  - SPARSE_FALLEN_THIN_PINE_TREES
+  - SPARSE_FALLEN_OAK_TREES
+  - SPARSE_FALLEN_SPRUCE_TREES
   landforms:
-    - SMALL_MOSSY_BOULDER_PATCHES
+  - SMALL_MOSSY_BOULDER_PATCHES

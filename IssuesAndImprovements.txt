@@ -1,0 +1,55 @@
+IssuesAndImprovements:
+
+
+== Biomes
+
+Biome lookup is extremely complex and has high overhead.
+
+Detailed elevation need not be part of biome selection, that does give some nice fidelity, but that is not the intent of biome placement anyways.
+
+Biome breakdown should use precipitation, temperature, and then a very loose method to approximate elevation / surface type.
+
+Note the current distribution also evaluates on cell center, this gives better biome shapes, but also forces biome consistency, which is is both good (guarantees biome placement / consistency / size) and bad (less variation to biome size).  This same evaluation could occur on elevation as well rather than cutting off / replacing biomes as a function of elevation itself.
+
+Biomes have general properties:
+    temperature
+    precipitation
+    elevation
+    surfacetype:
+        swamp (At sea level?)
+        smooth (Plain like / flat but not necessarily water-containing, could also have details at the center of the biome that need to be segregated from the outer side)
+        hilly
+        mesa
+        mountainous
+        valley? (should be away from rivers)
+        terraced lands
+
+They should be distributed to this only, it is possible the surface type should be the last filter (like elevation today) and might give some variation, but it would be important to perform warping to give some shape blending.
+
+Omitted biomes in normal distribution chain, since these are meant to be discontinuous:
+    Rifts
+    Spots (Volcanos / Sinkholes / Craters?)
+    Pits (Currently called wells)
+
+
+== PACK SAMPLERS
+
+
+
+
+
+== TERRAIN SAMPLERS
+
+The other big issues is the way block densities are computed which results in discontinuities.  The wide average of the 2d sampler combined with the true/false nature of the 3d sampler can result in discontinuities between biomes that have misaligned values (2d sampler value spikes between the 3-d interpolated value and get's lost).
+
+The averaging method of the 2d-sampler does give a better / smoother response between biomes, but this also means detail fidelity is lost.
+
+The best option is to ensure all surface biomes use the same ground level sampler and add their details into this.  The 2d-sampler would then be omitted completely from all biomes (0) to prevent it from causing discontinuities between biomes.  This would then ensure the 3d-terrain detail is emerging at all points and is not shifted by the 2d sampler.
+
+In order to have terrain consistency across biomes, large features (mountains / large hills) must NOT be biome specific.  Instead it must be a mask property to ensure generation of the terrain also trends with the biome but isn't restricted lest discontinuities be found.  There are some exceptions for this (like very biome specific features), but those need careful blending with biome borders.
+
+Given the importance of border blending, we need  a generic (likely pack-level) sampler that indicates when we're closing in on a border.  Using the actual biome border definition can become hazardous as there is not good control over the blending.
+Biome border would be based on biome changes:
+    River distance
+    Biome cell distance???
+    Distance from elevation / surface type biome boundary if applicable.

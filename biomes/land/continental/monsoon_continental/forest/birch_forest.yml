@@ -9,7 +9,9 @@ color: $biomes/colors.yml:BIRCH_FOREST
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER
+  - TEMPERATE_COAST_FLAT
 
 vanilla: minecraft:birch_forest
 

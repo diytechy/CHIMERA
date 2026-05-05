@@ -25,8 +25,13 @@ slant:
     palette:
       - BLOCK:minecraft:stone: $meta.yml:top-y
       - << meta.yml:palette-bottom
-
+tags:
+- LAND_CAVES
 features:
   flora:
-    - SUGAR_CANE
-    - GRASS
+  - SUGAR_CANE
+  - GRASS
+  river-decoration:
+  - COVE_GLOW_LICHEN
+  processors:
+  - RIVER_SOULSAND

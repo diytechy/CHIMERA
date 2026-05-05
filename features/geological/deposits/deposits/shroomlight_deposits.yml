@@ -1,0 +1,40 @@
+id: SHROOMLIGHT_DEPOSITS
+type: FEATURE
+
+anchors:
+  - &densityThreshold 1/256 * ${features/geological/deposits/distribution.yml:shroomlight.averageCountPerChunk} # Divide by 16^2 to get % per column
+  - &salt $features/geological/deposits/distribution.yml:shroomlight.salt
+  - &range $features/geological/deposits/distribution.yml:shroomlight.range
+  - &min $features/geological/deposits/distribution.yml:shroomlight.range.min
+  - &max $features/geological/deposits/distribution.yml:shroomlight.range.max
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: if(temperature(x,z)>-0.4, positiveWhiteNoise(x, z), 1)
+  threshold: *densityThreshold
+
+locator:
+  type: AND
+  locators:
+  - type: RANDOM
+    height:
+      min: *min
+      max: *max
+    amount: 1
+    salt: 234678
+  - type: PATTERN
+    range: *range
+    pattern:
+      type: MATCH_SET
+      blocks:
+        - minecraft:stone
+        - minecraft:deepslate
+        - minecraft:tuff
+      offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:shroomlight

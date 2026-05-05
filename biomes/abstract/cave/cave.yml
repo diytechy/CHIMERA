@@ -1,7 +1,11 @@
 id: CAVE
 abstract: true
 type: BIOME
-extends: CARVING_LAND
+extends: 
+ - BASE_CAVE
+ - CARVING_SUBSTRATUM
+tags:
+  - subsurface
 
 carving:
   update-palette: true

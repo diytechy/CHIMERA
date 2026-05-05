@@ -1,18 +1,17 @@
 id: COLD_EXTINCT_VOLCANO
 type: BIOME
 extends:
-  - EQ_VOLCANO
-  - CARVING_OCEAN
-  - SNOWY_MOUNTAINS
-  - BASE
+- EQ_EXTINCT_VOLCANO
+- CARVING_OCEAN
+- SNOWY_MOUNTAINS
+- BASE
 color: $biomes/colors.yml:COLD_EXTINCT_VOLCANO
-
 vanilla: minecraft:frozen_peaks
-
 tags:
-  - ICE_CAVES
-  - USE_FROZEN_RIVER
-
+- LOW_CAVES
+- ICE_CAVES
+- USE_FROZEN_RIVER
+- POLAR_COAST_FLAT
 features:
   preprocessors:
-    - ICE_COASTLINE
+  - ICE_COASTLINE

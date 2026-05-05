@@ -1,0 +1,92 @@
+
+BaseBiomeCell: &BaseBiomeCell
+  dimensions: 2
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+  jitter: 0.7
+  distance: Hybrid
+
+_oceanShape: &oceanShape
+  <<: *BaseBiomeCell
+  salt: 105
+
+_outerWarpSmall: &outerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarpSmall: &midWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarpSmall: &innerWarpSmall
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
+samplers:
+  BiomeShapeOceanValue:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: CellValue
+
+  BiomeShapeOceanTemperature:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+
+  BiomeShapeOceanContinents:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
+          salt-lookup: false
+
+  BiomeShapeOceanElevation:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: oceanElevation(x,z)
+          salt-lookup: false
+

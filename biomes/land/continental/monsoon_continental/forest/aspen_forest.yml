@@ -9,9 +9,11 @@ color: $biomes/colors.yml:ASPEN_FOREST
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER
+  - TEMPERATE_COAST_FLAT
 
-vanilla: minecraft:birch_forest
+vanilla: minecraft:old_growth_birch_forest
 
 colors:
   grass: 0x8ea85e

@@ -1,32 +1,83 @@
 samplers:
-  continents: &continents
-    dimensions: 2
+
+  # continental_landmass: Large-scale landmass shape.
+  #   Low frequency = very large features (continents, major landmasses).
+  #   Used as base terrain and for coastal rolloff calculation.
+  continental_sampler:
     type: EXPRESSION
-    expression: |
-      max(
-        max(
-          -sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset,
-          spawnIsland(x, z)
-        ),
-        // Set continentalness to spotContinentalFactor in center of spots, 0 on spot edges,
-        // and decrease quadratically moving further outwards
-        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2))
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-      offset: $customization.yml:continental-offset
-      spread: $customization.yml:continental-spread
-      spotContinentalFactor: 0.3
+    expression: sampler(x - 100000, z - 100000)
     samplers:
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
       sampler:
         dimensions: 2
         type: TRANSLATE
         x: 10000
         z: 10000
         sampler:
+          type: FBM
+          gain: 0.7
+          octaves: 3
+          lacunarity: 1.8121866
+          sampler:
+            type: PERLIN
+            frequency: (1 / ${customization.yml:continental-baseline-distance})
+    dimensions: 2
+  continental_landmass:
+    dimensions: 2
+    type: EXPRESSION
+    # Assumes range from -0.5 to 0.5 from continental_sampler.
+    expression: |
+      if(continental_sampler(x,z) < island_threshold,
+        // Islands: 0 to max island ratio, need to normalize with land range
+        lerp(continental_sampler(x,z),-0.5,max_island_ratio,island_threshold,-1),
+        if(continental_sampler(x,z) < land_threshold,
+          //Ocean: 0 to 1
+          lerp(continental_sampler(x,z),island_threshold,-1,land_threshold,0),
+          //Check for lakes / continental land-masses.
+          if(continental_sampler(x,z) > lake_threshold,
+            // Lakes: 0 to -max lake ratio, need to normalize with ocean range.
+            lerp(continental_sampler(x,z),lake_threshold,1,0.5,-max_lake_ratio),
+            // Continents: 0 to 1
+            lerp(continental_sampler(x,z),land_threshold,0,lake_threshold,1)
+          )
+        )
+      )
+    variables:
+      island_threshold: $customization.yml:continental-island-threshold
+      land_threshold: $customization.yml:continental-land-threshold
+      lake_threshold: $customization.yml:continental-lake-threshold
+      max_island_ratio: $customization.yml:continental-max-island-ratio
+      max_lake_ratio: $customization.yml:continental-max-lake-ratio
+    functions: $math/functions/interpolation.yml:functions
+  islandMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(continental_sampler(x / scale / globalScale, z / scale / globalScale) < ((island_threshold-0.5)/2), 1, -1)
+    variables:
+      island_threshold: $customization.yml:continental-island-threshold
+      land_threshold: $customization.yml:continental-land-threshold
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+  continents:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        sampler(x / scale / globalScale, z / scale / globalScale),
+        spawnIsland(x, z)
+      )
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
+    samplers:
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 1500
+        sampler:
+          dimensions: 2
+          type: EXPRESSION
+          expression: continental_landmass(x, z)
+        warp:
           type: RIDGED
           lacunarity: 3
           gain: 0.45
@@ -34,37 +85,34 @@ samplers:
           sampler:
             type: OPEN_SIMPLEX_2
             salt: 1
-            frequency: 1 / 5000
-  
-  continentBorder:
+            frequency: (1/5000)
+  blotSpots:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      if(inRange(continents(x, z), -threshold, threshold),
-        if(continentsEdge((x-width)/width, (z-width)/width) != 0, 1, -1),
-        -1
-      )
-    variables: &continentBorderVariables
-      width: ${customization.yml:continental-coast-width} * ${customization.yml:global-scale}
-      threshold: $customization.yml:continental-coast-width
-    functions:
-      inRange:
-        arguments:
-          - x
-          - lower
-          - upper
-        expression: x >= lower && x <= upper
-    samplers:
-      continents: *continents
-      continentsEdge:
-        dimensions: 2
-        type: KERNEL
-        kernel: [ [ 0,  1, 0 ],
-                  [ 1, -4, 1 ],
-                  [ 0,  1, 0 ] ]
-        sampler:
-          type: EXPRESSION
-          expression: continents(x*width, z*width) > 0
-          variables: *continentBorderVariables
-          samplers:
-            continents: *continents
+      if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
+        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
+        -1)
+
+    variables:
+      globalScale: $customization.yml:global-scale
+      spotContinentalFactor: 0.3
+  continentsWithSpots:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        continents(x, z),
+        blotSpots(x,z))
+  continentalDistribution:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
+
+  dist2Coast:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      coastalCutoff: $customization.yml:continental-coast-cutoff
+    expression: continents(x, z) - coastalCutoff

@@ -1,7 +1,20 @@
 biomeSpread:
   # Basic size of biomes (distance between 2 biome centers)
   # Increase to make biomes bigger
-  cellDistance: 350
+  cellDistance: 320
+  wellDistance: 100
+  cellDistanceLarge: 500
+  distAtFullInfluence: 20
+  distAtFullNormDist: 50
+  #How many blocks deep do we have to be in biome before terrain features for biome
+  #are realized (depends on terrain sampler used)
+  
+  # Rift region distance for cells that will contain rifts.
+  riftDistance: 300
+  
+  # Basic size of island region features
+  # Increase to make regions larger.
+  islandDistance: 400
 
   # how far biome centers can vary away from their centers
   # Increase to make biome sizes vary more (scale 0-1)
@@ -26,8 +39,8 @@ biomeSpread:
   mountainFrequency: 0.004  # shared frequence of some larger mountain biomes, allows them to blend easier
 
   canyons:
-    minY: 25 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
-    canyonAmount: 0.93 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
+    minY: 35 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
+    canyonAmount: 0.0 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
 
 # This file provides various general options for configuring this config pack.
 # The options are specific to this config pack (and are not general to Terra as a whole!)
@@ -58,8 +71,34 @@ terrain-base-y-level: 65
 # guide and some configs will lower terrain below this point (however not by much).
 # Default: 65
 
-terrain-height: 100
+legacy-terrain-base-y-level: 80
+# Special level for legacy terrain, which uses different samplers to drive terrain changes.
+
+terrain-base-biome-shift: 0.7
+# How much should biomes be shifted upward according to their position on the continent.
+# Only used for biomes that don't explicitly use an elevation-based sampler.
+
+min-river-support-height: 45
+#How far down should river support be projected
+
+min-river-support-height-norm: 400
+#How to normalize support below ocean level, nominally elliptical (ocean base - support height)^2
+
+terrain-height: 180
+# Number of blocks above the base terrain level that terrain can go do, similarly to
+# terrain-base-y-level this number is also a guide and some configs will produce terrain
+# above this number (however not by much). Note that the sum of terrain-height and 
+# terrain-base-y-level should no exceed the world height, otherwise you may see terrain
+# clipping.
 # Default: 230
+
+origen-terrain-height: 100
+# Terrain height for origen / rearth specific biomes that were designed before the height increase.
+
+valley-srt: .4
+valley-dist: 0.82
+# The distance from the edge of small biomes where valley terrain starts to generate.
+# Higher values give more gradual falloff into valley, but leave less space for actual valley region.
 
 terrain-ocean-base-y-level: 60
 # The base ocean terrain y level, generally the highest level for terrain for ocean biomes.
@@ -72,61 +111,85 @@ terrain-ocean-depth: 100
 # the world.
 # Default: 100
 
+#Roughens terrain using FBM, ratio of overall height.
+terrain-roughness-value: 0.01
+terrain-roughness-p2p: 100
+
 # ---
 # Continental
 # ---
 
-# Options that affects the 'continental value', a random number calculated for each xz position
-# that describes if the position is land / coastal / ocean. A continental value of
-# 1 means 100% inland, 0 means the coast, and -1 means 100% ocean.
-# These options are primarily used in the math/samplers/continents.yml config file.
+# Options that defines large region (contental details)
+continental-baseline-distance: 8000
+continental-large-features-allowed-threshold: .07
+continental-large-feature-allowed-threshold-variance: 0.03
+continental-sub-ocean-large-features-allowed-threshold: -0.05
+continental-large-features-height-flux-dist: 1000
 
-continental-offset: 0.15
-# Controls the land / ocean ratio.
-# - A value of 0 results in equal land and ocean
-# - A value of 1 results in 100% land
-# - A value of -1 results in 100% ocean
-# - Any number in between these values can be used for controlling the
-#   exact ratio you want.
-#
-# Dividing your desired land percentage by 50 then subtracting 1 will give
-# you the equivalent continental-offset, i.e. land% / 50 - 1 = offset
-#
-# Default: 0.15
+#Affects the variance of what elevation mountians / mesas start to protrude at:
 
-continental-spread: 1
-# Controls how much variation there is in the continental value from
-# the continental-offset.
-#
-# The range of the continental value is equal to:
-#   [continental-offset - continental-spread, continental-offset + continental-spread]
-#
-# For example, with offset of 0 and spread of 1, the continental value would vary
-# between -1 and 1.
-#
-# Default: 1
+continental-large-features-threshold-variance-distance: 3000
 
-continental-scale: 0.8
+#Affect how apart mountain ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+continental-mountain-region-allowed-distance: 2000
+continental-mountain-region-allowed-threshold: .10 #0 - 0.5
+continental-mountain-region-transition-base-height: .1
+continental-mountain-range-sampler-freq: 1500
+
+#Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
+continental-mesa-region-allowed-distance: 2000
+continental-mesa-region-allowed-threshold: .25
+
+
+#Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
+
+continental-MaxMesaPeakHeightRatio: 0.7 #Keep less than mountain peak height ratio.
+continental-MaxMountainPeakHeightRatio: 1
+continental-UnderwaterPeakHeightRatio: 0.4 # Ratio of mountain peak height
+continental-MaxPeakVariability: 0.3
+continental-MaxNMesSteps: 4 #Max number of mesa steps to create
+
+
+# Rolling hill to hill rough distance, but passed through FBM filter with 2 octives by default with lunarcity 2, so value here should be 4x bump2bump dist as a rough approximation.
+continental-hill2hill-distance: 150
+
+#The hill ratio, how high / agressively sloped hilly regions are compared to the lowest possible max mountian height.
+#The applied hill ratio then is (MaxMountaiinPeakHeightRatio-MountainPeakVariance)*MaxHillElevRatio.
+continental-MaxHillElevRatio: 0.3
+
+
+continental-scale: 1
 # Controls the scale of land / coastal / oceanic distribution. Increasing
 # this produces larger landmasses and larger oceans, and vice-versa when
-# decreasing it. This does not control the ratio of land / ocean, for that
-# you should change continental-offset instead.
-# Default: 2
+# this is decreased.
 
-continental-coast-width: 30
-# Default: 30
+continental-island-threshold: -0.35
+# Threshold the continental_sampler must be below for continental value to change
+# to prepare for islands.
+# Default: -0.3
 
-continental-coast-threshold: 0.05
-# Determines how far from a continental value of 0 is considered for calculating 
-# areas as coastal or not. This is more of a technical performance value and should only
-# need to be increased in small increments experimentally if you are trying to increase
-# continental-coast-width and or decrease continental-scale and do not see coastal biomes
-# as wide as you are expecting.
-#
-# Increasing this value beyond what is needed to encompass the full potential coastal area
-# will not affect generation, however may incur small performance penalties.
-#
-# Default: 0.05
+continental-land-threshold: -0.05
+# Threshold the continental_sampler must exceed for standard continents to appear.
+# Higher values result in smaller continents.
+# Default: 0.1
+
+continental-lake-threshold: 0.35
+# Threshold the continental_sampler must exceed for continental value to change
+# to prepare for lakes.
+
+continental-max-island-ratio: 0.4
+# Maximum ratio that an island can have compared to the continental maximum (0 to 1).
+# 0 = no islands, 1 = islands can be as large as continents.
+# Default: 0.6
+
+continental-max-lake-ratio: 0.1
+# Maximum ratio that a lake can have compared to the continental minimum (0 to 1).
+# 0 = no lakes, 1 = lakes can be as deep as oceans.
+# Default: 0.4
+# of expected zones.
+
+continental-coast-cutoff: 0.02
+#Defines how much of the continental ratio will be reserved for coastal biomes. Higher values will result in wider coastal regions, while lower values will result in thinner coastal regions.
 
 # ---
 # Elevation
@@ -137,7 +200,7 @@ continental-coast-threshold: 0.05
 # correspons to the highest elevation.
 # These options are primarily used in the math/samplers/elevation.yml config file.
 
-elevation-scale: 1.05
+elevation-scale: 1.00
 # Controls the scale of the elevation noise map. A larger scale results in larger distances
 # between aspects like mountain ranges and flat areas. If you want more gradual changes in
 # elevation, you can increase this. Conversely, if you want more sudden changes in elevation,
@@ -160,7 +223,7 @@ elevation-highlands-threshold: 0.4
 # biome distribution.
 # Default: 0.4
 
-elevation-lowlands-threshold: 0.1
+elevation-lowlands-threshold: 0.15
 # Areas with an elevation value lower than this will be considered lowlands in
 # biome distribution.
 # Default: 0.1
@@ -217,7 +280,7 @@ flatness-percent: 0.26
 flatness-blend: 0.35
 # Default: TODO
 
-flatness-factor: 0.95
+flatness-factor: 0.85
 # How much to flatten by. 1 = 100% flat, 0 = no flattening
 # Default: 0.95
 
@@ -225,7 +288,7 @@ flatness-factor: 0.95
 # Temperature
 # ---
 
-temperature-scale: 0.4
+temperature-scale: 1.2
 # Controls the scale of temperature zones. Most biomes are placed according to
 # a temperature map so hot biomes can't generate next to cold biomes, as well as
 # allowing for biomes of similar temperatures to generate together. Increasing this
@@ -233,13 +296,13 @@ temperature-scale: 0.4
 # hot and cold biomes generating further apart - and vice versa when decreasing it.
 # Default: 0.95
 
-temperature-min: -1.04
+temperature-min: -1.1
 # Default: -1
 
-temperature-max: 1.025
+temperature-max: 1.25
 # Default: 1
 
-temperature-altitude-lapse-rate: 0.8
+temperature-altitude-lapse-rate: 0.5
 # How fast temperature drops with altitude
 # Default: 1.3
 
@@ -266,7 +329,7 @@ precipitation-max: 1
 precipitation-ocean-threshold: -1
 # Default -1
 
-precipitation-land-threshold: 0.4
+precipitation-land-threshold: 0.2
 # Default: 0.4
 
 # ---
@@ -311,13 +374,43 @@ river-spread-scale: 1
 # rivers, smaller scale = closer packed together rivers.
 # Default: 1
 
-river-min-width: 10
+river-min-width: 11
 # Controls in blocks the minimum width of rivers.
-# Default: 13
+# Default: 11
 
-river-max-width: 24
-# Controls in blocks the maximum width of rivers.
+river-max-width: 20
+# Maximum width of rivers in blocks.
+# Default: 20
+
+minimum-continental-river-width: 12
+# Minimum width of continental rivers in blocks.
+# Default: 12
+
+maximum-continental-river-width: 25
+# Maximum width of continental rivers in blocks.
 # Default: 30
+
+continental-river-width-period: 100
+# Period for continental river width variation using Perlin noise.
+# Higher values create more gradual width changes.
+# Default: 50
+
+river-nominal-boundary: 50
+# Nominal distance from river center to boundary in blocks.
+# Default: 25
+
+river-boundary-variance-magnitude: 20
+# Magnitude of variance in river boundary distance.
+# Default: 17
+
+river-boundary-variance-period: 200
+# Frequency of river boundary variance using Perlin noise.
+# Default: 50
+
+river-biome-activation-threshold: 0.15
+
+#How far from river edges do river biomes activate.  In theory would be best right at rivers edge (0), but due to current
+#terrain sampling, need more distance to blend down to bank.
 
 # ---
 # Trenches
@@ -371,17 +464,17 @@ spawn-island-radius-outer: 400
 # Spot biomes are special circular biomes scattered around the world.
 # Examples include volcanoes, prismatic springs, and crater lakes
 
-spot-spread: 2150
+spot-spread: 1500
 # Roughly how many blocks apart each spot biome will be
 # Default: 2220
 
-spot-radius-min: 75
+spot-radius-min: 50
 # Default: 50
 
 spot-radius-max: 150
 # Default: 150
 
-large-spot-spawn-radius-offset: 4000
+large-spot-spawn-radius-offset: 2000
 # Roughly how far large spots will generate away from spawn
 # Default: 2000
 
@@ -389,7 +482,7 @@ large-spot-spread: 4150
 # Roughly how many blocks apart each spot biome will be
 # Default: 2000
 
-large-spot-radius-min: 750
+large-spot-radius-min: 500
 # Default: 750
 
 large-spot-radius-max: 1500

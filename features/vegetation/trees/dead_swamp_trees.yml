@@ -13,7 +13,7 @@ locator:
     - type: TOP
       range: &range
         min: ${meta.yml:ocean-level} + 3
-        max: ${meta.yml:ocean-level} + 119
+        max: $meta.yml:top-y
     - type: PATTERN
       range: *range
       pattern:
@@ -32,4 +32,4 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: dead_large_swamp_tree_procedural
+  structures: dead_medium_swamp_tree_procedural

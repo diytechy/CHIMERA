@@ -1,0 +1,38 @@
+id: EQ_foliage_fortress_OUTER
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: 69
+  height: 11
+  stepHeight: 4
+  scale: $customization.yml:terrain-height
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (height * surfaceOffset(x,z)
+      + clamp(plateous(x,z) * 90, -stepHeight, stepHeight)) * biomeInfluence(x,z)
+    samplers:
+      plateous:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2S
+        frequency: 0.01
+        salt: 4
+      surfaceOffset:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.006
+        octaves: 3
+        lacunarity: 2.4
+        gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

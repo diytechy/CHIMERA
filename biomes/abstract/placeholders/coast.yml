@@ -1,0 +1,5 @@
+id: coast
+type: BIOME
+abstract: true
+tags:
+  - coast

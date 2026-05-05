@@ -2,42 +2,40 @@ id: EQ_GLOBAL_RIVER
 type: BIOME
 abstract: true
 
-vars: &variables
-  base: 47
-  height: 2
-  density: 5
-  scale: 1
-
-  # Erosion - subtracts from surrounding terrain to make the rivers look eroded
-  erosion: 300 # Strength of erosion
-  erosionYMax: 90 # The height that erosion is capped by
-  erosionYMid: 75 # The height that erosion is strongest
-  erosionYMin: 66 # The height that erosion starts
-
-  depth: 0.11
-  ceilingBase: 0.1
-  ceilingHeight: 0.17
+ocean:
+  level: $meta.yml:ocean-level
+  # Water level rises with the river's regional elevation so rivers at higher
+  # terrain still have water in them.
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      olevel: $meta.yml:ocean-level
+    expression: if(continentalRiverDist(x,z)<=0,olevel + continentalRiverBlockElevChange(x, z), olevel)
 
 terrain:
+  blend:
+    distance: 3     # 0 = disabled (sharp edges)
+    step: 3
+    weight: 1.0
+  min-density:
+    sampler:
+      dimensions: 3
+      #type: CONSTANT
+      #value: 1
+      type: EXPRESSION
+      expression: RiverSupportDensity(x,y,z)
+    smooth: false      # Smooth or hard
   sampler:
+    type: EXPRESSION
     dimensions: 3
-    type: EXPRESSION
-    expression: |
-      (
-        -y + base + (simplex(x, z)+1)/2 * height
-        // Erode
-        -|erosion(x,y/3,z)|
-        * erosion
-        * max(0, min((y-erosionYMin)/(erosionYMid-erosionYMin),(y-erosionYMax)/(erosionYMid-erosionYMax)))
-      ) * density
-    variables: *variables
-    samplers:
-      erosion:
-        dimensions: 3
-        type: OPEN_SIMPLEX_2
-        frequency: 0.03
+    variables:
+      scale: $customization.yml:terrain-height
+    expression: riverTerrainSampler(x, y, z)
 
+  # sampler-2d matches neighboring land biomes (scale * elevationDetailed) so the
+  # 2D elevation blend is continuous across the river boundary. The 3D sampler
+  # subtracts the same value, keeping riverTerrainSampler's net contribution correct.
   sampler-2d:
-    type: EXPRESSION
-    expression: scale * elevationDetailed(x, z)
-    variables: *variables
+    type: CONSTANT
+    value: 0

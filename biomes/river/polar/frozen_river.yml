@@ -25,11 +25,17 @@ slant:
       - << meta.yml:palette-slant-generic
       - << meta.yml:palette-underwater
       - << meta.yml:palette-bottom
-
+tags:
+- LAND_CAVES
 features:
   slabs:
-    - SNOW_LAYERS
+  - SNOW_LAYERS
   preprocessors:
-    - ICE_COASTLINE
+  - ICE_COASTLINE
+  processors:
+  - RIVER_SOULSAND
   postprocessors:
-    - TREE_SNOW
+  - TREE_SNOW
+  - BLEND_SNOW
+  river-decoration:
+  - COVE_FROZEN_LIGHT

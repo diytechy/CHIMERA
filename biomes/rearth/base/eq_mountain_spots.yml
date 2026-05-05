@@ -13,10 +13,11 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + height * 
-      if (clearingStrength(x,0,z) > clearingOffset, 
-        lerp(clearingDepth(x,0,z), -0.8, flatClearings(x, 0, z), -0.45, surfaceOffset(x,z)), 
-        surfaceOffset(x,z))
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + (height *
+      if (clearingStrength(x,0,z) > clearingOffset,
+        lerp(clearingDepth(x,0,z), -0.8, flatClearings(x, 0, z), -0.45, surfaceOffset(x,z)),
+        surfaceOffset(x,z))) * biomeInfluence(x,z)
     samplers:
       surfaceOffset: &baseFBM
         dimensions: 2
@@ -52,3 +53,8 @@ terrain:
             surfaceOffset(x,z)
           samplers:
             surfaceOffset: *baseFBM
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

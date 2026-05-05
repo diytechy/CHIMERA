@@ -1,0 +1,5 @@
+id: island
+type: BIOME
+abstract: true
+tags:
+  - island

@@ -1,0 +1,49 @@
+id: COVE_FROZEN_LIGHT
+type: FEATURE
+
+distributor:
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 2313
+      threshold: 0.005
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        expression: continentalRiverDist(x,z)
+      threshold: -0.2
+  
+
+    #- type: SAMPLER
+    #  samplers:
+    #    type: EXPRESSION
+    #    expression: glowLichenRange(x,y,z)
+    #  threshold: 0.1
+locator:
+  type: PATTERN
+  range: &range
+    min: ${meta.yml:ocean-level} + 3
+    max: $meta.yml:top-y
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_AIR
+        offset: 0
+      - type: OR
+        patterns:
+          - type: MATCH_SOLID
+            offset: 1
+          - type: MATCH_SET
+            offset: 1
+            blocks:
+              - minecraft:ice
+              - minecraft:packed_ice
+              - minecraft:blue_ice
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:soul_lantern
+  #Soul Lantern

@@ -1,0 +1,26 @@
+id: RED_ARID_PALE_GARDEN_RIVER
+type: BIOME
+extends:
+- ENVIRONMENT_LAND_DRY_WARM_SEMI_ARID
+- EQ_GLOBAL_RIVER
+- CARVING_OCEAN
+- RED_ARID_PALE_GARDEN_COAST
+color: $biomes/colors.yml:RED_ARID_PALE_GARDEN_RIVER
+vanilla: minecraft:river
+colors:
+  water: 3319192
+  water-fog: 3319192
+features:
+  preprocessors:
+  - INFESTED_DEPOSITS_PALE
+  flora:
+  - GRASS
+  - PALE_MOSS_CARPET
+  - EYEBLOSSOM_PATCH
+  - COVE_GLOW_LICHEN
+  trees:
+  - DENSE_PALE_FOREST_TREES
+  - DENSE_FALLEN_PALE_OAK_TREES
+  - PALE_OAK_BUSHES
+  processors:
+  - RIVER_SOULSAND

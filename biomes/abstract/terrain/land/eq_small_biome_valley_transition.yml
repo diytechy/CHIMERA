@@ -1,0 +1,20 @@
+id: EQ_SMALL_BIOME_VALLEY_TRANSITION
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:terrain-height
+  valley_dist: $customization.yml:valley-dist
+  valley_srt: $customization.yml:valley-srt
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: -y + base + herp(normDistIntoBiome(x, z),0,scale * elevationDetailed(x, z),valley_dist,0) - 0.9
+    variables: *variables
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT

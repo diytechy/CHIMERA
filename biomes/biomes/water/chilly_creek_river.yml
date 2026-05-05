@@ -1,0 +1,47 @@
+id: CHILLY_CREEK_RIVER #for mountain biomes
+type: BIOME
+extends: [ EQ_GLOBAL_RIVER, EQ_CARVING_OCEAN, BASE_HYDRAXIA, DEPOSITS_RIVER ]
+
+original-noise: &originalNoise $biomes/equations/eq_terraced_mountains.yml:terrain.sampler # Original noise to be turned into river
+
+
+vanilla: minecraft:snowy_taiga
+
+palette:
+  - GRASS: 319
+  - RIVER_BANK: 61
+  - << palettes/rock_layers.yml:palette
+
+slant:
+  - threshold: 2.5
+    palette:
+      - MOSSY_STONE: 319
+      - << palettes/rock_layers.yml:palette
+  - threshold: 3
+    palette:
+      - MOSSY_STONE_MIX: 319
+      - << palettes/rock_layers.yml:palette
+  - threshold: 3.5
+    palette:
+      - TUFF_STONE: 319
+      - << palettes/rock_layers.yml:palette
+  - threshold: 4
+    palette:
+      - BLOCK:minecraft:stone: 319
+      - << palettes/rock_layers.yml:palette
+      
+features:
+  landforms:
+  - ICE_PILLARS_CEILING
+  flora:
+  - GRASS
+  - TALL_GRASS
+  - FERNS
+  snow:
+  - SNOW_LAYERS
+  - SNOW_LAYERS_SINGLE_MODERATE
+  - TREE_SNOW
+  river-decoration:
+  - COVE_FROZEN_LIGHT
+  postprocessors:
+  - RIVER_SOULSAND

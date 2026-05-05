@@ -2,15 +2,249 @@ variables: &variables
   detailFactor: 0.1
   detailStart: 0
   detailEnd: 0.5
-  
+
   terraceBaseScale: 0.2
   terraceScaleVariation: 0.1
   terraceOffsetVariation: 0.25
   terraceDepthVariation: 1
   terraceDepthStart: 0.1 # At what elevation should it start to be terraced
+  plainsMaskZero: 0.5
+  plainsMaskFull: 0.85
+  hillMaxElevation: 0.2
+  mountainCap: 0.9
+  mountainMaskFlat: 0.25
+  mountainMaskZero: 0.3
+  mountainMaskFull: 0.55
+  mountainContZero: 0.0
+  mountainContFull: 0.5
+  threshold: $customization.yml:flatness-percent
+  blend: $customization.yml:flatness-blend
+  factor: $customization.yml:flatness-factor
+
+  globalScale: $customization.yml:global-scale
+  verticalLift: $customization.yml:terrain-height
+  scale: $customization.yml:flatness-scale
+  base: $customization.yml:terrain-base-y-level
+  continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1
 
 samplers:
-  rawFlatness: &rawFlatness
+
+  ############ MOUNTAIN DEFINITIONS ############
+
+  mountainMask:
+    dimensions: 2
+    type: PERLIN
+    salt: 0694
+    frequency: 1 / 3000
+
+  mountain_sampler:
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 1 / 900
+
+  mountains:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((-in+1)/2)^2
+    sampler:
+      type: PSEUDOEROSION
+      erosion-frequency: 0.01
+      lacunarity: 1.5
+      branch-strength: 1
+      octaves: 3
+      strength: 0.15
+      gain: 0.3
+      sampler:
+        type: FBM
+        octaves: 3
+        sampler: $math/samplers/elevation.yml:samplers.mountain_sampler
+  mountainsB:
+    dimensions: 2
+    type: FBM
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
+    sampler:
+      type: PERLIN
+      frequency: (1 / ${customization.yml:continental-mountain-range-sampler-freq})
+      salt: 300
+
+  mountainsApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(lerp(abs(mountainMask(x, z)), mountainMaskZero, 0, mountainMaskFull, 1), lerp(continents(x, z), mountainContZero, 0, mountainContFull, 1))
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
+  AppliedMountainHeightA:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(mountainMask(x, z)>0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountains(x, z)),
+        0)
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
+  AppliedMountainHeightB:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(mountainMask(x, z)<0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountainsB(x, z)),
+        0)
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
+  AppliedMountainHeight:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(AppliedMountainHeightA(x, z), AppliedMountainHeightB(x, z))
+  mesaMaskRaw:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 300
+    sampler:
+      dimensions: 2
+      type: FBM
+      octaves: 2
+      lacunarity: 1.7
+      gain: 0.7
+      sampler:
+        type: PERLIN
+        frequency: (1 / ${customization.yml:continental-mesa-region-allowed-distance})
+        salt: 200
+    warp:
+      type: RIDGED
+      lacunarity: 3
+      gain: 0.45
+      octaves: 4
+      sampler:
+        type: OPEN_SIMPLEX_2
+        salt: 1
+        frequency: (1/5000)
+
+  mesaMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(min((mesaMaskRaw(x - 6000, z - 6000)-mesa_threshold)/(0.6-mesa_threshold), continents(x, z)),0)
+    #2.75-mesa_threshold
+    variables:
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  mesaFootDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+    expression: mesaMask(x,z)-(1/(MaxNMesSteps*2))
+  mesaPresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(mesaFootDist(x,z)>0,1,0)
+
+  PeakHeightMultiplierAtPosition:
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: $customization.yml:continental-MaxPeakVariability
+    samplers:
+      max_elev_prob:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: (1 / ${customization.yml:continental-large-features-threshold-variance-distance})
+
+  # How many steps the mesa should have
+  prefiltered_mesa_step_ratio:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(min(round(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0) /MaxNMesSteps
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  prefiltered_mesa_elev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max((prefiltered_mesa_step_ratio(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  prefiltered_mesa_floor:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(((prefiltered_mesa_step_ratio(x,z)-(1/(MaxNMesSteps)))* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  mesa_floor_step_dist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(if(prefiltered_mesa_step_ratio(x,z), (mesaMask(x, z)*MaxNMesSteps+0.5) - (prefiltered_mesa_step_ratio(x,z)*MaxNMesSteps),0), 0)
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+  hills:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((in+1)/2)^2
+    sampler:
+      type: FBM
+      octaves: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 1 / 2000
+
+
+  plainsMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x,z)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        amplitude: 0.3
+        salt: 67
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 1 / 2000
+
+  plainsMaskApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(AppliedMountainHeight(x,z)=0, herp(abs(plainsMask(x, z)), plainsMaskZero, 0, plainsMaskFull, 1), 0)
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
+  hillsApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      min(10.0,
+        herp(plainsMaskApplied(x,z), 0, 1, 1, 0))*hills(x, z)
+    variables: *variables
+    functions: $math/functions/interpolation.yml:functions
+
+
+### BLENDING DEFINITIONS ############
+  continentalRise:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    variables: *variables
+  rawFlatness:
     dimensions: 2
     type: EXPRESSION
     expression: noise(x / scale / globalScale, z / scale / globalScale)
@@ -33,99 +267,67 @@ samplers:
               type: OPEN_SIMPLEX_2
               frequency: 1 / 1000
 
-  flatness: &flatness
-    dimensions: 2
-    type: EXPRESSION
-    expression: herp(rawFlatness(x, z), threshold, factor, threshold + blend, 0)
-    functions: $math/functions/interpolation.yml:functions
-    variables:
-      threshold: $customization.yml:flatness-percent
-      blend: $customization.yml:flatness-blend
-      factor: $customization.yml:flatness-factor
-    samplers:
-      rawFlatness: *rawFlatness
-
-  rawElevation: &rawElevation
-    dimensions: 2
-    type: EXPRESSION
-    expression: noise(x / scale / globalScale, z / scale / globalScale) * multiplier + offset
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:elevation-scale
-      multiplier: $customization.yml:elevation-multiplier
-      offset: $customization.yml:elevation-offset
-    samplers:
-      noise:
-        dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
-        sampler:
-          type: EXPRESSION
-          expression: |
-            combine(
-              hills(x, z) * hillMaxElevation,
-              parabolicMap(mountainMask(x, z), mountainZero, 0, mountainFull, mountains(x, z)),
-              mountainCap)
-          variables:
-            mountainZero: 0.3
-            mountainFull: 0.6
-            hillMaxElevation: 0.3
-            mountainCap: 0.9
-          functions:
-            "<<": math/functions/interpolation.yml:functions
-            combine: # Stacks scaled mountain noise on top of hill noise
-              arguments:
-                - hills
-                - mountains
-                - mountainCap
-              expression: hills + mountains * min(1 - hills, mountainCap)
-
-          samplers:
-            mountainMask:
-              dimensions: 2
-              type: PROBABILITY
-              sampler:
-                type: OPEN_SIMPLEX_2
-                salt: 0694
-                frequency: 1 / 1500
-            mountains:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((-in+1)/2)^2
-              sampler:
-                type: PSEUDOEROSION
-                erosion-frequency: 0.01
-                lacunarity: 1.5
-                branch-strength: 1
-                octaves: 3
-                strength: 0.15
-                gain: 0.3
-                sampler:
-                  type: FBM
-                  octaves: 3
-                  sampler:
-                    type: OPEN_SIMPLEX_2
-                    frequency: 1 / 900
-            hills:
-              dimensions: 2
-              type: EXPRESSION_NORMALIZER
-              expression: ((in+1)/2)^2
-              sampler:
-                type: FBM
-                octaves: 6
-                sampler:
-                  type: OPEN_SIMPLEX_2
-                  frequency: 1 / 2000
-
-  elevation: &elevation
+  flatness:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      rawElevation(x, z) * (1-flatness(x, z))
+      min(herp(rawFlatness(x, z), threshold, factor, threshold + blend, 0),
+        herp(abs(mountainMask(x, z)), mountainMaskFlat, factor, mountainMaskZero, 0))
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+    
+  nonMountainElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      combine(continentalRise(x,z) * (1-flatness(x, z)),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1-flatness(x, z))),
+      0,
+      mountainCap)
+    variables: *variables
+    functions:
+      combine: # Stacks scaled mountain noise on top of hill noise
+        arguments:
+        - continents
+        - hills
+        - mountains
+        - mountainCap
+        expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+      lerp: $math/functions/interpolation.yml:functions.lerp
+      herp: $math/functions/interpolation.yml:functions.herp
+
+  tempElevationReference:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(nonMountainElevation(x,z)*0.2 ,mountainMask(x,z))
+
+  rawElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      combine(continentalRise(x,z) * (1-flatness(x, z)),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+      AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z),
+      mountainCap)
+    variables: *variables
+    functions:
+      combine: # Stacks scaled mountain noise on top of hill noise
+        arguments:
+        - continents
+        - hills
+        - mountains
+        - mountainCap
+        expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+      lerp: $math/functions/interpolation.yml:functions.lerp
+      herp: $math/functions/interpolation.yml:functions.herp
+
+  elevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      rawElevation(x, z)
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
       * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1)
-      * if(factorRiver, (1-riverTerrainErosion(x, z)), 1)
     functions: $math/functions/interpolation.yml:functions
     variables:
       continentZero: $customization.yml:elevation-continental-flat-threshold
@@ -134,20 +336,38 @@ samplers:
       factorRiver: $customization.yml:elevation-factor-rivers
       factorSpawnIsland: $customization.yml:elevation-factor-spawn-island
       spawnIslandScale: $customization.yml:elevation-spawn-island-scale
-    samplers:
-      rawElevation: *rawElevation
-      flatness: *flatness
-      continents: $math/samplers/continents.yml:samplers.continents
-      spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
-      riverTerrainErosion: $math/samplers/rivers.yml:samplers.riverTerrainErosion
-  
-  elevationDetailed:
+    #samplers:
+    #  rawElevation: $math/samplers/elevation.yml:samplers.rawElevation
+    #  continents: $math/samplers/continents.yml:samplers.continents
+    #  spawnIsland: $math/samplers/spawnIsland.yml:samplers.spawnIsland
+
+  elevationSparse:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      elevation(round(x/4)*4, round(z/4)*4)
+
+  # Now place mesas into elevation.
+  # Blend the floor and nominal step height based on the distance to ramp from step to step.
+  elevation_with_mesas:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      herp(mesa_floor_step_dist(x, z), 0, prefiltered_mesa_floor(x,z), 
+      0.1, prefiltered_mesa_elev(x,z))
+    variables:
+      MaxNMesSteps: $customization.yml:continental-MaxNMesSteps
+      MaxPeakElev: $customization.yml:continental-MaxMesaPeakHeightRatio
+      mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+    functions: $math/functions/interpolation.yml:functions
+
+  elevationTerraced:
     dimensions: 2
     type: EXPRESSION
     expression: |
       terrace(
         combine(
-          elevation(x, z),
+          elevation_with_mesas(x, z),
           detailStart, 0,
           detailEnd, detail(x, z) * detailFactor
         ),
@@ -159,18 +379,6 @@ samplers:
       )
     variables: *variables
     samplers:
-      elevation:
-        dimensions: 2
-        type: DOMAIN_WARP
-        sampler: *elevation
-        # Elevation is warped slightly by white noise, creating a small fuzzy
-        # or dithered look to break up perfectly smooth noise. Produces small
-        # 1 block divots in terrain, especially apparent on steeper terrain and
-        # countours which is good because these areas tend to look too perfect / artifical.
-        amplitude: $customization.yml:elevation-fuzz
-        warp:
-          type: WHITE_NOISE
-          salt: 2394
       terraceScale:
         dimensions: 2
         type: OPEN_SIMPLEX_2
@@ -199,43 +407,209 @@ samplers:
           type: OPEN_SIMPLEX_2
           frequency: 0.008
           salt: 5912
-
     functions:
       terrace: # Terrace function but with depth masked by input value, so terracing doesn't cut down below ocean level
         arguments:
-          - i  # Input
-          - sc # Scale
-          - o  # Offset
-          - g  # Gap
-          - d  # Terrace depth
-          - tz # Value of i where depth = 0
-          - tf # Value of i where depth = d
+        - i    # Input
+        - sc   # Scale
+        - o    # Offset
+        - g    # Gap
+        - d    # Terrace depth
+        - tz   # Value of i where depth = 0
+        - tf   # Value of i where depth = d
         expression: terraceParalinear(i,sc,o,g,lerp(i,tz,0,tf,d))
         functions:
           "<<":
-            - math/functions/terrace.yml:functions
-            - math/functions/interpolation.yml:functions
+          - math/functions/terrace.yml:functions
+          - math/functions/interpolation.yml:functions
       combine: # Stacks a layer of noise on top scaled according to the base noise
         arguments:
-          - x
-          - at
-          - a
-          - bt
-          - b
+        - x
+        - at
+        - a
+        - bt
+        - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
+    #spotBaseElevation
+  elevationFromSpots:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (blotSpots(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))) * (1-flatness(x, z))
+      * if(factorContinental, herp(blotSpots(x, z), continentZero, 0, continentFull, 1), 1)
+    functions: $math/functions/interpolation.yml:functions
+    variables:
+      continentalRiseRate: 30
+      verticalLift: $customization.yml:terrain-height
+      continentZero: $customization.yml:elevation-continental-flat-threshold
+      continentFull: $customization.yml:elevation-continental-full-height-threshold
+      factorContinental: $customization.yml:elevation-factor-continental
+
+  elevationDetailedPreErosion:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      noisyelevation(x,z)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+    samplers:
+      noisyelevation:
+        dimensions: 2
+        type: DOMAIN_WARP
+        sampler: 
+          dimensions: 2
+          type: EXPRESSION
+          expression: max(elevationAcrossSpot(x, z),elevationTerraced(x,z))
+          # Elevation is warped slightly by white noise, creating a small fuzzy
+          # or dithered look to break up perfectly smooth noise. Produces small
+          # 1 block divots in terrain, especially apparent on steeper terrain and
+          # countours which is good because these areas tend to look too perfect / artificial.
+        amplitude: $customization.yml:elevation-fuzz
+        warp:
+          type: WHITE_NOISE
+          salt: 2394
+
+  elevationEroded:
+    #Erode down to river where the overhang mask is less than the threshold OR
+    #where flat terrain is present.
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      threshold: $customization.yml:flatness-percent
+      blend: $customization.yml:flatness-blend
+    expression: |
+      min(
+        min(
+          herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
+          herp(rawFlatness(x, z), threshold-blend, continentalRiverElev(x,z), threshold, elevationDetailedPreErosion(x,z))
+        ),
+      elevationDetailedPreErosion(x,z))
+
+  elevationDetailed:
+    type: EXPRESSION
+    dimensions: 2
+    functions: $math/functions/interpolation.yml:functions
+    expression: |
+      herp(continentalRiverDist(x,z),0,elevationEroded(x,z),1,elevationDetailedPreErosion(x,z))
+
+  elevationDetailedSparse:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      elevationDetailed((round(x/4)*4), (round(z/4)*4))
+
+  elevationDetailedBlockHeight:
+    dimensions: 2
+    variables: *variables
+    type: EXPRESSION
+    #Note, -0.5 so that at floor we are properly blending against nearby terrain.
+    expression: |
+      elevationDetailed(x,z)*verticalLift-0.9
+
+  caveElevationPlacementMaximum:
+    dimensions: 2
+    type: EXPRESSION
+    expression: BiomeShapeMinimumElevation(x,z)-20
+
+  caveWithinBounds:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      base: $customization.yml:terrain-base-y-level
+    expression: |
+      base + caveElevationPlacementMaximum(round(x/16)*16+8,round(x/16)*16+8) - y
+  
+  normDistIntoBiome:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      distAtFullNormDist: $customization.yml:biomeSpread.distAtFullNormDist 
+      # River: continentalRiverDist = 1 at river boundary, 1 unit ≈ riverNominalBoundary blocks
+      riverNominalBoundary: $customization.yml:river-nominal-boundary
+      # Cell border: BiomeShapeLandmassDist2Center = 1 at border, 0 at center, over ~cellHalfDist blocks
+      # (approximation — actual scale is heavily affected by domain warp)
+      cellHalfDist: ${customization.yml:biomeSpread.cellDistance} /2
+      # Mesa / coast: no precise block-to-unit anchor; tune these as needed
+      mesaBlocksPerUnit: ${customization.yml:continental-mesa-region-allowed-distance} 
+      coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} 
+      riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
+      biomeBorder: 20
+    expression: |
+      min(
+        min(
+          min(
+            min(lerp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
+            lerp(BiomeShapeLandmassDist2Center(x,z), -0.9, 1, 0, 0)),
+          lerp(mesaFootDist(x,z), -distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
+        lerp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
+      lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1))
+    functions: $math/functions/interpolation.yml:functions
+
+  smallBiomeSmallCenterDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: $customization.yml:valley-srt
+      valley_dist: $customization.yml:valley-dist
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
+
+  smallBiomeWideCenterDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: 0.15
+      valley_dist: 0.3
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
+
+  biomeInfluence:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      distAtFullInfluence: $customization.yml:biomeSpread.distAtFullInfluence
+      distAtFullNormDist: $customization.yml:biomeSpread.distAtFullNormDist 
+    expression: min(max(lerp(normDistIntoBiome(x,z), 0, 0, distAtFullInfluence / distAtFullNormDist, 1),0),1)
+    functions: $math/functions/interpolation.yml:functions
+  
+  biomeInfluence3D:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    # The first part scales from high negative values at the stratosphere, 
+    # and adds in the biome influence, to increase density near the bottom.
+    # If the biome influence is full (1), the sampler must return 1 to allow
+    # feature construction.
+    expression: |
+      min(max(if(biomeInfluence(x,z)<1,
+      ((base+elevationDetailedBlockHeight(x,z)-y)/200)+1+
+      biomeInfluence(x,z),
+      1),0),1)
+
+  
+  biomeInfluenceOffset:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      distAtFullInfluence: $customization.yml:biomeSpread.distAtFullInfluence
+    # The first part scales from high negative values at the stratosphere, 
+    # and adds in the biome influence, to increase density near the bottom.
+    # If the biome influence is full (1), the sampler must return 1 to allow
+    # feature construction.
+    expression: |
+      biomeInfluence3D(x,y,z)*distAtFullInfluence - distAtFullInfluence
   oceanElevation:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      (-1+rawElevation(x, z))
+      (-1+nonMountainElevation(x, z))
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
     functions: $math/functions/interpolation.yml:functions
     variables:
       continentZero: 0
       continentFull: -0.8
       factorContinental: $customization.yml:elevation-factor-continental
-    samplers:
-      rawElevation: *rawElevation
-      continents: $math/samplers/continents.yml:samplers.continents

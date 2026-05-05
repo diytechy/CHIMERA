@@ -1,8 +1,40 @@
-id: ORIGEN
-version: 2.0.0
-author: "Astrash, Sancires, Aureus, Rearth, Belikhun"
+id: CHIMERA
+version: 2.0.1
+author: "Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy"
 
 generator: NOISE_3D
+
+blend:
+  sampler-floor:
+    dimensions: 3
+    type: EXPRESSION
+    expression: -10 + noise(x,y,z)*1.5
+    samplers:
+      noise:
+        dimensions: 3
+        type: SIMPLEX
+        octaves: 2
+        frequency: 0.5
+        seed: 8675409
+  terrain:
+    elevation: 0
+    defaults:
+      distance: 3
+      step: 4
+    no-blend-tags:
+      - subsurface
+    # Y-range outside which blending is skipped entirely (center biome sample used directly).
+    # Set to cover the actual terrain generation band: below y-min is always solid,
+    # above y-max is always air. Tune these against your tallest and deepest terrain features.
+    # Default (omitted): Integer.MIN_VALUE / Integer.MAX_VALUE = no Y-range restriction.
+    y-range:
+      min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
+      max: 270   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
+
+carving:
+  resolution:
+    horizontal: 4  # 4 is default
+    vertical: 4    # default
 
 addons:
   biome-provider-pipeline: "2.+"
@@ -27,6 +59,8 @@ addons:
   structure-block-shortcut: "1.+"
   terrascript-function-sampler: "1.+"
   locator-slant-noise-3d: "1.+"
+  locator-surface-noise-3d: "1.+"
+  dendry-noise: "1.+"
 
 # ---
 # Biome distribution
@@ -39,7 +73,8 @@ addons:
 
 # Default biome distribution
 # biomes: $biome-distribution/presets/default.yml:biomes
-biomes: $biome-distribution/presets/rearth.yml:biomes
+# biomes: $biome-distribution/presets/origen2.yml:biomes
+biomes: $biome-distribution/presets/CHIMERA.yml:biomes
 
 # biomes: $biome-distribution/presets/single.yml:biomes
 # Single biome - Generates a single biome, as well as other complementary biomes such as cave and river biomes.
@@ -61,6 +96,15 @@ preset-single-debug-biome: TEMPERATE_GRASSLAND
 # If you wish to disable a generation stage, you can simply comment
 # it out by prepending it with #, this is useful if you want
 # something like a world without ores.
+
+#terrain:
+#  min-density:
+#    #sampler: <noise sampler>      # Min-density sampler (default: none/zero = disabled)
+#    sampler: $math/samplers/rivers.yml:samplers.continentalRiverSupportDensity
+#    smooth: false            # Use smooth-min blending instead of hard max (default: false)
+#    smooth-k: 1.0                 # Smooth-min factor; higher = smoother transition (default: 1.0)
+#    skip-tags:                    # Biome tags that opt OUT of min-density enforcement
+#      - subsurface
 
 stages:
   # Used to generate lava at the bottom of the world.
@@ -119,6 +163,8 @@ stages:
   # Used for small features placed underwater like sea-grass.
   - id: underwater-flora
     type: FEATURE
+  - id: sculk
+    type: FEATURE
 
   # Used for small features placed on the surface like tall grass and vines.
   - id: flora
@@ -132,6 +178,10 @@ stages:
   # Used to generate features that must come after all other features, such as snow on trees.
   - id: postprocessors
     type: FEATURE
+  - id: snow
+    type: FEATURE
+  - id: entities
+    type: FEATURE
 
 functions:
   "<<":
@@ -143,6 +193,7 @@ functions:
 
 samplers:
   "<<":
+    - math/samplers/spawnIsland.yml:samplers
     - math/samplers/elevation.yml:samplers
     - math/samplers/simplex.yml:samplers
     - math/samplers/continents.yml:samplers
@@ -151,6 +202,10 @@ samplers:
     - math/samplers/rivers.yml:samplers
     - math/samplers/trenches.yml:samplers
     - math/samplers/spots.yml:samplers
+    - math/samplers/biomes_small.yml:samplers
+    - math/samplers/biomes_ocean.yml:samplers
+    - math/samplers/biomes_large.yml:samplers
+    - math/samplers/rifts.yml:samplers
 
 slant:
   calculation-method: DotProduct

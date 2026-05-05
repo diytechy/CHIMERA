@@ -2,103 +2,620 @@ variables: &variables
   notRiverValue: 2 # Value the sampler outputs for areas where there is not a river.
   borderValue: 1 # Value the sampler outputs for areas bordering rivers.
   riverValue: 0 # Value the sampler outputs where there should be a river.
-  
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
-  riverThreshold: 0.3 # Determines the area calculated as river, which also determines how far away river borders will be.
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
+  soulSandPlaceDist: &soulSandPlaceDist 8
+  riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
 
   erosionMaxDistance: 0.3
   erosionMax: 0.95
   erosionMin: 0
 
+# ─── River terrain variables ──────────────────────────────────────
+# Shared by all river terrain samplers via *rtv anchor.
+river-terrain-variables: &rtv
+  base: $customization.yml:terrain-base-y-level   # 65
+  scale: $customization.yml:terrain-height         # 180
+
+  # ─── Enclosure detection ─────────────────────────────────────────
+  # A river is "enclosed" (underground cave) when the terrain above it
+  # (delta) exceeds a threshold. The threshold varies with river position
+  # so the open zone naturally widens at the center:
+  #   threshold = enclosedThresholdEdge + enclosedThresholdCenter * (-riverDist)
+  #   At edge   (dist= 0): threshold = 20 blocks overhead → enclosed
+  #   At center (dist=-1): threshold = 40 blocks overhead → enclosed
+  # Result: shallow rivers fully open, moderate rivers open at center with
+  # enclosed/overhanging edges, deep rivers fully enclosed as caves.
+  enclosedFullTransitionBlocks: 20    # potentialCeiling excess (blocks) at which cave is fully enclosed
+  enclosedStrtTransitionBlocks: 10     # potentialCeiling excess (blocks) at which enclosure blending begins
+
+  # ─── Enclosed cave (ceiling) ────────────────────────────────────
+  # When enclosed, a ceiling of rock is preserved above the river void.
+  # caveCeilingMinimum defines the minimum void height; enclosure triggers
+  # when potentialCeilingThickness exceeds minimumCeilingThickness.
+  ceilingMaxHeightAtRiverEdge: 3  #Cave ceiling height at river edge (dist=0), also the minimum cave height at center
+  ceilingMaxHeightAtRiverCntr: 19  #Maximum cave ceiling height at river center (dist=-1) with full noise variation
+  ceilingMinThicknessAtRiverEdge: 5  #Minimum blocks of rock required above cave ceiling at river edge
+  ceilingMinThicknessAtRiverCntr: 5   #Minimum blocks of rock required above cave ceiling at river center
+
+  ceilingSpikeAmplitude: 18       # Max stalactite offset in blocks (noise-driven texture)
+  # surfaceOpenings thresholds — when potentialCeilingThickness is below
+  # openingsDeltaShallow, openings noise can force the cave open.
+  # Above openingsDeltaDeep the rock is thick enough that holes never form.
+  openingsDeltaShallow: 7        # Ceiling thickness below which openings noise is fully active
+  openingsDeltaDeep: 25          # Ceiling thickness above which openings noise has no effect
+  # Openings noise thresholds — controls which areas can force-open caves
+  openingsNoiseMin: 0.3           # Noise below this → no opening
+  openingsNoiseMax: 0.6           # Noise above this → full opening shift
+  # Wall fade at river boundary for enclosed caves
+  # ─── Open channel ───────────────────────────────────────────────
+  # When not enclosed, the full delta height is carved as an open valley.
+  # The erosion ramps on from the outer edge inward, creating valley walls
+  # that roll smoothly from terrain height down to the riverbed.
+
+  # ─── River bed (both modes) ─────────────────────────────────────
+  # The riverbed sits below the bank height with an elliptical cross-section:
+  #   max depth at center (dist=-1), rolls to 0 at edge (dist=0).
+  # depthVariation noise adds per-column variation so some stretches are
+  # deeper than others, all scaled by the same elliptical profile.
+  # IMPORTANT: This is the river bed depth for root level rivers, 
+  # This is further augmented in narrower river distribution.
+  riverBedDepth: &riverBedDepth 10                # Base bed depth at river center (blocks)
+  riverBedVariation: &riverBedVariation 4            # Max additional bed depth from noise (blocks)
+
+  # ─── Biome activation ──────────────────────────────────────────
+  riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold} 
+
 samplers:
-  riverNoise: &riverNoise
-    dimensions: 2
-    type: TRANSLATE
-    x: 10000
-    z: 10000
-    sampler:
-      type: DOMAIN_WARP
-      amplitude: 3
-      warp:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.1
-      sampler:
-        type: OPEN_SIMPLEX_2
-
-  riverDistance: &riverDistance
-    dimensions: 2
-    type: EXPRESSION
-    expression: "|riverNoise(x*riverFrequency, z*riverFrequency)|"
-    variables: *variables
-    samplers:
-      riverNoise: *riverNoise
-
-  riverTerrainErosion:
+  riverSampler:
     dimensions: 2
     type: EXPRESSION
     expression: |
-      herp(riverDistance(x, z) + herp(erosionStrength(x, z), 0.6, erosionMaxDistance, 0.4, 0),
-        0, erosionMax,
-        erosionMaxDistance, erosionMin
-      ) 
-    variables: *variables
-    functions: $math/functions/interpolation.yml:functions
-    samplers:
-      riverDistance: *riverDistance
-      erosionStrength:
-        dimensions: 2
-        type: PROBABILITY
-        sampler:
-          type: FBM
-          octaves: 2
-          sampler:
-            type: OPEN_SIMPLEX_2
-            frequency: 1 / 1000
-            salt: 2175
-
-  riverBiomeMap:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      riverBiomeMap(
-        x,
-        lerp(width(x*riverFrequency, z*riverFrequency), -0.75, riverMinWidth, 0.75, riverMaxWidth),
-        z
+      if(continentalRiverDistFar(x,z)>=1,
+        -1,
+        if(continentalRiverDistFar(x,z)<=riverBiomeActivationThreshold,
+          1,
+          -0.25
+        )
       )
     variables: *variables
-    functions: $math/functions/interpolation.yml:functions
+
+############# DENDRY BASED RIVER IMPLEMENTATION BELOW ##############
+
+  continentalRiverWidth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      ((maximum_continental_river_width + minimum_continental_river_width) / 2) + 
+      (perlin(x, z) * (maximum_continental_river_width - minimum_continental_river_width)/2)
+    variables:
+      minimum_continental_river_width: $customization.yml:minimum-continental-river-width
+      maximum_continental_river_width: $customization.yml:maximum-continental-river-width
     samplers:
-      width:
+      perlin:
         dimensions: 2
         type: OPEN_SIMPLEX_2
-        frequency: 0.05
-      riverBiomeMap:
-        dimensions: 3 # Y dimension is used as the width
+        frequency: 1 / ${customization.yml:continental-river-width-period}
+
+  riverBoundaryDistance:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      river_nominal_boundary + (perlin(x, z) * river_boundary_variance_magnitude)
+    variables:
+      river_nominal_boundary: $customization.yml:river-nominal-boundary
+      river_boundary_variance_magnitude: $customization.yml:river-boundary-variance-magnitude
+    samplers:
+      perlin:
+        dimensions: 2
+        type: PERLIN
+        frequency: 1 / ${customization.yml:river-boundary-variance-period}
+
+  RiverBranchingProbability:
+    dimensions: 2
+    #type: CONSTANT
+    #value: 0
+    type: EXPRESSION
+    expression: |
+      if(((continents(x, z)>0.15)&&
+      (mesaFootDist(x,z)<0)&&
+      (precipitation(x, z)>-0.5)), 
+      (((precipitation(x, z)+0.5)/1.3)^0.5),0)
+
+  RiverOverhangMask:
+    dimensions: 2
+    type: PERLIN
+    frequency: 0.001
+
+  riverElevationInput:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      threshold: $customization.yml:flatness-percent
+      blend: $customization.yml:flatness-blend
+    expression: |
+      min(
+        min(
+          herp(continents(x,z), 0.05, 0, 0.1, elevationTerraced(x,z)),
+          herp(rawFlatness(x, z), threshold-blend, 0, threshold, elevationTerraced(x,z))
+        ),
+      elevationTerraced(x,z))
+    #expression: elevationTerraced(x,z)
+
+  continentalDendryRiversSparse:
+    dimensions: 3
+    type: DENDRY
+    # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
+    n: 3
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverElevationInput(x,z)
+    riverwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverWidth(x,z)
+    borderwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverBoundaryDistance(x,z)
+    branches: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: RiverBranchingProbability(x,z)
+    default-riverwidth: 30
+    default-borderwidth: 75
+    cachepixels: 4.0
+
+  continentalDendryRiversPrecise:
+    dimensions: 3
+    type: DENDRY
+    # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
+    n: 3
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverElevationInput(x,z)
+    riverwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverWidth(x,z)
+    borderwidth: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverBoundaryDistance(x,z)
+    branches: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: RiverBranchingProbability(x,z)
+    default-riverwidth: 30
+    default-borderwidth: 75
+    
+  continentalDendryRivers:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      continentalDendryRiversPrecise(x,y,z)
+      //Old method below, now rivers should only be called with precision needed, no need to intercept.
+      //if((round(x) % 4)||(round(z) %4 ),
+      //  //If landing on a non-biome sample grid, use the standard sampler.
+      //  continentalDendryRiversPrecise(x,y,z),
+      //  //If requesting y value 0 on the biome grid, just use the far distance sampler return type, which has a separate cache
+      //  //and is significantly faster.
+      //  if(y!=0,
+      //    continentalDendryRiversSparse(x,y,z),
+      //    continentalDendryRiversPrecise(x,-3.0,z))
+      //)
+
+
+  continentalRiverDist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+    functions: $math/functions/interpolation.yml:functions
+
+  continentalRiverDistFar:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+    functions: $math/functions/interpolation.yml:functions
+
+  continentalRiverLevel:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,2.0,z)
+
+  maxRiverWidthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      maximum_continental_river_width *
+      continentalDendryRivers(nan_Input,continentalRiverLevel(x,z),nan_Input)
+    variables:
+      nan_Input: 0.0/0.0
+      maximum_continental_river_width: $customization.yml:maximum-continental-river-width
+
+  continentalRiverBlockDist2Uplift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,3.0,z)
+
+  riverBedDepthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverBedDepth: *riverBedDepth
+      riverBedVariation: *riverBedVariation
+    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 2
+
+  RiverSoulsandLocations:
+    dimensions: 2
+    type: EXPRESSION
+    #Simplified to just set soulsand at elevation change, trying to accommodate flow will not work because
+    #some rivers will generate out infinitely.
+    expression: |
+      continentalRiverBlockElevShift(x,z)
+    #if(continentalRiverDist(x,z)<0.0 && 
+    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
+    #if((floor(x) % 2) = (floor(z) % 2),1,0),
+    #0)
+    samplers:
+      soulSandPlaceDist:
+        dimensions: 2
         type: EXPRESSION
+        expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        variables:
+          soulSandPlaceDist: *soulSandPlaceDist
+
+  continentalRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+      #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
+    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0)
+    #expression: elevationTerraced(x,z)
+    variables:
+      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
+
+  continentalRiverBlockElevChange:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(floor(continentalRiverElev(x,z)*scale),0)
+    variables:
+      scale: $customization.yml:terrain-height
+
+
+  worldRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalRiverBlockElevChange(x,z)+ocean_level
+    variables:
+      ocean_level: $meta.yml:ocean-level
+
+  glowLichenRange:
+    dimensions: 3
+    type: EXPRESSION
+    #If between the ceiling and the river floor, allow
+    expression: |
+      if(y>(worldRiverElev(x,z)+base),
+        1,-1)
+    samplers:
+      noise:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+    variables:
+      base: $customization.yml:terrain-base-y-level
+        #frequency: 
+
+  minimumRiverBankHeight:
+    dimensions: 2
+    type: EXPRESSION
+      #IMPORTANT: River elevation is only valid when river distance is <1, otherwise it will be the configured max of the Dendry Sampler
+      #which is very high.
+      #Use min so enclosed rivers reference the water level (not terrain height).
+      #For open rivers terrain ≈ riverElev so min ≈ terrain regardless.
+      #expression: min(scale * elevationDetailed(x, z), continentalRiverBlockElevChange(x, z))
+    expression: max(continentalRiverBlockElevChange(x, z),0)
+    variables:
+      scale: $customization.yml:terrain-height
+
+  continentalRiverBlockElevShift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+1,z),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-1,z)),
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+1),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
+      )
+
+  #This forces a lookup right on the biome pipeline grid, since precision is not imperative and
+  #it's much better to utilize the cached value instead of recalculating the precise cache.
+  continentalRiverDistSparseFarGrid:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(round(x/4)*4,-2.0,round(z/4)*4)
+
+  continentalRiverDistSparseNormalized:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalDendryRivers(round(x/4)*4,-3.0,round(z/4)*4)
+
+  # ─── River terrain noise samplers ──────────────────────────────────
+  erosionStrengthVariation: # Used to roughen up the walls
+    dimensions: 3
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.05
+      salt: 5
+  openings:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: "|in|"
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 1 / 1000
+      salt: 9
+  ceilingSpikes:
+    dimensions: 2
+    type: CUBIC_SPLINE
+    points:
+    - {from: -1, to: 1, gradient: -2}
+    - {from: -0.2, to: 0, gradient: 0}
+    sampler:
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.06
+  depthVariation:
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.005
+      salt: 9
+  spikes:
+    dimensions: 2
+    type: LINEAR
+    min: -1
+    max: 0.5
+    sampler:
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.04
+
+  # ─── River terrain computed samplers ─────────────────────────────
+  # Each former function is now a standalone sampler referencing
+  # other pack samplers and *rtv variables directly.
+
+  # Returns the opening shift for thin ceilings.
+  # At potentialCeilingThickness < openingsDeltaShallow: openings noise is fully active.
+  # At potentialCeilingThickness > openingsDeltaDeep: no effect (rock is thick enough).
+  surfaceOpenings:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      herp(
+        potentialCeilingThickness(x, z),
+        openingsDeltaShallow,
+        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
+        openingsDeltaDeep,
+        0
+      )
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+  # Returns minimum cave ceiling height over the river width.
+  caveCeilingMinimum:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      if(continentalRiverDist(x, z) < 0,
+        ceilingMaxHeightAtRiverEdge +
+        (ceilingMaxHeightAtRiverCntr - ceilingMaxHeightAtRiverEdge) *
+        max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
+        (0.5 + 0.5 * erosionStrengthVariation(x/3, 0, z/3)) *
+        0.8^continentalRiverLevel(x, z),
+        0)
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+  # Returns minimum cave ceiling height over the river width.
+  # Includes stalactite spikes (reduce ceiling, min 2 blocks above water)
+  # and hole sections (increase ceiling to match surface erosion).
+  caveCeilingMinimumWithSpikes:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+        max(2,
+        caveCeilingMinimum(x, z)
+        + ceilingSpikes(x, z) * ceilingSpikeAmplitude
+          * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
+        )
+        + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        -1)
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+
+  # Enclosed cave mode — carves delta minus ceiling thickness,
+  # preserving a rock roof. Fades to solid at the river boundary.
+  minimumCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      lerp(continentalRiverDist(x, z),-1.0,ceilingMinThicknessAtRiverCntr,0.0,ceilingMinThicknessAtRiverEdge)
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+  # Potential ceiling thickness — actual rock between cave ceiling and terrain surface.
+  # terrain - bank - caveHeight = blocks of rock available for the ceiling.
+  potentialCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z))
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+
+  # Enclosed cave mode — carves delta minus ceiling thickness,
+  # preserving a rock roof. Fades to solid at the river boundary.
+  riverEnclosedFactor:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      max(0, potentialCeilingThickness(x,z) - minimumCeilingThickness(x,z))
+
+  # Carves the riverbed BELOW the bank height. Always present regardless
+  # of whether the river is enclosed or open.
+  # Cross-section is elliptical: deepest at center, 0 at edge.
+  # Higher "Level" rivers (narrower branches) 
+  bedDepth:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *rtv
+    expression: |
+      max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
+      * riverBedDepthAtLevel(x, z)
+      * if(continentalRiverLevel(x, z) < -0.5,
+          max(0.05, 1 - max(0, -spikes(x, z))),
+          1)
+
+  elevationAboveBank:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *rtv
+    expression: max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
+
+  elevationDetailedWithHolesAboveBank:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *rtv
+    expression: |
+      elevationAboveBank(x,z) -
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+      herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        0)
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+  # ─── River terrain sampler ─────────────────────────────────────────
+  # Split into upper/lower by bank height, with enclosure detection:
+  #   Case 1 (y <= bank): Riverbed erosion via bedDepth
+  #   Case 2 (y > bank, enclosed): Cave void via enclosedCavity
+  #   Case 3 (y > bank, open): Valley walls herp from terrain to bank
+  # Cases 2 & 3 blend smoothly via lerp over enclosedTransitionBlocks.
+  riverTerrainSampler:
+    type: EXPRESSION
+    dimensions: 3
+    variables: *rtv
+    #The 2d sampler (sampler-2d) already provides minimumRiverBankHeight, so the combined
+    # density is: (-y + base + <3D value>) + minimumRiverBankHeight.
+    # The 3D sampler must therefore NOT include minimumRiverBankHeight in its branches —
+    # returning 0 yields the bank surface (density=0 at y = base + minimumRiverBankHeight).
+    # Subtract to carve below bank (riverbed), add to build above (enclosed cave roof).
+    expression: |
+      -y + base + minimumRiverBankHeight(x, z) +
+      if(y <= base + minimumRiverBankHeight(x, z),
+        // ── Case 1: Riverbed ──
+        -bedDepth(x, z),
+        // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        // 2D sampler already places surface at bank height, so 0 = bank surface here.
+        // Only add positive values to build enclosed cave roofs or border transitions.
+        lerp(riverEnclosedFactor(x, z),
+          enclosedStrtTransitionBlocks,
+          // Case 3: Open valley — herp from terrain down to bank
+          // Inside river (dist<=0): 0 = air above bank.
+          // Border (dist>0): ramp from bank (0) up to terrain height.
+            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 4, 0,
+            riverBiomeActivationThreshold, elevationAboveBank(x,z))),
+          enclosedFullTransitionBlocks,
+          // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
+          if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
+            // Below ceiling height: carve void with negative density (always empty)
+            -elevationAboveBank(x,z),
+            // Above ceiling height: add roof only if inside river and below terrain surface
+           elevationDetailedWithHolesAboveBank(x, z))
+        )
+      )
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+
+  RiverSupportDensity:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      Base: $meta.yml:ocean-level
+      HeightScale: $customization.yml:terrain-height
+      MinRiverSupp: $customization.yml:min-river-support-height
+      riverBedDepth: 8
+      riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
+    samplers:
+      RiverElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: $meta.yml:ocean-level
+        expression: Base+continentalRiverBlockElevChange(x,z)
+      RiverBedElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: $meta.yml:ocean-level
+          riverBedDepth: 8
+          riverBedVariation: *riverBedVariation
+        expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
+    expression: |
+      //If within river bounds, provide support up to the river elevation, otherwise no support (-1).
+      if((y>RiverBedElev(x,z) && continents(x,z)>-0.05 && y<=RiverElev(x,z)),
+        //If outside the river, provide support rolling up to minimum bank.
+        //If this creates too much material, the else condition should work for
+        // both inside and outside the river.
+        if(continentalRiverDist(x,z)>0,
+          -y+herp(continentalRiverDist(x,z),riverBiomeActivationThreshold/2,RiverElev(x,z),riverBiomeActivationThreshold,Base)+1,
+          //If inside the river, provide linear support.
+          //insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4)
+          -10
+         ),
+        -10
+      )
+    functions:
+      "<<":
+      - math/functions/interpolation.yml:functions
+      insideMinimumBank:
+        arguments: [depthBelowWaterElev, absDistFromBorder, ForceWallWidth]
         expression: |
-          if(riverDistance(x, z)>riverThreshold,
-            notRiverValue,
-            if(riverKerneled((x-y)/y, y, (z-y)/y)!=0,
-              riverValue,
-              borderValue
-            )
+          if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
+            1,
+            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, -1, 1)
           )
-        variables: *variables
-        samplers:
-          riverDistance: *riverDistance
-          riverKerneled:
-            dimensions: 3
-            type: KERNEL # Edge detection
-            kernel: [
-              [ 0,  1, 0 ],
-              [ 1, -4, 1 ],
-              [ 0,  1, 0 ]
-            ]
-            sampler:
-              type: EXPRESSION
-              expression: riverNoise(x*y*riverFrequency, z*y*riverFrequency)>0
-              variables: *variables
-              samplers:
-                riverNoise: *riverNoise
+
+  RiverOceanTransitioner:
+    #As you get further from river mouth in ocean, this 
+    # value increases from 0 to 1.
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(-continents(x,z)*10,continentalRiverDist(x,z))

@@ -16,17 +16,12 @@ terrain:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
-    expression: -y + base
-
-  sampler-2d:
-    dimensions: 2
-    type: EXPRESSION
-    variables: *variables
     expression: |
-      scale * herp(cellDistance(x, z) + lerp(cellMask(x, z), 0.7, 0, 1, 1),
+      -y + base + elevationDetailedBlockHeight(x,z)
+      + scale * herp(cellDistance(x, z) + lerp(cellMask(x, z), 0.7, 0, 1, 1),
         -0.2, elevationWarped(x, z),
         -0.75, cellLookup(x, z)+0.02
-      )
+      ) * biomeInfluence(x,z)
     samplers:
       elevationWarped:
         dimensions: 2
@@ -62,3 +57,8 @@ terrain:
         sampler:
           <<: *cellBase
           return: Distance2Div
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

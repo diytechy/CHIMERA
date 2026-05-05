@@ -1,0 +1,19 @@
+id: TERRACOTTA_TOMBS
+type: BIOME
+extends:
+- ORES_DEFAULT
+- EQ_TERRACOTTA_TOMBS
+vanilla: minecraft:lush_caves
+color: $biomes/colors.yml:DRIPSTONE_CAVES
+palette:
+- BADLANDS_PILLARS_TERRACOTTA_CAVE: 319
+- RED_SAND: -28
+- << meta.yml:palette-bedrock
+features:
+  global-preprocessors:
+  - CAVE_GLOW_LICHEN
+  flora:
+  - CAVE_GLOW_BERRIES
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES

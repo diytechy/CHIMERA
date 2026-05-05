@@ -1,0 +1,24 @@
+id: EQ_SMALL_BIOME_VALLEY
+type: BIOME
+abstract: true
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  scale: $customization.yml:terrain-height
+  valley_dist: $customization.yml:valley-dist
+  valley_srt: $customization.yml:valley-srt
+  query_scale: 1
+  hill_variation: 6
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: -y + base
+    variables: *variables
+
+  sampler-2d:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: simplex2(x * query_scale, z * query_scale)*hill_variation

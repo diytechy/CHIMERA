@@ -1,0 +1,44 @@
+id: MURKY_MARSHLANDS
+type: BIOME
+extends:
+#- CARVING_OCEAN
+- BASE
+- EQ_MURKY_MARSHLANDS
+vanilla: minecraft:swamp
+color: $biomes/colors.yml:SWAMP
+tags:
+- USE_RIVER
+- LOW_CAVE
+- SPECIAL_CAVES
+colors:
+  grass: 8177813
+  foliage: 1851392
+  water: 6388580
+  water-fog: 5077600
+palette:
+- MUDDY_GRASS: 319
+- GRASS_PODZOL_MUDDY: 62
+- << meta.yml:palette-bottom
+slant:
+- threshold: 1.02
+  palette:
+  - MOSS_TUFF: 319
+  - GRASS_PODZOL_MUDDY: 62
+  - << meta.yml:palette-bottom
+slant-depth: 1
+features:
+  underwater-flora:
+  - MANGROVE_SEAGRASS
+  flora:
+  - GRASS
+  - POPPY_PATCH
+  - DANDELION_PATCH
+  - BLUE_ORCHID_PATCH
+  - LILY_PADS
+  - SUGAR_CANE
+  - MOSS_CARPET
+  - LARGE_LEAF_VINES
+  trees:
+  - MANGROVE_TREES
+  - DEAD_SWAMP_TREES
+  - DARK_SWAMP_TREES

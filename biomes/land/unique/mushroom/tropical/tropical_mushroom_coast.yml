@@ -1,0 +1,12 @@
+id: TROPICAL_MUSHROOM_COAST
+type: BIOME
+extends:
+- EQ_FLAT_ERODED
+- CARVING_OCEAN
+- TROPICAL_MUSHROOM_FIELDS
+color: $biomes/colors.yml:TROPICAL_MUSHROOM_COAST
+vanilla: minecraft:mushroom_fields
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES
+- USE_TROPICAL_MUSHROOM_RIVER

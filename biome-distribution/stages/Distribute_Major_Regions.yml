@@ -1,0 +1,149 @@
+stages:
+#Create mesa distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(mesaPresent(x, z)>0,1,-1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 2
+      mesa: 1
+#Create island distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: islandMask(x, z)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 2
+      island: 1
+#Create cold plain distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(BiomeShapeLandmassPlainsMask(x, z)>0 && BiomeShapeLandmassTemperature(x, z)<-0.25, BiomeShapeLandmassValue2(x, z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 4
+      SNOWY_PLAINS: 1
+      
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: if(BiomeShapeLandmassFarRiverDistance(x, z)>riverDistThreshold, BiomeShapeLandmassValue2(x, z), -1)
+      variables:
+        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 4
+      far_river_biome: 1
+
+  - type: REPLACE
+    from: far_river_biome
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0 && BiomeShapeLandmassTemperature(x, z) < 0.6 && BiomeShapeLandmassPrecipitation(x, z) > -0.25,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 8
+      _pillow_plains: 1
+      _secluded_valleys: 1
+
+  - type: REPLACE
+    from: far_river_biome
+    to: land
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > -0.25 && BiomeShapeLandmassTemperature(x, z) < 0.4 && BiomeShapeLandmassPrecipitation(x, z) > 0,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 9
+      GLOOMY_GORGE: 1
+      
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 9
+      CARVING_CREAKS: 1
+#
+  #
+  #    VERDANT_VALLEYS: 1
+      #_cold_valley: 1
+#Create vast desert distributions
+ # - type: REPLACE
+ #   from: land
+ #   sampler:
+ #     dimensions: 2
+ #     type: EXPRESSION
+ #     #If high temperature and low precipitation, more likely to be desert, otherwise 
+ #     expression: |
+ #       if((BiomeShapeLargelandTemperature(x,z)>0.25) && (BiomeShapeLargelandPrecipitation(x,z)<0.0),
+ #         BiomeShapeLargelandValue(x,z), -1)
+ #   #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+ #   to:
+ #     SELF: 2
+ #     hot-desert: 1
+#Create vast forest distributions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        BiomeShapeLargelandValue(x,z)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 15
+      vast-forest: 1
+  #Create archipelago distributions on ocean.
+  #Only create when close to land.
+  - type: REPLACE
+    from: ocean
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeOceanContinents(x,z)>-0.2,
+          BiomeShapeOceanValue(x,z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 7
+      archipelago-zone: 1
+  #Create marsh distributions on land.
+  #Only create when close to ocean.
+  #- type: REPLACE
+  #  from: land
+  #  sampler:
+  #    dimensions: 2
+  #    type: EXPRESSION
+  #    expression: |
+  #      if((BiomeShapeLandmassContinents(x,z)<0.2 && BiomeShapeLandmassPrecipitation(x,z)>0.1),
+  #        BiomeShapeLandmassValue(x,z), -1)
+  #  #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+  #  to:
+  #    SELF: 7
+  #    marshland: 1

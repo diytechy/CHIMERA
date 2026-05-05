@@ -5,7 +5,7 @@ abstract: true
 variables: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
-  
+
   detailFactor: 0.05
   detailZero: 0
   detailFull: 0.2
@@ -20,12 +20,8 @@ variables: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base
-    variables: *variables
-
-  sampler-2d:
-    type: EXPRESSION
     expression: |
+      -y + base + elevationDetailedBlockHeight(x,z) +
       scale * triTerrace(
         combine(
           elevation(x, z),
@@ -36,7 +32,7 @@ terrain:
         terraceScale*1/3, terraceVariation(x, z+1000)*(terraceVariationBase+terraceVariationScaled*0),
         terraceScale*2/3, terraceVariation(x, z+2000)*(terraceVariationBase+terraceVariationScaled*1),
         terraceScale*3/3, terraceVariation(x, z+3000)*(terraceVariationBase+terraceVariationScaled*2)
-      )
+      ) * biomeInfluence(x,z)
     variables: *variables
     samplers:
       detail: # Creates bubbly looking terrain
@@ -74,7 +70,7 @@ terrain:
           - b
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
-      
+
       triTerrace: # This is a terrible function that exists to avoid duplicate calculations of the 'in' value.
                   # Allows terrace depth to be controlled according to the value it terraces.
         arguments:
@@ -121,3 +117,8 @@ terrain:
                 scale3, offset3, 0, depth
               )
             functions: $math/functions/terrace.yml:functions
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

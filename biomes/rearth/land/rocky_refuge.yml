@@ -1,0 +1,44 @@
+id: ROCKY_REFUGE
+type: BIOME
+vanilla: minecraft:stony_peaks
+extends:
+- CARVING_LAND
+- BASE
+- EQ_ROCKY_REFUGE
+tags:
+- USE_RIVER
+- LAND_CAVES
+- SPECIAL_CAVES
+- TEMPERATE_COAST_HIGHLANDS
+colors:
+  sky: 14865331
+  fog: 14866371
+  grass: 7399021
+  foliage: 7399021
+  water: 4159204
+  water-fog: 329011
+slant-depth: 40
+slant:
+- threshold: 0.9
+  palette:
+  - TERRACOTTA_STRATA_RED: 319
+  - TERRACOTTA_STRATA: 98
+  - TERRACOTTA_STRATA_VERTICAL: 82
+  - SAND: 63
+palette:
+- GRASS_VARIATION: 319
+- SAND: 64
+- << meta.yml:palette-bottom
+features:
+  preprocessors:
+  - HIGH_GLOW_LICHEN
+  landforms:
+  - SPARSE_GIANT_PILLARS
+  - SMALL_BOULDER_PATCHES
+  - BOULDERS
+  flora:
+  - LARGE_LEAF_VINES
+  - WHITE_FLOWER_COVER
+  - GRASS
+  trees:
+  - SPARSE_TEMPERATE_TREE_PATCHES

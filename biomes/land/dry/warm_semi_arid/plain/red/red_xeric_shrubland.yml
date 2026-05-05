@@ -7,11 +7,12 @@ vanilla: minecraft:desert
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RED_DESERT_RIVER
 
 palette:
   - RED_XERIC: $meta.yml:top-y
-  - << meta.yml:palette-underwater
+  - RED_SAND: ${meta.yml:ocean-level} - 1
   - << meta.yml:palette-bottom
 
 slant-depth: 5

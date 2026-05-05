@@ -1,0 +1,31 @@
+id: BAMBOO_BASIN
+type: BIOME
+vanilla: minecraft:bamboo_jungle
+color: $biomes/colors.yml:EUCALYPTUS_FOREST
+extends:
+#- CARVING_LAND
+- BASE
+- EQ_BAMBOO_BASIN
+riverSampler: $biomes/rearth/base/eq_sakura_streams.yml:terrain.sampler.samplers.riverMask
+palette:
+- LOW_MOUNTAIN_RIVER: 319
+- << meta.yml:palette-bottom
+features:
+  underwater-flora:
+  - MANGROVE_SEAGRASS
+  flora:
+  - GRASS
+  trees:
+  - MANGROVE_TREES
+  - DEAD_SWAMP_TREES
+  - JUNGLE_TREES
+  - JUNGLE_BUSHES
+  - POTATO_PATCHES
+  - BAMBOO_PATCHES
+  landforms:
+  - SMALL_MOSSY_BOULDER_PATCHES
+tags:
+- LOW_CAVE
+- SPECIAL_CAVES
+# - TROPICAL_COAST_FLAT
+- USE_TROPICAL_RIVER

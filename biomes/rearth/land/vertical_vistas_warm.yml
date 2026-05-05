@@ -1,0 +1,34 @@
+id: VERTICAL_VISTAS_WARM
+type: BIOME
+vanilla: minecraft:windswept_hills
+color: $biomes/colors.yml:BAMBOO_JUNGLE
+extends:
+- EQ_TERRACE_MOUNTAINS
+- CARVING_LAND
+- BASE
+colors:
+  grass: 7399021
+  water: 6141935
+  leaves: 7399021
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES
+- TEMPERATE_COAST_HIGHLANDS
+slant:
+- threshold: 0.8
+  palette:
+  - BLOCK:minecraft:stone: 319
+palette:
+- STONY_GRASS: 319
+- GRASS_SANDY_VARIATION: 150
+- SAND: 65
+- << meta.yml:palette-bottom
+features:
+  trees:
+  - SPARSE_BIRCH_TREES
+  flora:
+  - GRASS
+  - POPPY_PATCH
+  - OXEYE_DAISY_PATCH
+  - CORNFLOWER_PATCH
+  - ALLIUM_PATCH

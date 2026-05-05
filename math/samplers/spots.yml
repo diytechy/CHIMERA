@@ -1,30 +1,40 @@
 variables: &variables
   spread: $customization.yml:spot-spread
-
+  riftDistance: $customization.yml:biomeSpread.riftDistance
   largeSpawnRadiusOffset: $customization.yml:large-spot-spawn-radius-offset
-  
-  biomeBorder: 15
+
+  biomeBorder: 20
 
   largeBiomeBorder: 100
 
   minRadius: $customization.yml:spot-radius-min
   maxRadius: $customization.yml:spot-radius-max
-  
-  minHeight: 0.05
-  maxHeight: 0.5
+
+  minExtHeight: 0.05
+  maxExtHeight: 0.2
+  minVolHeight: 0.2
+  maxVolHeight: 0.4
+  prismaticMinHeight: 0.00
+  prismaticMaxHeight: 0.0
+  prismaticMinCenterDepth: 0.03
+  prismaticMaxCenterDepth: 0.01
 
   spotMinEdgeRadius: 0.1
-  spotMaxEdgeRadius: 0.5
+  spotMaxEdgeRadius: 0.25
+  
+  prismaticMinEdgeRadius: 0.5
+  prismaticMaxEdgeRadius: 0.7
+
+  sinkholeMinEdgeRadius: 0.6
+  sinkholeMaxEdgeRadius: 0.7
 
   largeMinRadius: $customization.yml:large-spot-radius-min
   largeMaxRadius: $customization.yml:large-spot-radius-max
-  volcanoMinCenterDepth: 0.01
+  volcanoMinCenterDepth: 0.03
   volcanoMaxCenterDepth: 0.3
 
-  prismaticMinCenterDepth: 0.01
-  prismaticMaxCenterDepth: 0.15
 
-cellular: &cellular
+smallCellular: &smallCellular
   dimensions: 2
   type: CELLULAR
   frequency: 1 / ${customization.yml:spot-spread}
@@ -52,14 +62,14 @@ samplers:
       variables: *variables
       samplers:
         noise:
-          <<: *cellular
+          <<: *smallCellular
           distance: Euclidean
 
   spotSizePercent: # Returns a random value between 0 and 1 that determines the size of the spot
     dimensions: 2
     type: PROBABILITY
     sampler:
-      <<: *cellular
+      <<: *smallCellular
       return: CellValue
 
   spotRadius: # Returns the radius of the spot in blocks
@@ -68,22 +78,87 @@ samplers:
     expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
 
   spotAngle:
-    <<: *cellular
+    <<: *smallCellular
     return: Angle
 
-  spotBaseElevation: # Returns the elevation value at the center of the spot
-    <<: *cellular
+  nearSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+    variables: *variables
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+
+  nearSpotRift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
+    variables: *variables
+
+  spotCenterRiverDistFar:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverDistSparseFarGrid(x,z)
+
+  spotApproxRiverDist:
+    <<: *smallCellular
     return: NoiseLookup
     salt-lookup: false
     lookup:
       type: EXPRESSION
-      expression: elevation(x, z)
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
+      expression: spotCenterRiverDistFar(x, z)
+
+  spotTemperature:
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: temperature(x, z)
+
+  spotPrecipitation:
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: precipitation(x, z)
+
+  spotCenterNotNearRiver:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotApproxRiverDist(x,z)>150,1,0)
+    
+  spotCenterContinents:
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: continents(x, z)
+
+  spotCenterOnOcean:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotCenterContinents(x,z)<-0.1,1,0)
+  spotCenterOnLand:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
+
+  spotBaseElevation: # Returns the elevation value at the center of the spot
+    <<: *smallCellular
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: elevationSparse(x, z)
 
   largeSpotDistance: # Returns block distance from closest large spot center
     dimensions: 2
@@ -114,41 +189,129 @@ samplers:
     expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.largeSpotSizePercent
 
-  largeSpotAngle:
-    <<: *largeCellular
-    return: Angle
+   #   type: EXPRESSION
+   #   expression: quinticEaseInOut(noise(x, z))   # Use in/out easing to favour extreme values over middle values
+   #   samplers:
+   #     noise:
+   #       dimensions: 2
+   #       type: POSITIVE_WHITE_NOISE
+   #       salt: 5812
+   #   functions:
+   #     quinticEaseInOut:
+   #       arguments: [x]
+   #       expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
 
-  largeSpotBaseElevation: # Returns the elevation value at the center of the large spot
-    <<: *largeCellular
+  volcanoActivity:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      type: WHITE_NOISE
+      salt: 4128
+
+  spotFluidLevel:
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 7341
+
+  # Independent per-spot height variation — decoupled from spotSizePercent.
+  # volcanoHeight and centerDepth blend 60% size + 40% height for shape variety.
+  spotHeightPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      <<: *smallCellular
+      salt: 2847
+      return: CellValue
+
+  # Independent per-spot fluid fill fraction — fully decoupled from size and height.
+  spotFluidPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      <<: *smallCellular
+      salt: 9173
+      return: CellValue
+
+  # Per-spot sinkhole depth fraction, independent of size (drives lerp 0.2→0.4 of scale).
+  sinkholeDepthPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      <<: *smallCellular
+      salt: 6541
+      return: CellValue
+
+  # Per-spot sinkhole fluid fill fraction in [0,1], independent of depth and size.
+  sinkholeFluidPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      <<: *smallCellular
+      salt: 3178
+      return: CellValue
+
+  # Minimum of elevationSparse sampled at 8 cardinal+diagonal points at spotRadius from
+  # the cell center. Evaluated once per spot via NoiseLookup, giving a constant per-spot
+  # reference that is guaranteed to be below the surrounding terrain boundary.
+  spotMinElev:
+    <<: *smallCellular
     return: NoiseLookup
     salt-lookup: false
     lookup:
+      dimensions: 2
       type: EXPRESSION
-      expression: elevation(x, z)
-      samplers:
-        elevation: $math/samplers/elevation.yml:samplers.elevation
-  # ---
-  # Volcano Samplers
-  # ---
-  
-  spotEdgeRadiusPercent:
-    <<: *cellular
+      expression: |
+        max(-100,
+          min(min(min(min(
+            elevationSparse(x + spotRadius(x, z), z),
+            elevationSparse(x - spotRadius(x, z), z)),
+          min(
+            elevationSparse(x, z + spotRadius(x, z)),
+            elevationSparse(x, z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+        )
+
+  # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
+  sinkholeEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, sinkholeMinEdgeRadius, 1, sinkholeMaxEdgeRadius)
+    variables: *variables
+
+  # Signed distance to sinkhole rim using the wider sinkholeEdgeRadius.
+  # < 0 = inside the bowl, 0 = rim, > 0 = outside fading to 1 at spotRadius + biomeBorder.
+  distanceToSinkholeRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * sinkholeEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * sinkholeEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z), spotRadius(x, z) * sinkholeEdgeRadius(x, z), 0, spotRadius(x, z) + biomeBorder, 1)
+      )
+
+  prismaticFluidLevel:
+    type: EXPRESSION
+    dimensions: 2
+    variables: *variables
+    expression: lerp(spotFluidPercent(x, z), 0, 0.5, 1, 1)
+      
+  spotEdgeRadiusPercent:  # Returns the percentage of the spot radius that is the edge region, where erosion and height falloff occurs.
+    <<: *smallCellular
     return: NoiseLookup
-    lookup:
-      type: EXPRESSION
-      expression: quinticEaseInOut(noise(x, z)) # Use in/out easing to favour extreme values over middle values
-      samplers:
-        noise:
-          dimensions: 2
-          type: POSITIVE_WHITE_NOISE
-          salt: 5812
-      functions:
-        quinticEaseInOut:
-          arguments: [ x ]
-          expression: if(x<0.5,16*x^5,1-((-2*x+2)^5)/2)
+    lookup:  
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 5812
 
   spotEdgeRadius:
     dimensions: 2
@@ -156,33 +319,66 @@ samplers:
     expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
-    samplers:
-      spotEdgeRadiusPercent: $math/samplers/spots.yml:samplers.spotEdgeRadiusPercent
 
-  volcanoActivity:
-    <<: *cellular
-    return: NoiseLookup
-    lookup:
-      type: WHITE_NOISE
-      salt: 4128
+  prismaticEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, prismaticMinEdgeRadius, 1, prismaticMaxEdgeRadius)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+      
+
+  volcanicEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
+    functions: $math/functions/interpolation.yml:functions
+    variables: *variables
+
 
   volcanoCenterDepth:
     dimensions: 2
     type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, volcanoMinCenterDepth, 1, volcanoMaxCenterDepth)
-    functions: $math/functions/interpolation.yml:functions
+    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, volcanoMinCenterDepth, 1, volcanoMaxCenterDepth)
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
-
   prismaticCenterDepth:
     dimensions: 2
     type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
-    functions: $math/functions/interpolation.yml:functions
+    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
     variables: *variables
-    samplers:
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
+
+  distanceToSpotEdge:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotDistance(x, z) / spotRadius(x, z)
+
+  distanceToPrismaticRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * prismaticEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * prismaticEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * prismaticEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    #  prismaticEdgeRadius: $math/samplers/spots.yml:samplers.prismaticEdgeRadius
+
+  distanceToVolcanicRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * volcanicEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * volcanicEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * volcanicEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    #  prismaticEdgeRadius: $math/samplers/spots.yml:samplers.prismaticEdgeRadius
 
   volcanoErosion: # Creates streaks from the center of the volcano, emulating erosion
     dimensions: 2
@@ -195,11 +391,8 @@ samplers:
       )
     variables:
       angleFrequency: 150
-      offsetAmplitude: 10000 # Translates sample position per cell so the erosion pattern is unique for each volcano
+      offsetAmplitude: 10000   # Translates sample position per cell so the erosion pattern is unique for each volcano
     samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotAngle: $math/samplers/spots.yml:samplers.spotAngle
-      spotSizePercent: $math/samplers/spots.yml:samplers.spotSizePercent
       noise:
         dimensions: 3
         type: FBM
@@ -207,3 +400,28 @@ samplers:
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.033
+
+  #spotPlacer: -1 for oceanSpot, 0 for non-spot, 1 for landSpot
+  spotPlacer:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
+        if(spotCenterOnOcean(x,z), -1.0,
+          if(spotCenterOnLand(x,z), 1.0, 0.0)),0.0)
+    variables: $math/samplers/spots.yml:variables
+
+  elevationAcrossSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
+
+  SinkholeDepth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotHeightPercent(x,z),0,0.1,1,0.15)
+
+  sinkholeMinElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotMinElev(x,z) - SinkholeDepth(x,z)

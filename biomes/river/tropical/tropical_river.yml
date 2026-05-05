@@ -32,8 +32,14 @@ colors:
   water: 0x02b0e5
   water-fog: 0x0686ca
 
+tags:
+- LAND_CAVES
 features:
   flora:
-    - SUGAR_CANE
-    - GRASS
-    - SEA_PICKLES
+  - SUGAR_CANE
+  - GRASS
+  - SEA_PICKLES
+  river-decoration:
+  - COVE_GLOW_LICHEN
+  processors:
+  - RIVER_SOULSAND

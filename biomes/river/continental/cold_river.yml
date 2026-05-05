@@ -32,9 +32,16 @@ colors:
   water: 0x007bf7
   water-fog: 0x007bf7
 
+  water-fog: 31735
+tags:
+- LAND_CAVES
 features:
   flora:
-    - FERNS
-    - GRASS
+  - FERNS
+  - GRASS
+  processors:
+  - RIVER_SOULSAND
   landforms:
-    - RIVER_BOULDERS
+  - RIVER_BOULDERS
+  river-decoration:
+  - COVE_FROZEN_LIGHT

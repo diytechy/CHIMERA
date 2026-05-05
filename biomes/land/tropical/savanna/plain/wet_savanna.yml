@@ -2,34 +2,34 @@ id: WET_SAVANNA
 type: BIOME
 extends: SAVANNA
 color: $biomes/colors.yml:WET_SAVANNA
-
 vanilla: minecraft:savanna
-
 colors:
-  grass: 0xa8c778
-  foliage: 0x87b55b
-  water: 0x2C8b9c
-  water-fog: 0x2C8b9c
-
+  grass: 11061112
+  foliage: 8893787
+  water: 2919324
+  water-fog: 2919324
 palette:
+- GRASS: $meta.yml:top-y
+- << meta.yml:palette-underwater
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.8
+  palette:
   - GRASS: $meta.yml:top-y
   - << meta.yml:palette-underwater
   - << meta.yml:palette-bottom
-
-slant:
-  - threshold: 0.8
-    palette:
-      - GRASS: $meta.yml:top-y
-      - << meta.yml:palette-underwater
-      - << meta.yml:palette-bottom
-  - threshold: 0.4
-    palette:
-      - << meta.yml:palette-slant-generic
-      - << meta.yml:palette-bottom
-
+- threshold: 0.4
+  palette:
+  - << meta.yml:palette-slant-generic
+  - << meta.yml:palette-bottom
 features:
   flora:
-    - TALL_GRASS
-    - DRY_GRASS
-    - POPPY_PATCH
-    - DANDELION_PATCH
+  - TALL_GRASS
+  - DRY_GRASS
+  - POPPY_PATCH
+  - DANDELION_PATCH
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES
+- TROPICAL_COAST_FLAT
+- USE_LUKEWARM_RIVER

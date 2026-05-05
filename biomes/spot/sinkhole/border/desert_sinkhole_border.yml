@@ -1,0 +1,10 @@
+id: DESERT_SINKHOLE_BORDER
+type: BIOME
+extends:
+  - EQ_LAND
+  - CARVING_OCEAN
+  - BASE
+  - DESERT
+  - BORDER_SINKHOLE_EXTEND
+color: $biomes/colors.yml:DESERT_SINKHOLE_BORDER
+

@@ -1,0 +1,83 @@
+stages:
+  - type: REPLACE
+    from: _non_spot
+    to:
+      - ocean: 50
+      - land: 50
+    sampler:
+      type: EXPRESSION
+      expression: continentsWithSpots(x, z)
+
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 20 
+      warp:
+        type: SIMPLEX
+        frequency: 0.02
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 60 
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.003
+        sampler:
+          dimensions: 2
+          type: DOMAIN_WARP
+          amplitude: 300 
+          warp:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.0001
+          sampler:
+            type: CELLULAR
+            return: CellValue
+            frequency: 1 /  (${customization.yml:biomeSpread.cellDistance} * ${customization.yml:variation-scale})
+            salt: 2001
+            jitter: 1.2
+            distance: Hybrid
+            salt: 7777
+    from: land
+    to:
+      l1: 1
+      l2: 1
+      l3: 1
+      l4: 1
+      l5: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: ocean
+    to:
+      o1: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _non_spot
+    to:
+      l1: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _land_spot
+    to:
+      ERUPTED_VOLCANO: 1
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: _ocean_spot
+    to:
+      BOREAL_MESA: 1
+      
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+    from: desert
+    to:
+      DESERT: 1

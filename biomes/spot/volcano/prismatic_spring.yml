@@ -22,7 +22,7 @@ palette:
 
 features:
   preprocessors:
-    - VOLCANO_WATER
+    # - VOLCANO_WATER
   postprocessors:
     - PRISMATIC_SPRING_MAGMA
     - PRISMATIC_SPRING_SMOKE

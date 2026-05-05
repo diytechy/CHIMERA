@@ -49,7 +49,7 @@ functions:
         expression: 3*x^2-2*x^3
   
   parabolicMap:
-    # Hermite interpolation between two values
+    # One-sided quadratic ease-in.
     arguments:
       - t
       - bt # Value of t where output = b

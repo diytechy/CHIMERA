@@ -9,7 +9,9 @@ color: $biomes/colors.yml:STEPPE
 
 tags:
   - LAND_CAVES
+  - SPECIAL_CAVES
   - USE_RIVER_TEMPERATE_MARSH
+  - TEMPERATE_COAST_FLAT
 
 vanilla: minecraft:plains
 

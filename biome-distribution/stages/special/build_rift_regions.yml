@@ -1,0 +1,81 @@
+stages:
+  #Distribute land into large temperature breaks to separate major canyon sections, since canyons changing vegitation mid trench is a little strange.
+  - type: REPLACE
+    sampler:
+      type: EXPRESSION
+      variables:
+        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+      expression: if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&(continents(x,z)>0.1)),1,-1)
+    from: land
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    to:
+      land: 1
+      _rift_land: 1
+      
+  #Perform cellular distribution to create zones where canyons will actually occur so they are not everywhere in the land-mass.
+  - type: REPLACE
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
+      amplitude: 60 
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.002
+      sampler:
+        type: EXPRESSION
+        #Lower band is colder, upper band is warmer, white noise salted based on cell value to randomize placement.
+        expression: |
+          if((riftFarRiverDist(x,z)>200) && (if(riftInRangeOfSpot(x,z)>0,0,1)),
+            if(riftTemperature(x,z)>0,0.55+riftRegions(x,z)/2,
+              if(riftTemperature(x,z)<-0.5,-0.55+riftRegions(x,z)/2,0)),
+            0)
+    #from: land
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    from: _rift_land
+    to:
+      _cold_rift: 2
+      _cold_well: 4
+      land: 25
+      _warm_well: 2
+      _warm_rift: 1
+
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: |
+        riftCanyon(x,z)
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    from: _warm_rift
+    default-from: _warm_rift
+    default-to: # 0 = outer, 1 = inner
+      - land: &CanyonLandDist             16
+      - SANDY_SPLITS: &CanyonFloorDist     9
+    to: # 0 = outer, 1 = inner
+      _cold_rift:
+      - land: *CanyonLandDist
+      - ICY_INCISIONS: *CanyonFloorDist
+      
+  #Perform cellular distribution to create zones where canyons will actually occur so they are not everywhere in the land-mass.
+  - type: REPLACE_LIST
+    sampler: 
+      dimensions: 2
+      type: EXPRESSION
+      expression: riftWellPlacement(x,z)
+    range:
+      min: ${customization.yml:biomeSpread.canyons.minY}
+      max: 319
+    default-from: _cold_well
+    default-to:
+      - land: &SinkholeSurrDist         1
+      - SINKHOLE_FROZEN: &NotSinkholeLandDist     1
+    to:
+      _warm_well:
+        - land: *SinkholeSurrDist
+        - SINKHOLE_JUNGLE: *NotSinkholeLandDist

@@ -1,0 +1,22 @@
+id: SINKHOLE_OUTER
+type: BIOME
+vanilla: minecraft:plains
+color: $biomes/colors.yml:TEMPERATE_GRASSLAND_OUTER
+extends:
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+- CARVING_LAND
+- EQ_SINKHOLE_OUTER
+palette:
+- GRASS: 319
+- SAND: 64
+- << meta.yml:palette-bottom
+features:
+  global-preprocessors:
+  - LAVA_FLOOR
+  - UNDERGROUND_LAVA_COLUMNS
+  - CONTAIN_FLOATING_WATER
+  - TEXTURED_STONE_SLANT
+tags:
+- LAND_CAVES
+- SPECIAL_CAVES

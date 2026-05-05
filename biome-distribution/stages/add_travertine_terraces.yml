@@ -1,0 +1,15 @@
+stages:
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLandmassValue(x, z)
+    default-from: tropical-rainforest
+    default-to: &travertineList
+      - SELF: 50
+      - TRAVERTINE_TERRACES: 1
+    to:
+      tropical-rainforest-highlands: *travertineList
+      tropical-monsoon: *travertineList
+      tropical-monsoon-highlands: *travertineList
+      tropical-savanna-wet: *travertineList
+      tropical-savanna-wet-highlands: *travertineList

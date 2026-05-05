@@ -1,0 +1,111 @@
+coastSampler: &coastSampler
+      #Expand range, less than threashold is coastal with distribution
+      # according to biome shape randomization, else land with no change.
+  type: EXPRESSION
+  expression: |
+    if(dist2Coast(x,z)<0,
+      (BiomeShapeLandmassValue(x, z) - 1)/2,
+      1)
+
+
+stages:
+# Add bordering at continent edge.
+  - type: REPLACE_LIST
+    sampler: *coastSampler
+      # IMPORTANT: Coastal weights must equal self weights, unless the user desires specific
+      # biome coasts pull further inland or vice-versa.  This is not recommended.
+    default-from: ARID_PALE_GARDEN
+    default-to:
+      - ARID_PALE_GARDEN_COAST: &coastalWeight 5
+      - SELF: &notCoast 5
+    to:
+      ORANGE_ARID_PALE_GARDEN:
+        - ORANGE_ARID_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      PALE_GARDEN:
+        - PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      POLAR_PALE_GARDEN:
+        - POLAR_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      RED_ARID_PALE_GARDEN:
+        - RED_ARID_PALE_GARDEN_COAST: *coastalWeight
+        - SELF: *notCoast
+      MUSHROOM_FIELDS:
+        - MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast
+      POLAR_MUSHROOM_FIELDS:
+        - POLAR_MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast
+      TROPICAL_MUSHROOM_FIELDS:
+        - TROPICAL_MUSHROOM_COAST: *coastalWeight
+        - SELF: *notCoast
+
+  - type: REPLACE
+    sampler: *coastSampler
+    from: BOREAL_COAST_FLAT
+    to:
+      - SHALE_BEACH: 2
+      - PINE_BARRENS: 2
+      - SELF: 4
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: ARID_COAST_FLAT
+    to:
+      - BEACH: 1
+      - SELF: 1
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: BOREAL_COAST_HIGHLANDS
+    to:
+      - ROCKY_SEA_CAVES: 4
+      - SELF: 4
+
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: POLAR_COAST_FLAT
+    to:
+      - FROZEN_BEACH: 2
+      - SNOWDRIFT_COASTS: 2
+      - FROSTY_FINGERS: 1
+      - FRIGID_WASTELANDS: 1
+      - SELF: 6
+
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: POLAR_COAST_HIGHLANDS
+    to:
+      - SNOWY_SEA_CAVES: 4
+      - SELF: 4
+
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: TEMPERATE_COAST_FLAT
+    to:
+      - BEACH: 2
+      - SHRUB_BEACH: 1
+      - PINE_BARRENS: 1
+      - SELF: 4
+
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: TROPICAL_COAST_FLAT
+    to:
+      - MUDDY_COASTS: 2
+      - PALM_BEACH: 1
+      - MANGROVE_SWAMP: 1
+      - SELF: 4
+
+      
+  - type: REPLACE
+    sampler: *coastSampler
+    from: TROPICAL_COAST_HIGHLANDS
+    to:
+      - LUSH_SEA_CAVES: 4
+      - SELF: 4

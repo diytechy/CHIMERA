@@ -1,0 +1,197 @@
+stages:
+  # =========================================================================
+  # Land precipitation (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLandmassPrecipitation(x, z)
+
+    default-from: tropical-rainforest
+    default-to:
+      - hot-desert: &desert       3
+      - hot-desert: &desertBorder 1
+      - hot-steppe: &semiArid     1
+      - tropical-savanna-dry: &mid          1
+      - tropical-monsoon: &mildlyWet    2
+      - tropical-rainforest: &veryWet      3
+    to:
+      tropical-monsoon:
+        - hot-desert: *desert
+        - hot-desert: *desertBorder
+        - hot-steppe: *semiArid
+        - tropical-savanna-dry: *mid
+        - tropical-monsoon: *mildlyWet
+        - tropical-monsoon: *veryWet
+      tropical-savanna-wet:
+        - hot-steppe: *desert
+        - hot-steppe: *desertBorder
+        - hot-steppe: *semiArid
+        - tropical-savanna-wet: *mid
+        - tropical-savanna-wet: *mildlyWet
+        - tropical-savanna-wet: *veryWet
+      temperate-hot:
+        - hot-desert: *desert
+        - temperate-steppe: *desertBorder
+        - temperate-hot-dry: *semiArid
+        - temperate-hot: *mildlyWet
+        - temperate-hot: *veryWet
+      temperate-warm:
+        - temperate-warm-dry: *desert
+        - temperate-steppe: *desertBorder
+        - temperate-warm-dry: *semiArid
+        - temperate-warm: *mildlyWet
+        - temperate-warm: *veryWet
+      temperate-cold:
+        - temperate-warm-dry: *desert
+        - temperate-steppe: *desertBorder
+        - temperate-warm-dry: *semiArid
+        - temperate-cold: *mildlyWet
+        - temperate-cold: *veryWet
+      boreal-hot:
+        - boreal-hot-dry: *desert
+        - cold-steppe: *desertBorder
+        - boreal-hot-dry: *semiArid
+        - boreal-warm: *mid
+        - boreal-warm: *mildlyWet
+        - boreal-hot: *veryWet
+      boreal-warm:
+        - boreal-warm-dry: *desert
+        - cold-steppe: *desertBorder
+        - boreal-warm-dry: *semiArid
+        - boreal-warm-dry: *mid
+        - boreal-warm: *mildlyWet
+        - boreal-warm: *veryWet
+      boreal-cold:
+        - cold-desert: *desert
+        - cold-steppe: *desertBorder
+        - boreal-cold-dry: *semiArid
+        - boreal-cold: *mid
+        - boreal-cold: *mildlyWet
+        - boreal-cold: *veryWet
+      boreal-snowy:
+        - cold-desert: *desert
+        - cold-steppe: *desertBorder
+        - boreal-snowy-dry: *semiArid
+        - boreal-snowy: *mid
+        - boreal-snowy: *mildlyWet
+        - boreal-snowy: *veryWet
+
+  # =========================================================================
+  # Mesa precipitation (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeMesaPrecipitation(x, z)
+
+    default-from: hot-mesa
+    default-to:
+      - desert-mesa: *desert
+      - desert-mesa: *desertBorder
+      - desert-mesa: *semiArid
+      - tropical-mesa: *mid
+      - tropical-mesa: *mildlyWet
+      - tropical-mesa: *veryWet
+    to:
+      temperate-mesa:
+        - desert-mesa: *desert
+        - desert-mesa: *desertBorder
+        - desert-mesa: *semiArid
+        - temperate-mesa: *mid
+        - temperate-mesa: *mildlyWet
+        - temperate-mesa: *veryWet
+      boreal-mesa:
+        - boreal-mesa: *desert
+        - boreal-mesa: *desertBorder
+        - boreal-mesa: *semiArid
+        - boreal-mesa: *mid
+        - boreal-mesa: *mildlyWet
+        - boreal-mesa: *veryWet
+      polar-mesa:
+        - cold-desert-mesa: *desert
+        - cold-desert-mesa: *desertBorder
+        - cold-desert-mesa: *semiArid
+        - cold-desert-mesa: *mid
+        - cold-desert-mesa: *mildlyWet
+        - cold-desert-mesa: *veryWet
+        
+  # =========================================================================
+  # Spot precipitation (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: spotPrecipitation(x, z)
+    default-from: hot-crater-lake
+    default-to:
+      - desert-crater-lake: *desert
+      - desert-crater-lake: *desertBorder
+      - desert-crater-lake: *semiArid
+      - tropical-crater-lake: *mid
+      - tropical-crater-lake: *mildlyWet
+      - tropical-crater-lake: *veryWet
+    to:
+      hot-sinkhole:
+        - desert-sinkhole: *desert
+        - desert-sinkhole: *desertBorder
+        - desert-sinkhole: *semiArid
+        - tropical-sinkhole: *mid
+        - tropical-sinkhole: *mildlyWet
+        - tropical-sinkhole: *veryWet
+      hot-sinkhole-border:
+        - desert-sinkhole-border: *desert
+        - desert-sinkhole-border: *desertBorder
+        - desert-sinkhole-border: *semiArid
+        - tropical-sinkhole-border: *mid
+        - tropical-sinkhole-border: *mildlyWet
+        - tropical-sinkhole-border: *veryWet
+      hot-sinkhole-border-ocean:
+        - desert-sinkhole-border-ocean: *desert
+        - desert-sinkhole-border-ocean: *desertBorder
+        - desert-sinkhole-border-ocean: *semiArid
+        - tropical-sinkhole-border-ocean: *mid
+        - tropical-sinkhole-border-ocean: *mildlyWet
+        - tropical-sinkhole-border-ocean: *veryWet
+      hot-extinct-volcano:
+        - desert-extinct-volcano: *desert
+        - desert-extinct-volcano: *desertBorder
+        - desert-extinct-volcano: *semiArid
+        - tropical-extinct-volcano: *mid
+        - tropical-extinct-volcano: *mildlyWet
+        - tropical-extinct-volcano: *veryWet
+      temperate-crater-lake:
+        - desert-crater-lake: *desert
+        - desert-crater-lake: *desertBorder
+        - desert-crater-lake: *semiArid
+        - temperate-crater-lake: *mid
+        - temperate-crater-lake: *mildlyWet
+        - temperate-crater-lake: *veryWet
+      temperate-sinkhole:
+        - desert-sinkhole: *desert
+        - desert-sinkhole: *desertBorder
+        - desert-sinkhole: *semiArid
+        - temperate-sinkhole: *mid
+        - temperate-sinkhole: *mildlyWet
+        - temperate-sinkhole: *veryWet
+      temperate-sinkhole-border:
+        - desert-sinkhole-border: *desert
+        - desert-sinkhole-border: *desertBorder
+        - desert-sinkhole-border: *semiArid
+        - temperate-sinkhole-border: *mid
+        - temperate-sinkhole-border: *mildlyWet
+        - temperate-sinkhole-border: *veryWet
+      temperate-sinkhole-border-ocean:
+        - desert-sinkhole-border-ocean: *desert
+        - desert-sinkhole-border-ocean: *desertBorder
+        - desert-sinkhole-border-ocean: *semiArid
+        - temperate-sinkhole-border-ocean: *mid
+        - temperate-sinkhole-border-ocean: *mildlyWet
+        - temperate-sinkhole-border-ocean: *veryWet
+      temperate-extinct-volcano:
+        - desert-extinct-volcano: *desert
+        - desert-extinct-volcano: *desertBorder
+        - desert-extinct-volcano: *semiArid
+        - temperate-extinct-volcano: *mid
+        - temperate-extinct-volcano: *mildlyWet
+        - temperate-extinct-volcano: *veryWet

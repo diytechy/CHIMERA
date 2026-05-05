@@ -1,35 +1,57 @@
 num randPrecision = 100;
-num radius = 8 + randomInt(randPrecision) / randPrecision * 2;
+num radius = 5.5 + randomInt(randPrecision) / randPrecision;
 num warp = 1;
 num warpFreq = 2;
 num squish = 1 + randomInt(randPrecision) / randPrecision;
 num radiusSquared = pow(radius, 2);
-num yTranslate = 0;
+
+// Maximum warp displacement in the squished metric is warp * sqrt(2 + squish^2).
+// warp * (squish + 1) is a tight conservative overestimate for squish in [1, 2]:
+//   at squish=1: margin=2 vs sqrt(3)=1.73 ✓   at squish=2: margin=3 vs sqrt(6)=2.45 ✓
+num warpMargin = warp * (squish + 1);
+num outerBound2 = pow(radius + warpMargin, 2);
+num innerBound2 = pow(radius - warpMargin, 2);
+
+// Pre-compute origin-based warp coordinate offsets — constant for the whole structure.
+// Avoids re-evaluating originX/Y/Z() on every inner-loop iteration.
+num origWX  = warpFreq * originX();
+num origWY0 = warpFreq * (originY() + 1000);
+num origWY1 = warpFreq * (originY() + 2000);
+num origWY2 = warpFreq * (originY() + 3000);
+num origWZ  = warpFreq * originZ();
 
 for (num x = -radius - warp; x < radius + warp; x = x + 1) {
     for (num y = (-radius - warp) / squish; y < (radius + warp) / squish; y = y + 1) {
         for (num z = -radius - warp; z < radius + warp; z = z + 1) {
-            num warpX = warp * sampler("simplex3",
-                warpFreq * (x + originX()),
-                warpFreq * (y + originY() + 1000),
-                warpFreq * (z + originZ()));
-            num warpY = warp * sampler("simplex3",
-                warpFreq * (x + originX()),
-                warpFreq * (y + originY() + 2000),
-                warpFreq * (z + originZ()));
-            num warpZ = warp * sampler("simplex3",
-                warpFreq * (x + originX()),
-                warpFreq * (y + originY() + 3000),
-                warpFreq * (z + originZ()));
-            if (pow(x + warpX, 2) + pow((y + warpY) * squish, 2) + pow(z + warpZ, 2) < radiusSquared) {
-                if (structure(x, y + yTranslate, z, "is_sculk_replaceable", "NONE") && (
-                    getBlock(x, y + yTranslate + 1, z) == "minecraft:air" ||
-                    getBlock(x, y + yTranslate - 1, z) == "minecraft:air" ||
-                    getBlock(x + 1, y + yTranslate, z) == "minecraft:air" ||
-                    getBlock(x - 1, y + yTranslate, z) == "minecraft:air" ||
-                    getBlock(x, y + yTranslate, z + 1) == "minecraft:air" ||
-                    getBlock(x, y + yTranslate, z - 1) == "minecraft:air") ) {
-                    block(x, y + yTranslate, z, "minecraft:sculk");
+            num d2 = pow(x, 2) + pow(y * squish, 2) + pow(z, 2);
+            if (d2 < outerBound2) {
+                if (d2 < innerBound2) {
+                    // Guaranteed inside regardless of warp — skip all three sampler calls
+                    if (structure(x, y, z, "is_sculk_replaceable", "NONE") && (
+                        getBlock(x, y + 1, z) == "minecraft:air" ||
+                        getBlock(x, y - 1, z) == "minecraft:air" ||
+                        getBlock(x + 1, y, z) == "minecraft:air" ||
+                        getBlock(x - 1, y, z) == "minecraft:air" ||
+                        getBlock(x, y, z + 1) == "minecraft:air" ||
+                        getBlock(x, y, z - 1) == "minecraft:air")) {
+                        block(x, y, z, "minecraft:sculk");
+                    }
+                } else {
+                    // Shell region — compute warp to resolve the exact boundary
+                    num warpX = warp * sampler("simplex3", origWX + warpFreq * x, origWY0 + warpFreq * y, origWZ + warpFreq * z);
+                    num warpY = warp * sampler("simplex3", origWX + warpFreq * x, origWY1 + warpFreq * y, origWZ + warpFreq * z);
+                    num warpZ = warp * sampler("simplex3", origWX + warpFreq * x, origWY2 + warpFreq * y, origWZ + warpFreq * z);
+                    if (pow(x + warpX, 2) + pow((y + warpY) * squish, 2) + pow(z + warpZ, 2) < radiusSquared) {
+                        if (structure(x, y, z, "is_sculk_replaceable", "NONE") && (
+                            getBlock(x, y + 1, z) == "minecraft:air" ||
+                            getBlock(x, y - 1, z) == "minecraft:air" ||
+                            getBlock(x + 1, y, z) == "minecraft:air" ||
+                            getBlock(x - 1, y, z) == "minecraft:air" ||
+                            getBlock(x, y, z + 1) == "minecraft:air" ||
+                            getBlock(x, y, z - 1) == "minecraft:air")) {
+                            block(x, y, z, "minecraft:sculk");
+                        }
+                    }
                 }
             }
         }
@@ -38,24 +60,26 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
 
 radius = radius + 10;
 radiusSquared = pow(radius, 2);
+outerBound2 = pow(radius + warpMargin, 2);
+innerBound2 = pow(radius - warpMargin, 2);
 
 for (num ox = -radius - warp; ox < radius + warp; ox = ox + 1) {
     for (num oy = (-radius - warp) / squish; oy < (radius + warp) / squish; oy = oy + 1) {
         for (num oz = -radius - warp; oz < radius + warp; oz = oz + 1) {
-            num warpX = warp * sampler("simplex3",
-                warpFreq * (ox + originX()),
-                warpFreq * (oy + originY() + 1000),
-                warpFreq * (oz + originZ()));
-            num warpY = warp * sampler("simplex3",
-                warpFreq * (ox + originX()),
-                warpFreq * (oy + originY() + 2000),
-                warpFreq * (oz + originZ()));
-            num warpZ = warp * sampler("simplex3",
-                warpFreq * (ox + originX()),
-                warpFreq * (oy + originY() + 3000),
-                warpFreq * (oz + originZ()));
-            if (pow(ox + warpX, 2) + pow((oy + warpY) * squish, 2) + pow(oz + warpZ, 2) < radiusSquared) {
-                structure(ox, oy + yTranslate, oz, "valid_sculk_vein", "NONE");
+            num d2 = pow(ox, 2) + pow(oy * squish, 2) + pow(oz, 2);
+            if (d2 < outerBound2) {
+                if (d2 < innerBound2) {
+                    // Guaranteed inside regardless of warp — skip all three sampler calls
+                    structure(ox, oy, oz, "valid_sculk_vein", "NONE");
+                } else {
+                    // Shell region — compute warp to resolve the exact boundary
+                    num warpX = warp * sampler("simplex3", origWX + warpFreq * ox, origWY0 + warpFreq * oy, origWZ + warpFreq * oz);
+                    num warpY = warp * sampler("simplex3", origWX + warpFreq * ox, origWY1 + warpFreq * oy, origWZ + warpFreq * oz);
+                    num warpZ = warp * sampler("simplex3", origWX + warpFreq * ox, origWY2 + warpFreq * oy, origWZ + warpFreq * oz);
+                    if (pow(ox + warpX, 2) + pow((oy + warpY) * squish, 2) + pow(oz + warpZ, 2) < radiusSquared) {
+                        structure(ox, oy, oz, "valid_sculk_vein", "NONE");
+                    }
+                }
             }
         }
     }

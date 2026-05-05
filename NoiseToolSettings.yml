@@ -1,0 +1,72 @@
+Elevation tab:
+type: EXPRESSION
+expression: compositeElevation(x,z)
+
+Color tab:
+type: EXPRESSION
+expression: |
+  if(compositeElevation(x,z)<0,compositeElevation(x,z),
+    if(continentalRiverDist(x,z)<0,1+continentalRiverElev(x,z),
+      if(mesaMask(x,z)>0.166 ,2+max(compositeElevation(x,z),0),
+        if((AppliedMountainHeightA(x,z)>0||AppliedMountainHeightB(x,z)>0),3+compositeElevation(x,z),
+          if(plainsMaskApplied(x,z)=1,4+compositeElevation(x,z),
+            5+max(precipitation(x,z),0))))))
+
+
+Color Def:
+-1.0, 0.0, 0.0, 0.0
+-0.001, 0.5, 0.0, 1.0
+0.0, 0.0, 0.0, 0.0
+0.999, 1.0, 1.0, 1.0
+1.0, 0.0, 0.0, 1.0
+1.999, 0.0, 1.0, 1.0
+2.0, 1.0, 0.5, 0.0
+2.999, 1.0, 0.5, 1.0
+3.0, 0.4, 0.4, 0.4
+3.999, 1.0, 1.0, 1.0
+4.0, 1.0, 0.0, 1.0
+4.999, 1.0, 1.0, 1.0
+5.0, 0.4, 1.0, 0.4
+5.999, 1.0, 1.0, 0.4
+
+# Dendry check:
+type: DENDRY
+n: 1                    # Resolution levels (1-5)
+epsilon: 0              # Point distribution bias [0, 0.5)
+delta: 0.05             # Segment displacement
+cachepixels: 5.1
+default-branches: 0.5
+return: PIXEL_RIVER_FAR
+sampler:
+  type: CONSTANT
+  value: 1.0
+riverwidth:
+  type: EXPRESSION
+  expression: continentalRiverWidth(x,z)
+borderwidth:
+  type: EXPRESSION
+  expression: riverBoundaryDistance(x,z)
+branches:
+  type: EXPRESSION
+  expression: precipitation(x,z)*2
+
+  #Dendry check 2:
+type: DENDRY
+n: 0                    # Resolution levels (1-5)
+epsilon: 0              # Point distribution bias [0, 0.5)
+delta: 0.05             # Segment displacement
+cachepixels: 25.0
+default-branches: 0.5
+return: PIXEL_RIVER_CTRL
+sampler:
+  type: EXPRESSION
+  expression: "1.0"
+riverwidth:
+  type: EXPRESSION
+  expression: continentalRiverWidth(x,z)
+borderwidth:
+  type: EXPRESSION
+  expression: riverBoundaryDistance(x,z)
+branches:
+  type: EXPRESSION
+  expression: precipitation(x,z)*2

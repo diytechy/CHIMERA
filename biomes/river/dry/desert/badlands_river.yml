@@ -1,7 +1,15 @@
 id: BADLANDS_RIVER
 type: BIOME
 extends:
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
-  - BADLANDS
+- EQ_GLOBAL_RIVER
+- CARVING_OCEAN
+- BADLANDS
 color: $biomes/colors.yml:BADLANDS_RIVER
+features:
+  flora:
+  - CACTUS_SPARSE
+  - DRY_GRASS
+  processors:
+  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN

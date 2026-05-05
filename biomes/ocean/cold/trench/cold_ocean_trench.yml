@@ -6,3 +6,6 @@ extends:
 color: $biomes/colors.yml:COLD_OCEAN_TRENCH
 
 vanilla: minecraft:ocean
+
+tags:
+  - OCEAN_CAVES

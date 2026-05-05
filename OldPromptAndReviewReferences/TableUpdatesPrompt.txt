@@ -1,0 +1,31 @@
+In `.scripts/calculate_biome_percentages.py`, make the following updates:
+
+1. Output locations
+   - Create `BiomeTable.csv` in `.artifacts/` (not `.scripts/`).
+   - Create `SuggestedImprovements.md` in `.artifacts/` (not `.scripts/`).
+
+2. Biome property collection
+   - While processing biome YAML files (files with `type: BIOME`), collect the additional properties described below.
+   - If a biome file has an `extends:` list, resolve referenced biomes by `id` and merge those properties into the child biome. Properties should be collected transitively (parents of parents), but avoid infinite loops. When the same property is present in both parent and child, the child's value takes precedence.
+
+3. Table columns to create
+   - `BiomeID`: the existing `id` field (unchanged).
+   - `Extends`: the existing `extends` value (unchanged).
+   - `VanillaID`: populated from the biome's `vanilla:` entry if that value matches a "Vanilla ID" entry in `VanillaJavaBiomes.csv`; otherwise leave blank. If multiple matches occur, indicate as "Multiple"
+   - `LAND_CAVES`, `SPECIAL_CAVES`, `CAVERNS_LAND`: each should be `True` (or `True` / blank) depending on whether the corresponding tag/property is present for the biome after merging `extends`.
+   - `River`: set to one of `Desert`, `Cold`, or `General` based on flags (after merging `extends`):
+       * `Desert` if `USE_DESERT_RIVER` is set
+       * otherwise `Cold` if `USE_COLD_RIVER` is set
+       * otherwise `General` if `USE_RIVER` is set
+       * if none are set, leave blank
+
+4. Formatting and examples
+   - Preserve existing preset percentage columns (one per preset) showing exact percentages (e.g., `4.6875%`).
+   - Include ALL valid (non-abstract) biomes, including those with `0.0000%` across presets.
+   - Example header:
+     BiomeID,Extends,VanillaID,LAND_CAVES,SPECIAL_CAVES,CAVERNS_LAND,River,<preset columns...>
+
+Notes:
+ - Do NOT edit YAML files directly; write suggested changes to `SuggestedImprovements.md` for review.
+ - Make the script idempotent and platform-independent where possible (use `pathlib` or `os.path.join`).
+ - Add unit tests or small verification checks where reasonable to exercise the new behavior.

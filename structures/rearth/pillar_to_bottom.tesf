@@ -1,4 +1,4 @@
-num maxHeight = 65;
+num maxHeight = 100;
 num initialWidth = randomInt(2);
 num width = initialWidth;
 str blockType = "minecraft:stone";

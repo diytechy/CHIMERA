@@ -4,3 +4,7 @@ extends:
   - TROPICAL_OCEAN
   - EQ_SHALLOW_OCEAN
 color: $biomes/colors.yml:TROPICAL_ISLAND_SHALLOWS
+
+tags:
+  - OCEAN_CAVES
+  - OCEAN

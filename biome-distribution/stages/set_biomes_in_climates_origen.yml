@@ -1,0 +1,756 @@
+stages:
+  # =========================================================================
+  # Landmass biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLandmassValue(x, z)
+    default-from: ice-cap-flat
+    default-to:
+      - ICE_SPIKES: 1
+      - LAND_GLACIER: 1
+    to:
+      ice-cap-flat:
+        - ICE_SPIKES: 1
+        - LAND_GLACIER: 1
+        - FROSTBOUND_CHASMS: 1
+      ice-cap:
+        - LAND_GLACIER: 2
+        - SNOWY_TUFF_MOUNTAINS: 1
+      ice-cap-highlands:
+        - SNOWY_BLACKSTONE_MOUNTAINS: 2
+        - ICE_CAPS: 4
+        - SNOWY_SPIRES: 2
+        - BARE_BOULDERFIELDS: 1
+        - BITTER_HEIGHTS: 1
+        - PERMAFROST_CLIFFS: 1
+        - FROZEN_SPIRES: 1
+
+      tundra-flat:
+        - TUNDRA: 2
+        - TUNDRA_TRACKS: 1
+        - FRIGID_WASTELANDS: 1
+        - MUSKEG: 1
+        - FROSTBOUND_CHASMS: 1
+      tundra:
+        - TUNDRA: 2
+        - SNOWY_TUFF_MOUNTAINS: 1
+        - FROZEN_FUNGI: 1
+        - TUNDRA_TRACKS: 1
+      tundra-highlands:
+        - SNOWY_BLACKSTONE_MOUNTAINS: 1
+        - MOUNTAIN_MIRRORS: 2
+        - ALPINE_ASCENDANCY: 2
+        - SNOWY_SPIRES: 1
+        - BARE_BOULDERFIELDS: 1
+        - BITTER_HEIGHTS: 1
+        - PERMAFROST_CLIFFS: 1
+        - VERTICAL_VISTAS_FROZEN: 1
+
+      polar-mesa:
+        - COLD_DESERT_MESA: 1
+
+      polar-crater-lake:
+        - COLD_CRATER_LAKE: 1
+
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      polar-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+
+
+
+
+      boreal-hot-flat:
+        - STEPPE: 2
+        - PRAIRIE: 2
+        - SUNFLOWER_PRAIRIE: 1
+        - ASPEN_FOREST: 1
+        - BIRCH_FOREST: 2
+        - maple-groves: 1
+        - PINE_CANOPY: 1
+      boreal-hot:
+        - ASPEN_FOREST: 1
+        - maple-groves: 1
+        - BIRCH_FOREST: 2
+        - PINE_CANOPY: 2
+        - TALL_TIMBERLAND: 1
+      boreal-hot-highlands:
+        - MOUNTAINS: 1
+
+      boreal-warm-flat:
+        - STEPPE: 1
+        - PRAIRIE: 2
+        - SUNFLOWER_PRAIRIE: 1
+        - ASPEN_FOREST: 1
+        - FIR_FIELDS: 1
+        - BIRCH_FOREST: 2
+        - maple-groves: 1
+        - PINE_CANOPY: 2
+        - FOSSILIZED_FENLANDS: 1
+      boreal-warm:
+        - SEQUOIA_FOREST: 5
+        - OLD_GROWTH_SEQUOIA_FOREST: 1
+        - TAIGA_CLEARING: 5
+        - TAIGA: 11
+        - FIR_FIELDS: 3
+        - TALL_TIMBERLAND: 1
+      boreal-warm-highlands:
+        - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+
+      boreal-cold-flat:
+        - TAIGA: 2
+        - maple-groves: 1
+        - TAIGA_CLEARING: 1
+        - FIR_FIELDS: 1
+        - LAVENDER_FIELDS: 2
+        - SCULK_SWAMP: 1
+      boreal-cold:
+        - TAIGA_CLEARING: 1
+        - TAIGA: 2
+        - FIR_FIELDS: 1
+        - maple-groves: 1
+        - BLACK_FOREST: 1
+        - GLOOMY_GORGE: 1
+        - AUTUMNAL_WOODLANDS: 1
+        - BIRCH_WOODLANDS: 1
+        - DARK_OAK_WOODLANDS: 1
+        - ENCHANTED_WOODLANDS: 1
+        - MAPLE_WOODLANDS: 1
+        - OAK_WOODLANDS: 1
+        - REDWOOD_WOODLANDS: 1
+        - SUGAR_PINE_WOODLANDS: 1
+      boreal-cold-highlands:
+        - MOUNTAINS: 1
+        - ROCKY_REFUGE: 1
+        - ALPINE_ASCENDANCY: 1
+        - VERTICAL_VISTAS: 1
+      
+      boreal-snowy-flat:
+        - SNOWY_MEADOW: 2
+        - SNOWY_PLAINS: 1
+        - FROSTCOATED_BOG: 1
+        - FROZEN_MARSH: 1
+        - SNOWSWEPT_MEADOWS: 1
+      boreal-snowy:
+        - SNOWY_TAIGA: 1
+        - SNOWY_BIRCH_FOREST: 1
+        - FROZEN_FUNGI: 1
+        - SPRUCE_WOODLANDS: 1
+        - ICEBOUND_JUNGLE: 1
+      boreal-snowy-highlands:
+        - SNOWY_MOUNTAINS: 1
+        - MONTANE_FOREST: 1
+        - MOUNTAIN_MIRRORS: 1
+        - ALPINE_ASCENDANCY: 1
+        - BARE_BOULDERFIELDS: 1
+        - FIR_HIGHLANDS: 1
+        - VERTICAL_VISTAS: 1
+
+      boreal-hot-dry-flat:
+        - PRAIRIE: 1
+        - STEPPE: 1
+        - BOREAL_SHRUBLAND: 1
+        - ASPEN_FOREST: 1
+        - BIRCH_FOREST: 2
+        - maple-groves: 1
+        - FIR_FIELDS: 1
+      boreal-hot-dry:
+        - BOREAL_SHRUBLAND: 1
+        - maple-groves: 1
+        - TAIGA: 2
+        - FIR_FIELDS: 1
+      boreal-hot-dry-highlands:
+        - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+
+      boreal-warm-dry-flat:
+        - BOREAL_SHRUBLAND: 3
+        - TAIGA: 2
+        - PINE_CANOPY: 1
+        - TAIGA_CLEARING: 2
+        - FIR_FIELDS: 2
+      boreal-warm-dry:
+        - TAIGA: 2
+        - PINE_CANOPY: 1
+        - FIR_FIELDS: 1
+      boreal-warm-dry-highlands:
+        - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+
+      boreal-cold-dry-flat:
+        - BOREAL_SHRUBLAND: 3
+        - TAIGA: 2
+        - TAIGA_CLEARING: 2
+        - FIR_FIELDS: 2
+        - maple-groves: 1
+      boreal-cold-dry:
+        - BOREAL_SHRUBLAND: 1
+        - TAIGA: 2
+        - maple-groves: 1
+        - FIR_FIELDS: 1
+      boreal-cold-dry-highlands:
+        - SNOWY_MOUNTAINS: 1
+        - MONTANE_FOREST: 1
+      boreal-snowy-dry-flat:
+        - SNOWY_MEADOW: 1
+      boreal-snowy-dry:
+        - SNOWY_MEADOW: 1
+      boreal-snowy-dry-highlands:
+        - SNOWY_MOUNTAINS: 1
+        - MONTANE_FOREST: 1
+
+      temperate-hot-dry-flat:
+        - STEPPE: 1
+        - CHAPARRAL: 1
+        - MOORLAND: 1
+      temperate-hot-dry:
+        - CHAPARRAL: 1
+        - MOORLAND: 1
+        - PALM_FOREST: 1
+      temperate-hot-dry-highlands:
+        - DRY_TEMPERATE_MOUNTAINS: 1
+        - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
+
+      temperate-warm-dry-flat:
+        - STEPPE: 1
+        - CHAPARRAL: 1
+        - MOORLAND: 1
+        - TEMPERATE_GRASSLAND: 1
+      temperate-warm-dry:
+        - CHAPARRAL: 1
+        - MOORLAND: 1
+        - TEMPERATE_GRASSLAND: 1
+      temperate-warm-dry-highlands:
+        - DRY_TEMPERATE_MOUNTAINS: 1
+        - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
+
+      temperate-hot-flat:
+        - MOORLAND: 1
+        - PALM_FOREST: 1
+        - TEMPERATE_RAINFOREST: 1
+        - ROCKY_GRASSLAND: 1
+        - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
+        - SAKURA_STREAMS: 1
+        - VERDANT_VALLEYS: 1
+      temperate-hot:
+        - WOODED_BUTTES: 1
+        - TEMPERATE_OVERPASS: 1
+        - TEMPERATE_RAINFOREST: 1
+        - AZALEA_FOREST: 1
+        - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
+        - FLOWERING_FOREST: 1
+      temperate-hot-highlands:
+        - HIGHLANDS: 1
+        - DENSELY_WOODED_HIGHLANDS: 1
+        - TEMPERATE_ALPHA_MOUNTAINS: 1
+        - TEMPERATE_MOUNTAINS: 1
+        - TEMPERATE_MONTANE_RAINFOREST: 3
+        - ROCKY_REFUGE: 1
+
+      temperate-warm-flat:
+        - FLOWERING_FOREST: 1
+        - BROADLEAF_FOREST: 2
+        - DARK_FOREST: 1
+        - SAKURA_GROVE: 1
+        - WOODED_BUTTES: 1
+        - ROCKY_GRASSLAND: 1
+        - OAK_FOREST: 1
+        - FOSSILIZED_FENLANDS: 1
+        - MURKY_MARSHLANDS: 1
+        - ALIEN_MARSH: 1
+        - MARSH: 1
+        - SWAMP: 1
+        - SAKURA_STREAMS: 1
+        - SAKURA_GROVE: 1
+        - VERDANT_VALLEYS: 1
+      temperate-warm:
+        - OAK_FOREST: 1
+        - OAK_SAVANNA: 1
+        - FLOWERING_FOREST: 1
+        - BROADLEAF_FOREST: 1
+        - DARK_FOREST: 1
+        - WOODED_BUTTES: 1
+        - _foliage_fortress: 1
+      temperate-warm-highlands:
+        - HIGHLANDS: 1
+        - DENSELY_WOODED_HIGHLANDS: 1
+        - TEMPERATE_ALPHA_MOUNTAINS: 1
+        - TEMPERATE_MOUNTAINS: 1
+        - TEMPERATE_MONTANE_RAINFOREST: 3
+        - ROCKY_REFUGE: 1
+
+      temperate-cold-flat:
+        - PRAIRIE: 3
+        - OAK_FOREST: 1
+        - ROCKY_GRASSLAND: 1
+        - SUNFLOWER_PRAIRIE: 1
+        - BROADLEAF_FOREST: 2
+        - DARK_FOREST: 2
+        - SAKURA_GROVE: 2
+        - WOODED_BUTTES: 2
+        - FOSSILIZED_FENLANDS: 1
+        - MURKY_MARSHLANDS: 1
+        - ALIEN_MARSH: 1
+        - WHITE_WALLOWS: 1
+      temperate-cold:
+        - OAK_FOREST: 1
+        - ROCKY_GRASSLAND: 1
+        - FLOWERING_FOREST: 1
+        - BROADLEAF_FOREST: 1
+        - DARK_FOREST: 1
+        - WOODED_BUTTES: 1
+        - BLACK_FOREST: 1
+        - GLOOMY_GORGE: 1
+        - TALL_TIMBERLAND: 1
+        - WHITE_WALLOWS: 1
+      temperate-cold-highlands:
+        - HIGHLANDS: 1
+        - DENSELY_WOODED_HIGHLANDS: 1
+        - TEMPERATE_ALPHA_MOUNTAINS: 1
+        - TEMPERATE_MOUNTAINS: 1
+        - ROCKY_REFUGE: 1
+
+      # Red hot desert
+      hot-desert-flat-red:
+        - ARID_SPIKES: 1
+        - BADLANDS: 1
+        - BADLANDS_BUTTES: 1
+        - RED_DESERT: 1
+        - SALT_FLATS: 1
+        - RED_DRY_PALM_FOREST: 1
+      hot-desert-red:
+        - ARID_SPIKES: 1
+        - BADLANDS: 1
+        - BADLANDS_BUTTES: 1
+        - RED_DESERT: 1
+      hot-desert-highlands-red:
+        - ARID_SPIKES: 1
+        - BADLANDS: 1
+        - BADLANDS_BUTTES: 1
+      
+      # Orange hot desert
+      hot-desert-flat-orange:
+        - ORANGE_DESERT: 5
+        - SALT_FLATS: 1
+      hot-desert-orange:
+        - ORANGE_DESERT: 1
+      hot-desert-highlands-orange:
+        - ORANGE_DESERT: 1
+
+      # White hot desert
+      hot-desert-flat-white:
+        - DESERT: 4
+        - PEARLESCENT_DESERT: 1
+        - SALT_FLATS: 1
+        - _desert: 1
+      hot-desert-white:
+        - DESERT: 1
+        - DESERT_PILLARS: 1
+        - DESERT_SPIKES: 1
+        - DESERT_SPIKES_GOLD: 1
+        - DESERT_TERRACES: 1
+        - ROCKY_DESERT: 1
+        - PEARLESCENT_DESERT: 1
+        - _desert: 1
+      hot-desert-highlands-white:
+        - DESERT_PILLARS: 1
+        - DESERT_SPIKES: 1
+        - DESERT_SPIKES_GOLD: 1
+        - DESERT_TERRACES: 1
+        - ROCKY_DESERT: 1
+        - PEARLESCENT_DESERT: 1
+
+      # Red hot steppe
+      hot-steppe-flat-red:
+        - RED_XERIC_SHRUBLAND: 1
+        - BADLANDS_BALCONIES: 1
+        - SCARLET_SANCTUARY: 1
+      hot-steppe-red:
+        - RED_XERIC_SHRUBLAND: 1
+        - SCARLET_SANCTUARY: 1
+      hot-steppe-highlands-red:
+        - RED_XERIC_MOUNTAINS: 1
+
+      # Orange hot steppe
+      hot-steppe-flat-orange:
+        - ORANGE_XERIC_SHRUBLAND: 1
+        - ORANGE_DRY_PALM_FOREST: 1
+      hot-steppe-orange:
+        - ORANGE_XERIC_SHRUBLAND: 1
+        - ORANGE_DRY_PALM_FOREST: 1
+      hot-steppe-highlands-orange:
+        - ORANGE_XERIC_MOUNTAINS: 1
+        - ORANGE_DRY_PALM_FOREST: 1
+
+      # White hot steppe
+      hot-steppe-flat-white:
+        - XERIC_SHRUBLAND: 1
+        - TAR_PITS: 1
+        - DRY_PALM_FOREST: 1
+        - FIRMIHIN_FOREST: 1
+        - ARID_ARBORETUM: 1
+      hot-steppe-white:
+        - XERIC_SHRUBLAND: 1
+        - TAR_PITS: 1
+        - DRY_PALM_FOREST: 1
+        - FIRMIHIN_FOREST: 1
+        - ARID_ARBORETUM: 1
+      hot-steppe-highlands-white:
+        - XERIC_MOUNTAINS: 1
+        - DIKSAM_PLATEAU: 1
+        - DRIPSTONE_BARRENS: 1
+
+      # Temperate - Desert border
+      temperate-steppe-flat:
+        - XERIC_SHRUBLAND: 1
+        - DRYBRUSH: 1
+      temperate-steppe:
+        - XERIC_SHRUBLAND: 1
+        - DRYBRUSH: 1
+      temperate-steppe-highlands:
+        - XERIC_MOUNTAINS: 1
+
+      cold-desert-flat:
+        - SALT_FLATS: 1
+      cold-desert:
+        - SNOWY_DUNES: 2
+        - SNOWY_BADLANDS: 1
+      cold-desert-highlands:
+        - SNOWY_MOUNTAINS: 2
+        - SNOWY_BADLANDS: 1
+
+      cold-steppe-flat:
+        - COLD_STEPPE: 1
+        - DRY_FIR_FIELDS: 1
+      cold-steppe:
+        - COLD_STEPPE: 2
+        - DRY_FIR_FIELDS: 1
+      cold-steppe-highlands:
+        - COLD_STEPPE: 1
+        - DRIPSTONE_BARRENS: 1
+
+
+
+      tropical-rainforest-flat:
+        - BAMBOO_JUNGLE: 1
+        - JUNGLE: 1
+        - ROCKY_JUNGLE: 1
+        - TROPICAL_RAINFOREST: 1
+        - TROPICAL_FLOODPLAIN: 1
+        - WATERY_WILDS: 1
+      tropical-rainforest:
+        - BAMBOO_JUNGLE: 1
+        - OVERGROWN_CLIFFS: 1
+        - CLOUD_FOREST: 1
+        - TROPICAL_RAINFOREST: 1
+        - LUSH_LOOPS: 1
+        - CANOPY_CASCADES: 1
+        - WATERY_WILDS: 1
+      tropical-rainforest-highlands:
+        - JUNGLE: 1
+        - ROCKY_JUNGLE: 1
+        - CLOUD_FOREST: 1
+        - TROPICAL_RAINFOREST: 1
+
+      tropical-monsoon-flat:
+        - DRY_WOODLANDS: 1
+        - MONSOON_FOREST: 1
+        - BAMBOO_BASIN: 1
+      tropical-monsoon:
+        - DRY_WOODLANDS: 1
+        - MONSOON_FOREST: 1
+        - OVERGROWN_CLIFFS: 1
+        - CLOUD_FOREST: 1
+        - LUSH_LOOPS: 1
+        - CANOPY_CASCADES: 1
+        - BAMBOO_BASIN: 1
+      tropical-monsoon-highlands:
+        - DRY_WOODLANDS: 1
+        - MONSOON_FOREST: 1
+        - TROPICAL_RAINFOREST: 1
+
+      tropical-savanna-dry-flat:
+        - GRASS_SAVANNA: 1
+        - SAVANNA: 1
+        - MESA_MONUMENTS: 1
+      tropical-savanna-dry:
+        - GRASS_SAVANNA: 1
+        - SAVANNA: 1
+      tropical-savanna-dry-highlands:
+        - SAVANNA_OVERHANGS: 1
+        - MESA_MONUMENTS: 1
+        - SEARING_TORS: 1
+
+      tropical-savanna-wet-flat:
+        - WET_SAVANNA: 1
+      tropical-savanna-wet:
+        - WET_SAVANNA: 1
+        - OVERGROWN_CLIFFS: 1
+      tropical-savanna-wet-highlands:
+        - SAVANNA_OVERHANGS: 1
+      polar-island:
+        - POLAR_MUSHROOM_FIELDS: 1
+        #- FROSTY_FINGERS: 1
+      island:
+        - MUSHROOM_FIELDS: 1
+      tropical-island:
+        - TROPICAL_MUSHROOM_FIELDS: 1
+        #- PALM_FOREST: 1
+
+  # =========================================================================
+  # Ocean biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeOceanValue(x, z)
+    default-from: polar-shallow-ocean
+    default-to:
+      - FROZEN_OCEAN: 2
+      - ARCTIC_ARCHES: 1
+      - STONEGATE_SEAS: 1
+    to:
+      polar-shallow-ocean-midlands:
+        - FROZEN_OCEAN: 1
+        - FROZEN_OCEAN_OVERHANGS: 1
+        - WINTRY_WATERS: 1
+      polar-ocean:
+        - FROZEN_OCEAN: 1
+        - FROZEN_OCEAN_SLOPES: 1
+        - ICEBERG_OCEAN: 2
+      polar-deep-ocean:
+        - FROZEN_DEEP_OCEAN: 1
+        - FROZEN_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+        - WINTRY_SEAS: 1
+      boreal-shallow-ocean:
+        - KELP_FOREST_GRAVEL: 2
+        - STONEGATE_SEAS: 1
+      boreal-shallow-ocean-midlands:
+        - COLD_OCEAN: 1
+        - COLD_OCEAN_OVERHANGS: 1
+        - WINTRY_WATERS: 1
+      boreal-ocean:
+        - COLD_OCEAN: 1
+        - COLD_OCEAN_SLOPES: 1
+        - ICEBERG_OCEAN: 1
+      boreal-deep-ocean:
+        - COLD_DEEP_OCEAN: 1
+        - COLD_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+        - WINTRY_SEAS: 1
+      lukewarm-shallow-ocean:
+        - SUBTROPICAL_OCEAN_SLOPES: 2
+        - SUBTROPICAL_OCEAN_OVERHANGS: 1
+      lukewarm-ocean:
+        - SUBTROPICAL_OCEAN: 1
+      lukewarm-deep-ocean:
+        - SUBTROPICAL_DEEP_OCEAN: 2
+        - SUBTROPICAL_DEEP_DEPTHS: 1
+      temperate-shallow-ocean:
+        - KELP_FOREST: 2
+        - SEAGRASS_MEADOW: 2
+        - STONEGATE_SEAS: 1
+      temperate-shallow-ocean-midlands:
+        - ROCKY_SHALLOW_OCEAN: 1
+        - OCEAN_OVERHANGS: 1
+      temperate-ocean:
+        - OCEAN: 1
+        - OCEAN_SLOPES: 1
+        - ABYSSAL_ALLEYS: 1
+      temperate-deep-ocean:
+        - DEEP_OCEAN: 1
+        - DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+      hot-shallow-ocean:
+        - SHALLOW_CORAL_OCEAN: 2
+        - SEAGRASS_MEADOW: 2
+        - STONEGATE_SEAS: 1
+        - MARINE_MONOLITHS: 1
+        - TROPICAL_OCEAN_OVERHANGS: 1
+      hot-ocean:
+        - TROPICAL_OCEAN: 1
+        - TROPICAL_OCEAN_SLOPES: 1
+        - CORAL_OCEAN_SLOPES: 1
+        - CORAL_OCEAN: 1
+        - ABYSSAL_ALLEYS: 1
+      hot-deep-ocean:
+        - TROPICAL_DEEP_OCEAN: 1
+        - TROPICAL_DEEP_DEPTHS: 1
+        - ABYSSAL_ALLEYS: 1
+      island-polar-shallow-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      island-boreal-shallow-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+      island-temperate-shallow-ocean:
+        - ISLAND_SHALLOWS: 1
+      island-hot-shallow-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      frozen-archipelago-zone:
+        - FROZEN_ARCHIPELAGO: 1
+        - ARCTIC_ARCHES: 1
+        - GLACIAL_OVERHANGS: 1
+      archipelago-zone:
+        - ARCHIPELAGO: 1
+        - ROCKY_ARCHIPELAGO: 1
+        - SANDSTONE_ARCHIPELAGO: 1
+        - TEMPERATE_SEA_ARCHES: 1
+        - STONEGATE_SEAS: 1
+        - MARINE_MONOLITHS: 1
+
+  # =========================================================================
+  # Mesa biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLandmassValue(x, z)
+    default-from: polar-mesa
+    default-to:
+      - ARCTIC_MESA: 1
+    to:
+      ice-cap-mesa:
+        - ARCTIC_MESA: 1
+      boreal-mesa:
+        - COLD_DESERT_MESA: 1
+        - BOREAL_MESA: 1
+      temperate-mesa:
+        - TEMPERATE_MESA: 1
+        - MESA_MONUMENTS: 1
+        - BADLANDS_BALCONIES: 1
+      desert-mesa:
+        - DESERT_MESA: 1
+        - MESA_MONUMENTS: 1
+      cold-desert-mesa:
+        - COLD_DESERT_MESA: 1
+      tropical-mesa:
+        - TROPICAL_MESA: 1
+
+  # =========================================================================
+  # Largeland (vast forest) biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: EXPRESSION
+      expression: BiomeShapeLargelandValue(x, z)
+    default-from: polar-vast-forest
+    default-to:
+      - POLAR_PALE_GARDEN: 1
+    to:
+      boreal-vast-forest:
+        - PALE_GARDEN: 1
+      temperate-vast-forest:
+        - PALE_GARDEN: 1
+      tropical-vast-forest:
+        - arid-pale-garden: 1
+  # =========================================================================
+  # Spot biomes (cellular)
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: polar-crater-lake
+    default-to:
+      - COLD_CRATER_LAKE: 1
+    to:
+      boreal-crater-lake:
+        - BOREAL_CRATER_LAKE: 1
+      temperate-crater-lake:
+        - TEMPERATE_CRATER_LAKE: 1
+      tropical-crater-lake:
+        - TROPICAL_CRATER_LAKE: 1
+      desert-crater-lake:
+        - DESERT_CRATER_LAKE: 1
+      cold-desert-crater-lake:
+        - COLD_CRATER_LAKE: 1
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      polar-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+      boreal-sinkhole:
+        - BOREAL_SINKHOLE: 1
+      boreal-sinkhole-border:
+        - BOREAL_SINKHOLE_BORDER: 1
+      boreal-sinkhole-border-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+      boreal-extinct-volcano:
+        - BOREAL_EXTINCT_VOLCANO: 1
+      temperate-sinkhole:
+        - TEMPERATE_SINKHOLE: 1
+      temperate-sinkhole-border:
+        - TEMPERATE_SINKHOLE_BORDER: 1
+      temperate-sinkhole-border-ocean:
+        - ISLAND_SHALLOWS: 1
+      temperate-extinct-volcano:
+        - TEMPERATE_EXTINCT_VOLCANO: 1
+      hot-crater-lake:
+        - TROPICAL_CRATER_LAKE: 1
+      hot-sinkhole:
+        - TROPICAL_SINKHOLE: 1
+      hot-sinkhole-border:
+        - TROPICAL_SINKHOLE_BORDER: 1
+      hot-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      hot-extinct-volcano:
+        - TROPICAL_EXTINCT_VOLCANO: 1
+      tropical-sinkhole:
+        - TROPICAL_SINKHOLE: 1
+      tropical-sinkhole-border:
+        - TROPICAL_SINKHOLE_BORDER: 1
+      tropical-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      tropical-extinct-volcano:
+        - TROPICAL_EXTINCT_VOLCANO: 1
+      desert-sinkhole:
+        - DESERT_SINKHOLE: 1
+      desert-sinkhole-border:
+        - DESERT_SINKHOLE_BORDER: 1
+      desert-sinkhole-border-ocean:
+        - TROPICAL_ISLAND_SHALLOWS: 1
+      desert-extinct-volcano:
+        - DESERT_EXTINCT_VOLCANO: 1
+      cold-desert-sinkhole:
+        - COLD_DESERT_SINKHOLE: 1
+      cold-desert-sinkhole-border:
+        - COLD_DESERT_SINKHOLE_BORDER: 1
+      cold-sinkhole-border-ocean:
+        - COLD_ISLAND_SHALLOWS: 1
+      cold-desert-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+      live-volcano:
+        - ERUPTED_VOLCANO: 1
+      volcano-coast:
+        - BLACK_SAND_BEACH: 1
+
+  # =========================================================================
+  # Constant mappings
+  # =========================================================================
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: mushroom
+    default-to: MUSHROOM_FIELDS
+    to:
+      polar-mushroom: POLAR_MUSHROOM_FIELDS
+      tropical-mushroom: TROPICAL_MUSHROOM_FIELDS
+
+  - type: REPLACE_LIST
+    sampler:
+      type: CONSTANT
+    default-from: pale-garden
+    default-to: PALE_GARDEN
+    to:
+      polar-pale-garden: POLAR_PALE_GARDEN

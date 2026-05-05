@@ -1,0 +1,5 @@
+id: temperate-deep-ocean
+type: BIOME
+abstract: true
+tags:
+  - ocean

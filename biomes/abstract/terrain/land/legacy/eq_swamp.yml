@@ -1,0 +1,31 @@
+id: EQ_SWAMP
+type: BIOME
+abstract: true
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      base: $customization.yml:terrain-base-y-level
+      height: 14
+    expression: -y + base + BiomeShapeSealevelElevation(x,z) + ((noise(x,z)+1)/2 * height - 9) * biomeInfluence(x,z)
+    samplers:
+      noise:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 30
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.005
+        sampler:
+          type: FBM
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.0175
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

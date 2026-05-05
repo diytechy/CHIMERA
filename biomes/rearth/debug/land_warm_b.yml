@@ -2,6 +2,7 @@ id: LAND_WARM_B
 type: BIOME
 extends:
   - BASE
+  - EQ_DEBUG_FLAT
 color: $biomes/colors.yml:OAK_SAVANNA
 
 tags:
@@ -17,9 +18,3 @@ colors:
 
 palette:
   - BLOCK:minecraft:yellow_concrete: $meta.yml:top-y
-
-
-terrain:
-  sampler:
-    type: EXPRESSION
-    expression: -y + 70

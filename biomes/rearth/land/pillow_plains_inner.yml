@@ -1,0 +1,52 @@
+id: PILLOW_PLAINS_INNER
+type: BIOME
+vanilla: minecraft:plains
+color: $biomes/colors.yml:SAKURA_GROVE
+extends:
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+- EQ_PILLOW_PLAINS_INNER
+colors:
+  grass: 7399021
+  water: 6141935
+  leaves: 7399021
+carving:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: $biomes/abstract/carving/carving_sampler_template.yml:expression
+    samplers: $biomes/abstract/carving/carving_sampler_template.yml:samplers
+    variables:
+      '<<':
+      - biomes/abstract/carving/carving_sampler_template.yml:variables
+      terrainBase: ${customization.yml:terrain-base-y-level} - 32
+      carvingMaxMode: 1
+palette:
+- GRASS_WHITE_PILLAR: 319
+- GRASS: 56
+- << meta.yml:palette-bottom
+features:
+  global-preprocessors:
+  - LAVA_FLOOR
+  - UNDERGROUND_LAVA_COLUMNS
+  - CONTAIN_FLOATING_WATER
+  - CAVE_GLOW_LICHEN
+  - TEXTURED_STONE_SLANT
+  trees:
+  - LOW_EVERGREEN_TREES
+  preprocessors:
+  - LUSH_CAVE_WATER_POOLS
+  flora:
+  - GRASS
+  - LOW_GRASS
+  - POPPY_PATCH
+  - OXEYE_DAISY_PATCH
+  - CORNFLOWER_PATCH
+  - ALLIUM_PATCH
+  landforms:
+  - BOULDERS
+  - SMALL_BOULDER_PATCHES
+tags:
+- LOW_CAVES
+- SPECIAL_CAVES
+- USE_COLD_RIVER

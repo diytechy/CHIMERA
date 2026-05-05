@@ -1,0 +1,31 @@
+id: SEA_ARCH_GLOW_LICHEN
+type: FEATURE
+
+distributor:
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 2313
+      threshold: 0.025
+    - type: "YES"
+  
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level} + 3
+    max: ${meta.yml:ocean-level} + 40
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_AIR
+        offset: 0
+      - type: MATCH_SOLID
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: glow_berries

@@ -7,6 +7,9 @@ color: $biomes/colors.yml:DEEP_DEPTHS
 
 vanilla: minecraft:deep_ocean
 
+tags:
+  - OCEAN_CAVES
+
 features:
   preprocessors:
     - SCULK_WEBS
@@ -17,6 +20,7 @@ features:
     - UNDERWATER_SCULK_TENDRIL
   landforms:
     - UNDERWATER_SCULK_UPWARD_TENDRIL
+  postprocessors:
     - PHANTOM_NESTS
   flora:
     - SCULK_FLORA

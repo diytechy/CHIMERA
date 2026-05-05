@@ -1,0 +1,30 @@
+id: PILLOW_PLAINS_OUTER
+type: BIOME
+vanilla: minecraft:plains
+color: $biomes/colors.yml:SAKURA_GROVE_OUTER
+extends:
+#- CARVING_LAND
+- BASE
+- EQ_PILLOW_PLAINS_FLAT
+tags:
+- USE_COLD_RIVER
+- LOW_CAVES
+- SPECIAL_CAVES
+colors:
+  grass: 7399021
+  water: 6141935
+  leaves: 7399021
+palette:
+- GRASS_WHITE_PILLAR: 319
+- << meta.yml:palette-bottom
+features:
+  flora:
+  - GRASS
+  - LOW_GRASS
+  - POPPY_PATCH
+  - OXEYE_DAISY_PATCH
+  - CORNFLOWER_PATCH
+  - ALLIUM_PATCH
+  landforms:
+  - BOULDERS
+  - SMALL_BOULDER_PATCHES

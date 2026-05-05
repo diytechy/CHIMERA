@@ -1,0 +1,33 @@
+id: HIGH_GLOW_LICHEN
+type: FEATURE
+
+distributor:
+  type: AND
+  distributors:
+    - type: PADDED_GRID
+      width: 6
+      padding: 1
+      salt: 74823
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 8823
+      threshold: 0.2
+
+locator:
+  type: PATTERN
+  range: &range
+    min: ${meta.yml:ocean-level} - 25
+    max: $meta.yml:top-y
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_AIR
+        offset: 0
+      - type: MATCH_SOLID
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: glow_berries

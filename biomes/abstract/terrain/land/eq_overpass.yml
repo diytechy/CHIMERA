@@ -14,7 +14,7 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base +
+      -y + base + elevationDetailedBlockHeight(x,z) +
       erode(
         depth - depthVariationNoise(x, z) * depthVariation,
         base,
@@ -22,8 +22,8 @@ terrain:
         scale,
         y,
         1 - lerp(openings(x, z), 0.6, 1, 0.8, 0) * lerp(erosion(x, z), 0.7, 0, 0.8, 1)
-      )
-    samplers: &samplers
+      ) * biomeInfluence(x,z)
+    samplers:
       openings:
         dimensions: 2
         type: DOMAIN_WARP
@@ -74,7 +74,6 @@ terrain:
             expression: (a*aw + b*bw)/(aw + bw)
 
   sampler-2d:
-    type: EXPRESSION
-    variables: *variables
-    samplers: *samplers
-    expression: elevationDetailed(x, z) * scale
+    dimensions: 2
+    type: CONSTANT
+    value: 0

@@ -1,57 +1,182 @@
+vars: &variables
+  cave_percentage: &cave_percentage 0.8 #Percentage of area under land biomes that are switched to other cave biome.
+  temp_edge_biomes: &temp_edge_biomes 6
+  gen_biomes: &gen_biomes 100
+  temp_edge_threshold: &temp_edge_threshold 0.5
+  non_temp_percentage: &non_temp_percentage 0.9 #For biomes in the temp threshold, how often should the prescribe to non-temp biomes
+
+# If inside cave percentages-temp threshold, prescribe to inner biome dist.
+#Else if just inside temp threshold, prescribe to edge biome dist or random inner dist based on randomizer.
+#Else outside all, set to self.
 extrusions:
   - type: REPLACE
-    from: LAND_CAVES
+    from: LAVA_TUBES
     sampler:
-      type: CELLULAR
-      return: CellValue
-      salt: 1252
-      frequency: 1 / 200 / ${customization.yml:cave-biome-scale} / ${customization.yml:global-scale}
+      type: CONSTANT
     to:
-      - SELF: 6
-      - LUSH_CAVES: 1
-      - DRIPSTONE_CAVES: 1
-    range:
-      min: $meta.yml:deepslate-bottom
-      max: ${meta.yml:ocean-level} - 13
-
-  - type: REPLACE
-    from: ICE_CAVES
-    sampler:
-      type: CELLULAR
-      return: CellValue
-      salt: 1252
-      frequency: 1 / 200 / ${customization.yml:cave-biome-scale} / ${customization.yml:global-scale}
-    to:
-      - SELF: 3
-      - ICE_CAVES: 7
-    range:
-      min: $meta.yml:deepslate-bottom
-      max: ${meta.yml:ocean-level} - 13
-
-  - type: REPLACE
-    from: ANCIENT_CAVES
-    sampler:
-      type: CELLULAR
-      return: CellValue
-      salt: 6457
-      frequency: 1 / 200 / ${customization.yml:cave-biome-scale} / ${customization.yml:global-scale}
-    to:
-      - SELF: 3
-      - ANCIENT_CAVES: 1
+      - LAVA_TUBES: 1
     range:
       min: $meta.yml:bottom-y
-      max: $meta.yml:deepslate-top
+      max: ${meta.yml:ocean-level}
+      
+    # Replace from low land spots (rifts / sinkholes)
+  - type: REPLACE
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${customization.yml:biomeSpread.canyons.minY} - 20
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: BiomeShapeOceanTemperature(x,z)
+    from: LOW_CAVES
+    to:
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
+      
+  - type: REPLACE_MAX_Y_SAMPLER
+    min-y: $meta.yml:cave-bottom
+    max-y-sampler:
+      type: EXPRESSION
+      dimensions: 2
+      variables:
+        max_lower_limit: ${meta.yml:ocean-level} - 13
+        base: ${customization.yml:terrain-base-y-level}
+      expression: |
+        max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: BiomeShapeOceanTemperature(x,z)
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: LAND_CAVES
+    to:
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
+
+
+  - type: REPLACE_MAX_Y_SAMPLER
+    min-y: $meta.yml:cave-bottom
+    max-y-sampler:
+      type: EXPRESSION
+      dimensions: 2
+      variables: &variables
+        base: $customization.yml:terrain-ocean-base-y-level
+        scale: $customization.yml:terrain-ocean-depth
+        max_lower_limit: ${meta.yml:cave-bottom} + 1
+      expression: |
+        max(max_lower_limit,base + oceanElevation(x, z)*scale-20)
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: BiomeShapeOceanTemperature(x,z)
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: OCEAN_CAVES
+    to:
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
+
+      
+  - type: REPLACE
+    from: COLD_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+    range:
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
+      - ICE_CAVES: 3
+      - ICE_MUSHROOM_CAVES: 1
+      - FROSTED_CAVERNS: 2
+      - FROZEN_CAVERNS: 1
+      - STANDARD_CAVES: 13
+      
+  - type: REPLACE
+    from: WARM_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+    range:
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
+      - MAGMA_CAVERNS: 2
+      - BASALT_CAVERNS: 2
+      - MOLTEN_PASSAGES: 2
+      - STANDARD_CAVES: 16
 
   - type: REPLACE
-    from: RESIN_ROOTS
+    from: STANDARD_CAVES
     sampler:
-      type: CELLULAR
-      return: CellValue
-      salt: 8756
-      frequency: 1 / 200 / ${customization.yml:cave-biome-scale} / ${customization.yml:global-scale}
-    to:
-      - SELF: 3
-      - RESIN_ROOTS: 1
+      type: EXPRESSION
+      dimensions: 2
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
     range:
-      min: $meta.yml:deepslate-bottom
-      max: ${meta.yml:ocean-level} - 13
+      min: $meta.yml:bottom-y
+      max: ${meta.yml:top-y}
+    to:
+      - SPIDER_CAVES: 1
+      - ANCIENT_CAVES: 2
+      - RESIN_ROOTS: 3
+      - MUSHROOM_CAVES: 3
+      - BASALT_CAVERNS: 2
+      - STONE_CAVERNS: 3 #stone caverns: 5    
+      - ANDESITE_CAVERNS: 3
+      - BLACKSTONE_CAVERNS: 3
+      - DIORITE_CAVERNS: 3
+      - GRANITE_CAVERNS: 3
+      - ARID_CAVERNS: 3 #dry caverns: 1                              12
+      - BARREN_CAVERNS: 3
+      - CRUMBLING_CAVERNS: 3
+      - CALCITE_CAVERNS: 3 #misc caverns: 3                          36
+      - CRYSTALLINE_CAVERNS: 3 
+      - DRIPSTONE_CAVERNS: 3
+      - SCULK_CAVERNS: 1
+      - LUSH_CAVERNS: 5 #lush caverns: 2                            24
+      - FUNGAL_CAVERNS: 3
+      - LAVENDER_CAVERNS: 4
+      - SPRUCE_CAVERNS: 3 #underground woodlands placeholder: 7     84
+      - ACACIA_CAVERNS: 3
+      - AUTUMNAL_CAVERNS: 2
+      - BIRCH_CAVERNS: 2
+      - LUSH_CAVES: 1
+      - CORAL_COVES: 1
+      - DARK_OAK_CAVERNS: 2
+      - ENCHANTED_CAVERNS: 2
+      - JUNGLE_CAVERNS: 2
+      - MANGROVE_CAVERNS: 1
+      - MAPLE_CAVERNS: 2
+      - OAK_CAVERNS: 3
+      - SAKURA_CAVERNS: 2
+      - SPRUCE_CAVERNS: 2
+      - HONEY_GROTTO: 1
+      - OVERGROWN_DUGOUT: 3
+      - SANDY_CHAMBERS: 2
+      - SUBTERRANEAN_MESA: 2
+      - TERRACOTTA_CAVES: 1
+      - MARBLE_MINES: 1
+      - AMETHYST_HOLLOW: 1
+      - FUNGAL_UNDERGROWTH: 1
+      - GRANITE_MINES: 1
+      - ANDESITE_MINES: 1
+      - DIORITE_MINES: 1
+      - TROPICAL_MUSHROOM_CAVES: 1
+      - JUNGLE_CAVES: 3

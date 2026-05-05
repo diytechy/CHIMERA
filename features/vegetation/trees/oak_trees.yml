@@ -13,7 +13,7 @@ locator:
     - type: PATTERN
       range: &range
         min: ${meta.yml:ocean-level} + 4
-        max: ${meta.yml:ocean-level} + 100
+        max: $meta.yml:top-y
       pattern:
         type: MATCH_SET
         blocks: 

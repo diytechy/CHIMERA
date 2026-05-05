@@ -2,7 +2,11 @@ id: SINKHOLE_FOREST
 type: BIOME
 vanilla: minecraft:plains
 color: $biomes/colors.yml:FOREST_LOWLANDS
-extends: [ SINKHOLE_BASE ]
+extends: 
+  - SINKHOLE_BASE
+  - DEPOSITS_DEFAULT
+  - ORES_DEFAULT
+  - CARVING_LAND
 
 slant:
   - threshold: 0.5
@@ -11,6 +15,9 @@ slant:
       - MOSSY_COBBLESTONE_STONE: 71
 
 slant-depth: 40
+
+tags:
+- LAND_CAVES
 
 palette:
   - GRASS: 319

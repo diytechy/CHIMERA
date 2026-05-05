@@ -1,0 +1,5 @@
+id: tropical-coast
+type: BIOME
+abstract: true
+tags:
+  - coast

@@ -2,7 +2,7 @@ name: Publish to Repsy
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   publish:

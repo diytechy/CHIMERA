@@ -10,7 +10,7 @@ color: $biomes/colors.yml:SWAMP
 vanilla: minecraft:swamp
 
 tags:
-  - LAND_CAVES
+  - LOW_CAVE
   - SPECIAL_CAVES
   - USE_SWAMP_RIVER
 

@@ -29,6 +29,6 @@ features:
   entities:
   - BLAZES
 tags:
-- LAND_CAVES
+- LOW_CAVES
 - BOREAL_COAST_HIGHLANDS
 - USE_FROSTBITE_RIVERS

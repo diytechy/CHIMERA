@@ -47,5 +47,5 @@ features:
   - BATS
   - FROGS
 tags:
-- LAND_CAVES
+- LOW_CAVE
 - USE_DRAFTY_STREAM_RIVER

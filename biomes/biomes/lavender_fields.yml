@@ -33,5 +33,5 @@ features:
   - COMMON_MOBS
   - HORSES
 tags:
-- LAND_CAVES
+- LOW_CAVES
 - USE_DRAFTY_STREAM_RIVER

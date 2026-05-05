@@ -8,7 +8,7 @@ vanilla: minecraft:swamp
 color: $biomes/colors.yml:SWAMP
 tags:
 - USE_RIVER
-- LAND_CAVES
+- LOW_CAVE
 - SPECIAL_CAVES
 colors:
   grass: 8177813

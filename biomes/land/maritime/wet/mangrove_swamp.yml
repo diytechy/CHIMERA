@@ -9,7 +9,7 @@ color: $biomes/colors.yml:MANGROVE_SWAMP
 vanilla: minecraft:mangrove_swamp
 tags:
 - USE_RIVER_COASTAL_TROPICAL_SWAMP
-- LAND_CAVES
+- LOW_CAVE
 - SPECIAL_CAVES
 colors:
   grass: 5011004

@@ -1385,8 +1385,6 @@ Fix river transitions into ocean:
 
 #############################
 
-Fix distributions - tighten precipitation based biome distribution?
-Increase ore concentrations due to more prolific cave generation taking away block space.
 
 There are still some elevations that are "blocky" near 0 / base terrain height due to stripping out all the other offfset calculations.  Maybe need to look at ffixing this in all the files...
 
@@ -1408,3 +1406,21 @@ lookup:
       expression: trenchSampler(x,z)
 
 Investigate a method to find all yml files that are unused in this pack structure, for example, the file "biome-distribution\stages\special\build_rift_regions_2.yml" exists but no content from it is used.
+
+#############################
+
+Make sure terrain is properly bounded to blending zone:
+
+
+EQ_STRATIFIED_LAND
+EQ_ALPHA_MOUNTAINS
+EQ_MULTI_TERRACED_LAND
+
+This would be similar to a eq sampler which has already been bounded:
+
+
+
+**********
+
+Fix distributions - tighten precipitation based biome distribution?
+Increase ore concentrations due to more prolific cave generation taking away block space.

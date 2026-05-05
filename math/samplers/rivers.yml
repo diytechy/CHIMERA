@@ -148,6 +148,7 @@ samplers:
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     n: 3
+    max: 1.5
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -173,6 +174,7 @@ samplers:
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     n: 3
+    max: 1.5
     sampler:
       dimensions: 2
       type: EXPRESSION

@@ -29,7 +29,7 @@ blend:
     # Default (omitted): Integer.MIN_VALUE / Integer.MAX_VALUE = no Y-range restriction.
     y-range:
       min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
-      max: 320   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
+      max: 321   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
 
 carving:
   resolution:

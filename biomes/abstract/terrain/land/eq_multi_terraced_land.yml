@@ -4,7 +4,7 @@ abstract: true
 
 variables: &variables
   base: $customization.yml:terrain-base-y-level
-  scale: $customization.yml:terrain-height
+  scale: 150
 
   detailFactor: 0.05
   detailZero: 0

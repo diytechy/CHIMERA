@@ -1,18 +1,27 @@
 extrusions:
   - type: REPLACE
-    from: DEEP_DARK
+    range:
+      min: -62
+      max: $meta.yml:deepslate-top
     sampler:
       type: CONSTANT
-    to: DEEP_DARK
-    range:
-      min: $meta.yml:bottom-y
-      max: $meta.yml:deepslate-top
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: DEEP_DARK
+    to:
+      - DEEP_DARK: 1
+
 
   - type: REPLACE
     from: DEEP_DARK_GROVE
     sampler:
+      dimensions: 2
       type: CONSTANT
-    to: DEEP_DARK_GROVE
+      value: 1
+    to:
+    - SELF: 1
+    - DEEP_DARK_GROVE: 1
     range:
-      min: $meta.yml:bottom-y
+      min: -62
       max: $meta.yml:deepslate-top

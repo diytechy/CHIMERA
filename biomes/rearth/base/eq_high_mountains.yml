@@ -48,14 +48,14 @@ terrain:
         samplers:
           warping:
             dimensions: 3
-            type: OPEN_SIMPLEX_2S
+            type: OPEN_SIMPLEX_2
             frequency: 0.034
             salt: 89745
           peaks:
             dimensions: 2
             type: FBM
             sampler:
-              type: OPEN_SIMPLEX_2S
+              type: OPEN_SIMPLEX_2
               frequency: 0.02
             octaves: 2
             lacunarity: 2

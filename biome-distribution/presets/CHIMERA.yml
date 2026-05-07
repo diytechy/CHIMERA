@@ -55,10 +55,18 @@ biomes:
           sampler:
             type: EXPRESSION
             expression: continentalDistribution(x, z)
-        #    
-        #- type: REPLACE
-        #  from: land
-        #  to:
+            
+        - type: REPLACE
+          sampler:
+            #type: CONSTANT
+            type: EXPRESSION
+            expression: BiomeShapeLandmassValue(x, z)
+          from: land
+          to:
+            - CANOPY_CASCADES: 1
+            - ALPINE_ASCENDANCY: 1
+            - XERIC_MOUNTAINS: 1
+            - SEARING_TORS: 1
         #  - FROSTCOATED_BOG: 6
         #  - LAVENDER_FIELDS: 4
         #  - MUSKEG: 4
@@ -108,10 +116,6 @@ biomes:
         #   - SNOWY_SPIRES: 1
         #   - CARVING_CREAKS: 1 (Likely needs to be mesa replacement, maybe around river?  Likely has it's own river that must be removed.)
         #   - CANOPY_C
-        #  sampler:
-        #    #type: CONSTANT
-        #    type: EXPRESSION
-        #    expression: BiomeShapeLandmassValue(x, z)
         #  sampler:
         #    #type: CONSTANT
         #    type: EXPRESSION

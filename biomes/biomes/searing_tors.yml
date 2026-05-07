@@ -26,8 +26,8 @@ colors:
 features:
   preprocessors:
   - LAVA_POOLS_MOUNTAIN
-  entities:
-  - BLAZES
+  #entities:
+  #- BLAZES
 tags:
 - LOW_CAVES
 - BOREAL_COAST_HIGHLANDS

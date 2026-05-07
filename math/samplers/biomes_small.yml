@@ -144,7 +144,7 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     expression: |
-      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
       1,  BiomeShapeLandmassElevation(x,z))
 
   BiomeShapeFlattenedHalfElevation:
@@ -158,7 +158,7 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     expression: |
-      herp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
       1,  0)
 
 

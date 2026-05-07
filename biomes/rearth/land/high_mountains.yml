@@ -1,20 +1,12 @@
 id: ALPINE_ASCENDANCY
 type: BIOME
+extends:
+- BASE_HYDRAXIA
+- EQ_TERRACED_MOUNTAINS
+- EQ_CARVING_LAND
+- HYDRAXIA_ORES_EMERALD
 vanilla: minecraft:jagged_peaks
 color: $biomes/colors.yml:MOUNTAINS
-extends:
-- CARVING_LAND
-- BASE
-- EQ_HIGH_MOUNTAINS
-tags:
-- USE_HIGHMOUNTAINS_RIVER
-- LAND_CAVES
-- SPECIAL_CAVES
-- DEEP_DARK
-slant:
-- threshold: 0.35
-  palette:
-  - BLOCK:minecraft:stone: 319
 palette:
 - GRASS_SNOW_MIX: 319
 - GRASS: 140
@@ -22,25 +14,17 @@ palette:
 - GRASS: 69
 - SAND: 64
 - << meta.yml:palette-bottom
+slant:
+- threshold: 0.35
+  palette:
+  - BLOCK:minecraft:stone: 319
 features:
   preprocessors:
-  - SHARP_TERRACES
-  - POWDER_SNOW_DEPOSITS
-  slabs:
-  - SNOW_LAYERS
-  landforms:
-  - SHARP_TERRACES_EDGE
-  - FARMLAND_WATER_SPOTS
-  - MOSSY_BOULDERS
-  - SMALL_MOSSY_BOULDER_PATCHES
-  - EDGE_WATERFALLS
-  trees:
-  - SPRUCE_TREES
-  flora:
-  - GRASS
-  - POPPY_PATCH
-  - OXEYE_DAISY_PATCH
-  - CORNFLOWER_PATCH
-  - ALLIUM_PATCH
-  postprocessors:
-  - TREE_SNOW
+  - LAVA_POOLS_MOUNTAIN
+  #entities:
+  #- BLAZES
+#tags:
+#- USE_HIGHMOUNTAINS_RIVER
+#- LOW_CAVES
+#- SPECIAL_CAVES
+#- DEEP_DARK

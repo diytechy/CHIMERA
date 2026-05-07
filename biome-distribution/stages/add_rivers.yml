@@ -141,6 +141,16 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: riverSampler(x,z)
+  # Searing Tors
+  - type: REPLACE
+    from: USE_SEARING_TORS_RIVER
+    to:
+      - SELF: 1
+      - SEARING_TORS_RIVER: 1
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverSampler(x,z)
   # Tar pit rivers
   - type: REPLACE
     from: USE_TAR_PIT_RIVER

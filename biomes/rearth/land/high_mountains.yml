@@ -1,8 +1,8 @@
 id: ALPINE_ASCENDANCY
 type: BIOME
 extends:
-- BASE_HYDRAXIA
 - EQ_TERRACED_MOUNTAINS
+- BASE_HYDRAXIA
 - EQ_CARVING_LAND
 - HYDRAXIA_ORES_EMERALD
 vanilla: minecraft:jagged_peaks
@@ -23,8 +23,8 @@ features:
   - LAVA_POOLS_MOUNTAIN
   #entities:
   #- BLAZES
-#tags:
+tags:
 #- USE_HIGHMOUNTAINS_RIVER
 #- LOW_CAVES
-#- SPECIAL_CAVES
+- SPECIAL_CAVES
 #- DEEP_DARK

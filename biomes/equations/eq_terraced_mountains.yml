@@ -3,10 +3,10 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: $customization.yml:legacy-terrain-base-y-level
-  height: 100 #Since entire biome is shifted with cell height, need to 
+  base: $customization.yml:terrain-base-y-level
   #keep this low enough from clipping at blend limit (currently 270)
-  max_height: $pack.yml:blend.terrain.y-range.max
+  max_height: 300
+  height: 250
 
 terrain:
   sampler:
@@ -14,14 +14,16 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + BiomeShapeFlattenedElevation(x,z)
+      //elevationDetailedBlockHeight or BiomeShapeSealevelElevation
+      -y + base + elevationDetailedBlockHeight(x,z)
       + terraceParabolic(
         terraceParabolic(
           terraceParabolic(
-            (noise(x, z)+1)/2 * (max_height-base-BiomeShapeFlattenedElevation(x,z)-20) + (-bubbles(x, z)+1)/2 * 10,
+            (noise(x, z)+1)/2 * height + (-bubbles(x, z)+1)/2 * 10,
             10, terraceVariation(x, z)*1, 0, 1
           ),
-          20, terraceVariation(x, z+1000)*1.5, 0, 1        ),
+          20, terraceVariation(x, z+1000)*1.5, 0, 1
+        ),
         30, terraceVariation(x, z+2000)*2, 0, 1
       ) * biomeInfluence(x,z)
     samplers:

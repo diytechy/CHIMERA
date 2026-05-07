@@ -4,14 +4,14 @@ abstract: true
 
 variables: &variables
   base: $customization.yml:terrain-base-y-level
-  scale: 150
+  scale: $customization.yml:terrain-height
 
 
 terrain:
   sampler:
     type: EXPRESSION
     expression: |
-      -y + base + elevationDetailedBlockHeight(x,z) + 10
+      -y + base + BiomeShapeSealevelElevation(x,z)
       + terraceStrata(
         terraceStrata(
           terraceStrata(

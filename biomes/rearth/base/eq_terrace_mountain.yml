@@ -4,11 +4,15 @@ abstract: true
 
 vars: &variables
   base: 65
+  #height: Taller terrain overall; wider terrace step heights
   height: 58
+  # variationHeight: Surface roughness/choppiness
   variationHeight: 20
-  #terraceHeight: inverted
-  terraceHeight: 5
+  #terraceHeight: Increasing it makes each terrace step shorter. Decreasing it makes steps taller
+  terraceHeight: 6
+  #terraceThinness: Controls how many distinct terrace levels appear.
   terraceThinness: 3.3
+  #terraceStrength High value (13): near-vertical cliff walls, very flat plateaus. Low value (1): smooth linear slopes
   terraceStrength: 13
 
 terrain:
@@ -18,9 +22,9 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      -y + base + BiomeShapeSealevelElevation(x,z)
-      + ((height / 2) * biomeInfluence(x,z)
-      + terrace(surfaceBaseMountains(x,z) * biomeInfluence(x,z) * terraceThinness, terraceStrength) / (terraceHeight * (terraceSizeVariation(x,z) * 0.5 + 1))
+      -y + base + BiomeShapeFlattenedElevation(x,z)
+      + ((height / 2)
+      + terrace(surfaceBaseMountains(x,z) * terraceThinness, terraceStrength) / (terraceHeight * (terraceSizeVariation(x,z) * 0.5 + 1))
         * height + surfaceOffset(x,z) * variationHeight) * biomeInfluence(x,z)
     functions:
       terrace:
@@ -29,18 +33,18 @@ terrain:
     samplers:
       surfaceBaseMountains:
         dimensions: 2
-        type: OPEN_SIMPLEX_2S
+        type: OPEN_SIMPLEX_2
         frequency: ${customization.yml:biomeSpread.mountainFrequency}
       terraceSizeVariation:
         dimensions: 2
-        type: OPEN_SIMPLEX_2S
+        type: OPEN_SIMPLEX_2
         frequency: 0.0085
         salt: 20
       surfaceOffset:
         dimensions: 2
         type: FBM
         sampler:
-          type: OPEN_SIMPLEX_2S
+          type: OPEN_SIMPLEX_2
           frequency: 0.0026
           salt: 3
         octaves: 3

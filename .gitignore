@@ -2,6 +2,7 @@
 *.iml
 *.ipr
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.bak
 .scripts/__pycache__
 .gradle

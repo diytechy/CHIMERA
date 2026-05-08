@@ -3,7 +3,7 @@ type: BIOME
 abstract: true
 vars: &id001
   base: $customization.yml:legacy-terrain-base-y-level
-  height: 140
+  scale: 140
   blobStrength: 30
 terrain:
   sampler:
@@ -11,8 +11,10 @@ terrain:
     type: EXPRESSION
     expression: 
       -y + base + elevationDetailedBlockHeight(x,z) +
-      (noise(x, z)+1)/2 * height * biomeInfluence(x,z) + 
-      (noise3(x, y*3, z)+1)/2 * blobStrength
+      (noise(x, z)+1)/2 * 
+      min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z)-base-blobStrength) *
+      biomeInfluence(x,z) + 
+      (noise3(x, y*3, z)+1)/2 * blobStrength * biomeInfluence(x,z)
     variables: *id001
     samplers:
       noise:

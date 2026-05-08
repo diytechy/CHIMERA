@@ -31,7 +31,7 @@ terrain:
     variables: *variables
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z)
-      + scale * (
+      + min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z)-base)* (
         herp(cellDistance(x, z) + lerp(cellMask(x, z), 0.7, 0, 1, 1),
           -0.2, elevation(x, z),
           -0.75, cellLookup(x, z)+0.02

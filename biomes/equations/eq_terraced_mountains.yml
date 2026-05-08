@@ -5,8 +5,7 @@ abstract: true
 vars: &variables
   base: $customization.yml:terrain-base-y-level
   #keep this low enough from clipping at blend limit (currently 270)
-  max_height: 300
-  height: 250
+  height: 235
 
 terrain:
   sampler:

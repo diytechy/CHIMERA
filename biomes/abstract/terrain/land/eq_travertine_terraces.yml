@@ -9,7 +9,9 @@ vars: &variables
 terrain:
   sampler:
     type: EXPRESSION
-    expression: -y + base + elevationDetailedBlockHeight(x,z) + travertine(x, z) * biomeInfluence(x,z)
+    expression: |
+      -y + base + elevationDetailedBlockHeight(x,z) + 
+      travertine(x, z) * biomeInfluence(x,z)
     variables: *variables
     samplers:
       travertine:
@@ -22,7 +24,7 @@ terrain:
         sampler:
           type: EXPRESSION
           expression: |
-            scale * max(cell1(x, z), cell2(x, z)) - 5
+            min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z)-base) * max(cell1(x, z), cell2(x, z)) - 5
           variables: *variables
           samplers:
             cell1:

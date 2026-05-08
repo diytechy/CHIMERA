@@ -1428,4 +1428,15 @@ Increase ore concentrations due to more prolific cave generation taking away blo
 #############
 
 Fix snow sinking for some biomes which are complete terror?
-Fix
+
+Increase deep_dark occurrence rate
+Increase deep_dark_grove occurrence rate
+Verify deep_dark generation
+Verify rivers have no carving
+Verify rivers have "LOW_CAVES" tag
+Consider raising sinkholes, and renaming to "pits" to differentiate from other sinkholes
+Verify deep dark biome placement in MC
+
+External:
+Debug deep_dark causing previous terrain gen issues
+Debug BiomeTool benchmark appearing to cache tiles when not required at all.

@@ -613,3 +613,17 @@ samplers:
       continentZero: 0
       continentFull: -0.8
       factorContinental: $customization.yml:elevation-factor-continental
+
+  maxHeight:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      maxRaw: ${pack.yml:blend.terrain.y-range.max}-1
+    expression: maxRaw + (noise(x,z)-1)*5
+    samplers:
+      noise:
+        dimensions: 2
+        type: SIMPLEX
+        octaves: 2
+        frequency: 0.1
+        seed: 8675409

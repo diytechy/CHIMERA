@@ -22,7 +22,7 @@ terrain:
     type: EXPRESSION
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z) +
-      scale * triTerrace(
+      min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z)-base) * triTerrace(
         combine(
           elevation(x, z),
           detailZero, 0,

@@ -1,7 +1,8 @@
-id: BLACK_DESERT
+id: BLACK_DESERT_BOG
 type: BIOME
 extends:
-  - EQ_FLAT_BUMPY
+  - EQ_BARRIER_BOG
+  #- EQ_FLAT_BUMPY
   - CARVING_OCEAN
   - BASE
 color: $biomes/colors.yml:BLACK_SAND_BEACH
@@ -18,11 +19,11 @@ climate:
   precipitation: false
   temperature: 0.8
 
-vanilla: minecraft:stony_shore
+vanilla: minecraft:dripstone_caves
 
 
 tags:
-  - LAND_CAVES
+  - LOW_CAVES
   - SPECIAL_CAVES
   - USE_BLACK_RIVER
 
@@ -39,3 +40,22 @@ slant:
       - BLACKSTONE: $meta.yml:ocean-level
       - BLOCK:minecraft:blackstone: ${meta.yml:ocean-level} - 1
       - << meta.yml:palette-bottom
+
+
+features:
+  landforms:
+    - FOSSIL_RIBS
+  flora:
+    - OAK_BUSHES_SPARSE
+    - FERNS_SPARSE
+  trees:
+    - PALM_TREES_SPARSE
+  structures:
+    - MOB_ROOMS
+    - SPARSE_FOSSILS
+    #- OAK_BUSHES
+    #- SPARSE_OAK_TREES
+    #- MESQUITE_TREES
+    #- DEAD_TREES_SPARSE
+    #- SPARSE_FALLEN_OAK_TREES
+    #- SPARSE_FALLEN_NORMAL_DARK_OAK_TREES

@@ -2,7 +2,8 @@ id: DESERT_SPIKES_BLACK
 type: BIOME
 extends: 
 - DESERT_SPIKES
-- BLACK_DESERT
+- BLACK_DESERT_BOG
+- HYDRAXIA_ORES_GOLD
 color: $biomes/colors.yml:DESERT_SPIKES_GOLD
 
 tags:
@@ -29,9 +30,13 @@ slant:
       - << meta.yml:palette-bottom
 
 features:
+  landforms:
+    - FERNS_SPARSE
   flora:
-    - DEAD_BUSHES
-    - DRY_GRASS
+    - OAK_BUSHES_SPARSE
+
+  trees:
+    - PALM_TREES_SPARSE
   structures:
     - MOB_ROOMS
     - SPARSE_FOSSILS

@@ -6,7 +6,8 @@ extends:
 - EQ_CARVING_LAND
 - HYDRAXIA_ORES_EMERALD
 #vanilla: minecraft:basalt_deltas
-vanilla: minecraft:badlands
+#vanilla: minecraft:badlands
+vanilla: minecraft:dripstone_caves
 palette:
 - HOT_STONE: 319
 - HOT_STONE_TRANSITION: 76

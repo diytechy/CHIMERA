@@ -3,7 +3,7 @@ type: BIOME
 extends:
   - EQ_GLOBAL_RIVER
   - CARVING_OCEAN
-  - BLACK_DESERT
+  - BLACK_DESERT_BOG
 
 colors:
   fog: 0xc0d8ff
@@ -25,14 +25,15 @@ slant:
 
 color: $biomes/colors.yml:DESERT_RIVER
 features:
+  landforms:
+    - FERNS_SPARSE
   flora:
-  - CACTUS_SPARSE
-  - DEAD_BUSHES
-  - DRY_GRASS
+    - OAK_BUSHES_SPARSE
+  trees:
+    - PALM_TREES_SPARSE
   structures:
-  - MOB_ROOMS
-  - DESERT_WELLS
-  - SPARSE_FOSSILS
+    - MOB_ROOMS
+    - SPARSE_FOSSILS
   processors:
   - RIVER_SOULSAND
   river-decoration:

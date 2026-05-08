@@ -63,7 +63,7 @@ biomes:
             expression: BiomeShapeLandmassValue(x, z)
           from: land
           to:
-            - BLACK_DESERT: 1
+            - BLACK_DESERT_BOG: 1
             - DESERT_SPIKES_BLACK: 1
             - SEARING_TORS: 1
         #    - SEARING_TORS: 1

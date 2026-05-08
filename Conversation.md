@@ -1424,3 +1424,8 @@ This would be similar to a eq sampler which has already been bounded:
 
 Fix distributions - tighten precipitation based biome distribution?
 Increase ore concentrations due to more prolific cave generation taking away block space.
+
+#############
+
+Fix snow sinking for some biomes which are complete terror?
+Fix

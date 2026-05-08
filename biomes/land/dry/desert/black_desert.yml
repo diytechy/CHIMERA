@@ -13,7 +13,7 @@ colors:
   water-fog: 0x157CAB
   sky: 0x78a7ff
   grass: 0x888888
-  foliage: 0x884444
+  foliage: 0xAA4444
 
 climate:
   precipitation: false

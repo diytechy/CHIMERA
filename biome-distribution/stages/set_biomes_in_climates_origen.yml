@@ -371,7 +371,7 @@ stages:
 
       # Black hot desert
       hot-desert-flat-black:
-        - BLACK_SAND_BEACH: 1
+        - BLACK_DESERT_BOG: 1
       hot-desert-black:
         - DESERT_SPIKES_BLACK: 1
       hot-desert-highlands-black:

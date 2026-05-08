@@ -21,7 +21,7 @@ locator:
   locators:
     - type: TOP
       range: &range
-        min: ${meta.yml:ocean-level} + 3
+        min: ${meta.yml:ocean-level} + 1
         max: $meta.yml:top-y
     - type: PATTERN
       range: *range
@@ -49,4 +49,4 @@ locator:
 structures:
   distribution:
     type: WHITE_NOISE
-  structures: palm_tree_procedural
+  structures: palm_tree_procedural_oak

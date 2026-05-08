@@ -3,15 +3,18 @@ type: PALETTE
 
 layers:
   - materials:
-      - minecraft:yellow_terracotta: 6
-      - minecraft:yellow_concrete: 1
-      - minecraft:smooth_sandstone: 1
-      - minecraft:yellow_terracotta: 1
-      - minecraft:yellow_concrete: 1
-      - minecraft:smooth_sandstone: 3
+      - minecraft:deepslate_coal_ore: 1
+      - minecraft:black_concrete_powder: 1
+      - minecraft:blackstone: 10
+      - minecraft:basalt: 10
+      - minecraft:black_terracotta: 6
+      - minecraft:deepslate: 3
+      - minecraft:tuff: 6
       - minecraft:packed_mud: 1
-      - minecraft:smooth_sandstone: 3
+      - minecraft:black_glazed_terracotta: 1
+      - minecraft:deepslate_gold_ore: 1
     layers: 1
+
 
 sampler:
   dimensions: 3

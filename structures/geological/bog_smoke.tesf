@@ -1,0 +1,1 @@
+block(0, 0, 0, "minecraft:campfire[lit=true,signal_fire=true]", true);

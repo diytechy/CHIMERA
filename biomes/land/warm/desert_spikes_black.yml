@@ -1,6 +1,7 @@
 id: DESERT_SPIKES_BLACK
 type: BIOME
 extends: 
+- EQ_SPIKES
 - DESERT_SPIKES
 - BLACK_DESERT_BOG
 - HYDRAXIA_ORES_GOLD
@@ -10,6 +11,11 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_BLACK_RIVER
+
+palette:
+  - BLOCK:minecraft:black_concrete_powder: $meta.yml:top-y
+  - BLOCK:minecraft:blackstone: $meta.yml:top-y
+  - << meta.yml:palette-bottom
 
 slant:
   - threshold: 0.55

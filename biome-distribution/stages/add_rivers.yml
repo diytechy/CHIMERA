@@ -143,10 +143,10 @@ stages:
       expression: riverSampler(x,z)
   # Searing Tors
   - type: REPLACE
-    from: USE_SEARING_TORS_RIVER
+    from: USE_BLACK_RIVER
     to:
       - SELF: 1
-      - SEARING_TORS_RIVER: 1
+      - BLACK_RIVER: 1
     sampler:
       dimensions: 2
       type: EXPRESSION

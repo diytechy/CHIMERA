@@ -9,7 +9,6 @@ layers:
     layers: 1
   - materials:
       - minecraft:smooth_basalt: 3
-      - minecraft:netherrack: 1
     layers: 1
     
 sampler:

@@ -1,0 +1,37 @@
+id: DESERT_SPIKES_BLACK
+type: BIOME
+extends: 
+- DESERT_SPIKES
+- BLACK_DESERT
+color: $biomes/colors.yml:DESERT_SPIKES_GOLD
+
+tags:
+  - LAND_CAVES
+  - SPECIAL_CAVES
+  - USE_BLACK_RIVER
+
+slant:
+  - threshold: 0.55
+    palette:
+      - BLOCK:minecraft:blackstone: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.5
+    palette:
+      - BLOCK:minecraft:black_terracotta: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.45
+    palette:
+      - BLOCK:minecraft:basalt: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+  - threshold: 0.4
+    palette:
+      - TERRACOTTA_STRATA_BLACK: $meta.yml:top-y
+      - << meta.yml:palette-bottom
+
+features:
+  flora:
+    - DEAD_BUSHES
+    - DRY_GRASS
+  structures:
+    - MOB_ROOMS
+    - SPARSE_FOSSILS

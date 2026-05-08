@@ -369,6 +369,14 @@ stages:
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
 
+      # Black hot desert
+      hot-desert-flat-black:
+        - BLACK_SAND_BEACH: 1
+      hot-desert-black:
+        - DESERT_SPIKES_BLACK: 1
+      hot-desert-highlands-black:
+        - SEARING_TORS: 1
+
       # Red hot steppe
       hot-steppe-flat-red:
         - RED_XERIC_SHRUBLAND: 1
@@ -488,7 +496,6 @@ stages:
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
-        - SEARING_TORS: 1
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1

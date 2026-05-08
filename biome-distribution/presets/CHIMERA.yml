@@ -63,10 +63,10 @@ biomes:
             expression: BiomeShapeLandmassValue(x, z)
           from: land
           to:
-            - CANOPY_CASCADES: 1
-            - ALPINE_ASCENDANCY: 1
-            - XERIC_MOUNTAINS: 1
+            - BLACK_DESERT: 1
+            - DESERT_SPIKES_BLACK: 1
             - SEARING_TORS: 1
+        #    - SEARING_TORS: 1
         #  - FROSTCOATED_BOG: 6
         #  - LAVENDER_FIELDS: 4
         #  - MUSKEG: 4

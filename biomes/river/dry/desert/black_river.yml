@@ -1,0 +1,40 @@
+id: BLACK_RIVER
+type: BIOME
+extends:
+  - EQ_GLOBAL_RIVER
+  - CARVING_OCEAN
+  - BLACK_DESERT
+
+colors:
+  fog: 0xc0d8ff
+  water: 0x444488
+
+palette:
+  - BLACK_DESERT_RIVER: $meta.yml:top-y
+  - BLACKSTONE: $meta.yml:ocean-level
+  - BLOCK:minecraft:blackstone: ${meta.yml:ocean-level} - 1
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.4
+    palette:
+      - BLACK_DESERT_RIVER: $meta.yml:top-y
+      - BLACKSTONE: $meta.yml:ocean-level
+      - BLOCK:minecraft:blackstone: ${meta.yml:ocean-level} - 1
+      - << meta.yml:palette-bottom
+
+color: $biomes/colors.yml:DESERT_RIVER
+features:
+  flora:
+  - CACTUS_SPARSE
+  - DEAD_BUSHES
+  - DRY_GRASS
+  structures:
+  - MOB_ROOMS
+  - DESERT_WELLS
+  - SPARSE_FOSSILS
+  processors:
+  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN
+

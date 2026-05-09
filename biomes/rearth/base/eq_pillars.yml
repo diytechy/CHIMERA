@@ -39,7 +39,8 @@ terrain:
             + basepillarsCenter(x,z) * 0.12 // vary whole pillar size
             + pillarWidthRand(y, x / 10) * 0.09 // vary size along height
             + (min(0, base  + (BiomeShapeLandmassElevation(x,z) + pillarHeight) * (basepillarsCenter(x,z) * 0.4 + 1) - y) / 12)^3  // top cap
-          ) - (1 - pillarsExist(x,z))
+          )
+          //) - (1 - pillarsExist(x,z))
         samplers:
           basepillars: &pillarConf
             dimensions: 2
@@ -52,8 +53,9 @@ terrain:
             return: NoiseLookup
             lookup: 
               dimensions: 2
-              type: EXPRESSION
-              expression: if(biomeInfluence(x,z)>0.99,1,0)
+              type: CONSTANT
+              value: 1
+              #expression: if(biomeInfluence(x,z)>0.0,1,0)
           basepillarsCenter:
             <<: *pillarConf
             return: CellValue

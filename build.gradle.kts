@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.diytechy.terra.packs"
-version = "0.0.1"
+version = "0.0.2"
 
 // Directories to exclude from the pack zip (beyond hidden dirs)
 val excludedDirs = setOf(

@@ -4,7 +4,8 @@ extends: [ ORES_DEFAULT , EQ_INFERNO_ISLE]
 vanilla: minecraft:dripstone_caves
 color: $biomes/colors.yml:DRIPSTONE_CAVES
 
-
+tags:
+  - SPECIAL_CAVES
 palette:
   - BLACKSTONE_BASALT_MIX: 319
   - << meta.yml:palette-bedrock

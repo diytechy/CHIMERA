@@ -1440,3 +1440,5 @@ Verify deep dark biome placement in MC
 External:
 Debug deep_dark causing previous terrain gen issues
 Debug BiomeTool benchmark appearing to cache tiles when not required at all.
+Are biomes always extruded from the surface biome?
+Are tags inherited through biome distribution?  In the current distribution, 

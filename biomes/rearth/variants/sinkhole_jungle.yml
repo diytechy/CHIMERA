@@ -26,7 +26,6 @@ palette:
 
 tags:
  - BORDER_LAND_CAVES
- - DEEP_DARK_GROVES
 
 features:
   global-preprocessors:

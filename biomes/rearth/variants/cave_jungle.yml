@@ -9,7 +9,8 @@ colors:
   foliage: 0x00aa17
   water: 0x1e97f2
   water-fog: 0x1e97f2
-
+tags:
+  - SPECIAL_CAVES
 
 slant:
   - threshold: 0.9

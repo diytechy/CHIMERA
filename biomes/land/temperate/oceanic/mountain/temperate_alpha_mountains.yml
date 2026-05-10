@@ -10,7 +10,7 @@ extends:
 color: $biomes/colors.yml:TEMPERATE_ALPHA_MOUNTAINS
 vanilla: minecraft:windswept_hills
 tags:
-- DEEP_DARK
+- DEEP_DARK_GROVE
 - LAND_CAVES
 - SPECIAL_CAVES
 - TEMPERATE_COAST_HIGHLANDS

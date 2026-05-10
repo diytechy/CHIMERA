@@ -1437,6 +1437,12 @@ Verify rivers have "LOW_CAVES" tag
 Consider raising sinkholes, and renaming to "pits" to differentiate from other sinkholes
 Verify deep dark biome placement in MC
 
+For all cave related biomes (all cave biomes from "add_caves", "add_special_caves" and "add_deep_dark") replace the tags in their biome definition files with new bases corresponding to cave related base features:
+
+Replace "BASE"  with "BASE_CAVES".
+
+Replace "BASE_HYDRAXIA" with "BASE_HYDRAXIA_CAVERN"
+
 External:
 Debug deep_dark causing previous terrain gen issues:
 Previously, in the add cave biome extrusion (C:\Projects\ORIGEN2\biome-distribution\extrusions\add_cave_biomes.yml), the lava tubes (LAVA_TUBES) replace extrusion had a range starting (min) at -64.  This cause the surface biome (far above the extrusion range, y = 320) to have solid block placement.  Once I changed the min to -63 (${meta.yml:bottom-y}+1) this problem went away.  Is there something in the evaluation chain that would have caused either NaN or and other value to get set during chunk generation that would have flown over by the extrusion definition being all the way at the minimum (y=-64) value?  I was able to see this in the DEEP_DARK extrusion as well which I also bumped up higher than -64.  I believe it's also due to interactions with more than one extrusion occurring per x/z column.

@@ -16,6 +16,12 @@ distributor:
           salt: 3119
           frequency: 0.06
       threshold: 0.15
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        dimensions: 2
+        expression: -continentalRiverDistSparseFarGrid(x,z)
+      threshold: 20
 
 locator:
   type: AND

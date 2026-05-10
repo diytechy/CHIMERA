@@ -5,11 +5,13 @@ extends:
   - RIVER_FROZEN
   - ENVIRONMENT_MARINE_RIVER_FROZEN
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - POLAR_MUSHROOM_FIELDS
 color: $biomes/colors.yml:POLAR_MUSHROOM_RIVER
 
 vanilla: minecraft:frozen_river
+tags:
+- LOW_CAVES
 features:
   flora:
   - SMALL_MUSHROOMS

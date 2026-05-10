@@ -7,6 +7,8 @@ extends:
 
 original-noise: &originalNoise $biomes/rearth/base/eq_tilted_plateau.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   flora:
   - SUGAR_CANE

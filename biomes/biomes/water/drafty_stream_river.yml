@@ -1,6 +1,6 @@
 id: DRAFTY_STREAM_RIVER
 type: BIOME
-extends: [ BASE_HYDRAXIA, EQ_GLOBAL_RIVER, EQ_CARVING_OCEAN, DEPOSITS_RIVER ]
+extends: [ BASE_HYDRAXIA, EQ_GLOBAL_RIVER, DEPOSITS_RIVER ]
 
 vanilla: minecraft:frozen_river
 
@@ -26,3 +26,4 @@ features:
     
 tags:
   - CAVERNS_OCEAN
+  - LOW_CAVES

@@ -4,9 +4,12 @@ extends:
   - EQ_GLOBAL_RIVER
   - RIVER_FROZEN
   - MOUNTAIN_MIRRORS
+  - CARVING_NONE
 
 original-noise: &originalNoise $biomes/rearth/base/eq_terrace_mountain.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
     - CEILING_ICICLES

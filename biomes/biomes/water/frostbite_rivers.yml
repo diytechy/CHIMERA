@@ -3,6 +3,7 @@ type: BIOME
 extends: 
  - EQ_GLOBAL_RIVER
  - FROZEN_SPIRES
+ - CARVING_NONE
 
 #original-noise: &originalNoise $biomes/equations/eq_terraced_mountains.yml:terrain.sampler # Original noise to be turned into river
 #
@@ -31,6 +32,8 @@ slant:
       - BLOCK:minecraft:ice: 319
       - << palettes/rock_layers.yml:palette
       
+tags:
+- LOW_CAVES
 features:
   landforms:
   - ICE_PILLARS_CEILING

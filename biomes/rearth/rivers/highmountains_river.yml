@@ -7,6 +7,8 @@ extends:
 
 original-noise: &originalNoise $biomes/rearth/base/eq_high_mountains.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CEILING_ICICLES

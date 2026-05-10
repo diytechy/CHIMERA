@@ -2,9 +2,11 @@ id: RED_XERIC_MOUNTAINS_RIVER
 type: BIOME
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - RED_XERIC_MOUNTAINS
 color: $biomes/colors.yml:RED_XERIC_MOUNTAINS_RIVER
+tags:
+- LOW_CAVES
 features:
   flora:
   - GRASS

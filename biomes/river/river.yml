@@ -4,7 +4,7 @@ extends:
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - BASE
 color: $biomes/colors.yml:RIVER
 
@@ -33,7 +33,7 @@ colors:
   water-fog: 0x0084ff
 
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   processors:
   - RIVER_SOULSAND

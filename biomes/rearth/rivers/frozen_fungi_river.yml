@@ -4,9 +4,12 @@ extends:
   - MOUNTAIN_RIVER_FROZEN
   - EQ_GLOBAL_RIVER
   - FROZEN_FUNGI
+  - CARVING_NONE
 
 original-noise: &originalNoise $biomes/rearth/base/eq_tilted_plateau.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CEILING_ICICLES

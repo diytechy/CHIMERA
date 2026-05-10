@@ -3,9 +3,11 @@ type: BIOME
 extends:
 - RIVER_FROZEN
 - EQ_GLOBAL_RIVER
-- CARVING_OCEAN
+- CARVING_NONE
 - SNOWY_MOUNTAINS
 color: $biomes/colors.yml:SNOWY_MOUNTAINS_RIVER
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CEILING_ICICLES

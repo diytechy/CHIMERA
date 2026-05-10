@@ -3,7 +3,7 @@ type: BIOME
 extends:
   - RIVER_DRIPSTONE
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - MOUNTAINS
 color: $biomes/colors.yml:MOUNTAINS_RIVER
 
@@ -12,6 +12,8 @@ colors:
   foliage: 0x6da36b
   water: 0x007bf7
   water-fog: 0x007bf7
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CLAY_DEPOSITS

@@ -5,7 +5,7 @@ extends:
   - RIVER_FROZEN
   - ENVIRONMENT_MARINE_RIVER_FROZEN
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - BASE
 color: $biomes/colors.yml:FROZEN_RIVER
 
@@ -26,7 +26,7 @@ slant:
       - << meta.yml:palette-underwater
       - << meta.yml:palette-bottom
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   slabs:
   - SNOW_LAYERS

@@ -4,11 +4,13 @@ extends:
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER_WARM
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - TRAVERTINE_TERRACES
 color: $biomes/colors.yml:TRAVERTINE_TERRACES_RIVER
 
 vanilla: minecraft:river
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CLAY_DEPOSITS

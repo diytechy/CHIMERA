@@ -1,0 +1,10 @@
+id: LOW_CAVES_PRE
+type: BIOME
+extends: [ CAVE ]
+tags:
+  - LOW_CAVES
+vanilla: minecraft:dripstone_caves
+palette:
+  - GRANITE_MINES: 319
+  - GRANITE_MINES_DEEPSLATE: $substratum_meta.yml:strata.deepslate.top
+  - << substratum_meta.yml:palette-bedrock

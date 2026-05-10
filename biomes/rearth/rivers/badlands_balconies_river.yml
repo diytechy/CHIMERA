@@ -4,9 +4,12 @@ extends:
   - RIVER_BASIC
   - EQ_GLOBAL_RIVER
   - BADLANDS_BALCONIES
+  - CARVING_NONE
 
 original-noise: &originalNoise $biomes/rearth/base/eq_badlands_balconies.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CLAY_DEPOSITS

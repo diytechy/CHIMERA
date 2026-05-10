@@ -20,6 +20,8 @@ vars: &variables
   floorSpikeVar:    18  # How many blocks* upwards spikes will come up from the floor
   #  * Gets factored by floorStrength
 
+tags:
+- LOW_CAVES
 features:
   underwater-flora:
     - LARGE_CEILING_VINES

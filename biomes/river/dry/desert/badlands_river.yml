@@ -2,9 +2,11 @@ id: BADLANDS_RIVER
 type: BIOME
 extends:
 - EQ_GLOBAL_RIVER
-- CARVING_OCEAN
+- CARVING_NONE
 - BADLANDS
 color: $biomes/colors.yml:BADLANDS_RIVER
+tags:
+- LOW_CAVES
 features:
   flora:
   - CACTUS_SPARSE

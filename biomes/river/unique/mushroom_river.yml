@@ -3,11 +3,13 @@ type: BIOME
 extends:
   - RIVER_BASIC
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - MUSHROOM_FIELDS
 color: $biomes/colors.yml:MUSHROOM_RIVER
 
 vanilla: minecraft:river
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CLAY_DEPOSITS

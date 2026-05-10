@@ -2,8 +2,10 @@ id: DRIPSTONE_BARRENS_RIVER
 type: BIOME
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - CARVING_NONE
   - DRIPSTONE_BARRENS
+tags:
+- LOW_CAVES
 features:
   # flora:
   # - CACTUS_SPARSE

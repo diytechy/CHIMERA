@@ -1451,3 +1451,7 @@ Previously, in the add cave biome extrusion (C:\Projects\ORIGEN2\biome-distribut
 Debug BiomeTool benchmark appearing to cache tiles when not required at all.
 Are biomes always extruded from the surface biome?
 Are tags inherited through biome distribution?  In the current distribution, 
+
+######################
+
+Fix / modify rivers so that their surface level noise is present on biome-specific rivers.  And consider adding more biome-specific rivers for highland biomes.

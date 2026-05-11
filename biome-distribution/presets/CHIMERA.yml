@@ -21,9 +21,11 @@ biomes:
       expression: elevationDetailed(x,z)*10+noisebase(x,z)*2+noise(x,z)*4
       samplers:
         noisebase:
+          dimensions: 2
           type: OPEN_SIMPLEX_2
           frequency: 0.05
         noise:
+          dimensions: 2
           type: WHITE_NOISE
           frequency: 2
 

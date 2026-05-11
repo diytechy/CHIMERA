@@ -9,6 +9,24 @@ biomes:
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
     - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+
+  # Y-axis domain warp applied before extrusion range checks.
+  # Shifts the effective Y lookup up/down per-column, making cave/vertical
+  # biome boundaries follow terrain elevation instead of sitting at flat planes.
+  # Sampler is evaluated in 2D (x, z) so the warp is consistent within a column.
+  y-blend:
+    amplitude: 3
+    sampler:
+      type: EXPRESSION
+      expression: elevationDetailed(x,z)*10+noisebase(x,z)*2+noise(x,z)*4
+      samplers:
+        noisebase:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.05
+        noise:
+          type: WHITE_NOISE
+          frequency: 2
+
   provider:
     type: PIPELINE
     resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.

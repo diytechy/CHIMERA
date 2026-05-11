@@ -2,8 +2,8 @@ id: RED_DESERT_RIVER
 type: BIOME
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_NONE
   - RED_DESERT
+  - EQ_RIVER_CARVING
 color: $biomes/colors.yml:RED_DESERT_RIVER
 tags:
 - LOW_CAVES

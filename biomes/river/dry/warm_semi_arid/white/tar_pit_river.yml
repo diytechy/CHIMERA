@@ -2,8 +2,8 @@ id: TAR_PIT_RIVER
 type: BIOME
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_NONE
   - TAR_PITS
+  - EQ_RIVER_CARVING
 color: $biomes/colors.yml:TAR_PIT_RIVER
 tags:
 - LOW_CAVES

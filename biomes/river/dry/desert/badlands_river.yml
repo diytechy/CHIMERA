@@ -2,8 +2,8 @@ id: BADLANDS_RIVER
 type: BIOME
 extends:
 - EQ_GLOBAL_RIVER
-- CARVING_NONE
 - BADLANDS
+- EQ_RIVER_CARVING
 color: $biomes/colors.yml:BADLANDS_RIVER
 tags:
 - LOW_CAVES

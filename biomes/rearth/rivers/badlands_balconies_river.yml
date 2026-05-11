@@ -1,10 +1,10 @@
 id: BAD_BALCOONIES_RIVER
 type: BIOME
 extends:
-  - RIVER_BASIC
   - EQ_GLOBAL_RIVER
+  - RIVER_BASIC
   - BADLANDS_BALCONIES
-  - CARVING_NONE
+  - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_badlands_balconies.yml:terrain.sampler # Original noise to be turned into river
 

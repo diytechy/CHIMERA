@@ -3,8 +3,8 @@ type: BIOME
 vanilla: minecraft:dripstone_caves
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_NONE
   - BLACK_DESERT_BOG
+  - EQ_RIVER_CARVING
 
 colors:
   fog: 0xc0d8ff

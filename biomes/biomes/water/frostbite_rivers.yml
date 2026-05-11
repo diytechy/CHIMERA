@@ -1,9 +1,9 @@
 id: FROSTBITE_RIVERS #for ice mountain biomes
 type: BIOME
-extends: 
+extends:
  - EQ_GLOBAL_RIVER
  - FROZEN_SPIRES
- - CARVING_NONE
+ - EQ_RIVER_CARVING
 
 #original-noise: &originalNoise $biomes/equations/eq_terraced_mountains.yml:terrain.sampler # Original noise to be turned into river
 #

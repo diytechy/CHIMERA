@@ -1,6 +1,6 @@
 id: VISTAS_RIVER
 type: BIOME
-extends: [EQ_GLOBAL_RIVER, RIVER, VERTICAL_VISTAS]
+extends: [EQ_GLOBAL_RIVER, RIVER, VERTICAL_VISTAS, EQ_RIVER_CARVING]
 
 original-noise: &originalNoise $biomes/rearth/base/eq_terrace_mountain.yml:terrain.sampler # Original noise to be turned into river
 

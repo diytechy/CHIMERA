@@ -1,10 +1,10 @@
 id: RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER
-  - EQ_GLOBAL_RIVER
-  - CARVING_NONE
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:RIVER
 

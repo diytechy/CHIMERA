@@ -1,10 +1,10 @@
 id: FROZEN_FUNGI_RIVER
 type: BIOME
 extends:
-  - MOUNTAIN_RIVER_FROZEN
   - EQ_GLOBAL_RIVER
+  - MOUNTAIN_RIVER_FROZEN
   - FROZEN_FUNGI
-  - CARVING_NONE
+  - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_tilted_plateau.yml:terrain.sampler # Original noise to be turned into river
 

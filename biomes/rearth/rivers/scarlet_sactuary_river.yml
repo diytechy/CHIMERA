@@ -1,9 +1,10 @@
 id: SCARLET_SANCTUARY_RIVER
 type: BIOME
 extends:
-  - RIVER
   - EQ_GLOBAL_RIVER
+  - RIVER
   - SCARLET_SANCTUARY
+  - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_tilted_plateau.yml:terrain.sampler # Original noise to be turned into river
 

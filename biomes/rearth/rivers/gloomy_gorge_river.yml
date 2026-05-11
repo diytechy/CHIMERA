@@ -4,6 +4,7 @@ extends:
  - EQ_GLOBAL_RIVER
  - RIVER
  - GLOOMY_GORGE
+ - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_eroded_valley_mountains.yml:terrain.sampler # Original noise to be turned into river
 

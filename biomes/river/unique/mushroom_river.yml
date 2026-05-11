@@ -1,10 +1,10 @@
 id: MUSHROOM_RIVER
 type: BIOME
 extends:
-  - RIVER_BASIC
   - EQ_GLOBAL_RIVER
-  - CARVING_NONE
+  - RIVER_BASIC
   - MUSHROOM_FIELDS
+  - EQ_RIVER_CARVING
 color: $biomes/colors.yml:MUSHROOM_RIVER
 
 vanilla: minecraft:river

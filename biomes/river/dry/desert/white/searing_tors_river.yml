@@ -3,8 +3,8 @@ type: BIOME
 vanilla: minecraft:river
 extends:
   - EQ_GLOBAL_RIVER
-  - CARVING_NONE
   - SEARING_TORS
+  - EQ_RIVER_CARVING
 tags:
 - LOW_CAVES
 features:

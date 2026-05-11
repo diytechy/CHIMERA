@@ -1,6 +1,6 @@
 id: LOOPS_RIVER
 type: BIOME
-extends: [EQ_GLOBAL_RIVER, RIVER, LUSH_LOOPS]
+extends: [EQ_GLOBAL_RIVER, RIVER, LUSH_LOOPS, EQ_RIVER_CARVING]
 
 original-noise: &originalNoise $biomes/rearth/base/eq_lush_loops.yml:terrain.sampler # Original noise to be turned into river
 

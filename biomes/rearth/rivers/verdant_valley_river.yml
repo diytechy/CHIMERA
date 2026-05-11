@@ -4,6 +4,7 @@ extends:
  - EQ_GLOBAL_RIVER
  - RIVER
  - VERDANT_VALLEYS
+ - EQ_RIVER_CARVING
 
 tags:
 - LOW_CAVES

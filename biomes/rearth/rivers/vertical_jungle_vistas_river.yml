@@ -1,6 +1,6 @@
 id: VERTICAL_JUNGLE_RIVER
 type: BIOME
-extends: [EQ_GLOBAL_RIVER, RIVER, CANOPY_CASCADES]
+extends: [EQ_GLOBAL_RIVER, RIVER, CANOPY_CASCADES, EQ_RIVER_CARVING]
 
 original-noise: &originalNoise $biomes/rearth/base/eq_terrace_mountain.yml:terrain.sampler # Original noise to be turned into river
 

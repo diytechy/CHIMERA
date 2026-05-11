@@ -1,6 +1,6 @@
 id: foliage_fortress_RIVER_INNER
 type: BIOME
-extends: [EQ_GLOBAL_RIVER, RIVER, FOLIAGE_FORTRESS_INNER]
+extends: [EQ_GLOBAL_RIVER, RIVER, FOLIAGE_FORTRESS_INNER, EQ_RIVER_CARVING]
 
 original-noise: &originalNoise $biomes/rearth/base/eq_foliage_fortress_inner.yml:terrain.sampler # Original noise to be turned into river
 

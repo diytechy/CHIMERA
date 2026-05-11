@@ -1437,7 +1437,9 @@ Verify rivers have "LOW_CAVES" tag
 Consider raising sinkholes, and renaming to "pits" to differentiate from other sinkholes
 Verify deep dark biome placement in MC
 
-For all cave related biomes (all cave biomes from "add_caves", "add_special_caves" and "add_deep_dark") replace the tags in their biome definition files with new bases corresponding to cave related base features:
+For all cave related biomes (all cave biomes from "add_caves", "add_special_caves" and "add_deep_dark") replace the tags in their biome definition files with new bases corresponding to cave related base features.
+
+In "add_deep_dark", add as the first replacement: Replace LOW_CAVES where mountain mask is greater than 0, else replace to LOW_CAVES_PRE
 
 Replace "BASE"  with "BASE_CAVES".
 

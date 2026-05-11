@@ -29,13 +29,13 @@ terrain:
     samplers:
       mountainBasicShape: &mountainShape
         dimensions: 2
-        type: OPEN_SIMPLEX_2
+        type: OPEN_SIMPLEX_2S
         frequency: ${customization.yml:biomeSpread.mountainFrequency}
       vallyNoise:
         dimensions: 2
         type: FBM
         sampler:
-          type: OPEN_SIMPLEX_2
+          type: OPEN_SIMPLEX_2S
           frequency: 0.02
         octaves: 2
         lacunarity: 3

@@ -33,7 +33,7 @@ terrain:
     samplers:
       surfaceBaseMountains:
         dimensions: 2
-        type: OPEN_SIMPLEX_2
+        type: OPEN_SIMPLEX_2S
         frequency: ${customization.yml:biomeSpread.mountainFrequency}
       terraceSizeVariation:
         dimensions: 2
@@ -44,7 +44,7 @@ terrain:
         dimensions: 2
         type: FBM
         sampler:
-          type: OPEN_SIMPLEX_2
+          type: OPEN_SIMPLEX_2S
           frequency: 0.0026
           salt: 3
         octaves: 3

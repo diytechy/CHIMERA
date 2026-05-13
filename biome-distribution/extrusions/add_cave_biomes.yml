@@ -1,9 +1,6 @@
 vars: &variables
-  cave_percentage: &cave_percentage 0.8 #Percentage of area under land biomes that are switched to other cave biome.
-  temp_edge_biomes: &temp_edge_biomes 6
-  gen_biomes: &gen_biomes 100
-  temp_edge_threshold: &temp_edge_threshold 0.5
-  non_temp_percentage: &non_temp_percentage 0.9 #For biomes in the temp threshold, how often should the prescribe to non-temp biomes
+  max_lower_limit: ${meta.yml:ocean-level} - 13
+  base: ${customization.yml:terrain-base-y-level}
 
 # If inside cave percentages-temp threshold, prescribe to inner biome dist.
 #Else if just inside temp threshold, prescribe to edge biome dist or random inner dist based on randomizer.
@@ -37,28 +34,25 @@ extrusions:
       - STANDARD_CAVES: 1
       - WARM_CAVES: 1
       
-  - type: REPLACE_MAX_Y_SAMPLER
-    min-y: $meta.yml:cave-bottom
-    max-y-sampler:
-      type: EXPRESSION
-      dimensions: 2
-      variables:
-        max_lower_limit: ${meta.yml:ocean-level} - 13
-        base: ${customization.yml:terrain-base-y-level}
-      expression: |
-        max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20)
+  - type: REPLACE
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
     sampler:
       type: EXPRESSION
       variables: *variables
       #If above the distribution threshold, set it to an actual biome, else keep current self.
       #Actual distribution weight must match selected threshold.
       #Default case is >0, which puts half of the samples below 0.
-      expression: BiomeShapeOceanTemperature(x,z)
+      expression: |
+        if(y>max(max_lower_limit,base+BiomeShapeMinimumElevation(x,z)-20),-1,
+        (BiomeShapeOceanTemperature(x,z)+1)/2)
     # Below the weight of SELF must match the weight of all other caves + 1.
     # This way caves start at a distributor values >0, aligning with
     # the distribution function above.
     from: LAND_CAVES
     to:
+      - SELF: 3
       - COLD_CAVES: 1
       - STANDARD_CAVES: 1
       - WARM_CAVES: 1
@@ -97,10 +91,10 @@ extrusions:
     sampler:
       type: EXPRESSION
       dimensions: 2
-      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z)*1000,0)
     range:
-      min: $meta.yml:bottom-y
-      max: ${meta.yml:top-y}
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
     to:
       - ICE_CAVES: 3
       - ICE_MUSHROOM_CAVES: 1
@@ -113,10 +107,10 @@ extrusions:
     sampler:
       type: EXPRESSION
       dimensions: 2
-      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z)*1000,0)
     range:
-      min: $meta.yml:bottom-y
-      max: ${meta.yml:top-y}
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
     to:
       - MAGMA_CAVERNS: 2
       - BASALT_CAVERNS: 2
@@ -128,10 +122,10 @@ extrusions:
     sampler:
       type: EXPRESSION
       dimensions: 2
-      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z),0)
+      expression: WhiteNoiseRandomizer(BiomeShapeOceanValue(x,z)*1000,0)
     range:
-      min: $meta.yml:bottom-y
-      max: ${meta.yml:top-y}
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
     to:
       - SPIDER_CAVES: 1
       - ANCIENT_CAVES: 2

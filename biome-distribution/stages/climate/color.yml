@@ -8,9 +8,9 @@ stages:
       expression: BiomeShapeLandmassValue2(x, z)
     default-from: hot-desert-flat
     default-to:
-      - hot-desert-flat-red: &red 3
-      - hot-desert-flat-orange: &orange 1
-      - hot-desert-flat-white: &white 3
+      - hot-desert-flat-red: &red 2
+      - hot-desert-flat-orange: &orange 2
+      - hot-desert-flat-white: &white 2
       - hot-desert-flat-black: &black 1
     to:
       hot-desert:

@@ -11,14 +11,14 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(max((caves(x, y * 2, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
+      clamp(max((special_caves(x, y * 2, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
       + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
-      caves:
+      special_caves:
         dimensions: 3
         type: CELLULAR
         frequency: 0.005

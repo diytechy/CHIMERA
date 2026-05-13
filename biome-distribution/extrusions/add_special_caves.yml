@@ -1,23 +1,23 @@
 extrusions:
   - type: REPLACE
     from: SPECIAL_CAVES
-    sampler: &caveSampler
+    sampler: &special_caveSampler
       type: EXPRESSION
       expression: |
-        if (caves(x,y*2,z) < -0.79 && caveElevation(x, y*2, z) > 0.1, 
-          caveVariation(x,y*2,z),
+        if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, 
+          special_caveVariation(x,y*2,z),
           -1)
       samplers:
-        caves: &caveSettings
+        special_caves: &caveSettings
           dimensions: 3
           type: CELLULAR
           frequency: 0.005
           jitter: 0.05
           salt: 24
-        caveVariation:
+        special_caveVariation:
           <<: *caveSettings
           return: CellValue
-        caveElevation:
+        special_caveElevation:
           <<: *caveSettings
           return: NoiseLookup
           lookup:

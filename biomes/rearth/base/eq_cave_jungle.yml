@@ -20,12 +20,6 @@ terrain:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
-      special_caves:
-        dimensions: 3
-        type: CELLULAR
-        frequency: 0.005
-        jitter: 0.05
-        salt: 24
       platforms:
         dimensions: 2
         type: DOMAIN_WARP

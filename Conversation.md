@@ -1454,4 +1454,11 @@ Are tags inherited through biome distribution?  In the current distribution,
 
 ######################
 
-Fix / modify rivers so that their surface level noise is present on biome-specific rivers.  And consider adding more biome-specific rivers for highland biomes.
+Fix / modify rivers so that their surface level noise is present on biome-specific rivers.  And consider adding more 
+
+#######################
+
+Colors
+Steppes
+Coasts
+biome-specific rivers for highland biomes.

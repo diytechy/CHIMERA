@@ -1,13 +1,10 @@
 
-BaseBiomeCell: &BaseBiomeCell
+_landmassShape: &landmassShape
   dimensions: 2
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
   jitter: 0.6
   distance: Hybrid
-
-_landmassShape: &landmassShape
-  <<: *BaseBiomeCell
   salt: 101
 
 _outerWarpSmall: &outerWarpSmall
@@ -47,6 +44,11 @@ samplers:
           return: CellValue
           
   BiomeShapeLandmassValue2:
+    dimensions: 2
+    type: EXPRESSION
+    expression: whiteNoiseExp(BiomeShapeLandmassValue(x,z)*1000,0)
+
+  BiomeShapeLandmassColor:
     <<: *outerWarpSmall
     sampler:
       <<: *midWarpSmall
@@ -57,8 +59,9 @@ samplers:
           return: NoiseLookup
           lookup:
             dimensions: 2
-            type: EXPRESSION
-            expression: whiteNoiseExp(x,z)
+            type: OPEN_SIMPLEX_2S
+            salt: 6891423
+            frequency: (1 / 3000)
           salt-lookup: false
 
   BiomeShapeLandmassPlainsMask:

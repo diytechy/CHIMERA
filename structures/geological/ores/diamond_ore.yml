@@ -6,6 +6,13 @@ material: minecraft:diamond_ore
 
 material-overrides:
   minecraft:deepslate: minecraft:deepslate_diamond_ore
+  minecraft:blackstone: minecraft:deepslate_diamond_ore
+  minecraft:tuff: minecraft:deepslate_diamond_ore
+  minecraft:black_concrete: minecraft:deepslate_diamond_ore
+  minecraft:black_concrete_powder: minecraft:deepslate_diamond_ore
+  minecraft:black_terracotta: minecraft:deepslate_diamond_ore
+  minecraft:packed_mud: minecraft:deepslate_diamond_ore
+  minecraft:basalt: minecraft:deepslate_diamond_ore
 
 size: 8
 

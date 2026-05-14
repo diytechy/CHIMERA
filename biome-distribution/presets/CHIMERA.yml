@@ -15,10 +15,11 @@ biomes:
   # biome boundaries follow terrain elevation instead of sitting at flat planes.
   # Sampler is evaluated in 2D (x, z) so the warp is consistent within a column.
   y-blend:
-    amplitude: 1
+    amplitude: 2
+    terrain-coordinate-noise-warp: false
     sampler:
       type: EXPRESSION
-      expression: elevationDetailed(x,z)*10+noisebase(x,z)*2+noise(x,z)*4
+      expression: noisebase(x,z)+noise(x,z)*2
       samplers:
         noisebase:
           dimensions: 2
@@ -50,6 +51,7 @@ biomes:
       ineligible-biome: OCEAN
 
     blend:
+      terrain-coordinate-noise-warp: false
       amplitude: 3
       sampler:
         type: OPEN_SIMPLEX_2

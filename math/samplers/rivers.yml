@@ -129,6 +129,9 @@ samplers:
     frequency: 0.001
 
   riverElevationInput:
+    #Ensures evaluates river height is 0 near continent edge.
+    #Ensures river height is 0 in flat regions.
+    #Ensures height is sampled on sparse grid.
     dimensions: 2
     type: EXPRESSION
     variables:
@@ -137,37 +140,10 @@ samplers:
     expression: |
       min(
         min(
-          herp(continents(x,z), 0.05, 0, 0.1, elevationTerraced(x,z)),
-          herp(rawFlatness(x, z), threshold-blend, 0, threshold, elevationTerraced(x,z))
+          herp(continents(round(x/4)*4,round(z/4)*4), 0.05, 0, 0.1, elevationTerraced(round(x/4)*4,round(z/4)*4)),
+          herp(rawFlatness(round(x/4)*4,round(z/4)*4), threshold-blend, 0, threshold, elevationTerraced(round(x/4)*4,round(z/4)*4))
         ),
-      elevationTerraced(x,z))
-    #expression: elevationTerraced(x,z)
-
-  continentalDendryRiversSparse:
-    dimensions: 3
-    type: DENDRY
-    # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
-    n: 3
-    max: 1.5
-    sampler:
-      dimensions: 2
-      type: EXPRESSION
-      expression: riverElevationInput(x,z)
-    riverwidth: 
-      dimensions: 2
-      type: EXPRESSION
-      expression: continentalRiverWidth(x,z)
-    borderwidth: 
-      dimensions: 2
-      type: EXPRESSION
-      expression: riverBoundaryDistance(x,z)
-    branches: 
-      dimensions: 2
-      type: EXPRESSION
-      expression: RiverBranchingProbability(x,z)
-    default-riverwidth: 30
-    default-borderwidth: 75
-    cachepixels: 4.0
+      elevationTerraced(round(x/4)*4,round(z/4)*4))
 
   continentalDendryRiversPrecise:
     dimensions: 3
@@ -199,17 +175,6 @@ samplers:
     type: EXPRESSION
     expression: |
       continentalDendryRiversPrecise(x,y,z)
-      //Old method below, now rivers should only be called with precision needed, no need to intercept.
-      //if((round(x) % 4)||(round(z) %4 ),
-      //  //If landing on a non-biome sample grid, use the standard sampler.
-      //  continentalDendryRiversPrecise(x,y,z),
-      //  //If requesting y value 0 on the biome grid, just use the far distance sampler return type, which has a separate cache
-      //  //and is significantly faster.
-      //  if(y!=0,
-      //    continentalDendryRiversSparse(x,y,z),
-      //    continentalDendryRiversPrecise(x,-3.0,z))
-      //)
-
 
   continentalRiverDist:
     dimensions: 2

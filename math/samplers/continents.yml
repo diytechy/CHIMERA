@@ -75,7 +75,7 @@ samplers:
   islandMask:
     dimensions: 2
     type: EXPRESSION
-    expression: if(continental_sampler(x, z) < ((island_threshold-0.5)/2), 1, -1)
+    expression: if(continental_sampler(x, z) < ((island_threshold+land_threshold)/2), 1, -1)
     variables:
       island_threshold: $customization.yml:continental-island-threshold
       land_threshold: $customization.yml:continental-land-threshold
@@ -118,3 +118,32 @@ samplers:
     variables:
       coastalCutoff: $customization.yml:continental-coast-cutoff
     expression: continents(x, z) - coastalCutoff
+
+  continental_landmass_sparse:
+    #Forces queries to land on biome sparse grid, which is cached for biome pipeline generation.
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      sparseScale: 4
+    expression: continental_landmass(round(x/sparseScale)*sparseScale, round(z/sparseScale)*sparseScale)
+
+  aroundContinent:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spotRadius: 24
+    expression: |
+      max(continental_landmass_sparse(x, z),
+        min(min(min(min(
+          continental_landmass_sparse(x + spotRadius(x, z), z),
+          continental_landmass_sparse(x - spotRadius(x, z), z)),
+        min(
+          continental_landmass_sparse(x, z + spotRadius(x, z)),
+          continental_landmass_sparse(x, z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+      )

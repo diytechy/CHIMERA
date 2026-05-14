@@ -120,7 +120,8 @@ samplers:
     expression: |
       if(((continents(x, z)>0.15)&&
       (mesaFootDist(x,z)<0)&&
-      (precipitation(x, z)>-0.5)), 
+      (precipitation(x, z)>-0.5)&&
+      (riverElevationInput(x,z)>0)), 
       (((precipitation(x, z)+0.5)/1.3)^0.5),0)
 
   RiverOverhangMask:
@@ -137,20 +138,22 @@ samplers:
     variables:
       threshold: $customization.yml:flatness-percent
       blend: $customization.yml:flatness-blend
+      flatnessFactor: $customization.yml:flatness-factor
     expression: |
-      min(
+      //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
+      if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),
         min(
           herp(continents(round(x/4)*4,round(z/4)*4), 0.05, 0, 0.1, elevationTerraced(round(x/4)*4,round(z/4)*4)),
           herp(rawFlatness(round(x/4)*4,round(z/4)*4), threshold-blend, 0, threshold, elevationTerraced(round(x/4)*4,round(z/4)*4))
         ),
-      elevationTerraced(round(x/4)*4,round(z/4)*4))
+      0)
 
   continentalDendryRiversPrecise:
     dimensions: 3
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     n: 3
-    max: 1.5
+    #max: 1.5
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -176,16 +179,35 @@ samplers:
     expression: |
       continentalDendryRiversPrecise(x,y,z)
 
+  continentalRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+      #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
+    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0)
+    #expression: elevationTerraced(x,z)
+    variables:
+      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
+
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+    expression: |
+      //if(continentalRiverElev(x,z)>0,
+      //  continentalDendryRivers(x,0.0,z),
+      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      //)
+      herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
     functions: $math/functions/interpolation.yml:functions
 
   continentalRiverDistFar:
     dimensions: 2
     type: EXPRESSION
-    expression: herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+    expression: |
+      //if(continentalRiverElev(x,z)>0,
+      //  continentalRiverDistSparseNormalized(x,z),
+      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      //)
+      herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
     functions: $math/functions/interpolation.yml:functions
 
   continentalRiverLevel:
@@ -235,14 +257,6 @@ samplers:
         variables:
           soulSandPlaceDist: *soulSandPlaceDist
 
-  continentalRiverElev:
-    dimensions: 2
-    type: EXPRESSION
-      #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
-    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0)
-    #expression: elevationTerraced(x,z)
-    variables:
-      terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
 
   continentalRiverBlockElevChange:
     dimensions: 2

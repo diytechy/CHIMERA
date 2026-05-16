@@ -4,4 +4,21 @@ abstract: true
 
 replace:
   - minecraft:stone
-  - minecraft:deepslate
+  - minecraft:granite
+  - minecraft:diorite
+  - minecraft:andesite
+  - minecraft:mossy_cobblestone
+  - minecraft:cobblestone
+  - minecraft:calcite
+  - minecraft:white_concrete
+  - minecraft:white_concrete_powder
+  - minecraft:red_concrete
+  - minecraft:red_terracotta
+  - minecraft:yellow_concrete
+  - minecraft:yellow_terracotta
+  - minecraft:blue_concrete
+  - minecraft:blue_concrete_powder
+  - minecraft:blue_terracotta
+  - minecraft:white_terracotta
+  - minecraft:red_sand
+  - minecraft:sand

@@ -6,5 +6,12 @@ material: minecraft:gold_ore
 
 material-overrides:
   minecraft:deepslate: minecraft:deepslate_gold_ore
+  minecraft:blackstone: minecraft:deepslate_gold_ore
+  minecraft:tuff: minecraft:deepslate_gold_ore
+  minecraft:black_concrete: minecraft:deepslate_gold_ore
+  minecraft:black_concrete_powder: minecraft:deepslate_gold_ore
+  minecraft:black_terracotta: minecraft:deepslate_gold_ore
+  minecraft:packed_mud: minecraft:deepslate_gold_ore
+  minecraft:basalt: minecraft:deepslate_gold_ore
 
 size: 9

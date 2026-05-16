@@ -1,15 +1,17 @@
 id: RED_ARID_PALE_GARDEN_RIVER
 type: BIOME
 extends:
-- ENVIRONMENT_LAND_DRY_WARM_SEMI_ARID
 - EQ_GLOBAL_RIVER
-- CARVING_OCEAN
+- ENVIRONMENT_LAND_DRY_WARM_SEMI_ARID
 - RED_ARID_PALE_GARDEN_COAST
+- EQ_RIVER_CARVING
 color: $biomes/colors.yml:RED_ARID_PALE_GARDEN_RIVER
 vanilla: minecraft:river
 colors:
   water: 3319192
   water-fog: 3319192
+tags:
+- LOW_CAVES
 features:
   preprocessors:
   - INFESTED_DEPOSITS_PALE

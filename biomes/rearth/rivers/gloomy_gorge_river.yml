@@ -4,6 +4,7 @@ extends:
  - EQ_GLOBAL_RIVER
  - RIVER
  - GLOOMY_GORGE
+ - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_eroded_valley_mountains.yml:terrain.sampler # Original noise to be turned into river
 
@@ -20,6 +21,8 @@ vars: &variables
   floorSpikeVar:    18  # How many blocks* upwards spikes will come up from the floor
   #  * Gets factored by floorStrength
 
+tags:
+- LOW_CAVES
 features:
   underwater-flora:
     - LARGE_CEILING_VINES

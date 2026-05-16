@@ -4,23 +4,47 @@ samplers:
   #   Low frequency = very large features (continents, major landmasses).
   #   Used as base terrain and for coastal rolloff calculation.
   continental_sampler:
+    dimensions: 2
+    variables:
+      globalScale: $customization.yml:global-scale
+      scale: $customization.yml:continental-scale
     type: EXPRESSION
-    expression: sampler(x - 100000, z - 100000)
+    expression: |
+      sampler(x / scale / globalScale, z / scale / globalScale)
     samplers:
       sampler:
         dimensions: 2
-        type: TRANSLATE
-        x: 10000
-        z: 10000
+        type: DOMAIN_WARP
+        amplitude: 1500
         sampler:
-          type: FBM
-          gain: 0.7
-          octaves: 3
-          lacunarity: 1.8121866
+          dimensions: 2
+          type: EXPRESSION
+          expression: sampler(x - 100000, z - 100000)
+          samplers:
+            sampler:
+              dimensions: 2
+              type: TRANSLATE
+              x: 10000
+              z: 10000
+              sampler:
+                dimensions: 2
+                type: FBM
+                gain: 0.7
+                octaves: 3
+                lacunarity: 1.8121866
+                sampler:
+                  type: PERLIN
+                  frequency: (1 / ${customization.yml:continental-baseline-distance})
+        warp:
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.45
+          octaves: 4
           sampler:
-            type: PERLIN
-            frequency: (1 / ${customization.yml:continental-baseline-distance})
-    dimensions: 2
+            type: OPEN_SIMPLEX_2
+            salt: 1
+            frequency: (1/5000)
+
   continental_landmass:
     dimensions: 2
     type: EXPRESSION
@@ -51,41 +75,19 @@ samplers:
   islandMask:
     dimensions: 2
     type: EXPRESSION
-    expression: if(continental_sampler(x / scale / globalScale, z / scale / globalScale) < ((island_threshold-0.5)/2), 1, -1)
+    expression: if(continental_sampler(x, z) < ((island_threshold+land_threshold)/2), 1, -1)
     variables:
       island_threshold: $customization.yml:continental-island-threshold
       land_threshold: $customization.yml:continental-land-threshold
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
   continents:
     dimensions: 2
     type: EXPRESSION
     expression: |
       max(
-        sampler(x / scale / globalScale, z / scale / globalScale),
+        continental_landmass(x, z),
         spawnIsland(x, z)
       )
-    variables:
-      globalScale: $customization.yml:global-scale
-      scale: $customization.yml:continental-scale
-    samplers:
-      sampler:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 1500
-        sampler:
-          dimensions: 2
-          type: EXPRESSION
-          expression: continental_landmass(x, z)
-        warp:
-          type: RIDGED
-          lacunarity: 3
-          gain: 0.45
-          octaves: 4
-          sampler:
-            type: OPEN_SIMPLEX_2
-            salt: 1
-            frequency: (1/5000)
+
   blotSpots:
     dimensions: 2
     type: EXPRESSION
@@ -116,3 +118,32 @@ samplers:
     variables:
       coastalCutoff: $customization.yml:continental-coast-cutoff
     expression: continents(x, z) - coastalCutoff
+
+  continental_landmass_sparse:
+    #Forces queries to land on biome sparse grid, which is cached for biome pipeline generation.
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      sparseScale: 4
+    expression: continental_landmass(round(x/sparseScale)*sparseScale, round(z/sparseScale)*sparseScale)
+
+  aroundContinent:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spotRadius: 24
+    expression: |
+      max(continental_landmass_sparse(x, z),
+        min(min(min(min(
+          continental_landmass_sparse(x + spotRadius(x, z), z),
+          continental_landmass_sparse(x - spotRadius(x, z), z)),
+        min(
+          continental_landmass_sparse(x, z + spotRadius(x, z)),
+          continental_landmass_sparse(x, z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+      )

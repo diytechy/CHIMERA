@@ -1,0 +1,44 @@
+id: BLACK_RIVER
+type: BIOME
+vanilla: minecraft:dripstone_caves
+extends:
+  - EQ_GLOBAL_RIVER
+  - BLACK_DESERT_BOG
+  - EQ_RIVER_CARVING
+
+colors:
+  fog: 0xc0d8ff
+  water: 0x444488
+
+palette:
+  - BLACK_DESERT_RIVER: $meta.yml:top-y
+  - BLACKSTONE: $meta.yml:ocean-level
+  - BLOCK:minecraft:black_terracotta: ${meta.yml:ocean-level} - 1
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.4
+    palette:
+      - BLACK_DESERT_RIVER: $meta.yml:top-y
+      - BLACKSTONE: $meta.yml:ocean-level
+      - BLOCK:minecraft:black_terracotta: ${meta.yml:ocean-level} - 1
+      - << meta.yml:palette-bottom
+
+color: $biomes/colors.yml:DESERT_RIVER
+tags:
+- LOW_CAVES
+features:
+  landforms:
+    - FERNS_SPARSE
+  flora:
+    - OAK_BUSHES_SPARSE
+  trees:
+    - PALM_TREES_SPARSE
+  structures:
+    - MOB_ROOMS
+    - SPARSE_FOSSILS
+  processors:
+  - RIVER_SOULSAND
+  river-decoration:
+  - COVE_GLOW_LICHEN
+

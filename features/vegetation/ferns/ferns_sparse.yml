@@ -1,0 +1,38 @@
+id: FERNS_SPARSE
+type: FEATURE
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 7933
+  threshold: 0.01
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:sinkhole-ocean-level} + 1
+        max: $meta.yml:top-y
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: OR
+        patterns:
+          - type: MATCH_SET
+            blocks: $features/vegetation/meta.yml:dry-plantable-blocks
+            offset: -1
+          - type: MATCH_SET
+            blocks:
+              - minecraft:sand
+              - minecraft:red_sand
+              - minecraft:black_concrete_powder
+            offset: -1
+
+structures:
+  distribution:
+    type: WHITE_NOISE
+  structures:
+    - BLOCK:minecraft:fern: 6
+    - large_fern: 1

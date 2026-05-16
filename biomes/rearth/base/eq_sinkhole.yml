@@ -7,7 +7,7 @@ extends:
 - CARVING_LAND
 
 vars: &variables
-  base: -40
+  base: 0
   stretchFactor: 3.5
   height: 9
 

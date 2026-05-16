@@ -4,7 +4,7 @@ abstract: true
 
 variables: &variables
   base: $customization.yml:terrain-base-y-level
-  scale: $customization.yml:terrain-height
+  scale: 150
 
   detailFactor: 0.05
   detailZero: 0
@@ -22,7 +22,7 @@ terrain:
     type: EXPRESSION
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z) +
-      scale * triTerrace(
+      min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z)-base) * triTerrace(
         combine(
           elevation(x, z),
           detailZero, 0,

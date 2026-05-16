@@ -1,34 +1,44 @@
 id: SEARING_TORS
 type: BIOME
 extends:
-- BASE_HYDRAXIA
+- BASE
 - EQ_TERRACED_MOUNTAINS
 - EQ_CARVING_LAND
 - HYDRAXIA_ORES_EMERALD
-vanilla: minecraft:basalt_deltas
+#vanilla: minecraft:basalt_deltas
+#vanilla: minecraft:badlands
+vanilla: minecraft:dripstone_caves
 palette:
 - HOT_STONE: 319
 - HOT_STONE_TRANSITION: 76
 - DEEPSLATE_MIX: 68
 - << palettes/rock_layers.yml:palette
+colors:
+  sky: 0x000000
+  fog: 0x000000
+  grass: 0xbdd394
+  foliage: 0x000000
+  water: 0x880088
+  water-fog: 0x000000
 slant:
 - threshold: 4
   palette:
   - BLOCK:minecraft:blackstone: 319
   - << palettes/rock_layers.yml:palette
-colors:
-  grass: 7882260
-  foliage: 7882260
-  water: 345955
-  water-fog: 345955
-  fog: 12531200
-  sky: 15767645
+#colors:
+#  grass: 7882260
+#  foliage: 7882260
+#  water: 345955
+#  water-fog: 345955
+#  fog: 12531200
+#  sky: 15767645
 features:
   preprocessors:
   - LAVA_POOLS_MOUNTAIN
-  entities:
-  - BLAZES
+  #entities:
+  #- BLAZES
 tags:
 - LOW_CAVES
+- DEEP_DARK_GROVE
 - BOREAL_COAST_HIGHLANDS
-- USE_FROSTBITE_RIVERS
+- USE_BLACK_RIVER

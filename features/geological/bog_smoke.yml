@@ -1,0 +1,41 @@
+id: BOG_SMOKE
+type: FEATURE
+
+distributor:
+  type: AND
+  distributors:
+    - type: PADDED_GRID
+      width: 13
+      padding: 7
+      salt: 2355235
+    - type: SAMPLER
+      sampler:
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 6923
+      threshold: 0.3
+
+locator:
+  type: AND
+  locators:
+    - type: PATTERN
+      range:
+        min: ${meta.yml:ocean-level}-10
+        max: ${meta.yml:ocean-level}-1
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH
+            block: minecraft:water
+            offset: 2
+          - type: MATCH
+            block: minecraft:black_terracotta
+            offset: 1
+          - type: MATCH_SOLID
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: bog_smoke

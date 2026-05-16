@@ -15,7 +15,7 @@ stages:
       - sinkhole: 2
       - live-volcano: 2
       - PRISMATIC_SPRING: 1
-      - COLD_EXTINCT_VOLCANO: 3
+      - extinct-volcano: 4
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1
@@ -26,7 +26,7 @@ stages:
     to:
       - live-volcano: 2
       - PRISMATIC_SPRING: 1
-      - COLD_EXTINCT_VOLCANO: 3
+      - extinct-volcano: 4
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1

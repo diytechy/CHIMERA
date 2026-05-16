@@ -44,7 +44,7 @@ lapis-uniform:
     max: 64
 
 diamond:
-  averageCountPerChunk: 9
+  averageCountPerChunk: 10
   salt: 1032
   range:
     min: -144
@@ -68,15 +68,15 @@ iron-high:
   averageCountPerChunk: 135
   salt: 2031
   range:
-    min: 80
+    min: 72
     max: 384
 
 copper:
-  averageCountPerChunk: 24
+  averageCountPerChunk: 60
   salt: 2932
   range:
     min: -16
-    max: 112
+    max: 250
 
 redstone:
   averageCountPerChunk: 12
@@ -86,11 +86,11 @@ redstone:
     max: -32
 
 redstone-uniform:
-  averageCountPerChunk: 6
+  averageCountPerChunk: 10
   salt: 1923
   range:
     min: -64
-    max: 16
+    max: 24
 
 coal:
   averageCountPerChunk: 15
@@ -100,11 +100,11 @@ coal:
     max: 192
 
 coal-uniform:
-  averageCountPerChunk: 21
+  averageCountPerChunk: 100
   salt: 7012
   range:
     min: 136
-    max: 319
+    max: 384
 
 coal-high:
   averageCountPerChunk: 15
@@ -114,14 +114,14 @@ coal-high:
     max: 7
 
 gold:
-  averageCountPerChunk: 6
+  averageCountPerChunk: 8
   salt: 5912
   range:
     min: -64
     max: 32
 
 gold-uniform:
-  averageCountPerChunk: 3/4
+  averageCountPerChunk: 1
   salt: 3313
   range:
     min: -64

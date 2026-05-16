@@ -265,7 +265,7 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        max(-100,
+        max(elevationSparse(x, z),
           min(min(min(min(
             elevationSparse(x + spotRadius(x, z), z),
             elevationSparse(x - spotRadius(x, z), z)),
@@ -425,3 +425,34 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     expression: spotMinElev(x,z) - SinkholeDepth(x,z)
+
+  
+  special_caveSampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, 
+        special_caveVariation(x,y*2,z),
+        -1)
+    
+  special_caves: &caveSettings
+    dimensions: 3
+    type: CELLULAR
+    frequency: 0.005
+    jitter: 0.05
+    salt: 24
+
+  special_caveVariation:
+    dimensions: 3
+    <<: *caveSettings
+    return: CellValue
+
+  special_caveElevation:
+    dimensions: 3
+    <<: *caveSettings
+    return: NoiseLookup
+    lookup:
+      dimensions: 3
+      type: EXPRESSION
+      expression: |
+        continents(x, z)

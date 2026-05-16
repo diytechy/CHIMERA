@@ -1,5 +1,5 @@
 id: CHIMERA
-version: 2.0.1
+version: 0.0.4
 author: "Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy"
 
 generator: NOISE_3D
@@ -29,7 +29,7 @@ blend:
     # Default (omitted): Integer.MIN_VALUE / Integer.MAX_VALUE = no Y-range restriction.
     y-range:
       min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
-      max: 270   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
+      max: 301   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
 
 carving:
   resolution:

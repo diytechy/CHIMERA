@@ -1,10 +1,10 @@
 id: COLD_RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - RIVER_DRIPSTONE
   - ENVIRONMENT_MARINE_RIVER_COLD
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:COLD_RIVER
 
@@ -34,7 +34,7 @@ colors:
 
   water-fog: 31735
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   flora:
   - FERNS

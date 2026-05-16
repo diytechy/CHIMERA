@@ -3,9 +3,9 @@ type: BIOME
 abstract: true
 
 vars: &variables
-  base: 70
-  height: 130
-  peaks: 60
+  base: 65
+  height: 75
+  peaks: 40
   warpStrength: 0.29
   varPackStrength: 128000
 
@@ -16,6 +16,9 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
+      //BiomeShapeFlattenedElevation
+      //elevationDetailedBlockHeight
+      //BiomeShapeSealevelElevation
       -y + base + elevationDetailedBlockHeight(x,z)
       + main(mountainBasicShape(x,z), y, x * varPackStrength + z) * biomeInfluence(x,z)  // packed into a subsampler to only have to sample mountainBasicShape once, and then we need to pack x&z into one coordinate
     samplers:

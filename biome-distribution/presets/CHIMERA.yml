@@ -9,10 +9,31 @@ biomes:
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
     - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+
+  # Y-axis domain warp applied before extrusion range checks.
+  # Shifts the effective Y lookup up/down per-column, making cave/vertical
+  # biome boundaries follow terrain elevation instead of sitting at flat planes.
+  # Sampler is evaluated in 2D (x, z) so the warp is consistent within a column.
+  y-blend:
+    amplitude: 2
+    terrain-coordinate-noise-warp: false
+    sampler:
+      type: EXPRESSION
+      expression: noisebase(x,z)+noise(x,z)*2
+      samplers:
+        noisebase:
+          dimensions: 2
+          type: OPEN_SIMPLEX_2
+          frequency: 0.05
+        noise:
+          dimensions: 2
+          type: WHITE_NOISE
+          frequency: 2
+
   provider:
     type: PIPELINE
     resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
-    y-resolution: 8
+    #y-resolution: 4
 
     # Fast-path for stronghold ring position searches (world creation).
     # Replaces full pipeline evaluation for the 415,872 biome queries issued during
@@ -30,6 +51,7 @@ biomes:
       ineligible-biome: OCEAN
 
     blend:
+      terrain-coordinate-noise-warp: false
       amplitude: 3
       sampler:
         type: OPEN_SIMPLEX_2
@@ -55,10 +77,18 @@ biomes:
           sampler:
             type: EXPRESSION
             expression: continentalDistribution(x, z)
-        #    
+            
         #- type: REPLACE
+        #  sampler:
+        #    #type: CONSTANT
+        #    type: EXPRESSION
+        #    expression: BiomeShapeLandmassValue(x, z)
         #  from: land
         #  to:
+        #    - BLACK_DESERT_BOG: 1
+        #    - DESERT_SPIKES_BLACK: 1
+        #    - SEARING_TORS: 1
+        #    - SEARING_TORS: 1
         #  - FROSTCOATED_BOG: 6
         #  - LAVENDER_FIELDS: 4
         #  - MUSKEG: 4
@@ -108,10 +138,6 @@ biomes:
         #   - SNOWY_SPIRES: 1
         #   - CARVING_CREAKS: 1 (Likely needs to be mesa replacement, maybe around river?  Likely has it's own river that must be removed.)
         #   - CANOPY_C
-        #  sampler:
-        #    #type: CONSTANT
-        #    type: EXPRESSION
-        #    expression: BiomeShapeLandmassValue(x, z)
         #  sampler:
         #    #type: CONSTANT
         #    type: EXPRESSION

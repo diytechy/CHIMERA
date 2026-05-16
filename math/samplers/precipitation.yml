@@ -30,3 +30,23 @@ samplers:
     variables:
       oceanThreshold: $customization.yml:precipitation-ocean-threshold
       landThreshold: $customization.yml:precipitation-land-threshold
+
+  farPrecipitation:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      r: 300
+    expression: |
+      min(
+        min(
+          min(precipitation(round(x/4)*4, round(z/4)*4),
+              precipitation(round((x+r)/4)*4, round(z/4)*4)),
+          min(precipitation(round((x+r/2)/4)*4, round((z+r*0.866)/4)*4),
+              precipitation(round((x-r/2)/4)*4, round((z+r*0.866)/4)*4))
+        ),
+        min(
+          min(precipitation(round((x-r)/4)*4, round(z/4)*4),
+              precipitation(round((x-r/2)/4)*4, round((z-r*0.866)/4)*4)),
+          precipitation(round((x+r/2)/4)*4, round((z-r*0.866)/4)*4)
+        )
+      )

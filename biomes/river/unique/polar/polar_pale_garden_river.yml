@@ -1,14 +1,16 @@
 id: POLAR_PALE_GARDEN_RIVER
 type: BIOME
 extends:
+- EQ_GLOBAL_RIVER
 - COLOR_FROZEN
 - RIVER_FROZEN
 - ENVIRONMENT_MARINE_RIVER_FROZEN
-- EQ_GLOBAL_RIVER
-- CARVING_OCEAN
 - PALE_GARDEN_COAST
+- EQ_RIVER_CARVING
 color: $biomes/colors.yml:POLAR_PALE_GARDEN_RIVER
 vanilla: minecraft:frozen_river
+tags:
+- LOW_CAVES
 features:
   flora:
   - GRASS

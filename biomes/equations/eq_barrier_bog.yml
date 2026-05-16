@@ -1,0 +1,38 @@
+id: EQ_BARRIER_BOG
+type: BIOME
+abstract: true
+
+
+vars: &variables
+  base: $customization.yml:terrain-base-y-level
+  height: 4
+
+terrain:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      -y + base + BiomeShapeSealevelElevation(x,z) + 
+      (0.5 - abs(biomeInfluence(x,z)-0.5))*5 + //Creates a raised lip around the bog
+      //((-((y / (base-1))^2)) + 1) + ((simplex2(x*2, z*2)/4)) * biomeInfluence(x,z)
+      ((noise(x,z)) * height - 3) * biomeInfluence(x,z)
+    samplers:
+      noise:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 30
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.05
+        sampler:
+          type: FBM
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.11
+
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

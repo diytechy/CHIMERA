@@ -12,7 +12,7 @@ terrain:
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(max((caves(x, y * 3.5, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
+      clamp(max((special_caves(x, y * 3.5, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
       + max((-platforms(x,z) -0.83 + abs(wallOffset(y, x / 20,  z / 24)) * 0.05) * 14, 0)
       , -10, 10) * 16
     functions:
@@ -20,12 +20,6 @@ terrain:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
-      caves:
-        dimensions: 3
-        type: CELLULAR
-        frequency: 0.005
-        jitter: 0.05
-        salt: 24
       platforms:
         dimensions: 2
         type: DOMAIN_WARP

@@ -18,7 +18,8 @@ climate:
   precipitation: true
   temperature: 1.0
   downfall: 1.0
-
+tags:
+  - DEEP_DARK
 palette:
   - BLOCK:minecraft:stone: $meta.yml:top-y
   - << meta.yml:palette-bottom

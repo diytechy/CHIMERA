@@ -1,33 +1,41 @@
 stages:
   - type: REPLACE_LIST
     sampler:
-      type: OPEN_SIMPLEX_2
-      salt: 6893
-      frequency: 1 / 1000 / ${customization.yml:variation-scale} / ${customization.yml:global-scale}
+      #type: OPEN_SIMPLEX_2
+      #salt: 6893
+      #frequency: 1 / 1000 / ${customization.yml:variation-scale} / ${customization.yml:global-scale}
+      type: EXPRESSION
+      expression: BiomeShapeLandmassColor(x, z)
     default-from: hot-desert-flat
     default-to:
-      - hot-desert-flat-red: &red 3
+      - hot-desert-flat-black: &black 1
+      - hot-desert-flat-red: &red 1
       - hot-desert-flat-orange: &orange 1
-      - hot-desert-flat-white: &white 3
+      - hot-desert-flat-white: &white 2
     to:
       hot-desert:
+        - hot-desert-black: *black
         - hot-desert-red: *red
         - hot-desert-orange: *orange
         - hot-desert-white: *white
       hot-desert-highlands:
+        - hot-desert-highlands-black: *black
         - hot-desert-highlands-red: *red
         - hot-desert-highlands-orange: *orange
         - hot-desert-highlands-white: *white
 
       hot-steppe-flat:
+        - hot-steppe-flat-black: *black
         - hot-steppe-flat-red: *red
         - hot-steppe-flat-orange: *orange
         - hot-steppe-flat-white: *white
       hot-steppe:
+        - hot-steppe-black: *black
         - hot-steppe-red: *red
         - hot-steppe-orange: *orange
         - hot-steppe-white: *white
       hot-steppe-highlands:
+        - hot-steppe-highlands-black: *black
         - hot-steppe-highlands-red: *red
         - hot-steppe-highlands-orange: *orange
         - hot-steppe-highlands-white: *white

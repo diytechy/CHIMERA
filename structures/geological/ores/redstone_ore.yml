@@ -6,5 +6,12 @@ material: minecraft:redstone_ore
 
 material-overrides:
   minecraft:deepslate: minecraft:deepslate_redstone_ore
+  minecraft:blackstone: minecraft:deepslate_redstone_ore
+  minecraft:tuff: minecraft:deepslate_redstone_ore
+  minecraft:black_concrete: minecraft:deepslate_redstone_ore
+  minecraft:black_concrete_powder: minecraft:deepslate_redstone_ore
+  minecraft:black_terracotta: minecraft:deepslate_redstone_ore
+  minecraft:packed_mud: minecraft:deepslate_redstone_ore
+  minecraft:basalt: minecraft:deepslate_redstone_ore
 
 size: 8

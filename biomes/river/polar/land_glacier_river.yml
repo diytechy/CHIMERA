@@ -1,11 +1,13 @@
 id: LAND_GLACIER_RIVER
 type: BIOME
 extends:
-- RIVER_FROZEN
 - EQ_GLOBAL_RIVER
-- CARVING_OCEAN
+- RIVER_FROZEN
 - LAND_GLACIER
+- EQ_RIVER_CARVING
 color: $biomes/colors.yml:LAND_GLACIER_RIVER
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CEILING_ICICLES

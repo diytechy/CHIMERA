@@ -1,0 +1,63 @@
+id: BLACK_DESERT_BOG
+type: BIOME
+extends:
+  - EQ_BARRIER_BOG
+  #- EQ_FLAT_BUMPY
+  - CARVING_OCEAN
+  - BASE
+color: $biomes/colors.yml:BLACK_SAND_BEACH
+
+colors:
+  fog: 0xc0d8ff
+  water: 0x000000
+  water-fog: 0x157CAB
+  sky: 0x78a7ff
+  grass: 0x888888
+  foliage: 0xAA4444
+
+climate:
+  precipitation: false
+  temperature: 0.8
+
+vanilla: minecraft:dripstone_caves
+
+
+tags:
+  - LOW_CAVES
+  - SPECIAL_CAVES
+  - USE_BLACK_RIVER
+
+palette:
+  - BLACK_DESERT: $meta.yml:top-y
+  # - BLACKSTONE: $meta.yml:ocean-level
+  - BLOCK:minecraft:black_terracotta: ${meta.yml:ocean-level} - 1
+  - << meta.yml:palette-bottom
+
+slant:
+  - threshold: 0.4
+    palette:
+      - BLACK_DESERT: $meta.yml:top-y
+      # - BLACKSTONE: $meta.yml:ocean-level
+      - BLOCK:minecraft:black_terracotta: ${meta.yml:ocean-level} - 1
+      - << meta.yml:palette-bottom
+
+
+features:
+  landforms:
+    - FOSSIL_RIBS
+  flora:
+    - OAK_BUSHES_SPARSE
+    - FERNS_SPARSE
+  trees:
+    - PALM_TREES_SPARSE
+  structures:
+    - MOB_ROOMS
+    - SPARSE_FOSSILS
+  postprocessors:
+    - BOG_SMOKE
+    #- OAK_BUSHES
+    #- SPARSE_OAK_TREES
+    #- MESQUITE_TREES
+    #- DEAD_TREES_SPARSE
+    #- SPARSE_FALLEN_OAK_TREES
+    #- SPARSE_FALLEN_NORMAL_DARK_OAK_TREES

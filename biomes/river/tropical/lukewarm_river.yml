@@ -1,10 +1,10 @@
 id: LUKEWARM_RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER_LUKEWARM
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:LUKEWARM_RIVER
 
@@ -26,7 +26,7 @@ slant:
       - BLOCK:minecraft:stone: $meta.yml:top-y
       - << meta.yml:palette-bottom
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   flora:
   - SUGAR_CANE

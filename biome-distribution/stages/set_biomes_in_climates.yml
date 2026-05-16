@@ -383,6 +383,14 @@ stages:
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
 
+      # Black hot steppe (actually not black for now)
+      hot-steppe-flat-black:
+        - RED_XERIC_SHRUBLAND: 1
+      hot-steppe-black:
+        - RED_XERIC_SHRUBLAND: 1
+      hot-steppe-highlands-black:
+        - RED_XERIC_MOUNTAINS: 1
+
       # Red hot steppe
       hot-steppe-flat-red:
         - RED_XERIC_SHRUBLAND: 1

@@ -49,7 +49,7 @@ for(num i = start; i <= start + circleSegments; i = i + segmentDist) {
 
     str blocktype = mainblock; 
     if (randomInt(max(y, 2)) == 0) {
-        blocktype = "minecraft:green_terracotta";
+        blocktype = "minecraft:bone_block";
     }
 
     block(x, y, offsetAngle, blocktype, false);

@@ -21,7 +21,7 @@ terrain:
   sampler:
     type: EXPRESSION
     expression: |
-      -y + base + elevationDetailedBlockHeight(x,z) +
+      -y + base + BiomeShapeFlattenedElevation(x,z) +
       scale *
       combine(
         combine(

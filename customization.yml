@@ -74,7 +74,7 @@ terrain-base-y-level: 65
 legacy-terrain-base-y-level: 80
 # Special level for legacy terrain, which uses different samplers to drive terrain changes.
 
-terrain-base-biome-shift: 0.7
+terrain-base-biome-shift: 0.95
 # How much should biomes be shifted upward according to their position on the continent.
 # Only used for biomes that don't explicitly use an elevation-based sampler.
 
@@ -120,7 +120,7 @@ terrain-roughness-p2p: 100
 # ---
 
 # Options that defines large region (contental details)
-continental-baseline-distance: 8000
+continental-baseline-distance: 6000
 continental-large-features-allowed-threshold: .07
 continental-large-feature-allowed-threshold-variance: 0.03
 continental-sub-ocean-large-features-allowed-threshold: -0.05
@@ -168,7 +168,7 @@ continental-island-threshold: -0.35
 # to prepare for islands.
 # Default: -0.3
 
-continental-land-threshold: -0.05
+continental-land-threshold: -0.1
 # Threshold the continental_sampler must exceed for standard continents to appear.
 # Higher values result in smaller continents.
 # Default: 0.1
@@ -320,10 +320,10 @@ precipitation-scale: 1
 # generate together.
 # Default: 1
 
-precipitation-min: -1
+precipitation-min: -1.1
 # Default -1
 
-precipitation-max: 1
+precipitation-max: 1.1
 # Default: 1
 
 precipitation-ocean-threshold: -1

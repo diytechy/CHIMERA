@@ -1,11 +1,11 @@
 id: FROZEN_RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - COLOR_FROZEN
   - RIVER_FROZEN
   - ENVIRONMENT_MARINE_RIVER_FROZEN
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:FROZEN_RIVER
 
@@ -26,7 +26,7 @@ slant:
       - << meta.yml:palette-underwater
       - << meta.yml:palette-bottom
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   slabs:
   - SNOW_LAYERS

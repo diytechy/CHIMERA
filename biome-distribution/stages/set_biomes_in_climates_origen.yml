@@ -111,13 +111,13 @@ stages:
         - FIR_FIELDS: 1
         - LAVENDER_FIELDS: 2
         - SCULK_SWAMP: 1
+        - GLOOMY_GORGE: 1
       boreal-cold:
         - TAIGA_CLEARING: 1
         - TAIGA: 2
         - FIR_FIELDS: 1
         - maple-groves: 1
         - BLACK_FOREST: 1
-        - GLOOMY_GORGE: 1
         - AUTUMNAL_WOODLANDS: 1
         - BIRCH_WOODLANDS: 1
         - DARK_OAK_WOODLANDS: 1
@@ -301,6 +301,7 @@ stages:
         - MURKY_MARSHLANDS: 1
         - ALIEN_MARSH: 1
         - WHITE_WALLOWS: 1
+        - GLOOMY_GORGE: 1
       temperate-cold:
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -309,7 +310,6 @@ stages:
         - DARK_FOREST: 1
         - WOODED_BUTTES: 1
         - BLACK_FOREST: 1
-        - GLOOMY_GORGE: 1
         - TALL_TIMBERLAND: 1
         - WHITE_WALLOWS: 1
       temperate-cold-highlands:
@@ -351,7 +351,6 @@ stages:
         - DESERT: 4
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
-        - _desert: 1
       hot-desert-white:
         - DESERT: 1
         - DESERT_PILLARS: 1
@@ -360,7 +359,6 @@ stages:
         - DESERT_TERRACES: 1
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
-        - _desert: 1
       hot-desert-highlands-white:
         - DESERT_PILLARS: 1
         - DESERT_SPIKES: 1
@@ -368,6 +366,23 @@ stages:
         - DESERT_TERRACES: 1
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
+
+      # Black hot desert
+      hot-desert-flat-black:
+        - BLACK_DESERT_BOG: 1
+      hot-desert-black:
+        - DESERT_SPIKES_BLACK: 1
+      hot-desert-highlands-black:
+        - SEARING_TORS: 1
+
+      # Black hot steppe (actually not black for now)
+      hot-steppe-flat-black:
+        - RED_XERIC_SHRUBLAND: 1
+        - BADLANDS_BALCONIES: 1
+      hot-steppe-black:
+        - RED_XERIC_SHRUBLAND: 1
+      hot-steppe-highlands-black:
+        - RED_XERIC_MOUNTAINS: 1
 
       # Red hot steppe
       hot-steppe-flat-red:
@@ -472,7 +487,6 @@ stages:
         - CLOUD_FOREST: 1
         - LUSH_LOOPS: 1
         - CANOPY_CASCADES: 1
-        - BAMBOO_BASIN: 1
       tropical-monsoon-highlands:
         - DRY_WOODLANDS: 1
         - MONSOON_FOREST: 1
@@ -488,7 +502,6 @@ stages:
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
-        - SEARING_TORS: 1
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1

@@ -1,12 +1,15 @@
 id: MOUNTAIN_MIRRORS_RIVER
 type: BIOME
-extends: 
+extends:
   - EQ_GLOBAL_RIVER
   - RIVER_FROZEN
   - MOUNTAIN_MIRRORS
+  - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_terrace_mountain.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
     - CEILING_ICICLES

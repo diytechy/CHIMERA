@@ -8,6 +8,7 @@ vanilla: minecraft:windswept_gravelly_hills
 color: $biomes/colors.yml:TEMPERATE_MOUNTAINS
 tags:
 - USE_FROZEN_RIVER
+- DEEP_DARK
 - POLAR_COAST_HIGHLANDS
 slant:
 - threshold: 0.4

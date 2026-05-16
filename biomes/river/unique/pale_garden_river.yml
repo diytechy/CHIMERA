@@ -1,12 +1,14 @@
 id: PALE_GARDEN_RIVER
 type: BIOME
 extends:
-- RIVER_BASIC
 - EQ_GLOBAL_RIVER
-- CARVING_OCEAN
+- RIVER_BASIC
 - PALE_GARDEN_COAST
+- EQ_RIVER_CARVING
 color: $biomes/colors.yml:PALE_GARDEN_RIVER
 vanilla: minecraft:river
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CLAY_DEPOSITS

@@ -1,10 +1,10 @@
 id: TROPICAL_RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER_WARM
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:TROPICAL_RIVER
 
@@ -33,7 +33,7 @@ colors:
   water-fog: 0x0686ca
 
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   flora:
   - SUGAR_CANE

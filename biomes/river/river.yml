@@ -1,10 +1,10 @@
 id: RIVER
 type: BIOME
 extends:
+  - EQ_GLOBAL_RIVER
   - RIVER_BASIC
   - ENVIRONMENT_MARINE_RIVER
-  - EQ_GLOBAL_RIVER
-  - CARVING_OCEAN
+  - EQ_RIVER_CARVING
   - BASE
 color: $biomes/colors.yml:RIVER
 
@@ -33,7 +33,7 @@ colors:
   water-fog: 0x0084ff
 
 tags:
-- LAND_CAVES
+- LOW_CAVES
 features:
   processors:
   - RIVER_SOULSAND

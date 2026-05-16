@@ -12,6 +12,7 @@ vanilla: minecraft:windswept_savanna
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES
+- DEEP_DARK
 - ANCIENT_CAVES
 - USE_LUKEWARM_RIVER
 - TROPICAL_COAST_HIGHLANDS

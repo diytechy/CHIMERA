@@ -6,5 +6,12 @@ material: minecraft:coal_ore
 
 material-overrides:
   minecraft:deepslate: minecraft:deepslate_coal_ore
+  minecraft:blackstone: minecraft:deepslate_coal_ore
+  minecraft:tuff: minecraft:deepslate_coal_ore
+  minecraft:black_concrete: minecraft:deepslate_coal_ore
+  minecraft:black_concrete_powder: minecraft:deepslate_coal_ore
+  minecraft:black_terracotta: minecraft:deepslate_coal_ore
+  minecraft:packed_mud: minecraft:deepslate_coal_ore
+  minecraft:basalt: minecraft:deepslate_coal_ore
 
 size: 17

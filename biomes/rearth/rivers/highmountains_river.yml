@@ -1,12 +1,15 @@
 id: ALPINE_ASCENDANCY_RIVER
 type: BIOME
 extends:
-  - MOUNTAIN_RIVER_FROZEN
   - EQ_GLOBAL_RIVER
+  - MOUNTAIN_RIVER_FROZEN
   - ALPINE_ASCENDANCY
+  - EQ_RIVER_CARVING
 
 original-noise: &originalNoise $biomes/rearth/base/eq_high_mountains.yml:terrain.sampler # Original noise to be turned into river
 
+tags:
+- LOW_CAVES
 features:
   river-decoration:
   - CEILING_ICICLES

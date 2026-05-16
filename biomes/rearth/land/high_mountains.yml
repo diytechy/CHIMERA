@@ -1,20 +1,14 @@
 id: ALPINE_ASCENDANCY
 type: BIOME
+extends:
+#- EQ_MOUNTAIN_SPOTS
+- EQ_HIGH_MOUNTAINS
+# - EQ_TERRACED_MOUNTAINS
+#- EQ_TERRACED_MOUNTAINS
+- BASE
+#- EQ_CARVING_LAND
 vanilla: minecraft:jagged_peaks
 color: $biomes/colors.yml:MOUNTAINS
-extends:
-- CARVING_LAND
-- BASE
-- EQ_HIGH_MOUNTAINS
-tags:
-- USE_HIGHMOUNTAINS_RIVER
-- LAND_CAVES
-- SPECIAL_CAVES
-- DEEP_DARK
-slant:
-- threshold: 0.35
-  palette:
-  - BLOCK:minecraft:stone: 319
 palette:
 - GRASS_SNOW_MIX: 319
 - GRASS: 140
@@ -22,6 +16,10 @@ palette:
 - GRASS: 69
 - SAND: 64
 - << meta.yml:palette-bottom
+slant:
+- threshold: 0.35
+  palette:
+  - BLOCK:minecraft:stone: 319
 features:
   preprocessors:
   - SHARP_TERRACES
@@ -44,3 +42,9 @@ features:
   - ALLIUM_PATCH
   postprocessors:
   - TREE_SNOW
+tags:
+- DEEP_DARK
+- USE_HIGHMOUNTAINS_RIVER
+- LOW_CAVES
+- SPECIAL_CAVES
+

@@ -3,7 +3,11 @@ plugins {
 }
 
 group = "com.diytechy.terra.packs"
-version = "2.0.2"
+version = file("pack.yml").readLines()
+    .firstOrNull { it.startsWith("version:") }
+    ?.substringAfter("version:")
+    ?.trim()
+    ?: error("Could not find version in pack.yml")
 
 // Directories to exclude from the pack zip (beyond hidden dirs)
 val excludedDirs = setOf(

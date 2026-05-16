@@ -20,6 +20,9 @@ climate:
   temperature: 1.0
   downfall: 1.0
 
+tags:
+  - DEEP_DARK
+  
 palette:
   - DEEP_DARK_GROVE: $meta.yml:top-y
   - DEEP_DARK_GROVE_DEEPSLATE: $meta.yml:deepslate-top

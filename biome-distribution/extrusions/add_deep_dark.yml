@@ -1,18 +1,41 @@
 extrusions:
   - type: REPLACE
-    from: DEEP_DARK
-    sampler:
-      type: CONSTANT
-    to: DEEP_DARK
     range:
-      min: $meta.yml:bottom-y
+      min: -62
       max: $meta.yml:deepslate-top
+    sampler:
+      type: EXPRESSION
+      expression: |
+        if (mountainMask(x,z)>0,1,
+          -1)
+    from: LOW_CAVES
+    to:
+      - LOW_CAVES_PRE: 1
+      - DEEP_DARK: 1
 
   - type: REPLACE
-    from: DEEP_DARK_GROVE
-    sampler:
-      type: CONSTANT
-    to: DEEP_DARK_GROVE
     range:
-      min: $meta.yml:bottom-y
+      min: -62
       max: $meta.yml:deepslate-top
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+      value: 1
+    from: DEEP_DARK
+    to:
+      - SELF: 1
+      - DEEP_DARK: 1
+
+
+  - type: REPLACE
+    range:
+      min: -62
+      max: $meta.yml:deepslate-top
+    sampler:
+      dimensions: 2
+      type: CONSTANT
+      value: 1
+    from: DEEP_DARK_GROVE
+    to:
+    - SELF: 1
+    - DEEP_DARK_GROVE: 1

@@ -1,0 +1,56 @@
+id: EQ_RIVER_CARVING
+type: BIOME
+abstract: true
+
+carving:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      "<<":
+        - biomes/equations/caverns/eq_carving_land.yml:carving.sampler.variables
+      riverCarvingOffset: -20 # Blocks above the river bed surface where carving stops
+
+    expression: |
+      -carvingThreshold
+      + if(y<carvingMinHeight||y>(riverBedHeight(x,z)+riverCarvingOffset),0,maskSmooth(maskSmooth(
+        min(carvingCap,
+          max(
+            // Spaghetti Caves
+            max(
+              spaghettiStrengthLarge * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),
+              spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)
+            ),
+            // Cheese caves
+            if(y>cheeseMaxHeight,0,
+              maskSmooth(
+                cheeseStrength * (simplex3(
+                  x * cheeseHorizontalFrequency,
+                  (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,
+                  z * cheeseHorizontalFrequency
+                )+1)/2
+                // Mega caves
+                +lerp(megaCaves(x, y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)
+                // Pillars
+                -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1) * pillarStrength,
+
+                // Cheese clamp parameters
+                cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper, y
+              )
+            )
+          )
+        ),
+        // Clamp parameters
+        carvingMinHeight, carvingMinHeight + carvingMinTaper, y
+        ),
+        riverBedHeight(x,z)+riverCarvingOffset, (riverBedHeight(x,z)+riverCarvingOffset) - carvingMaxTaper, y
+      ))
+    samplers:
+      "<<":
+        - biomes/equations/caverns/eq_carving_land.yml:carving.sampler.samplers
+      riverBedHeight:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          olevel: $meta.yml:ocean-level
+        expression: olevel + continentalRiverBlockElevChange(x, z)

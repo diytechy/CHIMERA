@@ -19,7 +19,6 @@ colors:
 palette:
 - GRASS_SANDY_VARIATION: 319
 - GRASS_PODZOL_MUDDY: 71
-- SAND: 64
 - << meta.yml:palette-bottom
 slant:
 - threshold: 0.7

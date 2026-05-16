@@ -74,7 +74,7 @@ terrain-base-y-level: 65
 legacy-terrain-base-y-level: 80
 # Special level for legacy terrain, which uses different samplers to drive terrain changes.
 
-terrain-base-biome-shift: 0.7
+terrain-base-biome-shift: 0.95
 # How much should biomes be shifted upward according to their position on the continent.
 # Only used for biomes that don't explicitly use an elevation-based sampler.
 
@@ -320,10 +320,10 @@ precipitation-scale: 1
 # generate together.
 # Default: 1
 
-precipitation-min: -1
+precipitation-min: -1.1
 # Default -1
 
-precipitation-max: 1
+precipitation-max: 1.1
 # Default: 1
 
 precipitation-ocean-threshold: -1

@@ -61,6 +61,18 @@ stages:
 
   - type: REPLACE
     from: far_river_biome
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassTemperature(x, z) > 0.5 && BiomeShapeLandmassPrecipitation(x, z) < -0.25,
+          BiomeShapeLandmassValue(x, z), -1)
+    to:
+      SELF: 8
+      _desert: 1
+
+  - type: REPLACE
+    from: far_river_biome
     to: land
     sampler:
       dimensions: 2

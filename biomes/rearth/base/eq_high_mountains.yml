@@ -19,7 +19,7 @@ terrain:
       //BiomeShapeFlattenedElevation
       //elevationDetailedBlockHeight
       //BiomeShapeSealevelElevation
-      -y + base + BiomeShapeSealevelElevation(x,z)
+      -y + base + elevationDetailedBlockHeight(x,z)
       + main(mountainBasicShape(x,z), y, x * varPackStrength + z) * biomeInfluence(x,z)  // packed into a subsampler to only have to sample mountainBasicShape once, and then we need to pack x&z into one coordinate
     samplers:
       mountainBasicShape:

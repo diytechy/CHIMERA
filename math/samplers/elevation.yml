@@ -483,7 +483,7 @@ samplers:
       min(
         min(
           herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
-          herp(rawFlatness(x, z), threshold-blend, continentalRiverElev(x,z), threshold, elevationDetailedPreErosion(x,z))
+          herp(rawFlatness(x, z), threshold-blend, 0, threshold, elevationDetailedPreErosion(x,z))
         ),
       elevationDetailedPreErosion(x,z))
 
@@ -511,7 +511,7 @@ samplers:
   caveElevationPlacementMaximum:
     dimensions: 2
     type: EXPRESSION
-    expression: BiomeShapeMinimumElevation(x,z)-20
+    expression: min(elevationDetailedBlockHeight(x,z),BiomeShapeMinimumElevation(x,z))-15
 
   caveWithinBounds:
     dimensions: 3

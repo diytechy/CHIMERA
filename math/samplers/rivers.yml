@@ -120,9 +120,9 @@ samplers:
     expression: |
       if(((continents(x, z)>0.15)&&
       (mesaFootDist(x,z)<0)&&
-      (precipitation(x, z)>-0.5)&&
+      (BiomeShapeLandmassPrecipitation(x, z)>-0.1)&&
       (riverElevationInput(x,z)>0)), 
-      (((precipitation(x, z)+0.5)/1.3)^0.5),0)
+      (((BiomeShapeLandmassPrecipitation(x, z)+0.3)/1.1)^0.5),0)
 
   RiverOverhangMask:
     dimensions: 2
@@ -153,23 +153,25 @@ samplers:
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     n: 3
-    #max: 1.5
+    max: 1.52
     sampler:
       dimensions: 2
       type: EXPRESSION
-      expression: riverElevationInput(x,z)
+      expression: riverElevationInput(round(x/4)*4,round(z/4)*4)
     riverwidth: 
       dimensions: 2
       type: EXPRESSION
-      expression: continentalRiverWidth(x,z)
+      expression: continentalRiverWidth(round(x/4)*4,round(z/4)*4)
     borderwidth: 
       dimensions: 2
       type: EXPRESSION
-      expression: riverBoundaryDistance(x,z)
+      expression: riverBoundaryDistance(round(x/4)*4,round(z/4)*4)
     branches: 
       dimensions: 2
+      #type: CONSTANT
+      #value: 0
       type: EXPRESSION
-      expression: RiverBranchingProbability(x,z)
+      expression: RiverBranchingProbability(round(x/4)*4,round(z/4)*4)
     default-riverwidth: 30
     default-borderwidth: 75
     
@@ -183,7 +185,8 @@ samplers:
     dimensions: 2
     type: EXPRESSION
       #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
-    expression: if(continentalDendryRivers(x,1.0,z)<2.5, continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0)
+      #This has been updated to the corresponding max.
+    expression: if(continentalDendryRivers(x,1.0,z)<1.5, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
     #expression: elevationTerraced(x,z)
     variables:
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift

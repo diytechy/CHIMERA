@@ -1462,3 +1462,5 @@ Colors
 Steppes
 Coasts
 biome-specific rivers for highland biomes.
+
+Can you do a deep review of this pack (whose main / starting definition is pack.yml) and 

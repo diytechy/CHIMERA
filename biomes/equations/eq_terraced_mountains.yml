@@ -15,7 +15,7 @@ terrain:
     expression: |
       //elevationDetailedBlockHeight or BiomeShapeSealevelElevation
       -y + base + elevationDetailedBlockHeight(x,z)
-      + terraceParabolic(
+      + min(height, maxHeight(x,z) - elevationDetailedBlockHeight(x,z) - base) * terraceParabolic(
         terraceParabolic(
           terraceParabolic(
             (noise(x, z)+1)/2 * height + (-bubbles(x, z)+1)/2 * 10,
@@ -24,7 +24,7 @@ terrain:
           20, terraceVariation(x, z+1000)*1.5, 0, 1
         ),
         30, terraceVariation(x, z+2000)*2, 0, 1
-      ) * biomeInfluence(x,z)
+      ) / height * biomeInfluence(x,z)
     samplers:
       bubbles:
         dimensions: 2

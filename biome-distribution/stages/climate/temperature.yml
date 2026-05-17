@@ -6,7 +6,7 @@ stages:
 
     default-from: land
     default-to:
-      - ice-cap: &iceCap         4
+      - ice-cap: &iceCap         3
       - tundra: &tundra         2
       - boreal-snowy: &borealSnowy    1
       - boreal-cold: &borealCold     1
@@ -17,7 +17,7 @@ stages:
       - temperate-hot: &temperateHot   2
       - tropical-savanna-wet: &tropicalCold   2
       - tropical-monsoon: &tropicalWarm   2
-      - tropical-rainforest: &tropicalHot    4
+      - tropical-rainforest: &tropicalHot    3
     to:
       island:
         - polar-island: *iceCap

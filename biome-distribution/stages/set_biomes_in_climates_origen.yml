@@ -16,7 +16,7 @@ stages:
         - LAND_GLACIER: 1
         - FROSTBOUND_CHASMS: 1
       ice-cap:
-        - LAND_GLACIER: 2
+        - LAND_GLACIER: 1
         - SNOWY_TUFF_MOUNTAINS: 1
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
@@ -28,16 +28,18 @@ stages:
         - FROZEN_SPIRES: 1
 
       tundra-flat:
-        - TUNDRA: 2
+        - TUNDRA: 1
         - TUNDRA_TRACKS: 1
-        - FRIGID_WASTELANDS: 1
-        - MUSKEG: 1
+        - FRIGID_WASTELANDS: 2
+        - MUSKEG: 2
         - FROSTBOUND_CHASMS: 1
       tundra:
-        - TUNDRA: 2
+        - TUNDRA: 1
         - SNOWY_TUFF_MOUNTAINS: 1
         - FROZEN_FUNGI: 1
         - TUNDRA_TRACKS: 1
+        - MUSKEG: 1
+        - FRIGID_WASTELANDS: 1
       tundra-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 1
         - MOUNTAIN_MIRRORS: 2
@@ -82,6 +84,8 @@ stages:
         - TALL_TIMBERLAND: 1
       boreal-hot-highlands:
         - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+        - ROCKY_REFUGE: 1
 
       boreal-warm-flat:
         - STEPPE: 1
@@ -94,11 +98,11 @@ stages:
         - PINE_CANOPY: 2
         - FOSSILIZED_FENLANDS: 1
       boreal-warm:
-        - SEQUOIA_FOREST: 5
+        - SEQUOIA_FOREST: 3
         - OLD_GROWTH_SEQUOIA_FOREST: 1
-        - TAIGA_CLEARING: 5
-        - TAIGA: 11
-        - FIR_FIELDS: 3
+        - TAIGA_CLEARING: 3
+        - TAIGA: 3
+        - FIR_FIELDS: 2
         - TALL_TIMBERLAND: 1
       boreal-warm-highlands:
         - MOUNTAINS: 1
@@ -109,8 +113,8 @@ stages:
         - maple-groves: 1
         - TAIGA_CLEARING: 1
         - FIR_FIELDS: 1
-        - LAVENDER_FIELDS: 2
-        - SCULK_SWAMP: 1
+        - LAVENDER_FIELDS: 3
+        - SCULK_SWAMP: 2
         - GLOOMY_GORGE: 1
       boreal-cold:
         - TAIGA_CLEARING: 1
@@ -169,6 +173,7 @@ stages:
       boreal-hot-dry-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
+        - ROCKY_REFUGE: 1
 
       boreal-warm-dry-flat:
         - BOREAL_SHRUBLAND: 3
@@ -183,6 +188,8 @@ stages:
       boreal-warm-dry-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
+        - ROCKY_REFUGE: 1
+        - ALPINE_ASCENDANCY: 1
 
       boreal-cold-dry-flat:
         - BOREAL_SHRUBLAND: 3
@@ -200,8 +207,13 @@ stages:
         - MONTANE_FOREST: 1
       boreal-snowy-dry-flat:
         - SNOWY_MEADOW: 1
+        - SNOWY_PLAINS: 1
+        - FROSTCOATED_BOG: 1
+        - SNOWSWEPT_MEADOWS: 1
       boreal-snowy-dry:
         - SNOWY_MEADOW: 1
+        - SNOWY_TAIGA: 1
+        - SPRUCE_WOODLANDS: 1
       boreal-snowy-dry-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
@@ -238,8 +250,8 @@ stages:
         - ROCKY_GRASSLAND: 1
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
-        - SAKURA_STREAMS: 1
-        - VERDANT_VALLEYS: 1
+        - SAKURA_STREAMS: 3
+        - VERDANT_VALLEYS: 3
       temperate-hot:
         - WOODED_BUTTES: 1
         - TEMPERATE_OVERPASS: 1
@@ -260,18 +272,17 @@ stages:
         - FLOWERING_FOREST: 1
         - BROADLEAF_FOREST: 2
         - DARK_FOREST: 1
-        - SAKURA_GROVE: 1
         - WOODED_BUTTES: 1
         - ROCKY_GRASSLAND: 1
         - OAK_FOREST: 1
-        - FOSSILIZED_FENLANDS: 1
-        - MURKY_MARSHLANDS: 1
-        - ALIEN_MARSH: 1
-        - MARSH: 1
-        - SWAMP: 1
-        - SAKURA_STREAMS: 1
-        - SAKURA_GROVE: 1
-        - VERDANT_VALLEYS: 1
+        - FOSSILIZED_FENLANDS: 3
+        - MURKY_MARSHLANDS: 3
+        - ALIEN_MARSH: 3
+        - MARSH: 3
+        - SWAMP: 2
+        - SAKURA_STREAMS: 3
+        - SAKURA_GROVE: 3
+        - VERDANT_VALLEYS: 3
       temperate-warm:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
@@ -292,15 +303,15 @@ stages:
         - PRAIRIE: 3
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
-        - SUNFLOWER_PRAIRIE: 1
+        - SUNFLOWER_PRAIRIE: 3
         - BROADLEAF_FOREST: 2
         - DARK_FOREST: 2
-        - SAKURA_GROVE: 2
+        - SAKURA_GROVE: 3
         - WOODED_BUTTES: 2
-        - FOSSILIZED_FENLANDS: 1
-        - MURKY_MARSHLANDS: 1
-        - ALIEN_MARSH: 1
-        - WHITE_WALLOWS: 1
+        - FOSSILIZED_FENLANDS: 3
+        - MURKY_MARSHLANDS: 3
+        - ALIEN_MARSH: 3
+        - WHITE_WALLOWS: 3
         - GLOOMY_GORGE: 1
       temperate-cold:
         - OAK_FOREST: 1
@@ -311,7 +322,7 @@ stages:
         - WOODED_BUTTES: 1
         - BLACK_FOREST: 1
         - TALL_TIMBERLAND: 1
-        - WHITE_WALLOWS: 1
+        - WHITE_WALLOWS: 3
       temperate-cold-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
@@ -326,7 +337,7 @@ stages:
         - BADLANDS_BUTTES: 1
         - RED_DESERT: 1
         - SALT_FLATS: 1
-        - RED_DRY_PALM_FOREST: 1
+        - RED_DRY_PALM_FOREST: 3
       hot-desert-red:
         - ARID_SPIKES: 1
         - BADLANDS: 1
@@ -339,8 +350,10 @@ stages:
       
       # Orange hot desert
       hot-desert-flat-orange:
-        - ORANGE_DESERT: 5
+        - ORANGE_DESERT: 2
         - SALT_FLATS: 1
+        - ORANGE_DRY_PALM_FOREST: 1
+        - ORANGE_XERIC_SHRUBLAND: 1
       hot-desert-orange:
         - ORANGE_DESERT: 1
       hot-desert-highlands-orange:
@@ -348,9 +361,11 @@ stages:
 
       # White hot desert
       hot-desert-flat-white:
-        - DESERT: 4
+        - DESERT: 2
         - PEARLESCENT_DESERT: 1
         - SALT_FLATS: 1
+        - DRY_PALM_FOREST: 1
+        - XERIC_SHRUBLAND: 1
       hot-desert-white:
         - DESERT: 1
         - DESERT_PILLARS: 1
@@ -447,7 +462,7 @@ stages:
         - COLD_STEPPE: 1
         - DRY_FIR_FIELDS: 1
       cold-steppe:
-        - COLD_STEPPE: 2
+        - COLD_STEPPE: 1
         - DRY_FIR_FIELDS: 1
       cold-steppe-highlands:
         - COLD_STEPPE: 1
@@ -505,11 +520,16 @@ stages:
 
       tropical-savanna-wet-flat:
         - WET_SAVANNA: 1
+        - GRASS_SAVANNA: 1
+        - SAVANNA: 1
+        - BAMBOO_BASIN: 1
       tropical-savanna-wet:
         - WET_SAVANNA: 1
         - OVERGROWN_CLIFFS: 1
+        - MONSOON_FOREST: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
+        - MESA_MONUMENTS: 1
       polar-island:
         - POLAR_MUSHROOM_FIELDS: 1
         #- FROSTY_FINGERS: 1
@@ -661,8 +681,14 @@ stages:
     to:
       boreal-vast-forest:
         - PALE_GARDEN: 1
+        - BLACK_FOREST: 1
+        - DARK_OAK_WOODLANDS: 1
+        - ENCHANTED_WOODLANDS: 1
       temperate-vast-forest:
         - PALE_GARDEN: 1
+        - DARK_FOREST: 1
+        - BROADLEAF_FOREST: 1
+        - ENCHANTED_WOODLANDS: 1
       tropical-vast-forest:
         - arid-pale-garden: 1
   # =========================================================================

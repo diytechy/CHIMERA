@@ -6,6 +6,10 @@ vars: &variables
   middleHeight: -7
 
 terrain:
+  blend:
+    distance: 0     # 0 = disabled (sharp edges)
+    step: 4
+    weight: 1.0
   sampler:
     dimensions: 3
     type: EXPRESSION

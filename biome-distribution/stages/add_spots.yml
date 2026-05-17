@@ -55,3 +55,10 @@ stages:
     to: sinkhole-border-ocean
     sampler:
       type: CONSTANT
+
+  - type: BORDER
+    from: extinct-volcano
+    replace: ocean
+    to: sinkhole-border-ocean
+    sampler:
+      type: CONSTANT

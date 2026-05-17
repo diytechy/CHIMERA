@@ -10,7 +10,7 @@ color: $biomes/colors.yml:ROCKY_ARCHIPELAGO
 vanilla: minecraft:stony_shore
 
 tags:
-  - LAND_CAVES
+  - OCEAN_CAVES
   - SPECIAL_CAVES
   - USE_RIVER
 

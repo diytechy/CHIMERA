@@ -33,7 +33,7 @@ terrain:
     type: EXPRESSION
     functions: $math/functions/interpolation.yml:functions
     expression: |
-      -y + base + lerp(distanceToSinkholeRim(x, z),0.5,scale*spotMinElev(x,z)+sampler2d(x,z),
+      -y + base + lerp(distanceToSinkholeRim(x, z),0.5,scale*spotMinElev(x,z)+sampler2d(x,z)-20,
       0.9,elevationDetailedBlockHeight(x,z))
       //SinkholeDepth(x,z)*
     variables: *variables

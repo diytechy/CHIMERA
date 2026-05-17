@@ -2,7 +2,7 @@ id: FROZEN_FUNGI
 type: BIOME
 vanilla: minecraft:mushroom_fields
 extends:
-- EQ_TILTED_PLATEAU
+- EQ_TERRACED_MOUNTAINS
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:MUSHROOM_FIELDS

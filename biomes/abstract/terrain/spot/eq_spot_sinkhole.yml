@@ -22,7 +22,7 @@ ocean:
     # sinkholeMinElev is the min of elevationSparse at 8 cardinal+diagonal points at spotRadius,
     # evaluated once per spot at the cell center for a constant per-spot reference.
     expression: |
-      if(distanceToSpotEdge(x, z) < 0.9,
+      if(distanceToSinkholeRim(x, z) < 0.9,
         base + scale * (sinkholeMinElev(x, z)
           + lerp(sinkholeFluidPercent(x, z), 0, 0.35, 1, 0.75)
             * SinkholeDepth(x,z)),

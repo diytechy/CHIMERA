@@ -33,7 +33,7 @@ terrain:
             arguments: [x]
             expression: 1 - 4.166667*x + 4.166667*x^2
       surfaceBase:
-        dimensions: 2
+        dimensions: 
         type: FBM
         sampler:
           type: OPEN_SIMPLEX_2S
@@ -47,6 +47,7 @@ terrain:
         type: CELLULAR
         frequency: 0.04
         jitter: 1.0
+
   sampler-2d:
     dimensions: 2
     type: CONSTANT

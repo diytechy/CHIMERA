@@ -3,7 +3,7 @@ BaseBiomeCell: &BaseBiomeCell
   dimensions: 2
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-  jitter: 0.7
+  jitter: 0.6
   distance: Hybrid
 
 _oceanShape: &oceanShape

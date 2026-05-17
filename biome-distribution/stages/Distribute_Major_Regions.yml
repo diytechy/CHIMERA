@@ -143,7 +143,7 @@ stages:
           BiomeShapeOceanValue(x,z), -1)
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
-      SELF: 7
+      SELF: 20
       archipelago-zone: 1
   #Create marsh distributions on land.
   #Only create when close to ocean.

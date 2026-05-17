@@ -432,21 +432,6 @@ samplers:
         expression: x+lerp(x,at,a,bt,b)
         functions: $math/functions/interpolation.yml:functions
 
-    #spotBaseElevation
-  elevationFromSpots:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      (blotSpots(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))) * (1-flatness(x, z))
-      * if(factorContinental, herp(blotSpots(x, z), continentZero, 0, continentFull, 1), 1)
-    functions: $math/functions/interpolation.yml:functions
-    variables:
-      continentalRiseRate: 30
-      verticalLift: $customization.yml:terrain-height
-      continentZero: $customization.yml:elevation-continental-flat-threshold
-      continentFull: $customization.yml:elevation-continental-full-height-threshold
-      factorContinental: $customization.yml:elevation-factor-continental
-
   elevationDetailedPreErosion:
     dimensions: 2
     type: EXPRESSION
@@ -602,6 +587,8 @@ samplers:
     # feature construction.
     expression: |
       biomeInfluence3D(x,y,z)*distAtFullInfluence - distAtFullInfluence
+
+
   oceanElevation:
     dimensions: 2
     type: EXPRESSION
@@ -609,11 +596,24 @@ samplers:
       (-1+nonMountainElevation(x, z))
       * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
     functions: $math/functions/interpolation.yml:functions
+    samplers:
+      compositeOceanElev:
+        type: EXPRESSION
+        dimensions: 2
+        expression: max(nonMountainElevation(x, z),elevationAcrossOceanSpot(x,z))
     variables:
       continentZero: 0
       continentFull: -0.8
       factorContinental: $customization.yml:elevation-factor-continental
 
+  oceanElevationBlockHeight:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: $customization.yml:terrain-ocean-depth
+    expression: scale*oceanElevation(x,z)
+
+    
   maxHeight:
     type: EXPRESSION
     dimensions: 2

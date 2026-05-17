@@ -416,6 +416,12 @@ samplers:
     type: EXPRESSION
     expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
 
+
+  elevationAcrossOceanSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,0,1,nonMountainElevation(x,z))
+
   SinkholeDepth:
     dimensions: 2
     type: EXPRESSION

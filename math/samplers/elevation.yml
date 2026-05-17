@@ -507,6 +507,7 @@ samplers:
       base + caveElevationPlacementMaximum(round(x/16)*16+8,round(x/16)*16+8) - y
   
   normDistIntoBiome:
+    #1 = Fully entered into biome, 0 - At biome border.
     dimensions: 2
     type: EXPRESSION
     variables:
@@ -528,8 +529,8 @@ samplers:
             min(lerp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
             lerp(BiomeShapeLandmassDist2Center(x,z), -0.9, 1, 0, 0)),
           lerp(abs(mesaFootDist(x,z)), distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
-        lerp(dist2Coast(x,z), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
-      lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1))
+        lerp(abs(dist2Coast(x,z)), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
+      if(spotCenterNotNearRiver(x,z),lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1),1))
     functions: $math/functions/interpolation.yml:functions
 
   smallBiomeSmallCenterDist:
@@ -613,7 +614,7 @@ samplers:
       scale: $customization.yml:terrain-ocean-depth
     expression: scale*oceanElevation(x,z)
 
-    
+
   maxHeight:
     type: EXPRESSION
     dimensions: 2

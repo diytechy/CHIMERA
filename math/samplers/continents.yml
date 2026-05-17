@@ -116,7 +116,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      coastalCutoff: $customization.yml:continental-coast-cutoff
+      coastalCutoff: 0
     expression: continents(x, z) - coastalCutoff
 
   continental_landmass_sparse:

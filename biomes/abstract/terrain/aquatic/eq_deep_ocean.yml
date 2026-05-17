@@ -6,76 +6,72 @@ vars: &variables
   base: 29
   scale: 12
   ocean_level: $meta.yml:ocean-level
+  oceanBase: $customization.yml:terrain-ocean-base-y-level
 
   detailFactor: 0.1
   detailStart: 0.2
   detailEnd: -0.5
   detailFrequency: 0.5
-  
+
   shelfSize: 0.2
   shelfStrength: 0.6
 
 terrain:
   sampler:
     type: EXPRESSION
+    dimensions: 3
+    variables: *variables
     expression: |
       max(
-        -y + base
+        -y + lerp(biomeInfluence(x,z),
+          0, oceanBase + oceanElevationBlockHeight(x,z),
+          1, base + sampler2d(x,z)
+        )
       ,
         -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
-    variables: *variables
+    samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          scale * combine(
+            shelf(
+              warpedOceanElevation(x, z),
+              0, shelfSize, -shelfStrength
+            ),
+            detailStart, 0,
+            detailEnd, - (1-|simplex(x*detailFrequency, z*detailFrequency)|) * detailFactor
+          )
+          -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
+        functions:
+          combine: # Stacks a layer of noise on top scaled according to the base noise
+            arguments:
+              - x
+              - at
+              - a
+              - bt
+              - b
+            expression: x+lerp(x,at,a,bt,b)
+            functions: $math/functions/interpolation.yml:functions
+        samplers:
+          warpedOceanElevation:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 7
+            warp:
+              type: FBM
+              octaves: 3
+              sampler:
+                type: OPEN_SIMPLEX_2
+                frequency: 0.04
+                salt: 29834
+            sampler:
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.02
 
   sampler-2d:
-    type: EXPRESSION
-    expression: |
-      scale * combine(
-        shelf(
-          warpedOceanElevation(x, z),
-          0, shelfSize, -shelfStrength
-        ),
-        detailStart, 0,
-        detailEnd, - (1-|simplex(x*detailFrequency, z*detailFrequency)|) * detailFactor
-      ) 
-      -if(continentalRiverDist(x,z)<0, bedDepth(x,z), 0)*2
-    variables: *variables
-    functions:
-      combine: # Stacks a layer of noise on top scaled according to the base noise
-        arguments:
-          - x
-          - at
-          - a
-          - bt
-          - b
-        expression: x+lerp(x,at,a,bt,b)
-        functions: $math/functions/interpolation.yml:functions
-      shelf: # Similar to terrace function, except it only uses one 'terrace' to produce a shelf
-        arguments:
-          - x
-          - shelfOffset
-          - shelfWidth
-          - shelfDepth
-        expression: shelfDepth * shelfWidth * profile(clamp((x/shelfWidth)+1-shelfOffset)) + x
-        functions:
-          clamp:
-            arguments: [x]
-            expression: if(0 <= x && x < 1, x, 0)
-          profile:
-            arguments: [x]
-            expression: "|x - 0.5| - 0.5"
-  
-    samplers:
-      warpedOceanElevation:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 7
-        warp:
-          type: FBM
-          octaves: 3
-          sampler:
-            type: OPEN_SIMPLEX_2
-            frequency: 0.04
-            salt: 29834
-        sampler:
-            type: OPEN_SIMPLEX_2S
-            frequency: 0.02
+    dimensions: 2
+    type: CONSTANT
+    value: 0

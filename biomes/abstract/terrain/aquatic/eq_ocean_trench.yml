@@ -21,8 +21,11 @@ terrain:
     variables: *variables
     expression: |
       max(
-        -y + base -
-        erode(
+        -y + base + lerp(biomeInfluence(x,z),
+          0, oceanElevationBlockHeight(x,z),
+          1, sampler2d(x,z)
+        )
+        - erode(
           base,
           elevation(x, z),
           scale,
@@ -32,11 +35,16 @@ terrain:
           ceilingHeight,
           ceilingSpikes(x, z) * -0.1,
           herp(openings(x, z), 0.3, 0, 0.6, 1)
-        ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2)
+        ) * (1 + erosionStrengthVariation(x/3, y, z/3)^2) * biomeInfluence(x,z)
       ,
         -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
     samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
       erosionStrengthVariation: # Used to roughen up the walls
         dimensions: 3
         type: FBM
@@ -69,7 +77,7 @@ terrain:
         expression: |
           herp(y,
             -depth, 0,
-            0, herp(y - ceilingOffset - herp(elevation, 0.4, ceilingOpenings, 0.6, 0), 
+            0, herp(y - ceilingOffset - herp(elevation, 0.4, ceilingOpenings, 0.6, 0),
               ceilingBase, -y+base+elevation*scale,
               ceilingBase + ceilingHeight, 0
             )
@@ -79,6 +87,6 @@ terrain:
             - math/functions/interpolation.yml:functions
 
   sampler-2d:
-    type: EXPRESSION
-    expression: scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
-    variables: *variables
+    dimensions: 2
+    type: CONSTANT
+    value: 0

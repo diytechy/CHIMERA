@@ -5,6 +5,7 @@ abstract: true
 variables: &variables
   base: $customization.yml:terrain-base-y-level
   scale: $customization.yml:terrain-height
+  oceanBase: $customization.yml:terrain-ocean-base-y-level
   erosionBottom: ${customization.yml:terrain-base-y-level} - 15
   bottomVariation: 10
 
@@ -14,8 +15,10 @@ terrain:
     dimensions: 3
     variables: *variables
     expression: |
-      -y + base +
-      elevation(x, z) * scale -0.9 +
+      -y + lerp(biomeInfluence(x,z),
+        0, oceanBase + oceanElevationBlockHeight(x,z),
+        1, base + sampler2d(x,z)
+      ) +
       erode(
         erosionBottom + bottom(x, z) * bottomVariation,
         base,
@@ -23,8 +26,13 @@ terrain:
         scale,
         y,
         1-|erosion(x, z)|
-      )
+      ) * biomeInfluence(x,z)
     samplers: &samplers
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: elevation(x, z) * scale - 0.9
       variation:
         dimensions: 2
         type: OPEN_SIMPLEX_2
@@ -59,4 +67,6 @@ terrain:
         functions: $math/functions/interpolation.yml:functions
 
   sampler-2d:
+    dimensions: 2
     type: CONSTANT
+    value: 0

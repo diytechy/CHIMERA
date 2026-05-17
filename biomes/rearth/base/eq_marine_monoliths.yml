@@ -6,6 +6,7 @@ vars: &variables
   base: 40
   height: 13
   topPartHeight: 110
+  oceanBase: $customization.yml:terrain-ocean-base-y-level
 
 terrain:
   sampler:
@@ -14,14 +15,33 @@ terrain:
     variables: *variables
     expression: |
       // positive / higher = solid
-      max(-y + base + surfaceBase(x,z) * height, -3)
-      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - 0.95 + pillarWidth(x,y,z) * 0.04) * 90, -3, 7)), 0)
-      + if (y > topPartHeight - 9, clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 6, -2, 7), 0)
+      max(-y + lerp(biomeInfluence(x,z),
+        0, oceanBase + oceanElevationBlockHeight(x,z),
+        1, base + sampler2d(x,z)
+      ), -3)
+      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - 0.95 + pillarWidth(x,y,z) * 0.04) * 90, -3, 7)), 0) * biomeInfluence(x,z)
+      + if (y > topPartHeight - 9, clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 6, -2, 7), 0) * biomeInfluence(x,z)
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: surfaceBase(x,z) * height
+        samplers:
+          surfaceBase:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.01
+              salt: 3
+            octaves: 3
+            lacunarity: 2
+            gain: 0.5
       pillarWidth:
         dimensions: 3
         type: EXPRESSION
@@ -33,7 +53,7 @@ terrain:
             arguments: [x]
             expression: 1 - 4.166667*x + 4.166667*x^2
       surfaceBase:
-        dimensions: 
+        dimensions: 2
         type: FBM
         sampler:
           type: OPEN_SIMPLEX_2S

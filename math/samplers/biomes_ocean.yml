@@ -8,7 +8,7 @@ BaseBiomeCell: &BaseBiomeCell
 
 _oceanShape: &oceanShape
   <<: *BaseBiomeCell
-  salt: 105
+  salt: 101
 
 _outerWarpSmall: &outerWarpSmall
   dimensions: 2

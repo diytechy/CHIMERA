@@ -38,9 +38,7 @@ stages:
       - ocean: 1
       - volcano-coast: 1
     sampler:
-      type: EXPRESSION
-      expression: nearSpot(x, z)
-      variables: $math/samplers/spots.yml:variables
+      type: CONSTANT
 
   - type: BORDER
     from: sinkhole

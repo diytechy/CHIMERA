@@ -58,32 +58,32 @@ extrusions:
       - WARM_CAVES: 1
 
 
-  #- type: REPLACE_MAX_Y_SAMPLER
-  #  min-y: $meta.yml:cave-bottom
-  #  max-y-sampler:
-  #    type: EXPRESSION
-  #    dimensions: 2
-  #    variables: &variables
-  #      base: $customization.yml:terrain-ocean-base-y-level
-  #      scale: $customization.yml:terrain-ocean-depth
-  #      max_lower_limit: ${meta.yml:cave-bottom} + 1
-  #    expression: |
-  #      max(max_lower_limit,base + oceanElevation(x, z)*scale-20)
-  #  sampler:
-  #    type: EXPRESSION
-  #    variables: *variables
-  #    #If above the distribution threshold, set it to an actual biome, else keep current self.
-  #    #Actual distribution weight must match selected threshold.
-  #    #Default case is >0, which puts half of the samples below 0.
-  #    expression: BiomeShapeOceanTemperature(x,z)
-  #  # Below the weight of SELF must match the weight of all other caves + 1.
-  #  # This way caves start at a distributor values >0, aligning with
-  #  # the distribution function above.
-  #  from: OCEAN_CAVES
-  #  to:
-  #    - COLD_CAVES: 1
-  #    - STANDARD_CAVES: 1
-  #    - WARM_CAVES: 1
+  - type: REPLACE_MAX_Y_SAMPLER
+    min-y: $meta.yml:cave-bottom
+    max-y-sampler:
+      type: EXPRESSION
+      dimensions: 2
+      variables: &variables
+        base: $customization.yml:terrain-ocean-base-y-level
+        scale: $customization.yml:terrain-ocean-depth
+        max_lower_limit: ${meta.yml:cave-bottom} + 1
+      expression: |
+        max(max_lower_limit,base + oceanElevation(x, z)*scale-20)
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If above the distribution threshold, set it to an actual biome, else keep current self.
+      #Actual distribution weight must match selected threshold.
+      #Default case is >0, which puts half of the samples below 0.
+      expression: BiomeShapeOceanTemperature(x,z)
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: OCEAN_CAVES
+    to:
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
 
       
   - type: REPLACE

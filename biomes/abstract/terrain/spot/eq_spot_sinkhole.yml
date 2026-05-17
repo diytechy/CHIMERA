@@ -48,7 +48,7 @@ terrain:
         # to 1 (max depth)
         expression: |
           -scale*2*SinkholeDepth(x,z) * calcHeight(x, z,
-            /*distance*/      spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * 50,
+            /*distance*/      spotDistance(x, z) + erosion(x, z) * 15 + distanceWarp(x, z) * spotRadius(x, z) * 0.25,
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
             /*outsideHeight*/ 0,
             /*edge*/          lerp(spotEdgeRadiusPercent(x, z), 0, 0.6, 1, 0.7),

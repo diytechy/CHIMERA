@@ -11,10 +11,6 @@ palette:
   - MUDDY_BEACH: 61
   - << meta.yml:palette-bottom
 
-tags:
-  - OCEAN_CAVES
-
-
 features:
   global-preprocessors:
     # - ARCH_GLOW_LICHEN

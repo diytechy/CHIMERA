@@ -329,7 +329,7 @@ precipitation-max: 1.1
 precipitation-ocean-threshold: -1
 # Default -1
 
-precipitation-land-threshold: 0.2
+precipitation-land-threshold: 0.4
 # Default: 0.4
 
 # ---

@@ -1,12 +1,9 @@
 id: STONEGATE_SEAS
 type: BIOME
-extends: [ CARVING_OCEAN, BASE , EQ_ARCH_OCEAN]
+extends: [ BASE , EQ_ARCH_OCEAN]
 #Rivers prevent shipwreck generation, which appears strange planted on the arches.
 vanilla: minecraft:river
 color: $biomes/colors.yml:SANDSTONE_ARCHIPELAGO
-
-tags:
-  - OCEAN_CAVES
 
 colors:
   fog: 0xc0d8ff

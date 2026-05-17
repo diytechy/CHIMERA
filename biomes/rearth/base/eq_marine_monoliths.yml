@@ -21,6 +21,7 @@ terrain:
       ), -3)
       + if (y < topPartHeight, (clamp((-pillarMask(x,z) - 0.95 + pillarWidth(x,y,z) * 0.04) * 90, -3, 7)), 0) * biomeInfluence(x,z)
       + if (y > topPartHeight - 9, clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 6, -2, 7), 0) * biomeInfluence(x,z)
+      - (1 - biomeInfluence(x,z))
     functions:
       clamp:
         arguments: [x, a, b]

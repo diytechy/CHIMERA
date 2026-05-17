@@ -1,11 +1,8 @@
 id: ARCTIC_ARCHES
 type: BIOME
-extends: [ FROZEN_OCEAN, CARVING_OCEAN, BASE , EQ_FROZEN_ARCH_OCEAN]
+extends: [ FROZEN_OCEAN, BASE , EQ_FROZEN_ARCH_OCEAN]
 #Rivers prevent shipwreck generation, which appears strange planted on the arches.
 vanilla: minecraft:frozen_river
-
-tags:
-  - OCEAN_CAVES
 
 
 palette:

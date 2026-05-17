@@ -12,8 +12,8 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      - sinkhole: 2
-      - live-volcano: 2
+      - sinkhole: 4
+      - live-volcano: 4
       - PRISMATIC_SPRING: 1
       - extinct-volcano: 4
     sampler:
@@ -24,7 +24,7 @@ stages:
   - type: REPLACE
     from: _ocean_spot
     to:
-      - live-volcano: 2
+      - live-volcano: 4
       - PRISMATIC_SPRING: 1
       - extinct-volcano: 4
     sampler:

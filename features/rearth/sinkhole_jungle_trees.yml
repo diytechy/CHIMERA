@@ -19,7 +19,7 @@ distributor:
       sampler:
         type: EXPRESSION
         expression: -riftWellPlacement(x,z)
-      threshold: 0.05
+      threshold: -0.2
 
 locator:
   type: AND

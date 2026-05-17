@@ -419,7 +419,7 @@ samplers:
   SinkholeDepth:
     dimensions: 2
     type: EXPRESSION
-    expression: lerp(spotHeightPercent(x,z),0,0.1,1,0.15)
+    expression: lerp(spotHeightPercent(x,z),0,0.15,1,0.2)
 
   sinkholeMinElev:
     dimensions: 2

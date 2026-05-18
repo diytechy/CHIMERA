@@ -271,16 +271,20 @@ elevation-fuzz: 0.25
 # Flatness
 # ---
 
-flatness-scale: 1.05
-# Default: 1
+flatness-noise-scale: 2400
+#How often flatness noise oscillates
 
-flatness-percent: 0.26
+forced-sealevel-activation-threshold: 0.31
+# Default: TODO
+# Value that controls when the flatness mask fully activates.
+# Decrease to get more flat biome distribution, will cut into mid-level biomes.
+# Range from 0 to 1.
+
+# Controls how gradual the transition is between flat and mountainous biomes. Higher values result in more gradual blending, while lower values result in more sudden transitions.
+forced-sealevel-blend: 0.15
 # Default: TODO
 
-flatness-blend: 0.35
-# Default: TODO
-
-flatness-factor: 0.85
+forced-sealevel-factor: 0.85
 # How much to flatten by. 1 = 100% flat, 0 = no flattening
 # Default: 0.95
 

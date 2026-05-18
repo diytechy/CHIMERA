@@ -69,7 +69,7 @@ stages:
       expression: segment(BiomeShapeLandmassMountains(x, z), BiomeShapeLandmassFlatness(x, z), highlandsThreshold, flatnessFactor)
       variables:
         highlandsThreshold: (${math/samplers/elevation.yml:variables.mountainMaskZero} + ${math/samplers/elevation.yml:variables.mountainMaskFull}) / 2
-        flatnessFactor: $customization.yml:flatness-factor
+        flatnessFactor: $customization.yml:forced-sealevel-factor
         #mountainMaskZero: $math/samplers/elevation.yml:variables.mountainMaskZero
         #mountainMaskFull: $math/samplers/elevation.yml:variables.mountainMaskFull
       functions:

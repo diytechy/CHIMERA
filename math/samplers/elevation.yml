@@ -17,13 +17,12 @@ variables: &variables
   mountainMaskFull: 0.55
   mountainContZero: 0.0
   mountainContFull: 0.5
-  threshold: $customization.yml:flatness-percent
-  blend: $customization.yml:flatness-blend
-  factor: $customization.yml:flatness-factor
+  threshold: $customization.yml:forced-sealevel-activation-threshold
+  blend: $customization.yml:forced-sealevel-blend
+  factor: $customization.yml:forced-sealevel-factor
 
   globalScale: $customization.yml:global-scale
   verticalLift: $customization.yml:terrain-height
-  scale: $customization.yml:flatness-scale
   base: $customization.yml:terrain-base-y-level
   continentalRiseRate: 30 #The amount land should rise to when continental value reaches 1
 
@@ -244,13 +243,13 @@ samplers:
     type: EXPRESSION
     expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
     variables: *variables
+
   rawFlatness:
     dimensions: 2
     type: EXPRESSION
-    expression: noise(x / scale / globalScale, z / scale / globalScale)
+    expression: noise(x / globalScale, z / globalScale)
     variables:
       globalScale: $customization.yml:global-scale
-      scale: $customization.yml:flatness-scale
     samplers:
       noise:
         dimensions: 2
@@ -265,14 +264,22 @@ samplers:
             lacunarity: 2.3
             sampler:
               type: OPEN_SIMPLEX_2
-              frequency: 1 / 1000
+              frequency: 1 / ${customization.yml:flatness-noise-scale}
 
   flatness:
+    # Output: 0 = Not flat at all, 1 = Fully flat.
+    # Used to blend between flat and mountainous terrain, and to determine biome distribution.
+    # Input 1: rawFlatness ->
+    # When below the threshold:
+    #   Flatness if fully active at the factor multiplier.
+    # Input 2: mountainMask -> 
+    # When above the flatness threshold:
+    #   Start the transition to fully reject flatness.
     dimensions: 2
     type: EXPRESSION
     expression: |
-      min(herp(rawFlatness(x, z), threshold, factor, threshold + blend, 0),
-        herp(abs(mountainMask(x, z)), mountainMaskFlat, factor, mountainMaskZero, 0))
+      min(herp(rawFlatness(x, z), threshold - blend, 0, threshold, factor),
+        herp(abs(mountainMask(x, z)), mountainMaskFlat, 0, mountainMaskZero, factor))
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
     
@@ -462,13 +469,13 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      threshold: $customization.yml:flatness-percent
-      blend: $customization.yml:flatness-blend
+      threshold: $customization.yml:forced-sealevel-activation-threshold
+      blend: $customization.yml:forced-sealevel-blend
     expression: |
       min(
         min(
           herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
-          herp(rawFlatness(x, z), threshold-blend, 0, threshold, elevationDetailedPreErosion(x,z))
+          herp(rawFlatness(x, z), threshold-blend, elevationDetailedPreErosion(x,z), threshold, 0)
         ),
       elevationDetailedPreErosion(x,z))
 

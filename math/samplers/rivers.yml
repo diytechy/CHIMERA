@@ -142,9 +142,9 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      threshold: $customization.yml:flatness-percent
-      blend: $customization.yml:flatness-blend
-      flatnessFactor: $customization.yml:flatness-factor
+      threshold: $customization.yml:forced-sealevel-activation-threshold
+      blend: $customization.yml:forced-sealevel-blend
+      flatnessFactor: $customization.yml:forced-sealevel-factor
     expression: |
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
       if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),

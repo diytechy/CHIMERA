@@ -11,7 +11,7 @@ stages:
     default-to:
       - hot-desert: &desert       3
       - hot-desert: &desertBorder 2
-      - hot-steppe: &semiArid     2
+      - hot-steppe: &semiArid     1
       - tropical-savanna-dry: &mid          2
       - tropical-monsoon: &mildlyWet    2
       - tropical-rainforest: &veryWet      4

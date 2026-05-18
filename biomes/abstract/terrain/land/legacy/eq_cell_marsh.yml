@@ -11,7 +11,9 @@ terrain:
   sampler:
     type: EXPRESSION
     variables: *variables
-    expression: -y + base + elevationDetailedBlockHeight(x,z) + marshSurface(x, z) * biomeInfluence(x,z) + lerp(overhangsMask(x, y, z) * lerp(y, base, 0, base + 5, 1), 0.1, 0, 0.3, overhangs(x, y*5, z) * 30)
+    expression: |
+      -y + base + BiomeShapeSealevelElevation(x,z) + marshSurface(x, z) * biomeInfluence(x,z) + 
+      lerp(overhangsMask(x, y, z) * lerp(y, base, 0, base + 5, 1), 0.1, 0, 0.3, overhangs(x, y*5, z) * 30) * biomeInfluence(x,z)
     samplers:
       overhangsMask:
         dimensions: 3

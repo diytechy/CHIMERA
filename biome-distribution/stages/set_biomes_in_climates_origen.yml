@@ -17,7 +17,6 @@ stages:
         - FROSTBOUND_CHASMS: 1
       ice-cap:
         - LAND_GLACIER: 1
-        - ICE_SPIKES: 1
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
@@ -32,7 +31,7 @@ stages:
       tundra-flat:
         - TUNDRA: 1
         - TUNDRA_TRACKS: 1
-        - MUSKEG: 2
+        - MUSKEG: 1
         - FROSTBOUND_CHASMS: 1
       tundra:
         - TUNDRA: 1
@@ -219,11 +218,9 @@ stages:
       boreal-snowy-dry-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
-
       temperate-hot-dry-flat:
         - STEPPE: 1
-        - CHAPARRAL: 1
-        - MOORLAND: 1
+        - PALM_FOREST: 1
       temperate-hot-dry:
         - CHAPARRAL: 1
         - MOORLAND: 1
@@ -453,9 +450,12 @@ stages:
       temperate-steppe-flat:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
+        - STEPPE: 1
+        - ROCKY_GRASSLAND: 1
       temperate-steppe:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
+        - STEPPE: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
 
@@ -514,7 +514,6 @@ stages:
         - CANOPY_CASCADES: 1
       tropical-monsoon-highlands:
         - DRY_WOODLANDS: 1
-        - MONSOON_FOREST: 1
         - TROPICAL_RAINFOREST: 1
 
       tropical-savanna-dry-flat:
@@ -695,8 +694,6 @@ stages:
         - DARK_OAK_WOODLANDS: 1
       temperate-vast-forest:
         - PALE_GARDEN: 1
-        - DARK_FOREST: 1
-        - BROADLEAF_FOREST: 1
       tropical-vast-forest:
         - arid-pale-garden: 1
   # =========================================================================

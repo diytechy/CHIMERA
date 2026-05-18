@@ -274,7 +274,7 @@ elevation-fuzz: 0.25
 flatness-noise-scale: 2400
 #How often flatness noise oscillates
 
-forced-sealevel-activation-threshold: 0.31
+forced-sealevel-activation-threshold: 0.2
 # Default: TODO
 # Value that controls when the flatness mask fully activates.
 # Decrease to get more flat biome distribution, will cut into mid-level biomes.

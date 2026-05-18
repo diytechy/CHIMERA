@@ -61,7 +61,7 @@ samplers:
             dimensions: 2
             type: OPEN_SIMPLEX_2S
             salt: 6891423
-            frequency: (1 / 3000)
+            frequency: (1 / 2000)
           salt-lookup: false
 
   BiomeShapeLandmassPlainsMask:

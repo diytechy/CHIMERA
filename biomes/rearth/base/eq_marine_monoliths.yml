@@ -10,9 +10,9 @@ vars: &variables
 
 terrain:
   blend:
-    distance: 2     # 0 = disabled (sharp edges)
+    distance: 3     # 0 = disabled (sharp edges)
     step: 3
-    weight: 2
+    weight: 1
   sampler:
     dimensions: 3
     type: EXPRESSION
@@ -23,8 +23,8 @@ terrain:
         0, oceanBase + oceanElevationBlockHeight(x,z),
         1, base + sampler2d(x,z)
       ), -3.25)
-      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - (0.95 - pillarWidth(x,y,z) * 0.12)) * 300, -4.5, 30)), 0) * pillarPresent(x,z)
-      + if (y > (topPartHeight - 9), clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 7, -2, 7), 0) * pillarPresent(x,z)
+      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - (0.95 - pillarWidth(x,y,z) * 0.06)) * 300, -4.5, 30)), 0) * pillarPresent(x,z)
+      + if (y > (topPartHeight - 9), clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 6, -2, 7), 0) * pillarPresent(x,z)
       //- (1 - biomeInfluence(x,z))
       
       
@@ -65,7 +65,7 @@ terrain:
         functions:
           widthCurve:
             arguments: [x]
-            expression: 1 - 4.166667*x + 4.166667*x^2
+            expression: 1 - 4.166667*x + 4.166667*abs(x)^3
       surfaceBase:
         dimensions: 2
         type: FBM
@@ -79,8 +79,8 @@ terrain:
       pillarMask: &pillarMask
         dimensions: 2
         type: CELLULAR
-        frequency: 0.03
-        jitter: 0.5
+        frequency: 0.02
+        jitter: 0.7
       pillarPresent:
         <<: *pillarMask
         return: NoiseLookup

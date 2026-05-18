@@ -51,11 +51,20 @@ biomes:
       ineligible-biome: OCEAN
 
     blend:
-      terrain-coordinate-noise-warp: false
       amplitude: 3
+      terrain-coordinate-noise-warp: false
       sampler:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.05
+        type: EXPRESSION
+        expression: noisebase(x,z)+noise(x,z)
+        samplers:
+          noisebase:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 0.05
+          noise:
+            dimensions: 2
+            type: WHITE_NOISE
+            frequency: 2
     pipeline:
       source:
         type: SAMPLER

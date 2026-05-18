@@ -23,7 +23,7 @@ terrain:
         0, oceanBase + oceanElevationBlockHeight(x,z),
         1, base + sampler2d(x,z)
       ), -3.25)
-      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - 0.95 + pillarWidth(x,y,z) * 0.04) * 90 + 8 * (0 - if(pillarPresent(x,z),pillarMask(x,z),0))^3, -20, 20)), 0) * pillarPresent(x,z)
+      + if (y < topPartHeight, (clamp((-pillarMask(x,z) - 0.95 + pillarWidth(x,y,z) * 0.04) * 90 + 8 * (-0.5 + if(pillarPresent(x,z),2*pillarMask(x,z),0)^4), -10, 7)), 0) * pillarPresent(x,z)
       + if (y > topPartHeight - 9, clamp(height * abs(surfaceBase(x / 2, z / 2)) - abs(y - topPartHeight + surfaceBase(x + 1000,z) * 8) + 6, -2, 7), 0) * pillarPresent(x,z)
       //- (1 - biomeInfluence(x,z))
       

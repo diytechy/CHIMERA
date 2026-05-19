@@ -138,7 +138,7 @@ continental-mountain-range-sampler-freq: 1500
 
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
-continental-mesa-region-allowed-threshold: .28
+continental-mesa-region-allowed-threshold: .31
 
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
@@ -271,10 +271,10 @@ elevation-fuzz: 0.25
 # Flatness
 # ---
 
-flatness-noise-scale: 2400
+flatness-noise-scale: 1800
 #How often flatness noise oscillates
 
-forced-sealevel-activation-threshold: 0.2
+forced-sealevel-activation-threshold: 0.1
 # Default: TODO
 # Value that controls when the flatness mask fully activates.
 # Decrease to get more flat biome distribution, will cut into mid-level biomes.

@@ -13,10 +13,10 @@ stages:
     to:
       ice-cap-flat:
         - ICE_SPIKES: 1
-        - LAND_GLACIER: 1
         - FROSTBOUND_CHASMS: 1
       ice-cap:
-        - LAND_GLACIER: 1
+        - ICE_CAP: 1
+        - LAND_GLACIER: 2
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
@@ -479,8 +479,6 @@ stages:
 
       tropical-rainforest-flat:
         - BAMBOO_JUNGLE: 1
-        - JUNGLE: 1
-        - ROCKY_JUNGLE: 1
         - TROPICAL_RAINFOREST: 1
         - TROPICAL_FLOODPLAIN: 1
         - WATERY_WILDS: 1
@@ -501,11 +499,12 @@ stages:
       tropical-monsoon-flat:
         - DRY_WOODLANDS: 1
         - MONSOON_FOREST: 1
-        - BAMBOO_BASIN: 1
+        - BAMBOO_BASIN: 2
       tropical-monsoon:
         - DRY_WOODLANDS: 1
+        - JUNGLE: 1
+        - ROCKY_JUNGLE: 1
         - MONSOON_FOREST: 1
-        - OVERGROWN_CLIFFS: 1
         - CLOUD_FOREST: 1
         - LUSH_LOOPS: 1
         - CANOPY_CASCADES: 1

@@ -34,7 +34,7 @@ samplers:
     dimensions: 2
     type: PERLIN
     salt: 0694
-    frequency: 1 / 3000
+    frequency: 1 / 2400
 
   mountain_sampler:
     dimensions: 2
@@ -471,9 +471,7 @@ samplers:
     #where flat terrain is present.
     dimensions: 2
     type: EXPRESSION
-    variables:
-      sealevel_threshold: $customization.yml:forced-sealevel-activation-threshold
-      sealevel_blend: $customization.yml:forced-sealevel-blend
+    variables: *variables
     expression: |
       min(
         min(

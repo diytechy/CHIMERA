@@ -7,7 +7,6 @@ color: $biomes/colors.yml:SAKURA_GROVE
 vanilla: minecraft:cherry_grove
 tags:
 - USE_RIVER
-- DEEP_DARK
 - LAND_CAVES
 - SPECIAL_CAVES
 - TEMPERATE_COAST_FLAT

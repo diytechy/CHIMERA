@@ -11,11 +11,11 @@ terrain:
   sampler:
     type: EXPRESSION
     expression: |
-      -y + base + BiomeShapeFlattenedElevation(x,z)
+      -y + base + elevationDetailedBlockHeight(x,z)
       + terraceStrata(
         terraceStrata(
           terraceStrata(
-            heightmap(x, z) * scale
+            heightmap(x, z) * min(scale, maxHeight(x,z) - elevationDetailedBlockHeight(x,z) - base)
           ,50, 0, 0, 0.1)
         ,30, 0, 0, 0.15)
       ,15, 0, 0, 0.2) * biomeInfluence(x,z)
@@ -30,6 +30,8 @@ terrain:
           frequency: 0.03
           salt: 4912
         sampler:
+          #type:  CONSTANT
+          #value: 1
           type: EXPRESSION
           expression: elevation(x, z)
 
@@ -37,3 +39,5 @@ terrain:
     dimensions: 2
     type: CONSTANT
     value: 0
+
+#* 

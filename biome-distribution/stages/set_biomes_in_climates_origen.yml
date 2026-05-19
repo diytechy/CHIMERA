@@ -28,15 +28,13 @@ stages:
         - FRIGID_WASTELANDS: 1
 
       tundra-flat:
-        - TUNDRA: 1
-        - TUNDRA_TRACKS: 1
         - MUSKEG: 1
-        - FROSTBOUND_CHASMS: 1
+        - TUNDRA_TRACKS: 1
       tundra:
         - TUNDRA: 1
         - FROZEN_FUNGI: 1
-        - TUNDRA_TRACKS: 1
         - MUSKEG: 1
+        - FROSTBOUND_CHASMS: 1
       tundra-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 1
         - MOUNTAIN_MIRRORS: 2
@@ -84,7 +82,6 @@ stages:
         - ROCKY_REFUGE: 1
 
       boreal-warm-flat:
-        - STEPPE: 1
         - PRAIRIE: 2
         - SUNFLOWER_PRAIRIE: 1
         - ASPEN_FOREST: 1
@@ -105,13 +102,8 @@ stages:
         - VERTICAL_VISTAS_WARM: 1
 
       boreal-cold-flat:
-        - TAIGA: 1
-        - maple-groves: 1
-        - TAIGA_CLEARING: 1
-        - FIR_FIELDS: 1
         - LAVENDER_FIELDS: 3
         - SCULK_SWAMP: 2
-        - GLOOMY_GORGE: 1
       boreal-cold:
         - TAIGA_CLEARING: 1
         - TAIGA: 1
@@ -133,11 +125,8 @@ stages:
         - VERTICAL_VISTAS: 1
       
       boreal-snowy-flat:
-        - SNOWY_MEADOW: 2
-        - SNOWY_PLAINS: 1
         - FROSTCOATED_BOG: 1
         - FROZEN_MARSH: 1
-        - SNOWSWEPT_MEADOWS: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1
@@ -203,14 +192,12 @@ stages:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
       boreal-snowy-dry-flat:
-        - SNOWY_MEADOW: 1
-        - SNOWY_PLAINS: 1
         - FROSTCOATED_BOG: 1
-        - SNOWSWEPT_MEADOWS: 1
       boreal-snowy-dry:
         - SNOWY_MEADOW: 1
         - SNOWY_TAIGA: 1
         - SPRUCE_WOODLANDS: 1
+        - SNOWSWEPT_MEADOWS: 1
       boreal-snowy-dry-highlands:
         - SNOWY_MOUNTAINS: 1
         - MONTANE_FOREST: 1
@@ -265,20 +252,11 @@ stages:
         - ROCKY_REFUGE: 1
 
       temperate-warm-flat:
-        - FLOWERING_FOREST: 1
-        - BROADLEAF_FOREST: 2
-        - DARK_FOREST: 1
-        - WOODED_BUTTES: 1
-        - ROCKY_GRASSLAND: 1
-        - OAK_FOREST: 1
-        - FOSSILIZED_FENLANDS: 3
         - MURKY_MARSHLANDS: 3
         - ALIEN_MARSH: 3
         - MARSH: 3
         - SWAMP: 2
         - SAKURA_STREAMS: 3
-        - SAKURA_GROVE: 3
-        - VERDANT_VALLEYS: 3
       temperate-warm:
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
@@ -290,6 +268,7 @@ stages:
         - SAKURA_GROVE: 1
         - VERDANT_VALLEYS: 1
         - FOSSILIZED_FENLANDS: 1
+        - ROCKY_GRASSLAND: 1
       temperate-warm-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
@@ -299,19 +278,8 @@ stages:
         - ROCKY_REFUGE: 1
 
       temperate-cold-flat:
-        - PRAIRIE: 3
-        - OAK_FOREST: 1
-        - ROCKY_GRASSLAND: 1
-        - SUNFLOWER_PRAIRIE: 3
-        - BROADLEAF_FOREST: 2
-        - DARK_FOREST: 2
-        - SAKURA_GROVE: 3
-        - WOODED_BUTTES: 2
-        - FOSSILIZED_FENLANDS: 3
         - MURKY_MARSHLANDS: 3
         - ALIEN_MARSH: 3
-        - WHITE_WALLOWS: 3
-        - GLOOMY_GORGE: 1
       temperate-cold:
         - OAK_FOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -324,6 +292,8 @@ stages:
         - WHITE_WALLOWS: 3
         - SAKURA_GROVE: 1
         - FOSSILIZED_FENLANDS: 1
+        - PRAIRIE: 1
+        - SUNFLOWER_PRAIRIE: 1
       temperate-cold-highlands:
         - HIGHLANDS: 1
         - DENSELY_WOODED_HIGHLANDS: 1
@@ -476,10 +446,7 @@ stages:
 
 
       tropical-rainforest-flat:
-        - BAMBOO_JUNGLE: 1
-        - TROPICAL_RAINFOREST: 1
         - TROPICAL_FLOODPLAIN: 1
-        - WATERY_WILDS: 1
       tropical-rainforest:
         - BAMBOO_JUNGLE: 1
         - OVERGROWN_CLIFFS: 1
@@ -495,8 +462,6 @@ stages:
         - TROPICAL_RAINFOREST: 1
 
       tropical-monsoon-flat:
-        - DRY_WOODLANDS: 1
-        - MONSOON_FOREST: 1
         - BAMBOO_BASIN: 2
       tropical-monsoon:
         - DRY_WOODLANDS: 1
@@ -522,14 +487,13 @@ stages:
         - MESA_MONUMENTS: 1
 
       tropical-savanna-wet-flat:
-        - WET_SAVANNA: 1
-        - GRASS_SAVANNA: 1
-        - SAVANNA: 1
         - BAMBOO_BASIN: 1
       tropical-savanna-wet:
         - WET_SAVANNA: 1
         - OVERGROWN_CLIFFS: 1
         - MONSOON_FOREST: 1
+        - GRASS_SAVANNA: 1
+        - SAVANNA: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1

@@ -13,7 +13,7 @@ colors:
   sky: 8625757
 palette:
 - SNOWY_SWAMP: 319
-- RIVER_BANK: 60
+#- RIVER_BANK: 60
 - << palettes/rock_layers.yml:palette
 slant:
 - threshold: 0.6
@@ -22,7 +22,7 @@ slant:
   - << palettes/rock_layers.yml:palette
 features:
   preprocessors:
-  - SWAMP_WATER_POOLS
+  # - SWAMP_WATER_POOLS
   flora:
   - GRASS
   - POPPY_PATCH
@@ -47,5 +47,5 @@ features:
   - BATS
   - FROGS
 tags:
-- LOW_CAVE
+- LOW_CAVES
 - USE_DRAFTY_STREAM_RIVER

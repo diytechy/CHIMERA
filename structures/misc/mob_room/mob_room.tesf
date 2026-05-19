@@ -45,6 +45,8 @@ if (spawnable == false) fail;
 // checks all four directions for proper conditions of bottom and roof solid block layers
 if (getBlock(xOffset + 1, yOffset, zOffset) != "minecraft:air" &&
     getBlock(xOffset + 1, yOffset, zOffset) != "minecraft:water") {
+    // checks for water
+    if (getBlock(xOffset + 7, yOffset, zOffset) == "minecraft:water") spawnable = false;
     for (num i = 1; i <= 13; i = i + 1) {
         if (spawnable == false) break;
 
@@ -87,6 +89,8 @@ if (getBlock(xOffset + 1, yOffset, zOffset) != "minecraft:air" &&
 
 if (getBlock(xOffset - 1, yOffset, zOffset) != "minecraft:air" &&
     getBlock(xOffset - 1, yOffset, zOffset) != "minecraft:water") {
+    // checks for water
+    if (getBlock(xOffset - 7, yOffset, zOffset) == "minecraft:water") spawnable = false;
     for (num i = 1; i <= 13; i = i + 1) {
         if (spawnable == false) break;
 
@@ -130,6 +134,8 @@ if (getBlock(xOffset - 1, yOffset, zOffset) != "minecraft:air" &&
 
 if (getBlock(xOffset, yOffset, zOffset + 1) != "minecraft:air" &&
     getBlock(xOffset, yOffset, zOffset + 1) != "minecraft:water") {
+    // checks for water
+    if (getBlock(xOffset, yOffset, zOffset + 7) == "minecraft:water") spawnable = false;
     for (num i = 1; i <= 13; i = i + 1) {
         if (spawnable == false) break;
 
@@ -175,6 +181,8 @@ if (getBlock(xOffset, yOffset, zOffset + 1) != "minecraft:air" &&
 
 if (getBlock(xOffset, yOffset, zOffset - 1) != "minecraft:air" &&
     getBlock(xOffset, yOffset, zOffset - 1) != "minecraft:water") {
+    // checks for water
+    if (getBlock(xOffset, yOffset, zOffset - 7) == "minecraft:water") spawnable = false;
     for (num i = 1; i <= 13; i = i + 1) {
         if (spawnable == false) break;
 

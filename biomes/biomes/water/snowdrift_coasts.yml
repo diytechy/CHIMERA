@@ -11,7 +11,7 @@ palette:
   - << palettes/rock_layers.yml:palette
   
 slant:
-  - threshold: 3
+  - threshold: 0.48
     palette:
       - BLOCK:minecraft:ice: 319
       - RIVER_BANK: 61

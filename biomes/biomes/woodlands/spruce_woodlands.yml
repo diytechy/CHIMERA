@@ -11,11 +11,11 @@ palette:
 - RIVER_BANK: 61
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 3
+- threshold: 0.48
   palette:
   - COARSE_DIRT: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 3.5
+- threshold: 0.44
   palette:
   - BLOCK:minecraft:stone: 319
   - << palettes/rock_layers.yml:palette

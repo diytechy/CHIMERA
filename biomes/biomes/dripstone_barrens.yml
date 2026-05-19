@@ -12,7 +12,7 @@ colors:
   foliage: 0xff6a19
       
 slant:
-  - threshold: 3
+  - threshold: 0.48
     palette:
       - BLOCK:minecraft:dripstone_block: 319
       - RIVER_BANK: 61

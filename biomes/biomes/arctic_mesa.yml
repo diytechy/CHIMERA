@@ -12,15 +12,15 @@ palette:
 slant-depth: 20
 
 slant:
-  - threshold: 2.5
+  - threshold: 0.54
     palette:
       - ICE_LAYERS: 319
       - << palettes/rock_layers.yml:palette
-  - threshold: 6
+  - threshold: 0.28
     palette:
       - BLOCK:minecraft:blue_ice: 319
       - << palettes/rock_layers.yml:palette
-  - threshold: 7
+  - threshold: 0.24
     palette:
       - ICE_LAYERS: 319
       - << palettes/rock_layers.yml:palette

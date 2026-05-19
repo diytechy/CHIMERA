@@ -16,7 +16,7 @@ palette:
 - RIVER_BANK: 60
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 2
+- threshold: 0.6
   palette:
   - SWAMP_GRASS: 319
   - << palettes/rock_layers.yml:palette

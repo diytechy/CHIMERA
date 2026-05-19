@@ -15,7 +15,7 @@ palette:
 - RIVER_MUD: 61
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 3.5
+- threshold: 0.44
   palette:
   - GRANITE_SLANT: 319
   - << palettes/rock_layers.yml:palette

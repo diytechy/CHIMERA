@@ -10,7 +10,7 @@ palette:
   - << palettes/rock_layers.yml:palette
   
 slant:
-  - threshold: 5
+  - threshold: 0.34
     palette:
       - BLOCK:minecraft:stone: 319
       - << palettes/rock_layers.yml:palette

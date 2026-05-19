@@ -452,6 +452,7 @@ stages:
         - XERIC_SHRUBLAND: 1
         - DRYBRUSH: 1
         - STEPPE: 1
+        - ROCKY_GRASSLAND: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
 

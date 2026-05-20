@@ -1,0 +1,37 @@
+id: SINKHOLE_BASE
+type: BIOME
+abstract: true
+extends:
+- DEPOSITS_DEFAULT
+- ORES_DEFAULT
+- CARVING_LAND
+
+vars: &variables
+  base: 0
+  stretchFactor: 3.5
+  height: 9
+
+terrain:
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      clamp(
+        -y + base + elevationDetailedBlockHeight(x,z) + height * surfaceBase(x,z),
+      -5, 5)
+    samplers:
+      surfaceBase:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2S
+          frequency: 0.008
+          salt: 3
+        octaves: 2
+        lacunarity: 2
+        gain: 0.5
+  sampler-2d:
+    dimensions: 2
+    type: CONSTANT
+    value: 0

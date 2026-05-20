@@ -4,8 +4,6 @@ vanilla: minecraft:snowy_plains
 color: $biomes/colors.yml:SNOWY_PLAINS
 extends:
   - SINKHOLE_BASE
-  - DEPOSITS_DEFAULT
-  - ORES_DEFAULT
 
 slant:
   - threshold: 0.5
@@ -22,7 +20,6 @@ palette:
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
 tags:
-- SPECIAL_CAVES
 - BORDER_LAND_CAVES
 
 features:

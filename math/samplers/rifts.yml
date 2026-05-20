@@ -76,3 +76,42 @@ samplers:
         type: CELLULAR
         frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 0.15
         seed: 23456345
+
+
+  # Value greater than threshold = Rift / canyon
+  # Value less than threshold = pit
+  cold_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.5
+    expression: |
+      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
+        (riftTemperature(x,z)<-0.3) && (riftRegions(x,z)<pit_threshold)
+
+  cold_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.7
+    expression: |
+      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
+        (riftTemperature(x,z)<-0.1) && (riftRegions(x,z)>rift_threshold)
+        
+  warm_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.5
+    expression: |
+      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
+        (riftTemperature(x,z)>0) && (riftRegions(x,z)<pit_threshold)
+
+  warm_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.7
+    expression: |
+      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
+        (riftTemperature(x,z)>0) && (riftRegions(x,z)>rift_threshold)

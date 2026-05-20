@@ -1,18 +1,20 @@
 extrusions:
   - type: SET
     #from: SPECIAL_CAVES
-    sampler: &special_caveSampler
+    sampler:
       type: EXPRESSION
+      #If inside a rift (>0) and the rift is present, force there to be no special cave.
       #If low temperature, compress the range so as to not place infernos in frozen regions.
       expression: |
-        if(special_caveTemperature(x,y,z)<-0.2,
-          special_caveSampler(x,y,z)*0.9,
-          special_caveSampler(x,y,z))
+        if(special_caveInferno(x,y,z),-0.75,
+          if(special_caveNonInferno(x,y,z),
+            special_caveNonInferno(x,y,z),-0.25)
+        )
     to:
+      - INFERNO_ISLES: 1
+      - SELF: 1
       - VINE_VAULT: 1
       - TERRACOTTA_TOMBS: 1
-      - SELF: 17
-      - INFERNO_ISLES: 1
     range:
       min: -30
       max: 40

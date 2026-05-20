@@ -25,7 +25,6 @@ palette:
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
 tags:
- - SPECIAL_CAVES
  - BORDER_LAND_CAVES
 
 features:

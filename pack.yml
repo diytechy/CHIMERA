@@ -22,13 +22,13 @@ blend:
       distance: 3
       step: 4
     no-blend-tags:
-      - subsurface
+    #  - subsurface
     # Y-range outside which blending is skipped entirely (center biome sample used directly).
     # Set to cover the actual terrain generation band: below y-min is always solid,
     # above y-max is always air. Tune these against your tallest and deepest terrain features.
     # Default (omitted): Integer.MIN_VALUE / Integer.MAX_VALUE = no Y-range restriction.
     y-range:
-      min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
+      min: -64   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
       max: 301   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
 
 carving:

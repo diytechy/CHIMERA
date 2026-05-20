@@ -433,18 +433,37 @@ samplers:
     expression: spotMinElev(x,z) - SinkholeDepth(x,z)
 
   
-  special_caveSampler:
+  special_cavePresent:
     dimensions: 3
     type: EXPRESSION
     # 0 when not valid puts in center of distribution range, which should prevent placement as long
     # as extrusion is set properly.
     expression: |
-      if ((special_caves(x,y*2,z) < -0.79) && 
-        (special_caveElevation(x, y*2, z) > 0.1) &&
-        special_caveNotOnRiver(x,0,z), 
-          special_caveVariation(x,y*2,z),
-          0)
+      (special_caves(x,y*2,z) < -0.79) && 
+      (special_caveElevation(x, y*2, z) > 0.0)
     
+  special_caveInferno:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      hot_threshold: 0.5
+    expression: |
+      special_cavePresent(x,y,z) && 
+      (special_caveTemperature(x,y*2,z)>0) &&
+      (special_caveVariation(x,y*2,z)>hot_threshold)
+    
+  special_caveNonInferno:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      not_hot_threshold: -0.5
+    #Because these distribute to multiple, need to convert to another distribution range for placement (0,1).
+    expression: |
+      if((special_cavePresent(x,y,z)) &&
+      (special_caveVariation(x,y*2,z)<not_hot_threshold),
+        (not_hot_threshold - special_caveVariation(x,y*2,z))/(1+not_hot_threshold),
+        0)
+
   special_caves: &caveSettings
     dimensions: 3
     type: CELLULAR

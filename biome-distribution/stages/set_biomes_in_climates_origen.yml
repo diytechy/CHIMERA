@@ -11,6 +11,32 @@ stages:
       - ICE_SPIKES: 1
       - LAND_GLACIER: 1
     to:
+
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      polar-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+      polar-mesa:
+        - COLD_DESERT_MESA: 1
+
+      polar-crater-lake:
+        - COLD_CRATER_LAKE: 1
+
+      polar-sinkhole:
+        - COLD_SINKHOLE: 1
+      polar-sinkhole-border:
+        - COLD_SINKHOLE_BORDER: 1
+      polar-sinkhole-border-ocean:
+        - FROZEN_ISLAND_SHALLOWS: 1
+      polar-extinct-volcano:
+        - COLD_EXTINCT_VOLCANO: 1
+
+      # Start of standard biome distribution
+
       ice-cap-flat:
         - ICE_SPIKES: 1
         - FROSTBOUND_CHASMS: 1
@@ -28,13 +54,13 @@ stages:
         - FRIGID_WASTELANDS: 1
 
       tundra-flat:
-        - MUSKEG: 1
-        - TUNDRA_TRACKS: 1
+        - MUSKEG: 2
+        - TUNDRA_TRACKS: 2
+        - ICE_SPIKES: 1
+        - FROSTBOUND_CHASMS: 1
       tundra:
         - TUNDRA: 1
         - FROZEN_FUNGI: 1
-        - MUSKEG: 1
-        - FROSTBOUND_CHASMS: 1
       tundra-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 1
         - MOUNTAIN_MIRRORS: 2
@@ -44,62 +70,26 @@ stages:
         - VERTICAL_VISTAS_FROZEN: 1
         - SNOWY_TUFF_MOUNTAINS: 1
 
-      polar-mesa:
-        - COLD_DESERT_MESA: 1
 
-      polar-crater-lake:
-        - COLD_CRATER_LAKE: 1
+      boreal-snowy-flat:
+        - FROSTCOATED_BOG: 1
+        - FROZEN_MARSH: 1
+      boreal-snowy:
+        - SNOWY_TAIGA: 1
+        - SNOWY_BIRCH_FOREST: 1
+        - FROZEN_FUNGI: 1
+        - SPRUCE_WOODLANDS: 1
+        - ICEBOUND_JUNGLE: 1
+        - SNOWSWEPT_MEADOWS: 1
+      boreal-snowy-highlands:
+        - SNOWY_MOUNTAINS: 1
+        - MONTANE_FOREST: 1
+        - MOUNTAIN_MIRRORS: 1
+        - ALPINE_ASCENDANCY: 1
+        - BARE_BOULDERFIELDS: 1
+        - FIR_HIGHLANDS: 1
+        - VERTICAL_VISTAS: 1
 
-      polar-sinkhole:
-        - COLD_SINKHOLE: 1
-      polar-sinkhole-border:
-        - COLD_SINKHOLE_BORDER: 1
-      polar-sinkhole-border-ocean:
-        - FROZEN_ISLAND_SHALLOWS: 1
-      polar-extinct-volcano:
-        - COLD_EXTINCT_VOLCANO: 1
-
-
-
-
-      boreal-hot-flat:
-        - STEPPE: 2
-        - PRAIRIE: 2
-        - SUNFLOWER_PRAIRIE: 1
-        - ASPEN_FOREST: 1
-        - BIRCH_FOREST: 2
-        - maple-groves: 1
-        - PINE_CANOPY: 1
-      boreal-hot:
-        - ASPEN_FOREST: 1
-        - maple-groves: 1
-        - BIRCH_FOREST: 2
-        - PINE_CANOPY: 2
-        - TALL_TIMBERLAND: 1
-      boreal-hot-highlands:
-        - MOUNTAINS: 1
-        - VERTICAL_VISTAS_WARM: 1
-        - ROCKY_REFUGE: 1
-
-      boreal-warm-flat:
-        - PRAIRIE: 2
-        - SUNFLOWER_PRAIRIE: 1
-        - ASPEN_FOREST: 1
-        - FIR_FIELDS: 1
-        - BIRCH_FOREST: 2
-        - maple-groves: 1
-        - PINE_CANOPY: 2
-        - FOSSILIZED_FENLANDS: 1
-      boreal-warm:
-        - SEQUOIA_FOREST: 3
-        - OLD_GROWTH_SEQUOIA_FOREST: 1
-        - TAIGA_CLEARING: 3
-        - TAIGA: 3
-        - FIR_FIELDS: 2
-        - TALL_TIMBERLAND: 1
-      boreal-warm-highlands:
-        - MOUNTAINS: 1
-        - VERTICAL_VISTAS_WARM: 1
 
       boreal-cold-flat:
         - LAVENDER_FIELDS: 3
@@ -123,25 +113,46 @@ stages:
         - ROCKY_REFUGE: 1
         - ALPINE_ASCENDANCY: 1
         - VERTICAL_VISTAS: 1
-      
-      boreal-snowy-flat:
-        - FROSTCOATED_BOG: 1
-        - FROZEN_MARSH: 1
-      boreal-snowy:
-        - SNOWY_TAIGA: 1
-        - SNOWY_BIRCH_FOREST: 1
-        - FROZEN_FUNGI: 1
-        - SPRUCE_WOODLANDS: 1
-        - ICEBOUND_JUNGLE: 1
-        - SNOWSWEPT_MEADOWS: 1
-      boreal-snowy-highlands:
-        - SNOWY_MOUNTAINS: 1
-        - MONTANE_FOREST: 1
-        - MOUNTAIN_MIRRORS: 1
-        - ALPINE_ASCENDANCY: 1
-        - BARE_BOULDERFIELDS: 1
-        - FIR_HIGHLANDS: 1
-        - VERTICAL_VISTAS: 1
+
+      boreal-warm-flat:
+        - PRAIRIE: 2
+        - SUNFLOWER_PRAIRIE: 1
+        - ASPEN_FOREST: 1
+        - FIR_FIELDS: 1
+        - BIRCH_FOREST: 2
+        - maple-groves: 1
+        - PINE_CANOPY: 2
+        - FOSSILIZED_FENLANDS: 1
+      boreal-warm:
+        - SEQUOIA_FOREST: 3
+        - OLD_GROWTH_SEQUOIA_FOREST: 1
+        - TAIGA_CLEARING: 3
+        - TAIGA: 3
+        - FIR_FIELDS: 2
+        - TALL_TIMBERLAND: 1
+      boreal-warm-highlands:
+        - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+
+      boreal-hot-flat:
+        - STEPPE: 2
+        - PRAIRIE: 2
+        - SUNFLOWER_PRAIRIE: 1
+        - ASPEN_FOREST: 1
+        - BIRCH_FOREST: 2
+        - maple-groves: 1
+        - PINE_CANOPY: 1
+      boreal-hot:
+        - ASPEN_FOREST: 1
+        - maple-groves: 1
+        - BIRCH_FOREST: 2
+        - PINE_CANOPY: 2
+        - TALL_TIMBERLAND: 1
+      boreal-hot-highlands:
+        - MOUNTAINS: 1
+        - VERTICAL_VISTAS_WARM: 1
+        - ROCKY_REFUGE: 1
+
 
       boreal-hot-dry-flat:
         - PRAIRIE: 1

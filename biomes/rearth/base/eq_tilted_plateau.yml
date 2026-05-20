@@ -41,6 +41,7 @@ terrain:
           return: LocalNoiseLookup
           jitter: ${customization.yml:biomeSpread.cellJitter}
           frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+          salt-lookup: false
           lookup:
             dimensions: 2
             type: EXPRESSION

@@ -436,10 +436,14 @@ samplers:
   special_caveSampler:
     dimensions: 3
     type: EXPRESSION
+    #variables:
+    #  riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
     expression: |
-      if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, 
-        special_caveVariation(x,y*2,z),
-        -1)
+      if ((special_caves(x,y*2,z) < -0.79) && 
+        (special_caveElevation(x, y*2, z) > 0.1) &&
+        special_caveNotOnRiver(x,0,z), 
+          special_caveVariation(x,y*2,z),
+          -1)
     
   special_caves: &caveSettings
     dimensions: 3
@@ -457,8 +461,20 @@ samplers:
     dimensions: 3
     <<: *caveSettings
     return: NoiseLookup
+    salt-lookup: false
     lookup:
       dimensions: 3
       type: EXPRESSION
       expression: |
-        continents(x, z)
+        aroundContinent(x, z)
+
+  special_caveNotOnRiver:
+    dimensions: 3
+    <<: *caveSettings
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      dimensions: 3
+      type: EXPRESSION
+      expression: |
+        continentalRiverDistSparseFarGrid(x, z)>150

@@ -131,19 +131,19 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      spotRadius: 24
+      rVal: 100
     expression: |
-      max(continental_landmass_sparse(x, z),
+      min(continental_landmass_sparse(x, z),
         min(min(min(min(
-          continental_landmass_sparse(x + spotRadius(x, z), z),
-          continental_landmass_sparse(x - spotRadius(x, z), z)),
+          continental_landmass_sparse(x + rVal, z),
+          continental_landmass_sparse(x - rVal, z)),
         min(
-          continental_landmass_sparse(x, z + spotRadius(x, z)),
-          continental_landmass_sparse(x, z - spotRadius(x, z)))),
+          continental_landmass_sparse(x, z + rVal),
+          continental_landmass_sparse(x, z - rVal))),
         min(
-          continental_landmass_sparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-          continental_landmass_sparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+          continental_landmass_sparse(x + rVal, z + rVal),
+          continental_landmass_sparse(x + rVal, z - rVal))),
         min(
-          continental_landmass_sparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-          continental_landmass_sparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+          continental_landmass_sparse(x - rVal, z + rVal),
+          continental_landmass_sparse(x - rVal, z - rVal)))
       )

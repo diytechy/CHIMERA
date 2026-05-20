@@ -45,6 +45,7 @@ terrain:
         frequency: 0.022
         jitter: 0.7
         return: NoiseLookup
+        salt-lookup: false
         lookup:
           dimensions: 3
           type: EXPRESSION

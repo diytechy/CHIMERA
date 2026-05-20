@@ -133,6 +133,7 @@ samplers:
         sampler:
           <<: *landmassShape
           return: NoiseLookup
+          salt-lookup: false
           lookup:
             type: EXPRESSION
             dimensions: 2

@@ -51,6 +51,7 @@ terrain:
           pillarsExist:
             <<: *pillarConf
             return: NoiseLookup
+            salt-lookup: false
             lookup: 
               dimensions: 2
               #type: CONSTANT

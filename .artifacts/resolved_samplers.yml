@@ -1,0 +1,6360 @@
+samplers:
+  mountain_sampler:
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.001111111111
+  positiveWhiteNoise:
+    dimensions: 2
+    type: POSITIVE_WHITE_NOISE
+  BiomeShapeMesaValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 103.0
+          return: CellValue
+  BiomeShapeMesaTemperature:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 103.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+  BiomeShapeMesaPrecipitation:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 103.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
+          salt-lookup: false
+  BiomeShapeLargelandValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 104.0
+          return: CellValue
+  BiomeShapeLargelandValue2:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.7
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            type: EXPRESSION
+            dimensions: 2
+            expression: BiomeShapeLargelandValue(x,z)
+  BiomeShapeLargelandTemperature:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 104.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+  BiomeShapeLargelandPrecipitation:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          type: CELLULAR
+          frequency: 0.002
+          jitter: 0.9
+          distance: Hybrid
+          salt: 104.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
+          salt-lookup: false
+  BiomeShapeOceanValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: CellValue
+  BiomeShapeOceanTemperature:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+  BiomeShapeOceanContinents:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
+          salt-lookup: false
+  BiomeShapeOceanElevation:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: oceanElevation(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: CellValue
+  BiomeShapeLandmassValue2:
+    dimensions: 2
+    type: EXPRESSION
+    expression: whiteNoiseExp(BiomeShapeLandmassValue(x,z)*1000,0)
+  BiomeShapeLandmassColor:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2S
+            salt: 6891423.0
+            frequency: 0.001
+          salt-lookup: false
+  BiomeShapeLandmassPlainsMask:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: plainsMaskApplied(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassDist2Center:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Euclidean
+          salt: 101.0
+          return: Distance2Div
+  BiomeShapeLandmassElevationDetailed:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: elevationDetailed(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassMountains:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: mountainsApplied(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassElevation:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      scale: 180
+    expression: BiomeShapeLandmassElevationDetailed(x,z) * scale
+  BiomeShapeLandmassFlatness:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: flatness(x,z)
+          salt-lookup: false
+  BiomeShapeFlattenedElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  BiomeShapeLandmassElevation(x,z))
+  BiomeShapeFlattenedHalfElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  BiomeShapeLandmassElevation(x,z) * 0.5)
+  BiomeShapeSealevelElevation:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      lerp(biomeInfluence(x,z),0,elevationDetailedBlockHeight(x,z),
+      1,  0)
+  BiomeShapeMinimumElevation:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            variables:
+              offset: 128
+            type: EXPRESSION
+            salt-lookup: false
+            expression: |
+              min(
+                min(
+                  min(elevationSparse(x + offset, z), elevationSparse(x - offset, z)),
+                  min(elevationSparse(x, z + offset), elevationSparse(x, z - offset))
+                ),
+                min(
+                  min(elevationSparse(x + offset, z + offset), elevationSparse(x + offset, z - offset)),
+                  min(elevationSparse(x - offset, z + offset), elevationSparse(x - offset, z - offset))
+                )
+              )
+  BiomeShapeLandmassFarRiverDistance:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          salt-lookup: false
+          lookup:
+            variables:
+              offset: 128
+            type: EXPRESSION
+            salt-lookup: false
+            expression: |
+              min(continentalRiverDistSparseFarGrid(x, z),
+                min(
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x +offset, z),
+                        continentalRiverDistSparseFarGrid(x - offset, z)),
+                    min(continentalRiverDistSparseFarGrid(x, z + offset),
+                        continentalRiverDistSparseFarGrid(x, z - offset))
+                  ),
+                  min(
+                    min(continentalRiverDistSparseFarGrid(x + offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x + offset, z - offset)),
+                    min(continentalRiverDistSparseFarGrid(x - offset, z + offset),
+                        continentalRiverDistSparseFarGrid(x - offset, z - offset))
+                  )
+                )
+              )
+  BiomeShapeLandmassContinents:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: continents(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassTemperature:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: temperature(x,z)
+          salt-lookup: false
+  BiomeShapeLandmassPrecipitation:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003125
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            expression: precipitation(x,z)
+          salt-lookup: false
+  continental_sampler:
+    dimensions: 2
+    variables:
+      globalScale: 1
+      scale: 1
+    type: EXPRESSION
+    expression: |
+      sampler(x / scale / globalScale, z / scale / globalScale)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 1500
+        sampler:
+          dimensions: 2
+          type: EXPRESSION
+          expression: sampler(x - 100000, z - 100000)
+          samplers:
+            sampler:
+              dimensions: 2
+              type: TRANSLATE
+              x: 10000
+              z: 10000
+              sampler:
+                dimensions: 2
+                type: FBM
+                gain: 0.7
+                octaves: 3
+                lacunarity: 1.8121866
+                sampler:
+                  type: PERLIN
+                  frequency: 0.0001666666667
+        warp:
+          type: RIDGED
+          lacunarity: 3
+          gain: 0.45
+          octaves: 4
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 1.0
+            frequency: 0.0002
+  continental_landmass:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continental_sampler(x,z) < island_threshold,
+        // Islands: 0 to max island ratio, need to normalize with land range
+        lerp(continental_sampler(x,z),-0.5,max_island_ratio,island_threshold,-1),
+        if(continental_sampler(x,z) < land_threshold,
+          //Ocean: 0 to 1
+          lerp(continental_sampler(x,z),island_threshold,-1,land_threshold,0),
+          //Check for lakes / continental land-masses.
+          if(continental_sampler(x,z) > lake_threshold,
+            // Lakes: 0 to -max lake ratio, need to normalize with ocean range.
+            lerp(continental_sampler(x,z),lake_threshold,1,0.5,-max_lake_ratio),
+            // Continents: 0 to 1
+            lerp(continental_sampler(x,z),land_threshold,0,lake_threshold,1)
+          )
+        )
+      )
+    variables:
+      island_threshold: -0.35
+      land_threshold: -0.1
+      lake_threshold: 0.35
+      max_island_ratio: 0.4
+      max_lake_ratio: 0.1
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  islandMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(continental_sampler(x, z) < ((island_threshold+land_threshold)/2), 1, -1)
+    variables:
+      island_threshold: -0.35
+      land_threshold: -0.1
+  continents:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        continental_landmass(x, z),
+        spawnIsland(x, z)
+      )
+  blotSpots:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(max(spotCenterOnLand(x,z),spotCenterOnOcean(x,z)),
+        spotContinentalFactor * (1-(spotDistance(x,z)/spotRadius(x,z))^2),
+        -1)
+    variables:
+      globalScale: 1
+      spotContinentalFactor: 0.3
+  continentsWithSpots:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        continents(x, z),
+        blotSpots(x,z))
+  continentalDistribution:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continentsWithSpots(x,z)>=0,continentsWithSpots(x,z),-1)
+  dist2Coast:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      coastalCutoff: 0
+    expression: continents(x, z) - coastalCutoff
+  continental_landmass_sparse:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      sparseScale: 4
+    expression: continental_landmass(round(x/sparseScale)*sparseScale, round(z/sparseScale)*sparseScale)
+  aroundContinent:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spotRadius: 24
+    expression: |-
+      max(continental_landmass_sparse(x, z),
+        min(min(min(min(
+          continental_landmass_sparse(x + spotRadius(x, z), z),
+          continental_landmass_sparse(x - spotRadius(x, z), z)),
+        min(
+          continental_landmass_sparse(x, z + spotRadius(x, z)),
+          continental_landmass_sparse(x, z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+        min(
+          continental_landmass_sparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+          continental_landmass_sparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+      )
+  mountainMask:
+    dimensions: 2
+    type: PERLIN
+    salt: 694.0
+    frequency: 0.0004166666667
+  mountains:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((-in+1)/2)^2
+    sampler:
+      type: PSEUDOEROSION
+      erosion-frequency: 0.01
+      lacunarity: 1.5
+      branch-strength: 1
+      octaves: 3
+      strength: 0.15
+      gain: 0.3
+      sampler:
+        type: FBM
+        octaves: 3
+        sampler:
+          dimensions: 2
+          type: OPEN_SIMPLEX_2
+          frequency: 0.001111111111
+  mountainsB:
+    dimensions: 2
+    type: FBM
+    octaves: 5
+    lacunarity: 2.2
+    gain: 0.55
+    sampler:
+      type: PERLIN
+      frequency: 0.0006666666667
+      salt: 300.0
+  mountainsApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(lerp(abs(mountainMask(x, z)), mountainMaskZero, 0, mountainMaskFull, 1), lerp(continents(x, z), mountainContZero,
+      0, mountainContFull, 1))
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  AppliedMountainHeightA:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(mountainMask(x, z)>0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountains(x, z)),
+        0)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  AppliedMountainHeightB:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(mountainMask(x, z)<0,
+        lerp(mountainsApplied(x, z), 0, 0, mountainMaskFull, mountainsB(x, z)),
+        0)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  AppliedMountainHeight:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(AppliedMountainHeightA(x, z), AppliedMountainHeightB(x, z))
+  mesaMaskRaw:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 300
+    sampler:
+      dimensions: 2
+      type: FBM
+      octaves: 2
+      lacunarity: 1.7
+      gain: 0.7
+      sampler:
+        type: PERLIN
+        frequency: 0.0005
+        salt: 200.0
+    warp:
+      type: RIDGED
+      lacunarity: 3
+      gain: 0.45
+      octaves: 4
+      sampler:
+        type: OPEN_SIMPLEX_2
+        salt: 1.0
+        frequency: 0.0002
+  mesaMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(min((mesaMaskRaw(x - 6000, z - 6000)-mesa_threshold)/(0.6-mesa_threshold), continents(x, z)),0)
+    variables:
+      mesa_threshold: 0.31
+  mesaFootDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      MaxNMesSteps: 4
+    expression: mesaMask(x,z)-(1/(MaxNMesSteps*2))
+  mesaPresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(mesaFootDist(x,z)>0,1,0)
+  PeakHeightMultiplierAtPosition:
+    dimensions: 2
+    type: EXPRESSION
+    expression: (max_elev_prob(x,z)*VarianceRatio + (1 - VarianceRatio))
+    variables:
+      VarianceRatio: 0.3
+    samplers:
+      max_elev_prob:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 697.0
+          frequency: 0.0003333333333
+  prefiltered_mesa_step_ratio:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(min(ceil(mesaMask(x, z)* MaxNMesSteps),MaxNMesSteps),0) /MaxNMesSteps
+    variables:
+      MaxNMesSteps: 4
+      MaxPeakElev: 0.7
+      mesa_threshold: 0.31
+  prefiltered_mesa_elev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max((prefiltered_mesa_step_ratio(x,z)* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
+    variables:
+      MaxNMesSteps: 4
+      MaxPeakElev: 0.7
+      mesa_threshold: 0.31
+  prefiltered_mesa_floor:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(((prefiltered_mesa_step_ratio(x,z)-(1/(MaxNMesSteps)))* MaxPeakElev * PeakHeightMultiplierAtPosition(x,z)),elevation(x,z))
+    variables:
+      MaxNMesSteps: 4
+      MaxPeakElev: 0.7
+      mesa_threshold: 0.31
+  mesa_floor_step_dist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(if(prefiltered_mesa_step_ratio(x,z), (mesaMask(x, z)*MaxNMesSteps+0.5) - (prefiltered_mesa_step_ratio(x,z)*MaxNMesSteps),0), 0)
+    variables:
+      MaxNMesSteps: 4
+      MaxPeakElev: 0.7
+      mesa_threshold: 0.31
+  hills:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: ((in+1)/2)^2
+    sampler:
+      type: FBM
+      octaves: 6
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0005
+  plainsMask:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x,z)
+    samplers:
+      sampler:
+        dimensions: 2
+        type: FBM
+        octaves: 2
+        amplitude: 0.3
+        salt: 67.0
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0005
+  plainsMaskApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(AppliedMountainHeight(x,z)=0, herp(abs(plainsMask(x, z)), plainsMaskZero, 0, plainsMaskFull, 1), 0)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  hillsApplied:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      min(10.0,
+        herp(plainsMaskApplied(x,z), 0, 1, 1, 0))*hills(x, z)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  continentalRise:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continents(x,z)^2*(continentalRiseRate / (continentalRiseRate+verticalLift))
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+  rawFlatness:
+    dimensions: 2
+    type: EXPRESSION
+    expression: noise(x / globalScale, z / globalScale)
+    variables:
+      globalScale: 1
+    samplers:
+      noise:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: PROBABILITY
+          sampler:
+            type: FBM
+            gain: 0.2
+            lacunarity: 1.7
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.0005555555556
+  flatness:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      min(
+        min(
+          lerp(rawFlatness(x, z), sealevel_threshold - sealevel_blend, 0, sealevel_threshold, sealevel_factor),
+          lerp(abs(mountainMask(x, z)), mountainMaskFlat, 0, mountainMaskZero, sealevel_factor)),
+        lerp(mesaFootDist(x, z), -0.1, sealevel_factor, 0, 0))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+  nonMountainElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      combine(continentalRise(x,z) * (1-flatness(x, z)),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1-flatness(x, z))),
+      0,
+      mountainCap)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      combine:
+        arguments:
+        - continents
+        - hills
+        - mountains
+        - mountainCap
+        expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+  tempElevationReference:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(nonMountainElevation(x,z)*0.2 ,mountainMask(x,z))
+  rawElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      combine(continentalRise(x,z) * (1-flatness(x, z)),
+      hillsApplied(x,z) * hillMaxElevation * max(1,(1.5-flatness(x, z))),
+      AppliedMountainHeight(x,z)*PeakHeightMultiplierAtPosition(x,z),
+      mountainCap)
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    functions:
+      combine:
+        arguments:
+        - continents
+        - hills
+        - mountains
+        - mountainCap
+        expression: continents + hills + mountains*min(1 - hills-continents, mountainCap)
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+  elevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      rawElevation(x, z)
+      * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+      * if(factorSpawnIsland, herp(spawnIsland(x, z), 0, spawnIslandScale, -1, 1), 1)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      continentZero: -0.3
+      continentFull: 0.35
+      factorContinental: 1
+      factorRiver: 1
+      factorSpawnIsland: 1
+      spawnIslandScale: 0.2
+  elevationSparse:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      elevation(round(x/4)*4, round(z/4)*4)
+  elevation_with_mesas:
+    dimensions: 2
+    type: EXPRESSION
+    expression: "herp(mesa_floor_step_dist(x, z), 0, prefiltered_mesa_floor(x,z), \n0.1, prefiltered_mesa_elev(x,z))\n"
+    variables:
+      MaxNMesSteps: 4
+      MaxPeakElev: 0.7
+      mesa_threshold: 0.31
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  elevationTerraced:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      terrace(
+        combine(
+          elevation_with_mesas(x, z),
+          detailStart, 0,
+          detailEnd, detail(x, z) * detailFactor
+        ),
+        terraceBaseScale + terraceScale(x, z) * terraceScaleVariation,
+        terraceOffset(x, z) * terraceOffsetVariation,
+        0,
+        (terraceDepth(x, z)^3) * terraceDepthVariation,
+        0, terraceDepthStart
+      )
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    samplers:
+      terraceScale:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.002
+        salt: 1926.0
+      terraceDepth:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.001
+          salt: 5812.0
+      terraceOffset:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.001
+          salt: 8512.0
+      detail:
+        dimensions: 2
+        type: FBM
+        octaves: 4
+        lacunarity: 2
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.008
+          salt: 5912.0
+    functions:
+      terrace:
+        arguments:
+        - i
+        - sc
+        - o
+        - g
+        - d
+        - tz
+        - tf
+        expression: terraceParalinear(i,sc,o,g,lerp(i,tz,0,tf,d))
+        functions:
+          terrace:
+            arguments:
+            - i
+            - sc
+            - o
+            - g
+            - d
+            expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+            functions:
+              clamp:
+                arguments:
+                - x
+                expression: if(0 <= x && x < 1, x, 0)
+              floorMod:
+                arguments:
+                - x
+                - i
+                expression: x - floor(x/i) * i
+              profile:
+                arguments:
+                - x
+                expression: '|x - 0.5| - 0.5'
+          terraceStrata:
+            arguments:
+            - i
+            - sc
+            - o
+            - g
+            - d
+            expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+            functions:
+              clamp:
+                arguments:
+                - x
+                expression: if(0 <= x && x < 1, x, 0)
+              floorMod:
+                arguments:
+                - x
+                - i
+                expression: x - floor(x/i) * i
+              profile:
+                arguments:
+                - x
+                expression: -if(x>0.95,-(x-1)/0.05,x/0.95)
+          terraceParabolic:
+            arguments:
+            - i
+            - sc
+            - o
+            - g
+            - d
+            expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+            functions:
+              clamp:
+                arguments:
+                - x
+                expression: if(0 <= x && x < 1, x, 0)
+              floorMod:
+                arguments:
+                - x
+                - i
+                expression: x - floor(x/i) * i
+              profile:
+                arguments:
+                - x
+                expression: (x - 0.5)^2 - 0.25
+          terraceParalinear:
+            arguments:
+            - i
+            - sc
+            - o
+            - g
+            - d
+            expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+            functions:
+              clamp:
+                arguments:
+                - x
+                expression: if(0 <= x && x < 1, x, 0)
+              floorMod:
+                arguments:
+                - x
+                - i
+                expression: x - floor(x/i) * i
+              profile:
+                arguments:
+                - x
+                expression: |-
+                  if(0.25 < x && x < 0.75,
+                    2*(x-0.5)^2-0.375,
+                    |x - 0.5| - 0.5
+                  )
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+          lerp3:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            - ct
+            - c
+            expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+          herp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              hermite:
+                arguments:
+                - x
+                expression: 3*x^2-2*x^3
+          parabolicMap:
+            arguments:
+            - t
+            - bt
+            - b
+            - at
+            - a
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              interpolation:
+                arguments:
+                - x
+                expression: x^2
+      combine:
+        arguments:
+        - x
+        - at
+        - a
+        - bt
+        - b
+        expression: x+lerp(x,at,a,bt,b)
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+          lerp3:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            - ct
+            - c
+            expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+          herp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              hermite:
+                arguments:
+                - x
+                expression: 3*x^2-2*x^3
+          parabolicMap:
+            arguments:
+            - t
+            - bt
+            - b
+            - at
+            - a
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+                if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+              )
+            functions:
+              interpolation:
+                arguments:
+                - x
+                expression: x^2
+  elevationDetailedPreErosion:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      noisyelevation(x,z)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    samplers:
+      noisyelevation:
+        dimensions: 2
+        type: DOMAIN_WARP
+        sampler:
+          dimensions: 2
+          type: EXPRESSION
+          expression: max(elevationAcrossSpot(x, z),elevationTerraced(x,z))
+        amplitude: 0.25
+        warp:
+          type: WHITE_NOISE
+          salt: 2394.0
+  elevationEroded:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    expression: |
+      min(
+        min(
+          herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
+          herp(flatness(x, z), 0, elevationDetailedPreErosion(x,z), sealevel_factor, 0)
+        ),
+      elevationDetailedPreErosion(x,z))
+  elevationDetailed:
+    type: EXPRESSION
+    dimensions: 2
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    expression: |
+      herp(continentalRiverDist(x,z),0,elevationEroded(x,z),1,elevationDetailedPreErosion(x,z))
+  elevationDetailedSparse:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      elevationDetailed((round(x/4)*4), (round(z/4)*4))
+  elevationDetailedBlockHeight:
+    dimensions: 2
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    type: EXPRESSION
+    expression: |
+      elevationDetailed(x,z)*verticalLift-0.9
+  caveElevationPlacementMaximum:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(elevationDetailedBlockHeight(x,z),BiomeShapeMinimumElevation(x,z))-15
+  caveWithinBounds:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      base: 65
+    expression: |
+      base + caveElevationPlacementMaximum(round(x/16)*16+8,round(x/16)*16+8) - y
+  normDistIntoBiome:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      distAtFullNormDist: 50
+      riverNominalBoundary: 50
+      cellHalfDist: 160
+      mesaBlocksPerUnit: 1000
+      coastBlocksPerUnit: '6000'
+      riverBiomeActivationThreshold: '0.15'
+      biomeBorder: 20
+    expression: |
+      min(
+        min(
+          min(
+            min(lerp(continentalRiverDist(x,z), riverBiomeActivationThreshold, 0, min(1,distAtFullNormDist / riverNominalBoundary), 1),
+            lerp(BiomeShapeLandmassDist2Center(x,z), -0.9, 1, 0, 0)),
+          lerp(abs(mesaFootDist(x,z)), distAtFullNormDist / mesaBlocksPerUnit, 1, 0, 0)),
+        lerp(abs(dist2Coast(x,z)), 0, 0, distAtFullNormDist / coastBlocksPerUnit, 1)),
+      if(spotCenterNotNearRiver(x,z),lerp(spotDistance(x, z) - (spotRadius(x, z) + distAtFullNormDist),0,0,distAtFullNormDist,1),1))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  smallBiomeSmallCenterDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: 0.4
+      valley_dist: 0.82
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
+  smallBiomeWideCenterDist:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      valley_srt: 0.15
+      valley_dist: 0.3
+    expression: |
+      if(normDistIntoBiome(x,z)<valley_srt, -1,
+        if(normDistIntoBiome(x,z)<valley_dist, 0, 1))
+  biomeInfluence:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      distAtFullInfluence: 20
+      distAtFullNormDist: 50
+    expression: min(max(lerp(normDistIntoBiome(x,z), 0, 0, distAtFullInfluence / distAtFullNormDist, 1),0),1)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  biomeInfluence3D:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      detailFactor: 0.1
+      detailStart: 0
+      detailEnd: 0.5
+      terraceBaseScale: 0.2
+      terraceScaleVariation: 0.1
+      terraceOffsetVariation: 0.25
+      terraceDepthVariation: 1
+      terraceDepthStart: 0.1
+      plainsMaskZero: 0.5
+      plainsMaskFull: 0.85
+      hillMaxElevation: 0.2
+      mountainCap: 0.9
+      mountainMaskFlat: 0.25
+      mountainMaskZero: 0.3
+      mountainMaskFull: 0.55
+      mountainContZero: 0.0
+      mountainContFull: 0.5
+      sealevel_threshold: 0.1
+      sealevel_blend: 0.15
+      sealevel_factor: 0.85
+      globalScale: 1
+      verticalLift: 180
+      base: 65
+      continentalRiseRate: 30
+    expression: |
+      min(max(if(biomeInfluence(x,z)<1,
+      ((base+elevationDetailedBlockHeight(x,z)-y)/200)+1+
+      biomeInfluence(x,z),
+      1),0),1)
+  biomeInfluenceOffset:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      distAtFullInfluence: 20
+    expression: |
+      biomeInfluence3D(x,y,z)*distAtFullInfluence - distAtFullInfluence
+  oceanElevation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (-1+nonMountainElevation(x, z))
+      * if(factorContinental, herp(continents(x, z), continentZero, 0, continentFull, 1), 1)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    samplers:
+      compositeOceanElev:
+        type: EXPRESSION
+        dimensions: 2
+        expression: max(nonMountainElevation(x, z),elevationAcrossOceanSpot(x,z))
+    variables:
+      continentZero: 0
+      continentFull: -0.8
+      factorContinental: 1
+  oceanElevationBlockHeight:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      scale: 100
+    expression: scale*oceanElevation(x,z)
+  maxHeight:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      maxRaw: 300
+    expression: maxRaw + (noise(x,z)-1)*5
+    samplers:
+      noise:
+        dimensions: 2
+        type: SIMPLEX
+        octaves: 2
+        frequency: 0.1
+        seed: 8675409
+  rawPrecipitation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x / scale / globalScale, z / scale / globalScale) * spread + offset
+    variables:
+      globalScale: 1
+      scale: 1
+      offset: 0
+      spread: 1.1
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 4.0
+            frequency: 0.0001333333333
+  precipitation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(continents(x, z), oceanThreshold, 1, landThreshold, rawPrecipitation(x, z))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      oceanThreshold: -1
+      landThreshold: 0.4
+  farPrecipitation:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      r: 300
+    expression: |-
+      min(
+        min(
+          min(rawPrecipitation(round(x/4)*4, round(z/4)*4),
+              rawPrecipitation(round((x+r)/4)*4, round(z/4)*4)),
+          min(rawPrecipitation(round((x+r/2)/4)*4, round((z+r*0.866)/4)*4),
+              rawPrecipitation(round((x-r/2)/4)*4, round((z+r*0.866)/4)*4))
+        ),
+        min(
+          min(rawPrecipitation(round((x-r)/4)*4, round(z/4)*4),
+              rawPrecipitation(round((x-r/2)/4)*4, round((z-r*0.866)/4)*4)),
+          rawPrecipitation(round((x+r/2)/4)*4, round((z-r*0.866)/4)*4)
+        )
+      )
+  riftHybDistFromCenter:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.003333333333
+    salt: 1357.0
+    jitter: 0.5
+    distance: Hybrid
+  riftRegions:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.003333333333
+    salt: 1357.0
+    jitter: 0.5
+    return: CellValue
+  riftTemperature:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.003333333333
+    salt: 1357.0
+    jitter: 0.5
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: temperature(x,z)
+    salt-lookup: false
+  riftInRangeOfSpot:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.003333333333
+    salt: 1357.0
+    jitter: 0.5
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: nearSpotRift(x,z)
+    salt-lookup: false
+  riftFarRiverDist:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.003333333333
+    salt: 1357.0
+    jitter: 0.5
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverDistSparseFarGrid(x,z)
+    salt-lookup: false
+  riftWellPlacement:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: FBM
+      octaves: 4
+      gain: 0.3
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003333333333
+    sampler:
+      type: EXPRESSION
+      variables:
+        spotActivateDist: -0.6
+      expression: |
+        if(riftHybDistFromCenter(x,z)<spotActivateDist,
+          lerp(riftHybDistFromCenter(x,z),-1,1,spotActivateDist,0),
+          -1)
+  riftCanyon:
+    type: EXPRESSION
+    dimensions: 2
+    expression: |
+      (-abs(base(x,z)) + 0.3) * 2 * (1 / 0.2)
+    samplers:
+      base:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2S
+        frequency: 0.01
+      mask:
+        dimensions: 2
+        type: CELLULAR
+        frequency: 0.0015
+        seed: 23456345
+  riverSampler:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(continentalRiverDistFar(x,z)>=1,
+        -1,
+        if(continentalRiverDistFar(x,z)<=riverBiomeActivationThreshold,
+          1,
+          -0.25
+        )
+      )
+    variables:
+      notRiverValue: 2
+      borderValue: 1
+      riverValue: 0
+      riverFrequency: 0.025
+      riverMinWidth: 11
+      riverMaxWidth: 20
+      soulSandPlaceDist: 8
+      riverBiomeActivationThreshold: '0.15'
+      erosionMaxDistance: 0.3
+      erosionMax: 0.95
+      erosionMin: 0
+  continentalRiverWidth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: "((maximum_continental_river_width + minimum_continental_river_width) / 2) + \n(perlin(x, z) * (maximum_continental_river_width\
+      \ - minimum_continental_river_width)/2)\n"
+    variables:
+      minimum_continental_river_width: 12
+      maximum_continental_river_width: 25
+    samplers:
+      perlin:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.01
+  riverBoundaryDistance:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      river_nominal_boundary + (perlin(x, z) * river_boundary_variance_magnitude)
+    variables:
+      river_nominal_boundary: 50
+      river_boundary_variance_magnitude: 20
+    samplers:
+      perlin:
+        dimensions: 2
+        type: PERLIN
+        frequency: 0.005
+  riverPrecipitation:
+    dimensions: 2
+    type: EXPRESSION
+    expression: min(BiomeShapeLandmassPrecipitation(x, z), farPrecipitation(x, z))
+  RiverBranchingProbability:
+    dimensions: 2
+    type: EXPRESSION
+    expression: "if(((continents(x, z)>0.05)&&\n(mesaFootDist(x,z)<0)&&\n(riverPrecipitation(x, z)>0)&&\n(riverElevationInput(x,z)>0)),\
+      \ \n(((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)\n"
+  RiverOverhangMask:
+    dimensions: 2
+    type: PERLIN
+    frequency: 0.001
+  riverElevationInput:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      threshold: 0.1
+      blend: 0.15
+      flatnessFactor: 0.85
+    expression: |
+      //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
+      if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),
+        min(
+          herp(continents(round(x/4)*4,round(z/4)*4), 0.05, 0, 0.1, elevationTerraced(round(x/4)*4,round(z/4)*4)),
+          herp(rawFlatness(round(x/4)*4,round(z/4)*4), threshold-blend, 0, threshold, elevationTerraced(round(x/4)*4,round(z/4)*4))
+        ),
+      0)
+  continentalDendryRiversPrecise:
+    dimensions: 3
+    type: DENDRY
+    n: 3
+    max: 1.52
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverElevationInput(round(x/4)*4,round(z/4)*4)
+    riverwidth:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverWidth(round(x/4)*4,round(z/4)*4)
+    borderwidth:
+      dimensions: 2
+      type: EXPRESSION
+      expression: riverBoundaryDistance(round(x/4)*4,round(z/4)*4)
+    branches:
+      dimensions: 2
+      type: EXPRESSION
+      expression: RiverBranchingProbability(round(x/4)*4,round(z/4)*4)
+    default-riverwidth: 30
+    default-borderwidth: 75
+    cachepixels: *PerspectiveMultiplier
+  continentalDendryRivers:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      continentalDendryRiversPrecise(x,y,z)
+  continentalRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(continentalDendryRivers(x,1.0,z)<1.5, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
+    variables:
+      terrain_base_biome_shift: 0.95
+  continentalRiverDist:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      //if(continentalRiverElev(x,z)>0,
+      //  continentalDendryRivers(x,0.0,z),
+      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      //)
+      herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  continentalRiverDistFar:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      //if(continentalRiverElev(x,z)>0,
+      //  continentalRiverDistSparseNormalized(x,z),
+      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      //)
+      herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  continentalRiverLevel:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,2.0,z)
+  maxRiverWidthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      maximum_continental_river_width *
+      continentalDendryRivers(nan_Input,continentalRiverLevel(x,z),nan_Input)
+    variables:
+      nan_Input: 0.0/0.0
+      maximum_continental_river_width: 25
+  continentalRiverBlockDist2Uplift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(x,3.0,z)
+  riverBedDepthAtLevel:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverBedDepth: 10
+      riverBedVariation: 4
+    expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 2
+  RiverSoulsandLocations:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      continentalRiverBlockElevShift(x,z)
+    samplers:
+      soulSandPlaceDist:
+        dimensions: 2
+        type: EXPRESSION
+        expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        variables:
+          soulSandPlaceDist: 8
+  continentalRiverBlockElevChange:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(floor(continentalRiverElev(x,z)*scale),0)
+    variables:
+      scale: 180
+  worldRiverElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalRiverBlockElevChange(x,z)+ocean_level
+    variables:
+      ocean_level: 62
+  glowLichenRange:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      if(y>(worldRiverElev(x,z)+base),
+        1,-1)
+    samplers:
+      noise:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+    variables:
+      base: 65
+  minimumRiverBankHeight:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(continentalRiverBlockElevChange(x, z),0)
+    variables:
+      scale: 180
+  continentalRiverBlockElevShift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      max(
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+1,z),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-1,z)),
+        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+1),
+          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
+      )
+  continentalRiverDistSparseFarGrid:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(round(x/4)*4,-2.0,round(z/4)*4)
+  continentalRiverDistSparseNormalized:
+    dimensions: 2
+    type: EXPRESSION
+    expression: continentalDendryRivers(round(x/4)*4,-3.0,round(z/4)*4)
+  erosionStrengthVariation:
+    dimensions: 3
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.05
+      salt: 5.0
+  openings:
+    dimensions: 2
+    type: EXPRESSION_NORMALIZER
+    expression: '|in|'
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.001
+      salt: 9.0
+  ceilingSpikes:
+    dimensions: 2
+    type: CUBIC_SPLINE
+    points:
+    - from: -1
+      to: 1
+      gradient: -2
+    - from: -0.2
+      to: 0
+      gradient: 0
+    sampler:
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.06
+  depthVariation:
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.005
+      salt: 9.0
+  spikes:
+    dimensions: 2
+    type: LINEAR
+    min: -1
+    max: 0.5
+    sampler:
+      type: CELLULAR
+      distance: Euclidean
+      frequency: 0.04
+  surfaceOpenings:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      herp(
+        potentialCeilingThickness(x, z),
+        openingsDeltaShallow,
+        herp(openings(x, z), openingsNoiseMin, 0, openingsNoiseMax, 1) * scale,
+        openingsDeltaDeep,
+        0
+      )
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  caveCeilingMinimum:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      if(continentalRiverDist(x, z) < 0,
+        ceilingMaxHeightAtRiverEdge +
+        (ceilingMaxHeightAtRiverCntr - ceilingMaxHeightAtRiverEdge) *
+        max(0, 1 - (continentalRiverDist(x, z) + 1)^2) *
+        (0.5 + 0.5 * erosionStrengthVariation(x/3, 0, z/3)) *
+        0.8^continentalRiverLevel(x, z),
+        0)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  caveCeilingMinimumWithSpikes:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+        max(2,
+        caveCeilingMinimum(x, z)
+        + ceilingSpikes(x, z) * ceilingSpikeAmplitude
+          * max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
+        )
+        + herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        -1)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  minimumCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      lerp(continentalRiverDist(x, z),-1.0,ceilingMinThicknessAtRiverCntr,0.0,ceilingMinThicknessAtRiverEdge)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  potentialCeilingThickness:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z) - caveCeilingMinimum(x, z))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  riverEnclosedFactor:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      max(0, potentialCeilingThickness(x,z) - minimumCeilingThickness(x,z))
+  bedDepth:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      max(0, 1 - (continentalRiverDist(x, z) + 1)^2)
+      * riverBedDepthAtLevel(x, z)
+      * if(continentalRiverLevel(x, z) < -0.5,
+          max(0.05, 1 - max(0, -spikes(x, z))),
+          1)
+  elevationAboveBank:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: max(0, scale * elevationDetailed(x, z) - minimumRiverBankHeight(x, z))
+  elevationDetailedWithHolesAboveBank:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      elevationAboveBank(x,z) -
+      if(continentalRiverDist(x, z) < 0,
+      // If within the river border, apply the ceiling minimum, modified by spikes and openings.
+      herp(continentalRiverDist(x, z), -0.5, surfaceOpenings(x, z), 0.05, 0),
+      // Outside the river, no minimum ceiling (not a cave).
+        0)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  riverTerrainSampler:
+    type: EXPRESSION
+    dimensions: 3
+    variables:
+      base: 65
+      scale: 180
+      enclosedFullTransitionBlocks: 20
+      enclosedStrtTransitionBlocks: 10
+      ceilingMaxHeightAtRiverEdge: 3
+      ceilingMaxHeightAtRiverCntr: 19
+      ceilingMinThicknessAtRiverEdge: 5
+      ceilingMinThicknessAtRiverCntr: 5
+      ceilingSpikeAmplitude: 18
+      openingsDeltaShallow: 7
+      openingsDeltaDeep: 25
+      openingsNoiseMin: 0.3
+      openingsNoiseMax: 0.6
+      riverBedDepth: 10
+      riverBedVariation: 4
+      riverBiomeActivationThreshold: '0.15'
+    expression: |
+      -y + base + minimumRiverBankHeight(x, z) +
+      if(y <= base + minimumRiverBankHeight(x, z),
+        // ── Case 1: Riverbed ──
+        -bedDepth(x, z),
+        // ── Cases 2 & 3: Above bank, blended by enclosure ──
+        // 2D sampler already places surface at bank height, so 0 = bank surface here.
+        // Only add positive values to build enclosed cave roofs or border transitions.
+        lerp(riverEnclosedFactor(x, z),
+          enclosedStrtTransitionBlocks,
+          // Case 3: Open valley — herp from terrain down to bank
+          // Inside river (dist<=0): 0 = air above bank.
+          // Border (dist>0): ramp from bank (0) up to terrain height.
+            if(continentalRiverDist(x, z)<=0,0,herp(continentalRiverDist(x, z),
+            riverBiomeActivationThreshold / 4, 0,
+            riverBiomeActivationThreshold, elevationAboveBank(x,z))),
+          enclosedFullTransitionBlocks,
+          // Case 2: Enclosed cave — void below ceiling, roof above ceiling.
+          if(y < (base + minimumRiverBankHeight(x, z) + caveCeilingMinimumWithSpikes(x, z)),
+            // Below ceiling height: carve void with negative density (always empty)
+            -elevationAboveBank(x,z),
+            // Above ceiling height: add roof only if inside river and below terrain surface
+           elevationDetailedWithHolesAboveBank(x, z))
+        )
+      )
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+  RiverSupportDensity:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      Base: 62
+      HeightScale: 180
+      MinRiverSupp: 45
+      riverBedDepth: 8
+      riverBiomeActivationThreshold: '0.15'
+    samplers:
+      RiverElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: 62
+        expression: Base+continentalRiverBlockElevChange(x,z)
+      RiverBedElev:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          Base: 62
+          riverBedDepth: 8
+          riverBedVariation: 4
+        expression: Base+continentalRiverBlockElevChange(x,z) - min(riverBedDepth,riverBedDepthAtLevel(x,z)) - riverBedVariation/2
+    expression: |
+      //If within river bounds, provide support up to the river elevation, otherwise no support (-1).
+      if((y>RiverBedElev(x,z) && continents(x,z)>-0.05 && y<=RiverElev(x,z)),
+        //If outside the river, provide support rolling up to minimum bank.
+        //If this creates too much material, the else condition should work for
+        // both inside and outside the river.
+        if(continentalRiverDist(x,z)>0,
+          -y+herp(continentalRiverDist(x,z),riverBiomeActivationThreshold/2,RiverElev(x,z),riverBiomeActivationThreshold,Base)+1,
+          //If inside the river, provide linear support.
+          //insideMinimumBank(RiverElev(x,z)-y, abs(continentalRiverDist(x,z)), maxRiverWidthAtLevel(x,z)/4)
+          -10
+         ),
+        -10
+      )
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+      insideMinimumBank:
+        arguments:
+        - depthBelowWaterElev
+        - absDistFromBorder
+        - ForceWallWidth
+        expression: |
+          if(((depthBelowWaterElev>ForceWallWidth) && (absDistFromBorder<1)),
+            1,
+            if(absDistFromBorder*ForceWallWidth > depthBelowWaterElev, -1, 1)
+          )
+  RiverOceanTransitioner:
+    dimensions: 2
+    type: EXPRESSION
+    expression: max(-continents(x,z)*10,continentalRiverDist(x,z))
+  simplex:
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.0075
+  simplex2:
+    dimensions: 2
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.0075
+  simplex3:
+    dimensions: 3
+    type: FBM
+    octaves: 4
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.0075
+  whiteNoise:
+    dimensions: 2
+    type: WHITE_NOISE
+  whiteNoiseExp:
+    dimensions: 2
+    type: CELLULAR
+    return: NoiseLookup
+    salt: 54321.0
+  WhiteNoiseRandomizer:
+    dimensions: 2
+    type: POSITIVE_WHITE_NOISE
+    frequency: 1000
+    salt: 5675401.0
+  spawnIsland:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 150
+    warp:
+      type: FBM
+      octaves: 2
+      sampler:
+        type: TRANSLATE
+        x: 5000
+        z: -5000
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.004
+    sampler:
+      type: EXPRESSION_NORMALIZER
+      expression: |
+        if(in < middleRadius/outerRadius,
+          herp        (in, innerRadius/outerRadius,  1, middleRadius/outerRadius, 0),
+          parabolicMap(in, middleRadius/outerRadius, 0, 1,                       -1))
+      variables:
+        innerRadius: 20
+        middleRadius: 125
+        outerRadius: 400
+      functions:
+        lerp:
+          arguments:
+          - t
+          - at
+          - a
+          - bt
+          - b
+          expression: |
+            if(at<bt,
+              if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+              if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+            )
+        lerp3:
+          arguments:
+          - t
+          - at
+          - a
+          - bt
+          - b
+          - ct
+          - c
+          expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+          functions:
+            lerp:
+              arguments:
+              - t
+              - at
+              - a
+              - bt
+              - b
+              expression: |
+                if(at<bt,
+                  if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                  if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                )
+        herp:
+          arguments:
+          - t
+          - at
+          - a
+          - bt
+          - b
+          expression: |
+            if(at<bt,
+              if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+              if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+            )
+          functions:
+            hermite:
+              arguments:
+              - x
+              expression: 3*x^2-2*x^3
+        parabolicMap:
+          arguments:
+          - t
+          - bt
+          - b
+          - at
+          - a
+          expression: |
+            if(at<bt,
+              if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+              if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+            )
+          functions:
+            interpolation:
+              arguments:
+              - x
+              expression: x^2
+      sampler:
+        type: PROBABILITY
+        sampler:
+          type: DISTANCE
+          point:
+            x: 0
+            z: 0
+          normalize: true
+          radius: 400
+  spotDistance:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 7
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.015
+    sampler:
+      type: EXPRESSION
+      expression: (noise(x, z)+1)*spread
+      variables:
+        spread: 1500
+        riftDistance: 300
+        largeSpawnRadiusOffset: 2000
+        biomeBorder: 20
+        largeBiomeBorder: 100
+        minRadius: 50
+        maxRadius: 150
+        minExtHeight: 0.05
+        maxExtHeight: 0.2
+        minVolHeight: 0.2
+        maxVolHeight: 0.4
+        prismaticMinHeight: 0.0
+        prismaticMaxHeight: 0.0
+        prismaticMinCenterDepth: 0.03
+        prismaticMaxCenterDepth: 0.01
+        spotMinEdgeRadius: 0.1
+        spotMaxEdgeRadius: 0.25
+        prismaticMinEdgeRadius: 0.5
+        prismaticMaxEdgeRadius: 0.7
+        sinkholeMinEdgeRadius: 0.6
+        sinkholeMaxEdgeRadius: 0.7
+        largeMinRadius: 500
+        largeMaxRadius: 1500
+        volcanoMinCenterDepth: 0.03
+        volcanoMaxCenterDepth: 0.3
+      samplers:
+        noise:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.0006666666667
+          salt: 3.0
+          jitter: 0.8
+          distance: Euclidean
+  spotSizePercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 3.0
+      jitter: 0.8
+      return: CellValue
+  spotRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  spotAngle:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: Angle
+  nearSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  nearSpotRift:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  spotCenterRiverDistFar:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: continentalRiverDistSparseFarGrid(x,z)
+  spotApproxRiverDist:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: spotCenterRiverDistFar(x, z)
+  spotTemperature:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: temperature(x, z)
+  spotPrecipitation:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: precipitation(x, z)
+  spotCenterNotNearRiver:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotApproxRiverDist(x,z)>150,1,0)
+  spotCenterContinents:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: continents(x, z)
+  spotCenterOnOcean:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(spotCenterContinents(x,z)<-0.1,1,0)
+  spotCenterOnLand:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
+  spotBaseElevation:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      type: EXPRESSION
+      expression: elevationSparse(x, z)
+  largeSpotDistance:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 7
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.01
+    sampler:
+      type: EXPRESSION
+      expression: (noise(x, z)+1)*spread
+      variables:
+        spread: 1500
+        riftDistance: 300
+        largeSpawnRadiusOffset: 2000
+        biomeBorder: 20
+        largeBiomeBorder: 100
+        minRadius: 50
+        maxRadius: 150
+        minExtHeight: 0.05
+        maxExtHeight: 0.2
+        minVolHeight: 0.2
+        maxVolHeight: 0.4
+        prismaticMinHeight: 0.0
+        prismaticMaxHeight: 0.0
+        prismaticMinCenterDepth: 0.03
+        prismaticMaxCenterDepth: 0.01
+        spotMinEdgeRadius: 0.1
+        spotMaxEdgeRadius: 0.25
+        prismaticMinEdgeRadius: 0.5
+        prismaticMaxEdgeRadius: 0.7
+        sinkholeMinEdgeRadius: 0.6
+        sinkholeMaxEdgeRadius: 0.7
+        largeMinRadius: 500
+        largeMaxRadius: 1500
+        volcanoMinCenterDepth: 0.03
+        volcanoMaxCenterDepth: 0.3
+      samplers:
+        noise:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.0002409638554
+          salt: 1236.0
+          jitter: 0.2771084337
+          distance: Euclidean
+  largeSpotSizePercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0002409638554
+      salt: 1236.0
+      jitter: 0.2771084337
+      return: CellValue
+  largeSpotRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  volcanoActivity:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    lookup:
+      type: WHITE_NOISE
+      salt: 4128.0
+  spotFluidLevel:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 7341.0
+  spotHeightPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 2847.0
+      jitter: 0.8
+      return: CellValue
+  spotFluidPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 9173.0
+      jitter: 0.8
+      return: CellValue
+  sinkholeDepthPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 6541.0
+      jitter: 0.8
+      return: CellValue
+  sinkholeFluidPercent:
+    dimensions: 2
+    type: PROBABILITY
+    sampler:
+      dimensions: 2
+      type: CELLULAR
+      frequency: 0.0006666666667
+      salt: 3178.0
+      jitter: 0.8
+      return: CellValue
+  spotMinElev:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        max(elevationSparse(x, z),
+          min(min(min(min(
+            elevationSparse(x + spotRadius(x, z), z),
+            elevationSparse(x - spotRadius(x, z), z)),
+          min(
+            elevationSparse(x, z + spotRadius(x, z)),
+            elevationSparse(x, z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+          min(
+            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+        )
+  sinkholeEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, sinkholeMinEdgeRadius, 1, sinkholeMaxEdgeRadius)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  distanceToSinkholeRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * sinkholeEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * sinkholeEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z), spotRadius(x, z) * sinkholeEdgeRadius(x, z), 0, spotRadius(x, z) + biomeBorder, 1)
+      )
+  prismaticFluidLevel:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+    expression: lerp(spotFluidPercent(x, z), 0, 0.5, 1, 1)
+  spotEdgeRadiusPercent:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.0006666666667
+    salt: 3.0
+    jitter: 0.8
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
+      salt: 5812.0
+  spotEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  prismaticEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, prismaticMinEdgeRadius, 1, prismaticMaxEdgeRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  volcanicEdgeRadius:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  volcanoCenterDepth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, volcanoMinCenterDepth, 1, volcanoMaxCenterDepth)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  prismaticCenterDepth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  distanceToSpotEdge:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotDistance(x, z) / spotRadius(x, z)
+  distanceToPrismaticRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * prismaticEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * prismaticEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * prismaticEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+  distanceToVolcanicRim:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * volcanicEdgeRadius(x, z),
+        spotDistance(x, z) / (spotRadius(x, z) * volcanicEdgeRadius(x, z)) - 1,
+        lerp(spotDistance(x, z),spotRadius(x, z) * volcanicEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
+      )
+  volcanoErosion:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      noise(
+        spotDistance(x, z) + spotSizePercent(x, z) * offsetAmplitude,
+        sin(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
+        cos(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
+      )
+    variables:
+      angleFrequency: 150
+      offsetAmplitude: 10000
+    samplers:
+      noise:
+        dimensions: 3
+        type: FBM
+        octaves: 3
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.033
+  spotPlacer:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
+        if(spotCenterOnOcean(x,z), -1.0,
+          if(spotCenterOnLand(x,z), 1.0, 0.0)),0.0)
+    variables:
+      spread: 1500
+      riftDistance: 300
+      largeSpawnRadiusOffset: 2000
+      biomeBorder: 20
+      largeBiomeBorder: 100
+      minRadius: 50
+      maxRadius: 150
+      minExtHeight: 0.05
+      maxExtHeight: 0.2
+      minVolHeight: 0.2
+      maxVolHeight: 0.4
+      prismaticMinHeight: 0.0
+      prismaticMaxHeight: 0.0
+      prismaticMinCenterDepth: 0.03
+      prismaticMaxCenterDepth: 0.01
+      spotMinEdgeRadius: 0.1
+      spotMaxEdgeRadius: 0.25
+      prismaticMinEdgeRadius: 0.5
+      prismaticMaxEdgeRadius: 0.7
+      sinkholeMinEdgeRadius: 0.6
+      sinkholeMaxEdgeRadius: 0.7
+      largeMinRadius: 500
+      largeMaxRadius: 1500
+      volcanoMinCenterDepth: 0.03
+      volcanoMaxCenterDepth: 0.3
+  elevationAcrossSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
+  elevationAcrossOceanSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,0,1,nonMountainElevation(x,z))
+  SinkholeDepth:
+    dimensions: 2
+    type: EXPRESSION
+    expression: lerp(spotHeightPercent(x,z),0,0.15,1,0.2)
+  sinkholeMinElev:
+    dimensions: 2
+    type: EXPRESSION
+    expression: spotMinElev(x,z) - SinkholeDepth(x,z)
+  special_caveSampler:
+    dimensions: 3
+    type: EXPRESSION
+    expression: "if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, \n  special_caveVariation(x,y*2,z),\n\
+      \  -1)\n"
+  special_caves:
+    dimensions: 3
+    type: CELLULAR
+    frequency: 0.005
+    jitter: 0.05
+    salt: 24.0
+  special_caveVariation:
+    dimensions: 3
+    type: CELLULAR
+    frequency: 0.005
+    jitter: 0.05
+    salt: 24.0
+    return: CellValue
+  special_caveElevation:
+    dimensions: 3
+    type: CELLULAR
+    frequency: 0.005
+    jitter: 0.05
+    salt: 24.0
+    return: NoiseLookup
+    lookup:
+      dimensions: 3
+      type: EXPRESSION
+      expression: continents(x, z)
+  rawTemperature:
+    dimensions: 2
+    type: EXPRESSION
+    expression: sampler(x / temperatureScale / globalScale, z / temperatureScale / globalScale) * temperatureSpread + temperatureOffset
+    variables:
+      globalScale: 1
+      temperatureScale: 1.2
+      temperatureOffset: 0.075
+      temperatureSpread: 1.175
+    samplers:
+      sampler:
+        dimensions: 2
+        type: TRANSLATE
+        x: 10000
+        z: 10000
+        sampler:
+          type: FBM
+          gain: 0.4
+          octaves: 2
+          sampler:
+            type: OPEN_SIMPLEX_2
+            salt: 3.0
+            frequency: 0.0002
+  temperature:
+    dimensions: 2
+    type: EXPRESSION
+    expression: rawTemperature(x, z) - lerp(tempElevationReference(x, z), lapseStart, 0, 1, lapseRate)
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    variables:
+      lapseRate: 0.5
+      lapseStart: 0.2
+  trenchNoise:
+    dimensions: 2
+    type: TRANSLATE
+    x: -10000
+    z: -10000
+    sampler:
+      type: DOMAIN_WARP
+      amplitude: 3
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.1
+      sampler:
+        type: OPEN_SIMPLEX_2
+        salt: 4357.0
+  trenchDistance:
+    dimensions: 2
+    type: EXPRESSION
+    expression: '|trenchNoise(x*trenchFrequency, z*trenchFrequency)|'
+    variables:
+      notTrenchValue: 2
+      borderValue: 1
+      trenchValue: 0
+      trenchFrequency: 0.025
+      trenchThreshold: 0.3
+      trenchMinWidth: 8
+      trenchMaxWidth: 13
+      erosionMaxDistance: 0.3
+      erosionMax: 0.95
+      erosionMin: 0
+  trenchBiomeMap:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      trenchBiomeMap(
+        x,
+        lerp(width(x*trenchFrequency, z*trenchFrequency), -0.75, trenchMinWidth, 0.75, trenchMaxWidth),
+        z
+      )
+    variables:
+      notTrenchValue: 2
+      borderValue: 1
+      trenchValue: 0
+      trenchFrequency: 0.025
+      trenchThreshold: 0.3
+      trenchMinWidth: 8
+      trenchMaxWidth: 13
+      erosionMaxDistance: 0.3
+      erosionMax: 0.95
+      erosionMin: 0
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+      lerp3:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        - ct
+        - c
+        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+        functions:
+          lerp:
+            arguments:
+            - t
+            - at
+            - a
+            - bt
+            - b
+            expression: |
+              if(at<bt,
+                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+              )
+      herp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          hermite:
+            arguments:
+            - x
+            expression: 3*x^2-2*x^3
+      parabolicMap:
+        arguments:
+        - t
+        - bt
+        - b
+        - at
+        - a
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+          )
+        functions:
+          interpolation:
+            arguments:
+            - x
+            expression: x^2
+    samplers:
+      width:
+        dimensions: 2
+        type: OPEN_SIMPLEX_2
+        frequency: 0.05
+        salt: 5346.0
+      trenchBiomeMap:
+        dimensions: 3
+        type: EXPRESSION
+        expression: |
+          if(trenchDistance(x, z)>trenchThreshold,
+            notTrenchValue,
+            if(trenchKerneled((x-y)/y, y, (z-y)/y)!=0,
+              trenchValue,
+              borderValue
+            )
+          )
+        variables:
+          notTrenchValue: 2
+          borderValue: 1
+          trenchValue: 0
+          trenchFrequency: 0.025
+          trenchThreshold: 0.3
+          trenchMinWidth: 8
+          trenchMaxWidth: 13
+          erosionMaxDistance: 0.3
+          erosionMax: 0.95
+          erosionMin: 0
+        samplers:
+          trenchKerneled:
+            dimensions: 3
+            type: KERNEL
+            kernel:
+            - - 0
+              - 1
+              - 0
+            - - 1
+              - -4
+              - 1
+            - - 0
+              - 1
+              - 0
+            sampler:
+              type: EXPRESSION
+              expression: trenchNoise(x*y*trenchFrequency, z*y*trenchFrequency)>0
+              variables:
+                notTrenchValue: 2
+                borderValue: 1
+                trenchValue: 0
+                trenchFrequency: 0.025
+                trenchThreshold: 0.3
+                trenchMinWidth: 8
+                trenchMaxWidth: 13
+                erosionMaxDistance: 0.3
+                erosionMax: 0.95
+                erosionMin: 0
+  trenchSampler:
+    dimensions: 2
+    type: EXPRESSION
+    expression: segment(trenchBiomeMap(x, z), trenchValue, borderValue, (elevation(x, z) < lowlandsThreshold) && (borderMask(x,
+      z) < borderMaskThreshold))
+    variables:
+      trenchValue: 0
+      borderValue: 1
+      borderMaskThreshold: 0.2
+      lowlandsThreshold: 0.15
+    functions:
+      segment:
+        arguments:
+        - trench
+        - trenchValue
+        - borderValue
+        - borderPredicate
+        expression: if(trench <= trenchValue, 1, if((trench <= borderValue) && borderPredicate, -0.4, -1))
+    samplers:
+      borderMask:
+        dimensions: 2
+        type: PROBABILITY
+        sampler:
+          type: OPEN_SIMPLEX_2
+          salt: 4812.0
+          frequency: 0.003
+functions:
+  clamp:
+    arguments:
+    - x
+    - a
+    - b
+    expression: min(max(x, a), b)
+  lerp:
+    arguments:
+    - t
+    - at
+    - a
+    - bt
+    - b
+    expression: |
+      if(at<bt,
+        if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+        if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+      )
+  lerp3:
+    arguments:
+    - t
+    - at
+    - a
+    - bt
+    - b
+    - ct
+    - c
+    expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
+    functions:
+      lerp:
+        arguments:
+        - t
+        - at
+        - a
+        - bt
+        - b
+        expression: |
+          if(at<bt,
+            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+          )
+  herp:
+    arguments:
+    - t
+    - at
+    - a
+    - bt
+    - b
+    expression: |
+      if(at<bt,
+        if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
+        if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
+      )
+    functions:
+      hermite:
+        arguments:
+        - x
+        expression: 3*x^2-2*x^3
+  parabolicMap:
+    arguments:
+    - t
+    - bt
+    - b
+    - at
+    - a
+    expression: |
+      if(at<bt,
+        if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
+        if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
+      )
+    functions:
+      interpolation:
+        arguments:
+        - x
+        expression: x^2
+  maskSmooth:
+    arguments:
+    - v
+    - lb
+    - ub
+    - m
+    expression: |
+      if(lb<ub,
+        if(m<=lb,0,if(m>=ub,v,v*hermite((m-lb)/(ub-lb)))),
+        if(m>=lb,0,if(m<=ub,v,v*hermite((m-lb)/(ub-lb))))
+      )
+    functions:
+      hermite:
+        arguments:
+        - x
+        expression: 3*x^2-2*x^3
+  shelf:
+    arguments:
+    - x
+    - shelfOffset
+    - shelfWidth
+    - shelfDepth
+    expression: x + shelfDepth * shelfWidth * profile(clamp((x/shelfWidth)+1-shelfOffset))
+    functions:
+      clamp:
+        arguments:
+        - x
+        expression: if(0 <= x && x < 1, x, 0)
+      profile:
+        arguments:
+        - x
+        expression: '|x - 0.5| - 0.5'
+  terrace:
+    arguments:
+    - i
+    - sc
+    - o
+    - g
+    - d
+    expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+    functions:
+      clamp:
+        arguments:
+        - x
+        expression: if(0 <= x && x < 1, x, 0)
+      floorMod:
+        arguments:
+        - x
+        - i
+        expression: x - floor(x/i) * i
+      profile:
+        arguments:
+        - x
+        expression: '|x - 0.5| - 0.5'
+  terraceStrata:
+    arguments:
+    - i
+    - sc
+    - o
+    - g
+    - d
+    expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+    functions:
+      clamp:
+        arguments:
+        - x
+        expression: if(0 <= x && x < 1, x, 0)
+      floorMod:
+        arguments:
+        - x
+        - i
+        expression: x - floor(x/i) * i
+      profile:
+        arguments:
+        - x
+        expression: -if(x>0.95,-(x-1)/0.05,x/0.95)
+  terraceParabolic:
+    arguments:
+    - i
+    - sc
+    - o
+    - g
+    - d
+    expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+    functions:
+      clamp:
+        arguments:
+        - x
+        expression: if(0 <= x && x < 1, x, 0)
+      floorMod:
+        arguments:
+        - x
+        - i
+        expression: x - floor(x/i) * i
+      profile:
+        arguments:
+        - x
+        expression: (x - 0.5)^2 - 0.25
+  terraceParalinear:
+    arguments:
+    - i
+    - sc
+    - o
+    - g
+    - d
+    expression: d * sc * profile(clamp(floorMod(i/sc-o, 1+g))) + i
+    functions:
+      clamp:
+        arguments:
+        - x
+        expression: if(0 <= x && x < 1, x, 0)
+      floorMod:
+        arguments:
+        - x
+        - i
+        expression: x - floor(x/i) * i
+      profile:
+        arguments:
+        - x
+        expression: |-
+          if(0.25 < x && x < 0.75,
+            2*(x-0.5)^2-0.375,
+            |x - 0.5| - 0.5
+          )

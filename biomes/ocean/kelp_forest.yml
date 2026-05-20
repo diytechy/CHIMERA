@@ -9,6 +9,7 @@ extends:
 color: $biomes/colors.yml:KELP_FOREST
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
   - USE_TRENCH
 

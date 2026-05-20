@@ -9,6 +9,7 @@ color: $biomes/colors.yml:ERUPTED_VOLCANO
 vanilla: minecraft:badlands
 
 tags:
+  - SPECIAL_CAVES
   - LAVA_TUBES
 
 ocean:

@@ -8,6 +8,7 @@ color: $biomes/colors.yml:TROPICAL_DEEP_OCEAN_VENTS
 vanilla: minecraft:warm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
 
 palette:

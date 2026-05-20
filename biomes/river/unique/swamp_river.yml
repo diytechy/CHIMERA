@@ -9,6 +9,7 @@ color: $biomes/colors.yml:SWAMP_RIVER
 
 vanilla: minecraft:river
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

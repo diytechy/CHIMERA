@@ -26,6 +26,7 @@ slant:
       - BLOCK:minecraft:stone: $meta.yml:top-y
       - << meta.yml:palette-bottom
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   flora:

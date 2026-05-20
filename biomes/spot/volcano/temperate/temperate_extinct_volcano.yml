@@ -10,5 +10,6 @@ color: $biomes/colors.yml:TEMPERATE_EXTINCT_VOLCANO
 vanilla: minecraft:plains
 
 tags:
+  - SPECIAL_CAVES
   - LOW_CAVES
   - USE_RIVER

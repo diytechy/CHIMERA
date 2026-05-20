@@ -24,6 +24,7 @@ slant:
       - TERRACOTTA_CANYON: 55
       - << meta.yml:palette-bottom
 tags:
+- SPECIAL_CAVES
 - BORDER_LAND_CAVES
 - LOW_CAVES
 

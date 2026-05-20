@@ -6,6 +6,7 @@ color: $biomes/colors.yml:SHALLOW_CORAL_OCEAN
 vanilla: minecraft:warm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
 
 features:

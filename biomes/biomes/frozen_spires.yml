@@ -28,6 +28,7 @@ features:
   entities:
   - POLAR_BEARS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - DEEP_DARK
 - POLAR_COAST_HIGHLANDS

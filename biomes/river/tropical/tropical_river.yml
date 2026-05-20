@@ -33,6 +33,7 @@ colors:
   water-fog: 0x0686ca
 
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   flora:

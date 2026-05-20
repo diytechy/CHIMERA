@@ -11,6 +11,7 @@ colors:
   water: 3319192
   water-fog: 3319192
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   flora:

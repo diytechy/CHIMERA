@@ -8,5 +8,6 @@ extends:
 color: $biomes/colors.yml:TROPICAL_EXTINCT_VOLCANO
 vanilla: minecraft:jungle
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 - USE_TROPICAL_RIVER

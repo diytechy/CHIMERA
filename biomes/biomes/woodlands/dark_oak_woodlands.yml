@@ -39,5 +39,6 @@ features:
   entities:
   - COMMON_MOBS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - USE_DRAFTY_STREAM_RIVER

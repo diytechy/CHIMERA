@@ -8,4 +8,5 @@ color: $biomes/colors.yml:SUBTROPICAL_OCEAN_TRENCH
 vanilla: minecraft:lukewarm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

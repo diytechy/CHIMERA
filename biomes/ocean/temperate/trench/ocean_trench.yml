@@ -8,4 +8,5 @@ color: $biomes/colors.yml:OCEAN_TRENCH
 vanilla: minecraft:ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

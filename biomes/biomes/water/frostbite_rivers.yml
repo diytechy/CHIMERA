@@ -33,6 +33,7 @@ slant:
       - << palettes/rock_layers.yml:palette
       
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   landforms:

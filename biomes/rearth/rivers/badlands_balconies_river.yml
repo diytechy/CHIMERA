@@ -9,6 +9,7 @@ extends:
 original-noise: &originalNoise $biomes/rearth/base/eq_badlands_balconies.yml:terrain.sampler # Original noise to be turned into river
 
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

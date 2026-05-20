@@ -8,6 +8,7 @@ extends:
 color: $biomes/colors.yml:DESERT_MESA
 
 tags:
+  - SPECIAL_CAVES
   - USE_DESERT_RIVER
   - LAND_CAVES
 

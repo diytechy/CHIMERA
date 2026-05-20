@@ -26,6 +26,7 @@ slant:
 
 color: $biomes/colors.yml:DESERT_RIVER
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   landforms:

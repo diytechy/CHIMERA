@@ -11,6 +11,7 @@ color: $biomes/colors.yml:FROZEN_OCEAN
 vanilla: minecraft:frozen_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
   - USE_FROZEN_TRENCH
 

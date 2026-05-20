@@ -8,6 +8,7 @@ color: $biomes/colors.yml:FROZEN_DEEP_OCEAN
 vanilla: minecraft:deep_frozen_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
 
 ocean:

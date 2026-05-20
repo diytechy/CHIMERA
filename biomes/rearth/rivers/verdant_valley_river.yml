@@ -7,4 +7,5 @@ extends:
  - EQ_RIVER_CARVING
 
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES

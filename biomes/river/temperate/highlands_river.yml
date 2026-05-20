@@ -7,4 +7,5 @@ extends:
   - EQ_RIVER_CARVING
 color: $biomes/colors.yml:HIGHLANDS_RIVER
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES

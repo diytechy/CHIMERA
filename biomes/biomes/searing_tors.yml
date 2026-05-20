@@ -38,6 +38,7 @@ features:
   #entities:
   #- BLAZES
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 - DEEP_DARK_GROVE
 - BOREAL_COAST_HIGHLANDS

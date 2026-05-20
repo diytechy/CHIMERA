@@ -2,6 +2,7 @@ id: LOW_CAVES_PRE
 type: BIOME
 extends: [ CAVE ]
 tags:
+  - SPECIAL_CAVES
   - LOW_CAVES
 vanilla: minecraft:dripstone_caves
 palette:

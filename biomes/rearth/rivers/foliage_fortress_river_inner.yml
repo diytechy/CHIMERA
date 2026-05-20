@@ -18,6 +18,7 @@ vars: &variables
   #  * Gets factored by floorStrength
 
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   underwater-flora:

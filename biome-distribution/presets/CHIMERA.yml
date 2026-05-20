@@ -6,8 +6,8 @@ biomes:
   type: EXTRUSION
   extrusions:
     # All cave extrusions
-    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
+    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
 
   # Y-axis domain warp applied before extrusion range checks.

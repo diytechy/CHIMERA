@@ -39,7 +39,7 @@ biomeSpread:
   mountainFrequency: 0.004  # shared frequence of some larger mountain biomes, allows them to blend easier
 
   canyons:
-    minY: 35 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
+    minY: 40 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
     canyonAmount: 0.0 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
 
 # This file provides various general options for configuring this config pack.

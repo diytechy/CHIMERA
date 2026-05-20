@@ -131,7 +131,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      rVal: 100
+      rVal: 50
     expression: |
       min(continental_landmass_sparse(x, z),
         min(min(min(min(

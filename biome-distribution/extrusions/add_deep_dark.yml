@@ -13,19 +13,6 @@ extrusions:
   #    - LOW_CAVES_PRE: 1
   #    - DEEP_DARK: 1
 
-  - type: REPLACE
-    range:
-      min: -62
-      max: $meta.yml:deepslate-top
-    sampler:
-      dimensions: 2
-      type: CONSTANT
-      value: 1
-    from: DEEP_DARK
-    to:
-      - SELF: 1
-      - DEEP_DARK: 1
-
 
   - type: REPLACE
     range:
@@ -39,3 +26,29 @@ extrusions:
     to:
     - SELF: 1
     - DEEP_DARK_GROVE: 1
+
+  - type: SET
+    range:
+      min: -62
+      max: $meta.yml:deepslate-top
+    sampler:
+      type: EXPRESSION
+      expression: |
+        if (mountainsApplied(x,z)>0.7,1,
+          -1)
+    to:
+      - SELF: 1
+      - DEEP_DARK: 1
+
+  #- type: REPLACE
+  #  range:
+  #    min: -62
+  #    max: $meta.yml:deepslate-top
+  #  sampler:
+  #    dimensions: 2
+  #    type: CONSTANT
+  #    value: 1
+  #  from: DEEP_DARK
+  #  to:
+  #    - SELF: 1
+  #    - DEEP_DARK: 1

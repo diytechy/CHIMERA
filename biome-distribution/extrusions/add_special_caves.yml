@@ -1,14 +1,18 @@
 extrusions:
-  - type: REPLACE
-    from: SPECIAL_CAVES
+  - type: SET
+    #from: SPECIAL_CAVES
     sampler: &special_caveSampler
       type: EXPRESSION
-      expression: special_caveSampler(x,y,z)
+      #If low temperature, compress the range so as to not place infernos in frozen regions.
+      expression: |
+        if(special_caveTemperature(x,y,z)<-0.2,
+          special_caveSampler(x,y,z)*0.9,
+          special_caveSampler(x,y,z))
     to:
-      - SELF: 7
-      - INFERNO_ISLES: 1
-      - TERRACOTTA_TOMBS: 1
       - VINE_VAULT: 1
+      - TERRACOTTA_TOMBS: 1
+      - SELF: 17
+      - INFERNO_ISLES: 1
     range:
       min: -30
       max: 40

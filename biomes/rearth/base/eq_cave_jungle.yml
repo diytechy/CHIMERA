@@ -13,10 +13,16 @@ terrain:
     weight: 1.0
   sampler:
     dimensions: 3
+    type: CONSTANT
+    value: 10
+    
+carving:
+  sampler:
+    dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(max((special_caves(x, y * 3.5, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
+      -clamp(max((special_caves(x, y * 3.5, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
       + max((-platforms(x,z) -0.83 + abs(wallOffset(y, x / 20,  z / 24)) * 0.05) * 14, 0)
       , -10, 10) * 16
     functions:

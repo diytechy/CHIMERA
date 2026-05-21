@@ -5,7 +5,8 @@ stages:
       type: EXPRESSION
       variables:
         riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
-      expression: if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&(continents(x,z)>0.1)),1,-1)
+      expression: |
+        riftLandDistributor(x,z)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}

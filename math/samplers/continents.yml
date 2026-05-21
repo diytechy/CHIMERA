@@ -88,6 +88,12 @@ samplers:
         spawnIsland(x, z)
       )
 
+  continentsSparse:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      continents(round(x/4)*4, round(z/4)*4)
+
   blotSpots:
     dimensions: 2
     type: EXPRESSION

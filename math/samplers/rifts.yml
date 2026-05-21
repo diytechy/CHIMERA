@@ -6,6 +6,16 @@ riftCell: &riftCell
   jitter: 0.5
 
 samplers:
+  riftLandDistributor:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+    # Common distributor for rift land.
+    expression: |
+      if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&
+      (continents(x,z)>0.1)),1,-1)
+
   riftHybDistFromCenter:
     <<: *riftCell
     distance: Hybrid
@@ -30,6 +40,30 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: nearSpotRift(x,z)
+    salt-lookup: false
+
+  riftContinents:
+    <<: *riftCell
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      variables:
+        radius: ${customization.yml:biomeSpread.riftDistance}*0.4
+      expression: |
+        min(continentsSparse(x, z),
+          min(min(min(min(
+            continentsSparse(x + radius, z),
+            continentsSparse(x - radius, z)),
+          min(
+            continentsSparse(x, z + radius),
+            continentsSparse(x, z - radius))),
+          min(
+            continentsSparse(x + radius, z + radius),
+            continentsSparse(x + radius, z - radius))),
+          min(
+            continentsSparse(x - radius, z + radius),
+            continentsSparse(x - radius, z - radius))))
     salt-lookup: false
 
   riftFarRiverDist:
@@ -86,26 +120,38 @@ samplers:
     variables:
       pit_threshold: -0.5
     expression: |
-      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
-        (riftTemperature(x,z)<-0.3) && (riftRegions(x,z)<pit_threshold)
-
-  cold_rift:
-    type: EXPRESSION
-    dimensions: 2
-    variables:
-      rift_threshold: 0.7
-    expression: |
-      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
-        (riftTemperature(x,z)<-0.1) && (riftRegions(x,z)>rift_threshold)
+      (riftContinents(x,z)>0)&&
+      (riftLandDistributor(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) && 
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)<-0.3) && 
+      (riftRegions(x,z)<pit_threshold)
         
   warm_pit:
     type: EXPRESSION
     dimensions: 2
     variables:
-      pit_threshold: -0.5
+      pit_threshold: -0.4
     expression: |
-      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
-        (riftTemperature(x,z)>0) && (riftRegions(x,z)<pit_threshold)
+      (riftContinents(x,z)>0)&&
+      (riftLandDistributor(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) && 
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)>0) && 
+      (riftRegions(x,z)<pit_threshold)
+
+  cold_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.6
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftLandDistributor(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) && 
+      (riftInRangeOfSpot(x,z)<0) && 
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)<-0.1) 
 
   warm_rift:
     type: EXPRESSION
@@ -113,5 +159,9 @@ samplers:
     variables:
       rift_threshold: 0.7
     expression: |
-      (riftFarRiverDist(x,z)>200) && (riftInRangeOfSpot(x,z)) &&
-        (riftTemperature(x,z)>0) && (riftRegions(x,z)>rift_threshold)
+      (riftContinents(x,z)>0)&&
+      (riftLandDistributor(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) && 
+      (riftInRangeOfSpot(x,z)<0) && 
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)>0) 

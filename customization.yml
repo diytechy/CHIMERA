@@ -10,7 +10,7 @@ biomeSpread:
   #are realized (depends on terrain sampler used)
   
   # Rift region distance for cells that will contain rifts.
-  riftDistance: 300
+  riftDistance: 250
   
   # Basic size of island region features
   # Increase to make regions larger.

@@ -265,7 +265,7 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        max(elevationSparse(x, z),
+        min(elevationSparse(x, z),
           min(min(min(min(
             elevationSparse(x + spotRadius(x, z), z),
             elevationSparse(x - spotRadius(x, z), z)),

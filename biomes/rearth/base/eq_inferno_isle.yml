@@ -4,6 +4,8 @@ abstract: true
 
 vars: &variables
   middleHeight: -7
+  #"<<":
+  #  - biomes/equations/caverns/eq_carving_land.yml:variables
 
 terrain:
   blend:
@@ -21,13 +23,28 @@ carving:
     type: EXPRESSION
     variables: *variables
     expression: |
-      -clamp(max((special_caves(x, y * 2, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
-      + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
+      10
+      //-clamp(max((special_caves(x, y * 2, z) + 1.0) * 50 + wallOffset(x,y,z) * 3, -2)
+      //+ max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
+      //+ carver_fade(x,y,z)
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
-    samplers:
+    samplers: 
+      carver_fade: 
+        dimensions: 3
+        type: EXPRESSION
+        variables:
+          act_dist: ${customization.yml:special_cave_biome_activation}
+        expression: min(0,carver(x,y,z) + if(y<0, min(y,lerp(special_caves(x, y * 2, z),act_dist+0.05,-10,act_dist,0)),0))
+        samplers:
+          carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
+        #dimensions: 3
+        #type: EXPRESSION
+        #variables: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.variables
+        #expression: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.expresion
+        
       platforms:
         dimensions: 2
         type: DOMAIN_WARP

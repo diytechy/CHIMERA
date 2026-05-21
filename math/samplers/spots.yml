@@ -438,8 +438,10 @@ samplers:
     type: EXPRESSION
     # 0 when not valid puts in center of distribution range, which should prevent placement as long
     # as extrusion is set properly.
+    variables:
+      act_dist: ${customization.yml:special_cave_biome_activation}
     expression: |
-      (special_caves(x,y*2,z) < -0.79) && 
+      (special_caves(x,y*2,z) < act_dist) && 
       (special_caveElevation(x, z) > 0.0)
     
   special_caveInferno:
@@ -471,12 +473,13 @@ samplers:
       cave_dia: ${customization.yml:cave_dia}
       cave_dist: ${customization.yml:cave_dist}
     expression: |
-      ((((cell_spot(x,z)+1)*(cave_dist/cave_dia))^2+(y/cave_dia)^2))^0.5-1
+      ((((cell_spot(x,z)+1)*(cave_dist/cave_dia))^2+(y/(cave_dia*0.5))^2))^0.5-1
     samplers:
       cell_spot: &caveSettings
         dimensions: 2
         type: CELLULAR
         frequency:  1 / ${customization.yml:cave_dist}
+        distance: Euclidean
         jitter: 0.5
         salt: 24
 

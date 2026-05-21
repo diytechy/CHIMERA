@@ -195,6 +195,9 @@ continental-coast-cutoff: 0.02
 # Elevation
 # ---
 
+cave_dia: 200
+cave_dist: 400
+
 # Options that control the elevation / height map.
 # An elevation value of 0 corresponds to the lowest elevation, while a value of 1
 # correspons to the highest elevation.

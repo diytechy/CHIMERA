@@ -440,44 +440,53 @@ samplers:
     # as extrusion is set properly.
     expression: |
       (special_caves(x,y*2,z) < -0.79) && 
-      (special_caveElevation(x, y*2, z) > 0.0)
+      (special_caveElevation(x, z) > 0.0)
     
   special_caveInferno:
     dimensions: 3
     type: EXPRESSION
     variables:
-      hot_threshold: 0.5
+      hot_threshold: 0.3
     expression: |
       special_cavePresent(x,y,z) && 
-      (special_caveTemperature(x,y*2,z)>0) &&
-      (special_caveVariation(x,y*2,z)>hot_threshold)
+      (special_caveTemperature(x,z)>0) &&
+      (special_caveVariation(x,z)>hot_threshold)
     
   special_caveNonInferno:
     dimensions: 3
     type: EXPRESSION
     variables:
-      not_hot_threshold: -0.5
+      not_hot_threshold: -0.3
     #Because these distribute to multiple, need to convert to another distribution range for placement (0,1).
     expression: |
       if((special_cavePresent(x,y,z)) &&
-      (special_caveVariation(x,y*2,z)<not_hot_threshold),
-        (not_hot_threshold - special_caveVariation(x,y*2,z))/(1+not_hot_threshold),
+      (special_caveVariation(x,z)<not_hot_threshold),
+        (not_hot_threshold - special_caveVariation(x,z))/(1+not_hot_threshold),
         0)
 
-  special_caves: &caveSettings
+  special_caves:
     dimensions: 3
-    type: CELLULAR
-    frequency: 0.005
-    jitter: 0.05
-    salt: 24
+    type: EXPRESSION
+    variables:
+      cave_dia: ${customization.yml:cave_dia}
+      cave_dist: ${customization.yml:cave_dist}
+    expression: |
+      ((((cell_spot(x,z)+1)*(cave_dist/cave_dia))^2+(y/cave_dia)^2))^0.5-1
+    samplers:
+      cell_spot: &caveSettings
+        dimensions: 2
+        type: CELLULAR
+        frequency:  1 / ${customization.yml:cave_dist}
+        jitter: 0.5
+        salt: 24
 
   special_caveVariation:
-    dimensions: 3
+    dimensions: 2
     <<: *caveSettings
     return: CellValue
 
   special_caveElevation:
-    dimensions: 3
+    dimensions: 2
     <<: *caveSettings
     return: NoiseLookup
     salt-lookup: false
@@ -488,7 +497,7 @@ samplers:
         aroundContinent(x, z)
 
   special_caveTemperature:
-    dimensions: 3
+    dimensions: 2
     <<: *caveSettings
     return: NoiseLookup
     salt-lookup: false
@@ -497,14 +506,3 @@ samplers:
       type: EXPRESSION
       expression: |
         temperature(x, z)
-
-  special_caveNotOnRiver:
-    dimensions: 3
-    <<: *caveSettings
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      dimensions: 3
-      type: EXPRESSION
-      expression: |
-        continentalRiverDistSparseFarGrid(x, z)>150

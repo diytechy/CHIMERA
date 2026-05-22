@@ -266,19 +266,21 @@ samplers:
       type: EXPRESSION
       expression: |
         min(elevationSparse(x, z),
-          min(min(min(min(
-            elevationSparse(x + spotRadius(x, z), z),
-            elevationSparse(x - spotRadius(x, z), z)),
           min(
-            elevationSparse(x, z + spotRadius(x, z)),
-            elevationSparse(x, z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        )
+            min(
+              min(
+                elevationSparse(x + spotRadius(x, z), z),
+                elevationSparse(x - spotRadius(x, z), z)),
+              min(
+                elevationSparse(x, z + spotRadius(x, z)),
+                elevationSparse(x, z - spotRadius(x, z)))),
+            min(
+              min(
+                elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+                elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z))),
+              min(
+                elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+                elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))))
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:

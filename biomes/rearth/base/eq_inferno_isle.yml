@@ -54,11 +54,15 @@ carving:
           // the upper hemisphere.
           if(y<0,
             //When in the lower hemisphere, fade out global carver as we approach the transition threshold.
-            lerp(min(y,special_caves(x, y, z)*50),-5,-10,0,carver(x,y,z)))
+            lerp(min(y,pass_if_greater_than(special_caves(x, y, z)*50),-5,0)),-5,-10,0,carver(x,y,z)))
             ,
             //When in the upper hemisphere, just use the global carver.
             carver(x,y,z)
           )
+        functions:
+          pass_if_greater_than:
+            arguments: [x, a, b]
+            expression: if(x>a,x,b)
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
         #dimensions: 3

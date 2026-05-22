@@ -1,6 +1,6 @@
 id: VINE_VAULT
 type: BIOME
-extends: [ ORES_DEFAULT , EQ_CAVE_JUNGLE]
+extends: [ ORES_DEFAULT , EQ_VINE_VAULT]
 vanilla: minecraft:lush_caves
 color: $biomes/colors.yml:DRIPSTONE_CAVES
 

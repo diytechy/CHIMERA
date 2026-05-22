@@ -473,7 +473,7 @@ samplers:
       cave_dia: ${customization.yml:cave_dia}
       cave_dist: ${customization.yml:cave_dist}
     expression: |
-      ((((cell_spot(x,z)+1)*(cave_dist/cave_dia))^2+(y/(cave_dia*0.5))^2))^0.5-1
+      ((((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2+(y/(cave_dia*0.5))^2))^0.5-1
     samplers:
       cell_spot: &caveSettings
         dimensions: 2

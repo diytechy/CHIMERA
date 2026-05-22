@@ -23,10 +23,22 @@ carving:
     type: EXPRESSION
     variables: *variables
     expression: |
-      10
-      //-clamp(max((special_caves(x, y * 2, z) + 1.0) * 50 + wallOffset(x,y,z) * 3, -2)
-      //+ max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
-      //+ carver_fade(x,y,z)
+      //10
+      //Take the max value for carving between the special cave void and 
+      // the faded standard cave carver.
+      max(
+        // Inverted expression, >0 evaluates to solid, <0 becomes air,
+        // inheritted from previous expression that used terrain instead of carver.
+        -clamp(
+          //Create main cavity, where only the edge is solid with some wall noise
+          max((special_caves(x, y , z) + 0.1) * 50 + wallOffset(x,y,z) * 3, -2)
+          //Create a platform at the middle height
+          + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29),
+          //Clamp the entire expression.
+        -10, 10) * 16
+        ,
+        carver_fade(x,y,z)
+      )
     functions:
       clamp:
         arguments: [x, a, b]
@@ -37,7 +49,16 @@ carving:
         type: EXPRESSION
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
-        expression: min(0,carver(x,y,z) + if(y<0, min(y,lerp(special_caves(x, y * 2, z),act_dist+0.05,-10,act_dist,0)),0))
+        expression: |
+          //For inferno, just preserve the lower hemisphere, everything else can carve into
+          // the upper hemisphere.
+          if(y<0,
+            //When in the lower hemisphere, fade out global carver as we approach the transition threshold.
+            lerp(min(y,special_caves(x, y, z)*50),-5,-10,0,carver(x,y,z)))
+            ,
+            //When in the upper hemisphere, just use the global carver.
+            carver(x,y,z)
+          )
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
         #dimensions: 3

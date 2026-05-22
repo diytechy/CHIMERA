@@ -441,7 +441,7 @@ samplers:
     variables:
       act_dist: ${customization.yml:special_cave_biome_activation}
     expression: |
-      (special_caves(x,y*2,z) < act_dist) && 
+      (special_caves(x,y,z) < act_dist) && 
       (special_caveElevation(x, z) > 0.0)
     
   special_caveInferno:
@@ -472,8 +472,23 @@ samplers:
     variables:
       cave_dia: ${customization.yml:cave_dia}
       cave_dist: ${customization.yml:cave_dist}
+      cave_upper: ${customization.yml:cave_upper}
+      cave_upper: ${customization.yml:cave_lower}
+      #Compute the radius into the special cave
+      #0 at the edge, -1 at the center, similar to cellular noise pattern, but
+      # edge at 0 to normalize.
+
     expression: |
-      ((((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2+(y/(cave_dia*0.5))^2))^0.5-1
+      (
+        //First compute normalized radius on the x/z plane:
+        ((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2
+        
+        //Then add in the normalizd y component adjusting the exponent for different
+        //curvature and max / min in line with biome replacement:
+        +(if(y>0,y/cave_upper,y/cave_lower)^4)
+        
+        //Then convert back to standard normalized radius
+      )^0.5-1
     samplers:
       cell_spot: &caveSettings
         dimensions: 2

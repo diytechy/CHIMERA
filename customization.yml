@@ -192,12 +192,18 @@ continental-coast-cutoff: 0.02
 #Defines how much of the continental ratio will be reserved for coastal biomes. Higher values will result in wider coastal regions, while lower values will result in thinner coastal regions.
 
 # ---
-# Elevation
+# Special caves
 # ---
 
 special_cave_biome_activation: 0
 cave_dia: 200
 cave_dist: 400
+cave_upper: 40
+cave_lower: -30
+
+# ---
+# Elevation
+# ---
 
 # Options that control the elevation / height map.
 # An elevation value of 0 corresponds to the lowest elevation, while a value of 1

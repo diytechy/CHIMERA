@@ -3,8 +3,6 @@ stages:
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      variables:
-        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
       expression: |
         riftLandDistributor(x,z)
     from: land

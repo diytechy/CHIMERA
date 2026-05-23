@@ -108,10 +108,10 @@ carving:
           // effective distances per point, giving the shell edge an organic, rocky look.
           if(y<0,
             // Lower hemisphere: fade out global carver as we approach the transition threshold.
-            lerp(min(y,pass_if_greater_than((special_caves(x,y,z) + shellNoise(x,y,z)*0.08)*50,-5,0)),-5,-10,0,carver(x,y,z))
+            lerp(min(y,pass_if_greater_than((special_caves(x,y,z) + shellNoise(x,y,z)*0.12)*50,-5,0)),-5,-10,0,carver(x,y,z))
             ,
             // Upper hemisphere: fade so carvers cut into the shell without causing floating blocks.
-            lerp(special_caves(x,y,z) + shellNoise(x,y,z)*0.08,-0.2,-1,0,carver(x,y,z))
+            lerp(special_caves(x,y,z) + shellNoise(x,y,z)*0.12,-0.2,-1,0,carver(x,y,z))
           )
         functions:
           pass_if_greater_than:
@@ -126,7 +126,7 @@ carving:
             type: FBM
             sampler:
               type: OPEN_SIMPLEX_2
-              frequency: 0.05
+              frequency: 0.15
             octaves: 2
             gain: 0.5
         #dimensions: 3

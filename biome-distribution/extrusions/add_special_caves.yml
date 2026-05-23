@@ -3,19 +3,34 @@ extrusions:
     #from: SPECIAL_CAVES
     sampler:
       type: EXPRESSION
-      #If inside a rift (>0) and the rift is present, force there to be no special cave.
+      #If inside a pit (warm or cold) AND inside the rift well zone (>0.2), force no special cave.
+      #The 0.2 threshold intentionally lets special caves override the pit a small distance inward.
+      #warped_pit applies the same DOMAIN_WARP (amplitude 60, OPEN_SIMPLEX_2, freq 0.002) used by
+      #build_rift_regions Stage 1 when it assigns _warm_well/_cold_well, so the pit boundary
+      #seen here matches the actual surface biome boundary instead of raw un-warped coordinates.
       #If low temperature, compress the range so as to not place infernos in frozen regions.
       #Mapped into linear distribution assuming 4 regions:
       # -0.75 - Inferno
       # -0.25 - No special cave
       # 0 to 1 - Non-inferno special cave
       expression: |
-        if(((warm_pit(x,z)>0)&&(riftWellPlacement(x,z)>0.1))||((cold_pit(x,z)>0)&&(riftWellPlacement(x,z)>0.1)),-0.25,
+        if((warped_pit(x,z)>0.0&&riftWellPlacement(x,z)>0.2),-0.25,
           if(special_caveInferno(x,y,z),-0.75,
             if(special_caveNonInferno(x,y,z),
               special_caveNonInferno(x,y,z),-0.25)
           )
         )
+      samplers:
+        warped_pit:
+          dimensions: 2
+          type: DOMAIN_WARP
+          amplitude: 60
+          warp:
+            type: OPEN_SIMPLEX_2
+            frequency: 0.002
+          sampler:
+            type: EXPRESSION
+            expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)
     to:
       - INFERNO_ISLES: 1
       - SELF: 1

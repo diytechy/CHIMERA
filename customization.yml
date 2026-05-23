@@ -196,8 +196,8 @@ continental-coast-cutoff: 0.02
 # ---
 
 special_cave_biome_activation: 0
-cave_dia: 200
-cave_dist: 400
+cave_dia: 150
+cave_dist: 300
 cave_upper: 40
 cave_lower: -30
 

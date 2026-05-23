@@ -5,13 +5,21 @@ distributor:
   type: "YES"
 
 locator:
-  type: PATTERN
-  range:
-    max: -5
-    min: -38
-  pattern:
-    type: MATCH_AIR
-    offset: 0
+  type: AND
+  locators:
+  - type: PATTERN
+    range: &range
+      max: -15
+      min: -38
+    pattern:
+      type: MATCH_AIR
+      offset: 0
+  - type: SAMPLER_3D
+    range: *range
+    sampler:
+      type: EXPRESSION
+      expression: -special_caves(x,y,z)
+    threshold: 0.05
 
 structures:
   distribution:

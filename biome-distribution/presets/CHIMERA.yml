@@ -7,8 +7,8 @@ biomes:
   extrusions:
     # All cave extrusions
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
-    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
 
   # Y-axis domain warp applied before extrusion range checks.
   # Shifts the effective Y lookup up/down per-column, making cave/vertical
@@ -193,12 +193,12 @@ biomes:
         #  sampler:
         #    type: WHITE_NOISE
 
-        - type: SMOOTH
-          sampler:
-            type: WHITE_NOISE
-        - type: SMOOTH
-          sampler:
-            type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
 
         - << biome-distribution/stages/add_rivers.yml:stages
         #- << biome-distribution/stages/PopulateTestStage.yml:stages

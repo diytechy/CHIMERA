@@ -12,7 +12,7 @@ palette:
 
 features:
   global-preprocessors:
-    - LAVA_CAVE_FLOOR
+    # - LAVA_CAVE_FLOOR
     - CAVE_LAVA_COLUMNS
     - CAVE_GLOW_LICHEN
   landforms:

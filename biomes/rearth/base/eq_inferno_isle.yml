@@ -101,15 +101,17 @@ carving:
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
         expression: |
-          //For inferno, just preserve the lower hemisphere, everything else can carve into
-          // the upper hemisphere.
+          // shellNoise offsets the special_caves value used in each lerp by a small
+          // 3D noise term. Without this, lerp takes a perfectly smooth ellipsoid
+          // distance as its control — producing a flat, seam-like boundary exactly
+          // following the shell surface. The noise makes the fade activate at different
+          // effective distances per point, giving the shell edge an organic, rocky look.
           if(y<0,
-            //When in the lower hemisphere, fade out global carver as we approach the transition threshold.
-            lerp(min(y,pass_if_greater_than(special_caves(x, y, z)*50,-5,0)),-5,-10,0,carver(x,y,z))
+            // Lower hemisphere: fade out global carver as we approach the transition threshold.
+            lerp(min(y,pass_if_greater_than((special_caves(x,y,z) + shellNoise(x,y,z)*0.08)*50,-5,0)),-5,-10,0,carver(x,y,z))
             ,
-            //When in the upper hemisphere, fade to a deeper level so they cut into the shell, but don't cut other
-            //artifacts in the shell which causes floating blocks.
-            lerp(special_caves(x, y, z),-0.2,-10,0,carver(x,y,z))
+            // Upper hemisphere: fade so carvers cut into the shell without causing floating blocks.
+            lerp(special_caves(x,y,z) + shellNoise(x,y,z)*0.08,-0.2,-1,0,carver(x,y,z))
           )
         functions:
           pass_if_greater_than:
@@ -117,6 +119,16 @@ carving:
             expression: if(x>a,x,b)
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
+          # 3D noise (not 2D) so the perturbation varies vertically too — the flat
+          # seam appears across the whole 3D shell surface, not just top/bottom.
+          shellNoise:
+            dimensions: 3
+            type: FBM
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.05
+            octaves: 2
+            gain: 0.5
         #dimensions: 3
         #type: EXPRESSION
         #variables: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.variables

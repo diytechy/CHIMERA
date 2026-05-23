@@ -16,7 +16,7 @@ terrain:
     dimensions: 3
     type: CONSTANT
     value: 10
-    
+
 carving:
   sampler:
     dimensions: 3
@@ -25,16 +25,25 @@ carving:
     expression: |
       max(
         -clamp(
-          // Main cavity with smoother transitions
-          // special_caves ranges [-1, 0], shift to [-0.8, 0.2] for gentler edge
-          (special_caves(x, y, z) + 0.2) * 2.5
-          
-          // Add wall texture with reduced amplitude to avoid overpowering the base shape
+          // special_caves returns [-1, 0]: -1 at cell center, 0 at ellipsoid boundary.
+          // Its y-component uses a ^4 exponent (see spots.yml), which makes the top and
+          // bottom of the cave ellipsoid nearly flat. The ChunkInterpolator evaluates
+          // density once per 4 blocks; a flat horizontal boundary means many adjacent
+          // xz cells share the same ceiling y-level, producing a 4-block staircase.
+          //
+          // Fix: warp y by a smooth 2D noise (ceilWarp) before sampling special_caves.
+          // This shifts the ellipsoid boundary to a different effective y at each xz
+          // column, so adjacent interpolation cells see the ceiling at different heights.
+          // Amplitude 6 spans ~12 blocks of ceiling variation — 3× the grid step —
+          // which is sufficient to dissolve the staircase into organic curves.
+          (special_caves(x, y + ceilWarp(x, z) * 6, z) + 0.2) * 2.5
+
+          // Wall texture: roughens interior surfaces
           + wallOffset(x, y, z) * 1.2
-          
+
           // Platform creation with smooth falloff
           + platformShape(x, y, z),
-          
+
         -2.5, 2.5),
         carver_fade(x, y, z)
       )
@@ -85,8 +94,8 @@ carving:
               frequency: 0.02
             sampler:
               type: CELLULAR
-              frequency: 0.05 
-      carver_fade: 
+              frequency: 0.05
+      carver_fade:
         dimensions: 3
         type: EXPRESSION
         variables:
@@ -111,7 +120,7 @@ carving:
         #type: EXPRESSION
         #variables: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.variables
         #expression: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.expresion
-        
+
       wallOffset:
         dimensions: 3
         type: FBM
@@ -121,6 +130,20 @@ carving:
         octaves: 3
         lacunarity: 2.2
         gain: 0.45
+
+      # 2D FBM for y-coordinate warping. Must be 2D (not 3D) so the offset is
+      # consistent for the entire vertical column at each xz position — a 3D
+      # sampler would vary per block and could create mid-column discontinuities.
+      # Period ~56 blocks (frequency 0.018) gives 3-4 variation cycles across a
+      # typical 200-block cave diameter without introducing noisy fine-scale breaks.
+      ceilWarp:
+        dimensions: 2
+        type: FBM
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.018
+        octaves: 2
+        gain: 0.5
   #sampler-2d:
   #  dimensions: 2
   #  type: CONSTANT

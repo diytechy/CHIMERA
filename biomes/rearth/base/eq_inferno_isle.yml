@@ -33,11 +33,11 @@ carving:
           //Create main cavity, where only the edge is solid with some wall noise
           //Note, the constant "2" here opposes the platform creation, reducing it will allow more
           // middling artifacts through.
-          max((special_caves(x, y , z) + 0.1) * 3.333 + wallOffset(x,y,z) * 3, -2)
+          max((special_caves(x, y , z) + 0.2) * 3.333 + wallOffset(x,y,z) * 3, -2)
           //Create a platform at the middle height
           + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29),
           //Clamp the entire expression.
-        -2.5, 2.5)
+        -1.75, 1.75)
         ,
         //-100
         carver_fade(x,y,z)

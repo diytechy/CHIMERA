@@ -354,6 +354,33 @@ For carving expressions (where negative = air, positive = solid):
 2. If solid features appear where they shouldn't, the adjacent "air" sparse point is likely too close to zero (e.g., −0.1 instead of −2).
 3. Increase the magnitude of the negative floor in the air region to match the positive cap in the solid region.
 
+**Flat-boundary staircase (high y-exponents)**
+
+High y-exponents (y^4, y^6) in an ellipsoid shape function create a nearly flat top and bottom boundary. On the 4-block sparse grid, a flat horizontal boundary means many adjacent xz cells share the same ceiling y-level → visible staircase of discrete 4-block shelves.
+
+Adding density noise (e.g. `wallOffset * 1.2`) does **not** fix this. Density noise shifts the boundary in value-space: it moves the entire ceiling up or down by a slow-varying amount per region, not per interpolation cell. Only coordinate-space variation breaks the staircase.
+
+**Fix: warp y with a 2D sampler before calling the shape function**
+
+```yaml
+# In the expression:
+(special_caves(x, y + ceilWarp(x, z) * 6, z) + bias) * scale
+
+# ceilWarp sampler — must be 2D, not 3D:
+ceilWarp:
+  dimensions: 2          # 2D = consistent vertical offset per xz column
+  type: FBM
+  sampler:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.018     # ~56-block period; 3–4 cycles across a 200-block cave
+  octaves: 2
+  gain: 0.5
+```
+
+This displaces where the ellipsoid boundary sits at each xz position, so adjacent grid cells see the ceiling at different heights. Amplitude of 6 blocks gives ~12 blocks of ceiling variation (3× the grid step), which dissolves the staircase into organic curves without distorting the cave shape significantly.
+
+**Why 2D, not 3D:** A 3D warp sampler varies with y, so the offset changes at each block within the same column. This creates mid-column density discontinuities (the same xz position evaluates the shape at different effective y-levels at different block heights). A 2D sampler gives a single constant offset for the whole column — correct for shifting the boundary location.
+
 ## Quick diagnostic checklist
 
 When a palette/sampler doesn't behave as expected:

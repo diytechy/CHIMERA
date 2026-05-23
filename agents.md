@@ -336,6 +336,24 @@ terraceStrata(terraceStrata(terraceStrata(H, 50, 0, 0, 0.1), 30, 0, 0, 0.15), 15
 ```
 Envelope: `[H − 12.5, H]` (subtractions are 5 + 4.5 + 3).
 
+## Interpolation mechanics (carving and terrain expressions)
+
+**ChunkInterpolator builds a 5×5 sparse grid** (x,z ∈ {0,4,8,12,16}) and evaluates the 3D sampler once per 4 blocks in y. All per-block densities are trilinear interpolations of those sparse corner values.
+
+**Consequence:** if one sparse point returns +2.75 (solid pillar) and the adjacent sparse point 4 blocks away returns −0.002 (barely air), every interpolated block between them has density ≈ +1.37 → solid. For a clean solid-to-air transition the empty-side sparse point must be at least as negative as the solid-side cap, so the midpoint crosses zero within one block.
+
+**Rule of thumb:** `floor ≤ −cap`
+
+For carving expressions (where negative = air, positive = solid):
+- If the solid region caps at +2, the air region should floor at ≤ −2 to ensure interpolated midpoints can cross zero cleanly.
+- Clamping carving expressions to `[-1.75, 1.75]` (as in `eq_inferno_isle.yml`) provides a safe interpolation envelope for most cavity/platform features.
+- Platforms or solid features that exceed +2 require correspondingly deeper negative floors (≤ −2) in adjacent air regions to prevent interpolation artifacts.
+
+**Debugging interpolation bleed:**
+1. Check the sparse-grid values at feature boundaries (every 4th block).
+2. If solid features appear where they shouldn't, the adjacent "air" sparse point is likely too close to zero (e.g., −0.1 instead of −2).
+3. Increase the magnitude of the negative floor in the air region to match the positive cap in the solid region.
+
 ## Quick diagnostic checklist
 
 When a palette/sampler doesn't behave as expected:
@@ -347,3 +365,4 @@ When a palette/sampler doesn't behave as expected:
 5. **Is the inner sampler a CONSTANT?** DOMAIN_WARP around a CONSTANT is a no-op — usually a debug leftover.
 6. **For palettes: is the sampler 2D?** 2D samplers give the same value across all Y at one (x, z), creating vertical-column patches not per-block randomness.
 7. **For slant: is the threshold below 1.0?** With DotProduct, anything > 1.0 always fires.
+8. **For carving/terrain: are the floor and cap symmetric?** Interpolation requires `floor ≤ −cap` to prevent solid bleed into air regions.

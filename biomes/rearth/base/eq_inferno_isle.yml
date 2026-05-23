@@ -23,30 +23,69 @@ carving:
     type: EXPRESSION
     variables: *variables
     expression: |
-      //10
-      //Take the max value for carving between the special cave void and 
-      // the faded standard cave carver.
       max(
-        // Inverted expression, >0 evaluates to solid, <0 becomes air,
-        // inherited from previous expression that used terrain instead of carver.
         -clamp(
-          //Create main cavity, where only the edge is solid with some wall noise
-          //Note, the constant "2" here opposes the platform creation, reducing it will allow more
-          // middling artifacts through.
-          max((special_caves(x, y , z) + 0.2) * 3.333 + wallOffset(x,y,z) * 3, -2)
-          //Create a platform at the middle height
-          + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29),
-          //Clamp the entire expression.
-        -1.75, 1.75)
-        ,
-        //-100
-        carver_fade(x,y,z)
+          // Main cavity with smoother transitions
+          // special_caves ranges [-1, 0], shift to [-0.8, 0.2] for gentler edge
+          (special_caves(x, y, z) + 0.2) * 2.5
+          
+          // Add wall texture with reduced amplitude to avoid overpowering the base shape
+          + wallOffset(x, y, z) * 1.2
+          
+          // Platform creation with smooth falloff
+          + platformShape(x, y, z),
+          
+        -2.5, 2.5),
+        carver_fade(x, y, z)
       )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
-    samplers: 
+      smoothstep:
+        arguments: [edge0, edge1, x]
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
+    samplers:
+      platformShape:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          // Distance from platform height
+          if(abs(middleHeight - y) > 6, 0,
+            // Smooth vertical falloff from platform height
+            smoothstep(6, 3, abs(middleHeight - y))
+            // Platform presence based on cellular pattern
+            * (-platforms(x, z) - 0.25)
+            // Scale by distance from cavity edge for natural integration
+            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * 3.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          platforms:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 5
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.02
+            sampler:
+              type: CELLULAR
+              frequency: 0.05 
       carver_fade: 
         dimensions: 3
         type: EXPRESSION
@@ -73,25 +112,15 @@ carving:
         #variables: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.variables
         #expression: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.expresion
         
-      platforms:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 5
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.02
-        sampler:
-          type: CELLULAR
-          frequency: 0.05
       wallOffset:
         dimensions: 3
         type: FBM
         sampler:
           type: OPEN_SIMPLEX_2S
-          frequency: 0.025
-        octaves: 2
-        lacunarity: 2.8
-        gain: 0.5
+          frequency: 0.035
+        octaves: 3
+        lacunarity: 2.2
+        gain: 0.45
   #sampler-2d:
   #  dimensions: 2
   #  type: CONSTANT

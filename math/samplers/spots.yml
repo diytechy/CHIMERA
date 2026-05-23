@@ -475,7 +475,7 @@ samplers:
       cave_dia: ${customization.yml:cave_dia}
       cave_dist: ${customization.yml:cave_dist}
       cave_upper: ${customization.yml:cave_upper}
-      cave_upper: ${customization.yml:cave_lower}
+      cave_lower: ${customization.yml:cave_lower}
       #Compute the radius into the special cave
       #0 at the edge, -1 at the center, similar to cellular noise pattern, but
       # edge at 0 to normalize.

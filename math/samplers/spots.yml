@@ -488,7 +488,7 @@ samplers:
 
         //Then add in the normalized y component; cave_y_power controls curvature:
         //higher values flatten the top/bottom cap, lower values approach a sphere.
-        +(if(y>0,y/cave_upper,y/cave_lower)^cave_y_power)
+        +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
 
         //Then convert back to standard normalized radius
       )^0.5-1

@@ -493,7 +493,7 @@ samplers:
 
           //Then convert back to standard normalized radius
         )^0.5-1,
-        cave_lower, y, cave_upper, cave_dia/2, cave_y_power)
+        y, cave_lower, cave_upper, cave_dia/2, cave_y_power)
     samplers:
       cell_spot: &caveSettings
         dimensions: 2
@@ -532,13 +532,13 @@ samplers:
       normalize_shell:
         arguments: [dist_into_shell, y, min_y, max_y, horz_radius, y_power]
         expression: |
-          dist_into_shell
-          //if(dist_into_shell<0,
-          //  dist_into_shell * if(y>0,
-          //    1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
-          //    1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
-          //  ),
-          //  dist_into_shell)
+          //dist_into_shell
+          if(dist_into_shell<0,
+            dist_into_shell * if(y>0,
+              1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
+              1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
+            ),
+            dist_into_shell)
 
   special_caveVariation:
     dimensions: 2

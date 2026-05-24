@@ -6,7 +6,7 @@ extends:
   - SINKHOLE_BASE
   - DEPOSITS_DEFAULT
   - ORES_DEFAULT
-  - CARVING_LAND
+  - EQ_SINKHOLE_CAVE_CONNECT
 
 slant:
   - threshold: 0.5

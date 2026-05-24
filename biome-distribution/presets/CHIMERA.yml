@@ -189,16 +189,16 @@ biomes:
         # ========================================
         # SMOOTHING PASSES
         # ========================================
-        #- type: FRACTAL_EXPAND
-        #  sampler:
-        #    type: WHITE_NOISE
+        - type: FRACTAL_EXPAND
+          sampler:
+            type: WHITE_NOISE
 
-        #- type: SMOOTH
-        #  sampler:
-        #    type: WHITE_NOISE
-        #- type: SMOOTH
-        #  sampler:
-        #    type: WHITE_NOISE
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
 
         - << biome-distribution/stages/add_rivers.yml:stages
         #- << biome-distribution/stages/PopulateTestStage.yml:stages

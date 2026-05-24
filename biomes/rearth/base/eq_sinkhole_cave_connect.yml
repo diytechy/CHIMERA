@@ -1,0 +1,94 @@
+id: EQ_SINKHOLE_CAVE_CONNECT
+type: BIOME
+abstract: true
+
+# Adds a connecting passage from the sinkhole floor toward the adjacent
+# special cave (inferno isle) when the two biome regions are touching.
+#
+# Mechanism
+# ─────────
+# special_caveDist returns the signed block-distance to the nearest cave
+# shell (positive = inside, 0 = at shell, negative = outside).  The passage
+# contribution is a linear ramp from 0 at –connect_reach blocks outside the
+# shell to 1 at the shell itself.  When the cave is far away, special_caveDist
+# stays well below –connect_reach everywhere in the sinkhole, so the ramp
+# clamps to 0 and no passage forms — the "touching" condition is implicit.
+#
+# Effective entrance width at the cave wall:
+#   width ≈ (1 – carvingThreshold) × connect_reach ≈ 0.46 × 30 ≈ 14 blocks
+# passageWarp FBM varies the boundary by ±warp_amp blocks, giving a ragged
+# 8–22 block arch that reads as a natural cave entrance rather than a
+# geometric cut.
+#
+# Vertical extent
+# ───────────────
+# The passage runs from cave_lower (floor of the special cave) up to
+# connect_top (just above the sinkhole floor, y ≈ 0 for base-0 biomes).
+# A 6-block herp fade closes the tunnel entrance cleanly at the sinkhole
+# floor regardless of surface-noise variation.  At y = cave_lower the
+# INFERNO_ISLES extrusion takes over, so no bottom fade is needed.
+#
+# carver(x,y,z) is the standard CARVING_LAND sampler, included explicitly
+# so this abstract biome's carving replaces (rather than silently discards)
+# the CARVING_LAND carver inherited through SINKHOLE_BASE.
+
+carving:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      cave_lower:    ${customization.yml:cave_lower}
+      # Upper bound of the connecting passage.
+      # Set a few blocks above the nominal sinkhole floor (base = 0) so the
+      # tunnel mouth stays open despite surface-noise variation.
+      connect_top:   10
+      # Block distance outside the cave shell at which the passage tapers
+      # fully to zero.  Effective passage void width ≈ (1 – 0.54) × reach.
+      connect_reach: 30
+      # FBM amplitude (blocks) applied to special_caveDist to create an
+      # organic, non-circular passage boundary.
+      warp_amp:      8
+    expression: |
+      // Standard land cave carver (cheese, spaghetti, mega caves, pillars).
+      carver(x, y, z)
+
+      // Connecting passage: adds void in the vertical band between the
+      // sinkhole floor and cave_lower, wherever the cave shell is within
+      // connect_reach blocks.  Outside that range the max(0,…) clamps the
+      // contribution to zero — no carving, no side effects.
+      + if(y < cave_lower || y > connect_top, 0,
+          max(0,
+            lerp(
+              // Warp the shell proximity with 3-D FBM so the passage mouth
+              // is ragged.  3-D (not 2-D) ensures wall texture also varies
+              // with depth, breaking any horizontal banding on tunnel walls.
+              special_caveDist(x, y, z) + passageWarp(x, y, z) * warp_amp,
+              // t = –reach  →  output = 0  (outer fringe, no carving)
+              // t =  0      →  output = 1  (at cave shell, full void boost)
+              -connect_reach, 0,
+               0,            1
+            )
+            // Vertical fade: smooth the tunnel mouth at the sinkhole floor.
+            // Output = 1 from cave_lower up to (connect_top – 6),
+            // then eases to 0 at connect_top.
+            * lerp(y, connect_top, 0, connect_top - 6, 1)
+          )
+        )
+    functions:
+      lerp: $math/functions/interpolation.yml:functions.lerp
+    samplers:
+      # Standard land cave carver — keeps cheese/spaghetti/mega caves working
+      # in the sinkhole even though this abstract biome overrides carving.
+      carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
+      # Low-frequency 3-D FBM for organic passage-edge variation.
+      # Period ≈ 50 blocks (freq 0.02) gives cave-entrance-scale irregularity.
+      passageWarp:
+        dimensions: 3
+        type: FBM
+        octaves: 3
+        gain:       0.5
+        lacunarity: 2.0
+        sampler:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.02
+          salt: 91827

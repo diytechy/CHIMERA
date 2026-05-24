@@ -9,7 +9,7 @@ locator:
   locators:
   - type: PATTERN
     range: &range
-      max: -15
+      max: -8
       min: -38
     pattern:
       type: MATCH_AIR
@@ -21,8 +21,8 @@ locator:
       # special_caveDist: positive inside the ellipsoid, 0 at the shell, negative outside.
       # threshold -2 lets lava fill right up to the cell boundary and very rarely
       # (≤2 blocks) past it; MATCH_AIR above prevents placement in solid rock.
-      expression: special_caveDist(x,y,z)
-    threshold: -2
+      expression: -special_caves(x,y,z)
+    threshold: 0
 
 structures:
   distribution:

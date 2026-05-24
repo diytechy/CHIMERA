@@ -60,8 +60,8 @@ carving:
           + platformShape(x, y, z),
 
         ,-2.5, 2.5),
-        -1000
-        //carver_fade(x, y, z)
+        //-1000
+        carver_fade(x, y, z)
       )
     functions:
       clamp:
@@ -116,7 +116,7 @@ carving:
         type: EXPRESSION
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
-          act_thresh: $customization.yml:special_cave_void_activation
+          act_thresh: ${customization.yml:special_cave_void_activation}
         expression: |
           // Upper hemisphere (y≥0): carver fades out 8 blocks into the shell so the
           // ceiling and side walls get an organic rocky texture. shellNoise perturbs
@@ -127,14 +127,15 @@ carving:
           // slight surface texture without punching through toward the hollow void.
           // The lava_cave_floor threshold of -2 fills any air created in that zone,
           // so the lava floor always covers these shallow surface carvings.
-          if(y < 0,
+          if((y + shellNoise(x,y,z)*10) < 0,
             lerp(
-              min(max(special_caveDist(x,y,z), 0), 2),
-              0, carver(x,y,z), 2, -1),
+              max(special_cave(x,y,z), y*0.2)
+              , 0, -5, act_dist, carver(x,y,z)),
             lerp(
-              min(max(special_caveDist(x,y,z) + shellNoise(x,y,z)*2, 0), 8),
-              0, carver(x,y,z), 8, -1))
+              special_cave(x,y,z)
+              ,act_thresh, 0, act_dist, carver(x,y,z)))
         functions:
+          lerp: $math/functions/interpolation.yml:functions.lerp
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
           # 3D noise (not 2D) so the perturbation varies vertically too — the flat

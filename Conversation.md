@@ -1463,4 +1463,23 @@ Steppes
 Coasts
 biome-specific rivers for highland biomes.
 
-Can you do a deep review of this pack (whose main / starting definition is pack.yml) and 
+1. Clean remaining carving / special caves.
+1A. Replace special caves using a special method for pit biomes, otherwise, use set?
+1Ai. For pit biomes, allow a more permissive replacement to ensure overlap?  Or current risk is always present?
+1Aii. Rely on biome smoothing?
+1B. Allow pits to have a special carver that better transitions into the special cave, should probably just roll into the opening.
+
+2. Clean up entire workspace, remove old / legacy files.  Remove bad python scripts.
+
+3. Consider fixing resolve samplers.
+
+4. Clean up core pack files:
+Can you do a deep review of this pack (whose main / starting definition is pack.yml) and remove any and all unused files and variable parameters to clean this package.
+
+5. Update readme with screenshots after fixing remaining issues.
+
+6. Update / add git action to verify loading using the BiomeTool (Pull BiomeTool from repsy or github, delete the included packs, run the benchmark using the pack name)
+
+7. Update Terra to pull a pack config to determine if terrain should blend into extruded neighbors or surface neighbors only.
+
+7A. Update Terra to take both terrain function and blending definition from extruded biome ate center location.

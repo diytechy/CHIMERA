@@ -195,7 +195,10 @@ continental-coast-cutoff: 0.02
 # Special caves
 # ---
 
-special_cave_biome_activation: 0
+#Activation threshold gives transition region, it is equivalent to
+# the ratio*diameter to give block thickness estimate at the shell.
+special_cave_biome_activation: 0.05
+special_cave_void_activation: -0.05
 cave_dia: 150
 cave_dist: 300
 cave_upper: 40

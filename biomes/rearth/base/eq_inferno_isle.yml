@@ -4,6 +4,9 @@ abstract: true
 
 vars: &variables
   middleHeight: -7
+  act_thresh: $customization.yml:special_cave_void_activation
+  #act_thresh: 12.0
+  #special_cave_void_activation: ${customization.yml:special_cave_void_activation}special_cave_void_activation
   #"<<":
   #  - biomes/equations/caverns/eq_carving_land.yml:variables
 
@@ -47,11 +50,11 @@ carving:
           // Fix: warp y by a smooth 2D noise (yWarp) before evaluating special_caves.
           //   This shifts the hollow boundary to a different y per column, dissolving
           //   the flat-top staircase into organic curves. Amplitude 6 = ~3× grid step.
-          (special_caves(x, y, z) + 0.1) * 5.0
+          (special_caves(x, y, z) - act_thresh) * 5.0
 
           // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
           //               ±1.5 blocks at y-poles — stays within the thin pole shell.
-          + wallOffset(x, y, z) * 0.5
+          + wallOffset(x, y, z) * 0.4
 
           // Platform creation with smooth falloff
           //+ platformShape(x, y, z),
@@ -113,6 +116,7 @@ carving:
         type: EXPRESSION
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
+          act_thresh: $customization.yml:special_cave_void_activation
         expression: |
           // Upper hemisphere (y≥0): carver fades out 8 blocks into the shell so the
           // ceiling and side walls get an organic rocky texture. shellNoise perturbs

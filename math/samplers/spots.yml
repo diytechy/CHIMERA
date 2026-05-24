@@ -528,8 +528,16 @@ samplers:
       expression: |
         temperature(x, z)
 
-  # Approximate block distance from the nearest point on the special cave shell.
-  # Positive  = inside the cave (toward center), negative = outside (past shell).
+  # Weighted block-distance approximation to the special cave shell.
+  # Positive = inside the ellipsoid, 0 = at shell surface, negative = outside.
+  #
+  # SCOPE: accurate only in the narrow band near the shell surface (roughly ±10 blocks).
+  #   Use special_caves (threshold) to define the hollow interior boundary — that
+  #   produces a proper inner ellipsoid.  Use special_caveDist for:
+  #     • carver_fade: specifying fade width in intuitive block units near the shell
+  #     • lava_cave_floor: small outside-shell tolerance threshold
+  #   Deep inside the cave, dist_xz can dominate the weighted sum and produce a
+  #   "pinched at poles" shape that is geometrically wrong for hollow boundaries.
   #
   # Derivation:
   #   special_caves uses: s = (R_xz^2 + R_y^p)^0.5 - 1  where p = cave_y_curve_power
@@ -539,9 +547,10 @@ samplers:
   #   Block distance to xz shell (signed):  dist_xz = cave_dia/2 - (cell_spot+1)*cave_dist
   #   Block distance to y shell  (signed):  dist_y  = if(y>=0, cave_upper-y, y-cave_lower)
   #
-  #   To blend them correctly, weight each by its contribution to the total
-  #   normalized shell distance:  f_xz = R_xz^2 / nDS,  f_y = R_y^p / nDS
-  #   where nDS = R_xz^2 + R_y^p = (special_caves+1)^2  (holds for any p)
+  #   Weights (each axis's share of the normalized shell distance squared):
+  #     f_xz = R_xz^2 / nDS,  f_y = R_y^p / nDS
+  #   where nDS = R_xz^2 + R_y^p = (special_caves+1)^2  (holds for any p).
+  #   Axis-aligned poles are exact (one weight = 1, the other = 0).
   #
   # Verified axis-aligned cases (cave centred at 0,0,0; defaults cave_dia=150, cave_upper=40):
   #   query(0,20,0)  -> f_xz=0, f_y=1 -> 0 + 1*(40-20)       = +20  (20 inside top shell)

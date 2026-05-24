@@ -204,7 +204,10 @@ cave_y_curve_power: 3
 # Exponent for the y-axis term of the special cave ellipsoid shape.
 # Higher values (e.g. 4) flatten the top/bottom cap and steepen the side walls;
 # lower values (approaching 2) give a more uniform sphere-like cross-section.
-# Used in special_caves and special_caveDist samplers.
+# Used in special_caves and special_caveDist (carver fade / lava floor boundary).
+# NOTE: special_caves defines the hollow boundary (correct inner ellipsoid shape).
+#       special_caveDist is only used near the shell surface (carver fade width,
+#       lava floor threshold) where its block-distance approximation is accurate.
 # Default: 4
 
 # ---

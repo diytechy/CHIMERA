@@ -47,7 +47,7 @@ carving:
           // Fix: warp y by a smooth 2D noise (yWarp) before evaluating special_caves.
           //   This shifts the hollow boundary to a different y per column, dissolving
           //   the flat-top staircase into organic curves. Amplitude 6 = ~3× grid step.
-          (special_caves(x, y, z) + 0.32) * 5.0,
+          (special_caves(x, y, z) + 0.15) * 5.0,
 
           // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
           //               ±1.5 blocks at y-poles — stays within the thin pole shell.

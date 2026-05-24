@@ -492,8 +492,8 @@ samplers:
           +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
 
           //Then convert back to standard normalized radius
-        )^0.5-1
-        ,cave_lower,cave_upper,cave_dia/2)
+        )^0.5-1,
+        cave_lower, y, cave_upper, cave_dia/2, cave_y_power)
     samplers:
       cell_spot: &caveSettings
         dimensions: 2
@@ -503,20 +503,41 @@ samplers:
         jitter: 0.5
         salt: 24
     functions:
+      # Rescale dist_into_shell inside the ellipsoid so a fixed threshold corresponds
+      # to the same WORLD-BLOCK depth in every direction. Without this, threshold 0.16
+      # gives ~12 blocks at the xz equator but only ~4 blocks at the y poles (for p=3),
+      # because ds/d(block) varies with direction.
+      #
+      # Linearization at the shell (s=0):
+      #   xz equator:    ds/d(block) = 1 / horz_radius          -> blocks-per-s = horz_radius
+      #   upper pole:    ds/d(block) = p / (2*max_y)            -> blocks-per-s = 2*max_y/p
+      #   lower pole:    ds/d(block) = p / (2*|min_y|)          -> blocks-per-s = 2*|min_y|/p
+      #
+      # We multiply s by a scale factor `f`; the threshold check |s*f|>t becomes
+      # |s|>t/f, so the wall thickness scales INVERSELY with f: new_wall = old_wall/f.
+      # To make every direction match the xz equator's (t * horz_radius) blocks, we
+      # need f at each pole equal to (pole_blocks_per_s_at_xz) / pole_blocks_per_s:
+      #   factor_upper = (2*max_y/p)   / horz_radius   -> simplifies to 2*max_y/(p*horz_radius)
+      #   factor_lower = (2*|min_y|/p) / horz_radius   -> simplifies to 2*|min_y|/(p*horz_radius)
+      # Both are < 1 for typical p=3 caves (factor_upper ~0.36, factor_lower ~0.29),
+      # so the wall is correctly THICKENED at the poles.
+      #
+      # The lerp from 1 (at y=0) to factor_pole (at y=±cave_pole) is inlined as
+      # `1 + (y/y_pole)*(factor_pole - 1)`, so this function has no user-fn deps.
+      #
+      # Caveat: linearization is only exact AT the shell. For p>=3 the boundary lands
+      # at R_y ~0.68 after rescaling, and the true ds/d(block) there is ~20% smaller
+      # than at the shell, so observed poles run ~13 blocks vs the xz 12 — close
+      # enough for blending purposes, not exact.
       normalize_shell:
-        arguments: [dist_into_shell, min_y, max_y, horz_radius]
-        #If inside the shell, normalize the distance to get normalize distances that scale
-        #psuedo-linearly with blocks at the shell surface for more consistent blending.
-        #At max_y, multiply the distance into the shell by the horizontal radius / max y,
-        #At min_y, multiply the distance into the shell by the horizontal radius / min y,
-        #At 0, scaling becomes 0.
+        arguments: [dist_into_shell, y, min_y, max_y, horz_radius, y_power]
         expression: |
           if(dist_into_shell<0,
             dist_into_shell * if(y>0,
-              lerp(y,0,1,max_y,horz_radius/max_y)
-              lerp(y,min_y,horz_radius/max_y,0,1)
-              )
-          dist_into_shell)
+              1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
+              1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
+            ),
+            dist_into_shell)
 
   special_caveVariation:
     dimensions: 2

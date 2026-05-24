@@ -482,16 +482,18 @@ samplers:
       # edge at 0 to normalize.
 
     expression: |
-      (
-        //First compute normalized radius on the x/z plane:
-        ((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2
+      normalize_shell(
+        (
+          //First compute normalized radius on the x/z plane:
+          ((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2
 
-        //Then add in the normalized y component; cave_y_power controls curvature:
-        //higher values flatten the top/bottom cap, lower values approach a sphere.
-        +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
+          //Then add in the normalized y component; cave_y_power controls curvature:
+          //higher values flatten the top/bottom cap, lower values approach a sphere.
+          +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
 
-        //Then convert back to standard normalized radius
-      )^0.5-1
+          //Then convert back to standard normalized radius
+        )^0.5-1
+        ,cave_lower,cave_upper,cave_dia/2)
     samplers:
       cell_spot: &caveSettings
         dimensions: 2
@@ -500,6 +502,21 @@ samplers:
         distance: Euclidean
         jitter: 0.5
         salt: 24
+    functions:
+      normalize_shell:
+        arguments: [dist_into_shell, min_y, max_y, horz_radius]
+        #If inside the shell, normalize the distance to get normalize distances that scale
+        #psuedo-linearly with blocks at the shell surface for more consistent blending.
+        #At max_y, multiply the distance into the shell by the horizontal radius / max y,
+        #At min_y, multiply the distance into the shell by the horizontal radius / min y,
+        #At 0, scaling becomes 0.
+        expression: |
+          if(dist_into_shell<0,
+            dist_into_shell * if(y>0,
+              lerp(y,0,1,max_y,horz_radius/max_y)
+              lerp(y,min_y,horz_radius/max_y,0,1)
+              )
+          dist_into_shell)
 
   special_caveVariation:
     dimensions: 2

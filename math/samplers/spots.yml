@@ -472,10 +472,11 @@ samplers:
     dimensions: 3
     type: EXPRESSION
     variables:
-      cave_dia: ${customization.yml:cave_dia}
-      cave_dist: ${customization.yml:cave_dist}
-      cave_upper: ${customization.yml:cave_upper}
-      cave_lower: ${customization.yml:cave_lower}
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
       #Compute the radius into the special cave
       #0 at the edge, -1 at the center, similar to cellular noise pattern, but
       # edge at 0 to normalize.
@@ -484,11 +485,11 @@ samplers:
       (
         //First compute normalized radius on the x/z plane:
         ((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2
-        
-        //Then add in the normalizd y component adjusting the exponent for different
-        //curvature and max / min in line with biome replacement:
-        +(if(y>0,y/cave_upper,y/cave_lower)^4)
-        
+
+        //Then add in the normalized y component; cave_y_power controls curvature:
+        //higher values flatten the top/bottom cap, lower values approach a sphere.
+        +(if(y>0,y/cave_upper,y/cave_lower)^cave_y_power)
+
         //Then convert back to standard normalized radius
       )^0.5-1
     samplers:
@@ -526,3 +527,61 @@ samplers:
       type: EXPRESSION
       expression: |
         temperature(x, z)
+
+  # Approximate block distance from the nearest point on the special cave shell.
+  # Positive  = inside the cave (toward center), negative = outside (past shell).
+  #
+  # Derivation:
+  #   special_caves uses: s = (R_xz^2 + R_y^p)^0.5 - 1  where p = cave_y_curve_power
+  #   where R_xz = (cell_spot+1)*(cave_dist*2/cave_dia)  [1.0 at xz-shell, y=0]
+  #         R_y  = if(y>0, y/cave_upper, y/cave_lower)   [1.0 at y-shell, xz=center]
+  #
+  #   Block distance to xz shell (signed):  dist_xz = cave_dia/2 - (cell_spot+1)*cave_dist
+  #   Block distance to y shell  (signed):  dist_y  = if(y>=0, cave_upper-y, y-cave_lower)
+  #
+  #   To blend them correctly, weight each by its contribution to the total
+  #   normalized shell distance:  f_xz = R_xz^2 / nDS,  f_y = R_y^p / nDS
+  #   where nDS = R_xz^2 + R_y^p = (special_caves+1)^2  (holds for any p)
+  #
+  # Verified axis-aligned cases (cave centred at 0,0,0; defaults cave_dia=150, cave_upper=40):
+  #   query(0,20,0)  -> f_xz=0, f_y=1 -> 0 + 1*(40-20)       = +20  (20 inside top shell)
+  #   query(0,0,100) -> f_xz=1, f_y=0 -> 1*(75-100) + 0      = -25  (25 outside xz shell)
+  special_caveDist:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
+    expression: |
+      if(nDist_sq(x,y,z) > 0.000001,
+        (Rxz(x,z)^2 / nDist_sq(x,y,z))
+          * (cave_dia/2 - (cell_spot(x,z)+1)*cave_dist)
+        + ((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power / nDist_sq(x,y,z))
+          * if(y>=0, cave_upper-y, y-cave_lower),
+        cave_upper)
+    samplers:
+      cell_spot: *caveSettings
+      # Normalized x/z radius: 0 at cell center, 1 at the xz shell (y=0)
+      Rxz:
+        dimensions: 2
+        type: EXPRESSION
+        expression: >
+          (cell_spot(x,z)+1)
+          *(${customization.yml:cave_dist}*2/${customization.yml:cave_dia})
+        samplers:
+          cell_spot: *caveSettings
+      # R_xz^2 + R_y^p  (== (special_caves+1)^2 for any p, cached to avoid repeating cell_spot)
+      nDist_sq:
+        dimensions: 3
+        type: EXPRESSION
+        expression: >
+          ((cell_spot(x,z)+1)
+            *(${customization.yml:cave_dist}*2/${customization.yml:cave_dia}))^2
+          +(if(y>0,
+              y/${customization.yml:cave_upper},
+              y/${customization.yml:cave_lower}))^${customization.yml:cave_y_curve_power}
+        samplers:
+          cell_spot: *caveSettings

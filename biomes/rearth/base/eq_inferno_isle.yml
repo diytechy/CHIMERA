@@ -31,21 +31,26 @@ carving:
           // density once per 4 blocks; a flat horizontal boundary means many adjacent
           // xz cells share the same ceiling y-level, producing a 4-block staircase.
           //
-          // Fix: warp y by a smooth 2D noise (ceilWarp) before sampling special_caves.
+          // Fix: warp y by a smooth 2D noise (ceilWarp) before sampling special_caveDist.
           // This shifts the ellipsoid boundary to a different effective y at each xz
           // column, so adjacent interpolation cells see the ceiling at different heights.
           // Amplitude 6 spans ~12 blocks of ceiling variation — 3× the grid step —
           // which is sufficient to dissolve the staircase into organic curves.
-          (special_caves(x, y + ceilWarp(x, z) * 6, z) + 0.2) * 2.5
+          //
+          // (12 - dist) / 8.0: hollow starts 12 blocks inside the ellipsoid surface.
+          //   dist < 12 → positive → solid shell; dist > 12 → negative → carved hollow.
+          //   Dividing by 8 gives a smooth ≈8-block transition gradient at the boundary.
+          (12 - special_caveDist(x, y + ceilWarp(x, z) * 6, z)) / 8.0
 
-          // Wall texture: roughens interior surfaces
-          + wallOffset(x, y, z) * 1.2
+          // Wall texture: roughens interior surfaces by ±6 blocks
+          + wallOffset(x, y, z) * 0.75
 
           // Platform creation with smooth falloff
           + platformShape(x, y, z),
 
         -2.5, 2.5),
-        carver_fade(x, y, z)
+        0
+        //carver_fade(x, y, z)
       )
     functions:
       clamp:
@@ -101,22 +106,23 @@ carving:
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
         expression: |
-          // shellNoise offsets the special_caves value used in each lerp by a small
-          // 3D noise term. Without this, lerp takes a perfectly smooth ellipsoid
-          // distance as its control — producing a flat, seam-like boundary exactly
-          // following the shell surface. The noise makes the fade activate at different
-          // effective distances per point, giving the shell edge an organic, rocky look.
-          if(y<0,
-            // Lower hemisphere: fade out global carver as we approach the transition threshold.
-            lerp(min(y,pass_if_greater_than((special_caves(x,y,z) + shellNoise(x,y,z)*0.12)*50,-5,0)),-5,-10,0,carver(x,y,z))
-            ,
-            // Upper hemisphere: fade so carvers cut into the shell without causing floating blocks.
-            lerp(special_caves(x,y,z) + shellNoise(x,y,z)*0.12,-0.2,-1,0,carver(x,y,z))
-          )
+          // Upper hemisphere (y≥0): carver fades out 8 blocks into the shell so the
+          // ceiling and side walls get an organic rocky texture. shellNoise perturbs
+          // the fade boundary by ±2 blocks so the transition isn't a smooth seam.
+          //
+          // Lower hemisphere (y<0): tight 2-block fade, no shellNoise. Carving is
+          // limited to the outer ~2 blocks of the lower shell — just enough to add
+          // slight surface texture without punching through toward the hollow void.
+          // The lava_cave_floor threshold of -2 fills any air created in that zone,
+          // so the lava floor always covers these shallow surface carvings.
+          if(y < 0,
+            lerp(
+              min(max(special_caveDist(x,y,z), 0), 2),
+              0, carver(x,y,z), 2, -1),
+            lerp(
+              min(max(special_caveDist(x,y,z) + shellNoise(x,y,z)*2, 0), 8),
+              0, carver(x,y,z), 8, -1))
         functions:
-          pass_if_greater_than:
-            arguments: [x, a, b]
-            expression: if(x>a,x,b)
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
           # 3D noise (not 2D) so the perturbation varies vertically too — the flat

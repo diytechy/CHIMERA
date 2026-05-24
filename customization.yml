@@ -200,6 +200,12 @@ cave_dia: 150
 cave_dist: 300
 cave_upper: 40
 cave_lower: -30
+cave_y_curve_power: 3
+# Exponent for the y-axis term of the special cave ellipsoid shape.
+# Higher values (e.g. 4) flatten the top/bottom cap and steepen the side walls;
+# lower values (approaching 2) give a more uniform sphere-like cross-section.
+# Used in special_caves and special_caveDist samplers.
+# Default: 4
 
 # ---
 # Elevation

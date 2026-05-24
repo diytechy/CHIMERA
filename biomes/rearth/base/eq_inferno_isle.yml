@@ -26,31 +26,38 @@ carving:
       max(
         -clamp(
           // special_caves returns [-1, 0]: -1 at cell center, 0 at ellipsoid boundary.
-          // Its y-component uses a ^4 exponent (see spots.yml), which makes the top and
-          // bottom of the cave ellipsoid nearly flat. The ChunkInterpolator evaluates
-          // density once per 4 blocks; a flat horizontal boundary means many adjacent
-          // xz cells share the same ceiling y-level, producing a 4-block staircase.
+          // Its y-component uses cave_y_curve_power (default ^4), which makes the top
+          // and bottom nearly flat. The ChunkInterpolator evaluates density once per
+          // 4 blocks; a flat boundary produces a 4-block staircase.
           //
-          // Fix: warp y by a smooth 2D noise (ceilWarp) before sampling special_caveDist.
-          // This shifts the ellipsoid boundary to a different effective y at each xz
-          // column, so adjacent interpolation cells see the ceiling at different heights.
-          // Amplitude 6 spans ~12 blocks of ceiling variation — 3× the grid step —
-          // which is sufficient to dissolve the staircase into organic curves.
+          // WHY special_caves (not special_caveDist) defines the hollow:
+          //   special_caveDist uses a weighted blend (f_xz*dist_xz + f_y*dist_y).
+          //   Off-axis, dist_xz can be large (e.g. 45 blocks) while dist_y is small
+          //   (e.g. 3 blocks). The xz weight then dominates and "uses up" most of the
+          //   dist=12 budget, pulling the hollow floor closer to the y-pole surface —
+          //   the opposite of what an ellipsoid should do. This manifests as the floor
+          //   and ceiling appearing higher (more toward centre) than expected.
+          //   A special_caves threshold always produces the correct scaled inner
+          //   ellipsoid regardless of direction.
           //
-          // (12 - dist) / 8.0: hollow starts 12 blocks inside the ellipsoid surface.
-          //   dist < 12 → positive → solid shell; dist > 12 → negative → carved hollow.
-          //   Dividing by 8 gives a smooth ≈8-block transition gradient at the boundary.
-          (12 - special_caveDist(x, y + ceilWarp(x, z) * 6, z)) / 8.0
+          // Threshold 0.16 corresponds to ~12 blocks from the xz-equatorial shell.
+          //   At the y-poles the shell is thinner (~2.5 blocks) due to the ^p curvature;
+          //   this is expected for an ellipsoid and keeps the floor close to cave_lower.
+          //
+          // Fix: warp y by a smooth 2D noise (ceilWarp) before evaluating special_caves.
+          //   This shifts the hollow boundary to a different y per column, dissolving
+          //   the flat-top staircase into organic curves. Amplitude 6 = ~3× grid step.
+          (special_caves(x, y + ceilWarp(x, z) * 6, z) + 0.16) * 5.0
 
-          // Wall texture: roughens interior surfaces by ±6 blocks
-          + wallOffset(x, y, z) * 0.75
+          // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
+          //               ±1.5 blocks at y-poles — stays within the thin pole shell.
+          + wallOffset(x, y, z) * 0.5
 
           // Platform creation with smooth falloff
           + platformShape(x, y, z),
 
         -2.5, 2.5),
-        0
-        //carver_fade(x, y, z)
+        carver_fade(x, y, z)
       )
     functions:
       clamp:

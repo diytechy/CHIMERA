@@ -57,7 +57,7 @@ carving:
           + wallOffset(x, y, z) * 0.4
 
           // Platform creation with smooth falloff
-          + platformShape(x, y, z),
+          + platformShape(x, y, z)
 
         ,-2.5, 2.5),
         //-1000
@@ -83,11 +83,18 @@ carving:
         expression: |
           // Distance from platform height
           if(abs(middleHeight - y) > 6, 0,
-            // Smooth vertical falloff from platform height
-            smoothstep(6, 3, abs(middleHeight - y))
-            // Platform presence based on cellular pattern
+            // Smooth vertical falloff: 1 at middleHeight, 0 at ±6 blocks.
+            // Uses (1 - smoothstep(0,6,diff)) because smoothstep only handles
+            // increasing ramps (edge0<edge1); calling smoothstep(6,3,diff) with
+            // inverted edges would always return 0 since diff<=edge0 is always true.
+            (1 - smoothstep(0, 6, abs(middleHeight - y)))
+            // Platform presence based on cellular pattern.
+            // platforms is CELLULAR returning ~[-1,0]; -platforms-0.25 is positive
+            // (~0.75) at cell centers and negative (~-0.25) at cell edges,
+            // creating solid rocky outcroppings at cell-center positions.
             * (-platforms(x, z) - 0.25)
-            // Scale by distance from cavity edge for natural integration
+            // Scale by distance from cavity edge: active only in the near-wall band
+            // (special_caves > -0.3), zero deep in the void (special_caves <= -0.3).
             * smoothstep(-0.3, -0.6, special_caves(x, y, z))
             * 3.5
           )
@@ -117,22 +124,23 @@ carving:
         variables:
           act_dist: ${customization.yml:special_cave_biome_activation}
           act_thresh: ${customization.yml:special_cave_void_activation}
+
+        # Upper hemisphere (y≥0): carver fades out 8 blocks into the shell so the
+        # ceiling and side walls get an organic rocky texture. shellNoise perturbs
+        # the fade boundary by ±2 blocks so the transition isn't a smooth seam.
+        # 
+        # Lower hemisphere (y<0): tight 2-block fade, no shellNoise. Carving is
+        # limited to the outer ~2 blocks of the lower shell — just enough to add
+        # slight surface texture without punching through toward the hollow void.
+        # The lava_cave_floor threshold of -2 fills any air created in that zone,
+        # so the lava floor always covers these shallow surface carvings.
         expression: |
-          // Upper hemisphere (y≥0): carver fades out 8 blocks into the shell so the
-          // ceiling and side walls get an organic rocky texture. shellNoise perturbs
-          // the fade boundary by ±2 blocks so the transition isn't a smooth seam.
-          //
-          // Lower hemisphere (y<0): tight 2-block fade, no shellNoise. Carving is
-          // limited to the outer ~2 blocks of the lower shell — just enough to add
-          // slight surface texture without punching through toward the hollow void.
-          // The lava_cave_floor threshold of -2 fills any air created in that zone,
-          // so the lava floor always covers these shallow surface carvings.
           if((y + shellNoise(x,y,z)*10) < 0,
             lerp(
-              max(special_cave(x,y,z), y*0.2)
+              max(special_caves(x,y,z), y*0.2)
               , 0, -5, act_dist, carver(x,y,z)),
             lerp(
-              special_cave(x,y,z)
+              special_caves(x,y,z)
               ,act_thresh, 0, act_dist, carver(x,y,z)))
         functions:
           lerp: $math/functions/interpolation.yml:functions.lerp

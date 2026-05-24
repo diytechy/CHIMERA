@@ -532,12 +532,13 @@ samplers:
       normalize_shell:
         arguments: [dist_into_shell, y, min_y, max_y, horz_radius, y_power]
         expression: |
-          if(dist_into_shell<0,
-            dist_into_shell * if(y>0,
-              1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
-              1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
-            ),
-            dist_into_shell)
+          dist_into_shell
+          //if(dist_into_shell<0,
+          //  dist_into_shell * if(y>0,
+          //    1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
+          //    1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
+          //  ),
+          //  dist_into_shell)
 
   special_caveVariation:
     dimensions: 2

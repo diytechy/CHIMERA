@@ -37,5 +37,5 @@ extrusions:
       - VINE_VAULT: 1
       - TERRACOTTA_TOMBS: 1
     range:
-      min: ${customization.yml:cave_lower}
-      max: ${customization.yml:cave_upper}
+      min: ${customization.yml:cave_lower} - 4
+      max: ${customization.yml:cave_upper} + 4

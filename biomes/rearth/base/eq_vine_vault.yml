@@ -33,32 +33,16 @@ carving:
     expression: |
       max(
         -clamp(
-          // special_caves returns [-1, 0]: -1 at cell center, 0 at ellipsoid boundary.
-          // Its y-component uses cave_y_curve_power (default ^4), which makes the top
-          // and bottom nearly flat. The ChunkInterpolator evaluates density once per
-          // 4 blocks; a flat boundary produces a 4-block staircase.
-          //
-          // WHY special_caves (not special_caveDist) defines the hollow:
-          //   special_caveDist uses a weighted blend (f_xz*dist_xz + f_y*dist_y).
-          //   Off-axis, dist_xz can be large (e.g. 45 blocks) while dist_y is small
-          //   (e.g. 3 blocks). The xz weight then dominates and "uses up" most of the
-          //   dist=12 budget, pulling the hollow floor closer to the y-pole surface —
-          //   the opposite of what an ellipsoid should do. This manifests as the floor
-          //   and ceiling appearing higher (more toward centre) than expected.
-          //   A special_caves threshold always produces the correct scaled inner
-          //   ellipsoid regardless of direction.
-          //
-          // Threshold 0.16 corresponds to ~12 blocks from the xz-equatorial shell.
-          //   At the y-poles the shell is thinner (~2.5 blocks) due to the ^p curvature;
-          //   this is expected for an ellipsoid and keeps the floor close to cave_lower.
-          //
-          // Fix: warp y by a smooth 2D noise (yWarp) before evaluating special_caves.
-          //   This shifts the hollow boundary to a different y per column, dissolving
-          //   the flat-top staircase into organic curves. Amplitude 6 = ~3× grid step.
-          (special_caves(x, y, z) - act_thresh) * 5.0
+          // y-WARPED special_caves: each xz column samples the ellipsoid at a different
+          // effective y. At the upper/lower poles the shell is naturally thin and flat
+          // (normalize_shell factor ≈ 0.43 at upper pole, ≈ 0.32 at lower pole), so on
+          // the 4-block sparse grid adjacent columns share the same ceiling y → visible
+          // staircase. Per-column ±6 block y-offset displaces the boundary, dissolving
+          // the staircase into organic curves. yShellWarp is 2D (consistent per column).
+          (special_caves(x, y + yShellWarp(x, z) * 6, z) - act_thresh) * 5.0
 
-          // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
-          //               ±1.5 blocks at y-poles — stays within the thin pole shell.
+          // Wall texture: ±0.4 in expression-space ≈ ±6 blocks at xz equator,
+          //               ±1.5 blocks at y-poles.
           // Shared pack-level sampler (special_cave_carving.yml:caveWallOffset).
           + caveWallOffset(x, y, z) * 0.4
 
@@ -66,11 +50,8 @@ carving:
           + platformShape(x, y, z)
 
         // Clamp matched to standard carver range [-0.54, +0.46].
-        // Old ±2.5 caused void bleed at shell (~+0.98 midpoint between interior +2.5
-        //   and standard-cave solid -0.54) and blocky platform edges.
         // [-0.6, +0.5]: midpoint(+0.5, -0.54) = -0.02 solid ✓; midpoint(-0.6, +0.46) = -0.07 solid ✓.
         ,-0.6, 0.5),
-        //-1000
         caveCarverFade(x, y, z)
       )
     functions:
@@ -89,9 +70,12 @@ carving:
           //   platVal = platforms(x,z)       — local CELLULAR sampler
           //   caveVal = special_caves(x,y,z) — pack-level ellipsoid sampler
           // max() keeps whichever tier contributes the strongest solid signal at (x,y,z).
-          max(platformAt(platformLowY,  y, platforms(x, z), special_caves(x, y, z)),
-          max(platformAt(platformMidY,  y, platforms(x, z), special_caves(x, y, z)),
-              platformAt(platformHighY, y, platforms(x, z), special_caves(x, y, z))))
+          // caveVal uses the same yShellWarp as the outer carver so the wall-proximity
+          // fade matches the warped cave shape (otherwise platforms would key off the
+          // un-warped flat shell while the surrounding void uses the warped one).
+          max(platformAt(platformLowY,  y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z)),
+          max(platformAt(platformMidY,  y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z)),
+              platformAt(platformHighY, y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z))))
         functions:
           platformAt:
             # Solid contribution of a single platform tier centred at height h.
@@ -135,45 +119,11 @@ carving:
             sampler:
               type: CELLULAR
               frequency: 0.05
-      # carver_fade removed — definition is now pack-level caveCarverFade(x,y,z)
-      #   in math/samplers/special_cave_carving.yml (identical expression).
-      # wallOffset removed — replaced by pack-level caveWallOffset(x,y,z).
-      # shellNoise removed — replaced by pack-level caveShellNoise(x,y,z).
-
-      # 2D FBM for y-coordinate warping. Must be 2D (not 3D) so the offset is
-      # consistent for the entire vertical column at each xz position — a 3D
-      # sampler would vary per block and could create mid-column discontinuities.
-      # Period ~56 blocks (frequency 0.018) gives 3-4 variation cycles across a
-      # typical 200-block cave diameter without introducing noisy fine-scale breaks.
-      yWarp:
-        dimensions: 2
-        type: EXPRESSION
-        expression: |
-          0
-          //if(y>0
-          //  ceilWarp(x,z),
-          //  florWarp(x,z))
-          //  + 1
-
-        samplers:
-          ceilWarp:
-            dimensions: 2
-            type: FBM
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 0.018
-            octaves: 2
-            gain: 0.5
-            salt: 5678309
-          florWarp:
-            dimensions: 2
-            type: FBM
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 0.018
-            octaves: 2
-            gain: 0.5
-            salt: 56783092
+      # carver_fade   → pack-level caveCarverFade(x,y,z)   in math/samplers/special_cave_carving.yml
+      # wallOffset    → pack-level caveWallOffset(x,y,z)   "
+      # shellNoise    → pack-level caveShellNoise(x,y,z)   "
+      # yShellWarp    → pack-level yShellWarp(x,z)         " (must be pack-level so platformShape
+      #                  child sampler can see it — child samplers can't reference siblings)
   #sampler-2d:
   #  dimensions: 2
   #  type: CONSTANT

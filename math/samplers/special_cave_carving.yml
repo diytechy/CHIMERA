@@ -32,6 +32,28 @@ samplers:
     octaves: 2
     gain: 0.5
 
+  # 2D per-column y-warp for breaking flat-pole staircases on the 4-block sparse grid.
+  # Apply at the call site:  special_caves(x, y + yShellWarp(x,z) * amplitude, z)
+  # where amplitude in blocks (e.g. 6) controls how much the cave's top/bottom shells
+  # shift per xz column.  Must be 2D so the offset is consistent for the whole vertical
+  # column at each xz position — a 3D sampler would vary per block and create mid-column
+  # discontinuities (the shape function would see different effective y at different
+  # actual y in the same column).
+  # Period ~56 blocks (frequency 0.018) gives 3–4 variation cycles across a typical
+  # 200-block cave diameter without noisy fine-scale breaks.
+  # A single warp shifts top and bottom together (entire cave moves up/down per column).
+  # Splitting ceil/floor would need handling special_caves' internal y>0 hemisphere split,
+  # which would introduce a horizontal artifact at y=0 if not blended smoothly.
+  yShellWarp:
+    dimensions: 2
+    type: FBM
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.018
+    octaves: 2
+    gain: 0.5
+    salt: 5678309
+
   # Shared carver-fade used by ALL three special-cave biomes (including inferno isle,
   # which now references this instead of maintaining a local copy).
   #

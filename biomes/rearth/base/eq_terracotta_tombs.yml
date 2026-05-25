@@ -11,7 +11,7 @@ vars: &variables
   # stalactites grow DOWN from cave_upper; both use the same half-height.
   # cave height = cave_upper - cave_lower = 40 - (-30) = 70 blocks.
   # pillarHeight=55 → arms overlap 40 blocks in the middle → pillars span full cave.
-  pillarHeight:     55
+  pillarHeight:     5
   # Gain applied to the supra-threshold cellular value.  Must be large enough that
   # pillarScale × (1 − threshold_excess) × min_height_factor > |hollow| at cave midpoint.
   # threshold_excess = 1 − 0.72 = 0.28.  cave midpoint height_factor ≈ 0.364.
@@ -46,24 +46,17 @@ carving:
             // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
             + caveWallOffset(x, y, z) * 0.3
 
-            // Pillar solid contribution: positive at pillar cell centres pushes the inner
-            // expression above zero so -clamp returns negative (solid).
-
-            // Clamp matched to standard carver range [-0.54, +0.46].
-            // Old ±2.5 caused void bleed at shell and void holes in narrow pillars:
-            //   pillar solid edge (−0.5 after negate) next to cave void (+2.5) → midpoint +1.0 (void eats pillar).
-            // [-0.6, +0.5]: pillar solid (-0.6) / cave void (+0.5) → midpoint -0.05 (solid ✓).
-            
-
-            // Shared carver fade — tight lower hemisphere returns deeply negative
-            // values inside the cave (extrapolates below -5 at the cave centre), so
-            // max(main, fade) always defers to the main -clamp expression.
-            // No subtraction from the fade is needed.
             ,
-            //-100
+            // Pillar takes preference where it exists. tomb_pillars returns -100 outside
+            // pillar columns so the hollow signal dominates the max there.
             tomb_pillars(x, y, z)
           )
+          // Clamp matched to standard carver range [-0.54, +0.46]:
+          //   pillar solid (-0.6) / cave void (+0.5) → midpoint -0.05 (solid ✓).
           ,-0.6, 0.5),
+
+          // Shared carver fade — tight lower hemisphere returns deeply negative values
+          // inside the cave (≈-5 at the cave centre), so max(main, fade) defers to main.
           caveCarverFade(x, y, z)
       )
     functions:
@@ -97,22 +90,27 @@ carving:
         variables: *variables
         expression: |
           // Only generate pillars inside the inner 60% of the cave's XZ radius.
+          // IMPORTANT: when not at a pillar column, return -100 (not 0). The outer carver
+          //   does max(hollow, tomb_pillars).  If tomb_pillars=0 between pillars, the max
+          //   would pick 0 over the strongly-negative hollow (-4.75), blocking the void
+          //   signal. -100 makes the outer max ignore tomb_pillars away from columns so
+          //   the hollow comes through.
           if(pillarExists(x, z),
-            max(0,
-              (
+            max(-0.5,
+              
                 -basepillars(x, z) - 0.72           // positive at cell centres (~0.28 max)
                 + basepillarsCenter(x, z) * 0.12    // per-column size variation
                 + pillarWidthRand(y, x / 10) * 0.09 // width variation along height
-              )
-              * pillarScale
-              // Bidirectional height profile: both arms overlap in mid-cave,
-              // producing full-height columns at cell centres.
-              * max(
-                  max(0, 1 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
-                  max(0, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
-                )
+              
+              //+
+              //// Bidirectional height profile: both arms overlap in mid-cave,
+              //// producing full-height columns at cell centres.
+              //max(
+              //    max(0, 1 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
+              //    max(0, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
+              //  
             )
-            ,-100
+            ,-0.5
           )
         samplers:
           basepillars: &pillarConf
@@ -127,13 +125,13 @@ carving:
           pillarExists:
             <<: *pillarConf
             return: NoiseLookup
-            salt-loookup: false
+            salt-lookup: false
             lookup: 
               dimensions: 2
               #type: CONSTANT
               #value: 1
               type: EXPRESSION
-              expression: if(special_radius(x, z) >= 0.8, 0,1)
+              expression: if(special_radius_norm(x, z) >= 0.8, 0,1)
           pillarWidthRand:
             dimensions: 2
             type: FBM

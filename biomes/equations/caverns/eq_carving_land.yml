@@ -33,7 +33,7 @@ carving:
       # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
       # Carves a passage from the special-cave dome to the overlapping pit wall.
       # Set to 0 to suppress; or comment out the matching line in the expression.
-      pitCaveTunnel_enabled: 1
+      pitCaveTunnel_enabled: 0
 
     expression: |
       max(
@@ -168,20 +168,25 @@ carving:
             // raw = (riftWellPlacement + B) × (special_radius + B) / (1 + B)²
             //   • Positive when cave and pit are simultaneously reachable; B widens reach.
             //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.
-            if((riftWellPlacement(x,z) + trans_bulk) * ((1-special_radius(x,z)) + trans_bulk) <= 0,
+            // NOTE: must use special_radius_norm (not 1-special_radius). The latter peaks at
+            //   the cave CENTRE (sr=0 → 1-sr=1) and is negative outside the shell, so the
+            //   conditional only fires INSIDE the cave — carving extra void where the cave
+            //   already exists. special_radius_norm = max(pit_transition, special_radius)
+            //   is non-negative everywhere and rises through the pit/cave transition band.
+            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk) <= 0,
               -0.5,
 
               // norm_strength = raw ^ 0.3
               //   ^0.3 keeps the passageway broadly strong while rolling to 0 at the
               //   raw-zero boundary (riftWellPlacement = −trans_bulk on the pit side).
-              ((riftWellPlacement(x,z) + trans_bulk) * ((1-special_radius(x,z)) + trans_bulk)
+              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
                 / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
 
               // ── Passageway-end fades ────────────────────────────────────────
               // Cave-centre fade (passageway = −1 → 0):
               //   0 when special_radius_norm = 0 (cave centre), 1 when special_radius_norm ≥ cave_shell_r.
               * min(1, special_radius_norm(x,z) / cave_shell_r)
-              // Pit-centre  fade (passageway = 1 → 2):
+              // Pit-centre  fade (passageway = 1 → 2): 
               //   1 when riftWellPlacement = 0 (pit edge), 0 when riftWellPlacement = 1 (pit centre).
               * max(0, min(1, 1 - riftWellPlacement(x,z)))
 

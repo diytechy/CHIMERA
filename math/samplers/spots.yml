@@ -487,27 +487,18 @@ samplers:
         distance: Euclidean
         jitter: 0.5
         salt: 24
-
-  special_caves:
-    dimensions: 3
+        
+  special_radius_norm:
+    dimensions: 2
     type: EXPRESSION
-    variables: *spec_vars
-      #Compute the radius into the special cave
-      #0 at the edge, -1 at the center, similar to cellular noise pattern, but
-      # edge at 0 to normalize.
+    variables: &spec_vars
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
     expression: |
-      normalize_shell(
-        (
-          //First compute normalized radius on the x/z plane:
-          max(pit_transition(x,z),special_radius(x,z))^2
-
-          //Then add in the normalized y component; cave_y_power controls curvature:
-          //higher values flatten the top/bottom cap, lower values approach a sphere.
-          +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
-
-          //Then convert back to standard normalized radius
-        )^0.5-1,
-        y, cave_lower, cave_upper, cave_dia/2, cave_y_power)
+      max(pit_transition(x,z),special_radius(x,z))
     samplers:
       pit_transition:
         dimensions: 2
@@ -524,6 +515,27 @@ samplers:
             lerp(riftWellPlacement(x,z),cave_pit_thresh-cave_pit_trans,0,cave_pit_thresh,1)
             ,
             0)
+
+  special_caves:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *spec_vars
+      #Compute the radius into the special cave
+      #0 at the edge, -1 at the center, similar to cellular noise pattern, but
+      # edge at 0 to normalize.
+    expression: |
+      normalize_shell(
+        (
+          //First compute normalized radius on the x/z plane:
+          special_radius_norm(x,z)^2
+
+          //Then add in the normalized y component; cave_y_power controls curvature:
+          //higher values flatten the top/bottom cap, lower values approach a sphere.
+          +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
+
+          //Then convert back to standard normalized radius
+        )^0.5-1,
+        y, cave_lower, cave_upper, cave_dia/2, cave_y_power)
     functions:
       # Rescale dist_into_shell inside the ellipsoid so a fixed threshold corresponds
       # to the same WORLD-BLOCK depth in every direction. Without this, threshold 0.16

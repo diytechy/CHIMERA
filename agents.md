@@ -336,6 +336,63 @@ terraceStrata(terraceStrata(terraceStrata(H, 50, 0, 0, 0.1), 30, 0, 0, 0.15), 15
 ```
 Envelope: `[H − 12.5, H]` (subtractions are 5 + 4.5 + 3).
 
+## EXPRESSION sampler scoping rules
+
+What is callable depends on *where* in an EXPRESSION sampler the call appears.
+
+| Caller context | Built-in math (`abs`, `floor`, `if`, …) | Own nested `functions:` | Sibling `functions:` | Pack-level functions | Local `samplers:` | Pack-level samplers |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Top-level `expression:` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Function body (`functions:` entry) | ✓ | ✓ (own nested only) | ✗ | ✗ | ✗ | ✗ |
+
+**Functions are pure math.** A function body can only see built-in operators and whatever is explicitly declared in its own nested `functions:` block. It has no visibility into:
+- sibling functions at the same level in the parent `functions:` block
+- local samplers declared in the sampler's `samplers:` block
+- pack-level samplers (e.g. `special_caves`, `caveWallOffset`)
+- pack-level functions (e.g. `smoothstep`, `lerp`)
+
+### Workarounds
+
+**Function needs to call another function** — nest it:
+```yaml
+functions:
+  outer:
+    arguments: [x]
+    expression: helper(x * 2)
+    functions:          # helper declared INSIDE outer, not alongside it
+      helper:
+        arguments: [v]
+        expression: v^2
+```
+This is why `lerp3` in `math/functions/interpolation.yml` re-declares `lerp` inside its own `functions:` block rather than calling the sibling.
+
+**Function needs a sampler value** — evaluate at the outer expression level and pass as an argument:
+```yaml
+# platformShape top-level expression — local sampler IS visible here:
+expression: |
+  platformAt(h, y, platforms(x, z), special_caves(x, y, z))
+
+functions:
+  platformAt:
+    arguments: [h, py, platVal, caveVal]   # sampler results arrive as plain numbers
+    expression: |
+      (-platVal - 0.25) * smoothstep(-0.3, -0.6, caveVal)
+```
+The top-level expression evaluates `platforms(x, z)` and `special_caves(x, y, z)` (both visible there) and forwards the scalar results as arguments. The function body sees only numbers — it never calls samplers directly.
+
+### Pack-level function re-declaration
+
+Adding a function to `pack.yml → functions:` makes it available in any top-level expression across the pack, but **not** automatically inside function bodies. If a function body needs `smoothstep`, declare it as a nested child:
+```yaml
+myFunc:
+  arguments: [...]
+  expression: smoothstep(0, 6, ...)
+  functions:
+    smoothstep:               # must be re-declared here; pack-level is not visible
+      arguments: [edge0, edge1, x]
+      expression: ...
+```
+
 ## Interpolation mechanics (carving and terrain expressions)
 
 **ChunkInterpolator builds a 5×5 sparse grid** (x,z ∈ {0,4,8,12,16}) and evaluates the 3D sampler once per 4 blocks in y. All per-block densities are trilinear interpolations of those sparse corner values.
@@ -346,8 +403,8 @@ Envelope: `[H − 12.5, H]` (subtractions are 5 + 4.5 + 3).
 
 For carving expressions (where negative = air, positive = solid):
 - If the solid region caps at +2, the air region should floor at ≤ −2 to ensure interpolated midpoints can cross zero cleanly.
-- Clamping carving expressions to `[-1.75, 1.75]` (as in `eq_inferno_isle.yml`) provides a safe interpolation envelope for most cavity/platform features.
-- Platforms or solid features that exceed +2 require correspondingly deeper negative floors (≤ −2) in adjacent air regions to prevent interpolation artifacts.
+- Special cave carvers (EQ_INFERNO_ISLE, EQ_VINE_VAULT, EQ_TERRACOTTA_TOMBS) clamp their inner expression to **`[-0.6, +0.5]`** — matched to the standard carver range `[-0.54, +0.46]`. This is critical: if the special cave uses a wider range (e.g. ±2.5), a grid point at the interior void (+2.5) interpolated with an adjacent standard-cave solid (−0.54) yields midpoint **+0.98 → void bleed** into the shell. With `[-0.6, +0.5]`: midpoint(+0.5, −0.54) = −0.02 (barely solid ✓). The `×5.0` scale on `special_caves` and high `pillarScale` values are about the *raw inner expression* before clamping — they are unaffected.
+- The rule **`floor ≤ −cap`** ensures clean zero crossings. With special cave cap +0.5, adjacent solid regions need floor ≤ −0.5; standard carver provides −0.54 ✓. Symmetric special cave boundaries (pillar −0.6 / void +0.5) have midpoint −0.05 → slight solid bias, preventing void bleed into narrow pillar/platform edges.
 
 **Debugging interpolation bleed:**
 1. Check the sparse-grid values at feature boundaries (every 4th block).
@@ -380,6 +437,29 @@ ceilWarp:
 This displaces where the ellipsoid boundary sits at each xz position, so adjacent grid cells see the ceiling at different heights. Amplitude of 6 blocks gives ~12 blocks of ceiling variation (3× the grid step), which dissolves the staircase into organic curves without distorting the cave shape significantly.
 
 **Why 2D, not 3D:** A 3D warp sampler varies with y, so the offset changes at each block within the same column. This creates mid-column density discontinuities (the same xz position evaluates the shape at different effective y-levels at different block heights). A 2D sampler gives a single constant offset for the whole column — correct for shifting the boundary location.
+
+## Palette depth counter and carving (`carving.update-palette`)
+
+The palette `paletteLevel` depth counter is built by scanning **top-down** from world max height. It tracks how many consecutive solid blocks have been seen below the last air gap — depth 0 = first solid block, depth 1 = next, etc. The counter is **reset to 0 on any air or water block**.
+
+Carved blocks (terrain density > 0, carver > 0) behave differently depending on `carving.update-palette` (default: `false`):
+
+| `carving.update-palette` | Carved block effect on `paletteLevel` | Cave floor depth |
+|---|---|---|
+| `false` (default) | **increments** (same as solid) | ≈ number of carved blocks above it |
+| `true` | **resets to 0** | 0 (topmost palette layer) |
+
+**Consequence for cave biomes:** With the default, a cave that is N blocks tall leaves `paletteLevel ≈ N` at the floor — well past topsoil and into stone. Features that locate on `plantable-blocks` (grass, dirt, moss) will find nothing and never place.
+
+**Fix:** add `carving.update-palette: true` to any cave biome that needs topsoil at its floor (trees, flowers, dripleaf, etc.).
+
+```yaml
+# In the concrete biome YAML (e.g. vine_vault.yml):
+carving:
+  update-palette: true   # Reset depth counter on carved blocks → floor gets depth-0 palette layer
+```
+
+This is a biome-level palette setting (parsed by `BiomePaletteTemplate`), not part of `carving.sampler`. It can be added to a concrete biome even when the abstract parent defines `carving.sampler`.
 
 ## Quick diagnostic checklist
 
@@ -427,7 +507,7 @@ carving sampler > 0  →  void (air)
 carving sampler ≤ 0  →  solid (rock/terrain)
 ```
 
-`EQ_CARVING_LAND` starts at `−carvingThreshold = −0.54`. Cave features add positive contributions. `EQ_INFERNO_ISLE`'s main carver is `max(−clamp(inner, −2.5, 2.5), carver_fade)` — the negation of the clamped inner expression means positive carving whenever `inner < 0` (inside the hollow).
+`EQ_CARVING_LAND` starts at `−carvingThreshold = −0.54`. Cave features add positive contributions. `EQ_INFERNO_ISLE`'s main carver is `max(−clamp(inner, −0.6, 0.5), carver_fade)` — the negation of the clamped inner expression means positive carving whenever `inner < 0` (inside the hollow). The clamp range is matched to the standard carver `[-0.54, +0.46]` to prevent interpolation bleed at biome boundaries (see interpolation mechanics section).
 
 **Void threshold math for connection passages:** if the base carver sits at −0.54, a connection contribution of +X creates void where X > 0.54. Over a linear ramp of reach R blocks, the effective passage half-width is `(1 − 0.54) × R ≈ 0.46 × R`.
 

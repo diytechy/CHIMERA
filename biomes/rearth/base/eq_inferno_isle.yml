@@ -60,7 +60,13 @@ carving:
           // Platform creation with smooth falloff
           + platformShape(x, y, z)
 
-        ,-2.5, 2.5),
+        // Clamp matches the standard carver range ([-0.54, +0.46]).
+        // Old ±2.5: interior void at +2.5 next to standard-cave solid at -0.54 → midpoint
+        //   +0.98 (void bleed into shell).  Platform solid at -2.5 next to cave void at +2.5
+        //   → midpoint 0 but asymmetric with standard-cave grid points.
+        // New [-0.6, +0.5]: void cap +0.5 ≤ 0.54 → midpoint with std solid = -0.02 (solid ✓).
+        //   Solid floor -0.6: midpoint with std void +0.46 = -0.07 (solid ✓).
+        ,-0.6, 0.5),
         //-1000
         caveCarverFade(x, y, z)
       )

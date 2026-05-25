@@ -122,7 +122,7 @@ carving:
       # 
       # Strength mask (2D):
       #   Defines the strength of the tunnel, a function of the normalized transition strength
-      #   where the raw transition strength is ((riftWellPlacement + trans_bulk) * (special_radius + + trans_bulk))/(1++ trans_bulk)^2
+      #   where the raw transition strength is ((riftWellPlacement + trans_bulk) * (special_radius_norm + + trans_bulk))/(1++ trans_bulk)^2
       # where trans_bulk can be increases to allow greater tunnelling distances when the special cave
       # and pit do not directly intersect.
       #
@@ -154,33 +154,33 @@ carving:
           fade:         5
           # Maximum carving contribution (> 0 = void in the carving expression).
           str_cap:      0.7
-          # Bulk factor added to riftWellPlacement and special_radius before multiplying.
+          # Bulk factor added to riftWellPlacement and special_radius_norm before multiplying.
           # Allows the tunnel to extend when cave and pit are nearby but not perfectly
           # overlapping.  0 = strict overlap only; 0.3 = moderate extension.
           trans_bulk:   0.3
-          # special_radius value at the cave XZ shell — passageway = 0 is anchored here.
+          # special_radius_norm value at the cave XZ shell — passageway = 0 is anchored here.
           cave_shell_r: 0.5
         expression: |
           // ── Early exit: no carving outside the pit overlap zone ──────────────
           if(warped_pit(x,z) <= 0, -0.5,
 
             // ── Strength mask with trans_bulk ──────────────────────────────────
-            // raw = (riftWellPlacement + B) × (special_radius + B) / (1 + B)²
+            // raw = (riftWellPlacement + B) × (special_radius_norm + B) / (1 + B)²
             //   • Positive when cave and pit are simultaneously reachable; B widens reach.
             //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.
-            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk) <= 0,
+            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk) <= 0,
               -0.5,
 
               // norm_strength = raw ^ 0.3
               //   ^0.3 keeps the passageway broadly strong while rolling to 0 at the
               //   raw-zero boundary (riftWellPlacement = −trans_bulk on the pit side).
-              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk)
+              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
                 / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
 
               // ── Passageway-end fades ────────────────────────────────────────
               // Cave-centre fade (passageway = −1 → 0):
-              //   0 when special_radius = 0 (cave centre), 1 when special_radius ≥ cave_shell_r.
-              * min(1, special_radius(x,z) / cave_shell_r)
+              //   0 when special_radius_norm = 0 (cave centre), 1 when special_radius_norm ≥ cave_shell_r.
+              * min(1, special_radius_norm(x,z) / cave_shell_r)
               // Pit-centre  fade (passageway = 1 → 2):
               //   1 when riftWellPlacement = 0 (pit edge), 0 when riftWellPlacement = 1 (pit centre).
               * max(0, min(1, 1 - riftWellPlacement(x,z)))
@@ -201,7 +201,7 @@ carving:
               // Upper ramp: 1 at y = ymax − fade → 0 at y = ymax.
               * min(1, max(0,
                   ( cave_upper
-                    * ((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk)
+                    * ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
                        / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
                     * mag
                     + lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,

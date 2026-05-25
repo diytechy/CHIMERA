@@ -48,6 +48,19 @@ functions:
           - x
         expression: 3*x^2-2*x^3
   
+  smoothstep: &smoothstep
+    # Standard cubic Hermite smooth transition between two edges.
+    # Returns 0 when x <= edge0, 1 when x >= edge1, smooth S-curve in between.
+    # Requires edge0 < edge1 (standard orientation); for a reversed fade use
+    # smoothstep(high, low, x) which will return 1 near high and 0 near low.
+    arguments: [edge0, edge1, x]
+    expression: |
+      if(x <= edge0, 0,
+        if(x >= edge1, 1,
+          ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+        )
+      )
+
   parabolicMap:
     # One-sided quadratic ease-in.
     arguments:

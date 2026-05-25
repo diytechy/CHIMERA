@@ -65,7 +65,11 @@ carving:
           // Platform creation with smooth falloff
           + platformShape(x, y, z)
 
-        ,-2.5, 2.5),
+        // Clamp matched to standard carver range [-0.54, +0.46].
+        // Old ±2.5 caused void bleed at shell (~+0.98 midpoint between interior +2.5
+        //   and standard-cave solid -0.54) and blocky platform edges.
+        // [-0.6, +0.5]: midpoint(+0.5, -0.54) = -0.02 solid ✓; midpoint(-0.6, +0.46) = -0.07 solid ✓.
+        ,-0.6, 0.5),
         //-1000
         caveCarverFade(x, y, z)
       )
@@ -73,34 +77,22 @@ carving:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
-      smoothstep:
-        arguments: [edge0, edge1, x]
-        expression: |
-          if(x <= edge0, 0,
-            if(x >= edge1, 1,
-              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
-            )
-          )
     samplers:
       platformShape:
         dimensions: 3
         type: EXPRESSION
         variables: *variables
         expression: |
-          // Three rock-platform bands, each evaluated by platformAt(h, x, y, z).
+          // Three rock-platform bands, each evaluated by platformAt(h, y, platVal, caveVal).
+          // Samplers cannot be called inside function bodies — all sampler results are
+          // evaluated here and forwarded as arguments.
+          //   platVal = platforms(x,z)       — local CELLULAR sampler
+          //   caveVal = special_caves(x,y,z) — pack-level ellipsoid sampler
           // max() keeps whichever tier contributes the strongest solid signal at (x,y,z).
-          max(platformAt(platformLowY,  x, y, z),
-          max(platformAt(platformMidY,  x, y, z),
-              platformAt(platformHighY, x, y, z)))
+          max(platformAt(platformLowY,  y, platforms(x, z), special_caves(x, y, z)),
+          max(platformAt(platformMidY,  y, platforms(x, z), special_caves(x, y, z)),
+              platformAt(platformHighY, y, platforms(x, z), special_caves(x, y, z))))
         functions:
-          smoothstep:
-            arguments: [edge0, edge1, x]
-            expression: |
-              if(x <= edge0, 0,
-                if(x >= edge1, 1,
-                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
-                )
-              )
           platformAt:
             # Solid contribution of a single platform tier centred at height h.
             # Returns 0 outside the ±6-block vertical band, otherwise:
@@ -108,19 +100,30 @@ carving:
             #   × cellular platform presence (~0.75 at cell centres, ~-0.25 at edges)
             #   × wall-proximity fade (active only near the cave shell, 0 deep in void)
             #   × overall scale
-            arguments: [h, px, py, pz]
+            # platVal: platforms(x,z)       — pre-evaluated by outer expression (local sampler)
+            # caveVal: special_caves(x,y,z) — pre-evaluated by outer expression (pack sampler)
+            arguments: [h, py, platVal, caveVal]
             expression: |
               if(abs(h - py) > 6, 0,
                 // Smooth vertical falloff: 1 at h, 0 at ±6 blocks.
                 (1 - smoothstep(0, 6, abs(h - py)))
                 // Platform presence: CELLULAR returning ~[-1,0];
-                // -platforms-0.25 is positive at cell centres, negative at edges.
-                * (-platforms(px, pz) - 0.25)
+                // -platVal-0.25 is positive at cell centres, negative at edges.
+                * (-platVal - 0.25)
                 // Wall-proximity fade: active only in the near-wall band
                 // (special_caves > -0.3), zero deep in the void (≤ -0.6).
-                * smoothstep(-0.3, -0.6, special_caves(px, py, pz))
+                * smoothstep(-0.3, -0.6, caveVal)
                 * 3.5
               )
+            functions:
+              smoothstep:
+                arguments: [edge0, edge1, x]
+                expression: |
+                  if(x <= edge0, 0,
+                    if(x >= edge1, 1,
+                      ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                    )
+                  )
         samplers:
           platforms:
             dimensions: 2

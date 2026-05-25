@@ -20,7 +20,9 @@ locator:
   type: AND
   locators:
     - type: PATTERN
-      range: *range
+      range: &range
+        min: $meta.yml:bottom-y
+        max: $meta.yml:top-y
       pattern:
         type: MATCH_SET
         blocks: $features/vegetation/meta.yml:plantable-blocks

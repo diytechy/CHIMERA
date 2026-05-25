@@ -14,13 +14,17 @@ vars: &variables
   pillarHeight:     55
   # CELLULAR Distance threshold: pillar where (-pillars) > pillarThreshold.
   # Distance sampler returns [-1,0]; higher threshold = thinner, sharper pillars.
-  pillarThreshold:  0.60
+  # At freq 0.035 (≈29-block cell period), threshold controls pillar radius:
+  #   threshold=0.60 → inner 40% of distance range → ~6-block radius (ROOM-FILLING)
+  #   threshold=0.80 → inner 20% of distance range → ~3-block radius (~6-block diameter)
+  pillarThreshold:  0.80
   # Gain applied to the supra-threshold cellular value.  Must be large enough that
   # pillarScale × (1 - pillarThreshold) × min_height_factor > |hollow| at cave midpoint.
-  # cave midpoint (y≈5): min_height_factor ≈ 1-35/55 = 0.36.
+  # cave midpoint (y≈5): min_height_factor ≈ 1-35/55 = 0.364.
   # hollow at cell center (special_caves≈-1): (-1+0.05)×5 = -4.75.
-  # need: scale × 0.40 × 0.36 > 4.75  →  scale > 33.  Use 50 for margin.
-  pillarScale:      50
+  # clamp ceiling = 2.5, so need total > 2.5: 0.20 × scale × 0.364 > 4.75+2.5 = 7.25
+  # → scale > 99.3.  Use 100.
+  pillarScale:      100
 
 terrain:
   blend:
@@ -84,11 +88,11 @@ carving:
       #   where they reinforce each other, creating full-height pillars at cell centres.
       #
       # Max return value at floor / ceiling:
-      #   (1 - 0.60) × 50 × 1 = 20.0
+      #   (1 - 0.80) × 100 × 1 = 20.0
       # Required to overcome cave at cell centre (special_caves ≈ -1):
       #   need total expr > 0: (-1 + 0.05) × 5 + 20 = -4.75 + 20 = 15.25 > 0 ✓
-      # At cave midpoint (y ≈ 5, min_height_factor ≈ 0.36):
-      #   pillarShape = 0.40 × 50 × 0.36 = 7.2.  Total: -4.75 + 7.2 = 2.45 > 0 ✓
+      # At cave midpoint (y ≈ 5, min_height_factor ≈ 0.364):
+      #   pillarShape = 0.20 × 100 × 0.364 = 7.28.  Total: -4.75 + 7.28 = 2.53 > 0 ✓
       # caveCarverFade (tight lower hemisphere): deeply negative inside cave
       #   → max(main_solid -2.5, deeply_negative_fade) = -2.5 (solid) ✓
       pillarShape:

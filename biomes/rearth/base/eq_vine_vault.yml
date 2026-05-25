@@ -33,7 +33,10 @@ carving:
           (special_caves(x, y, z) - act_thresh) * 5.0
 
           // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
-          + caveWallOffset(x, y, z) * 0.4
+          // Coefficient 0.25 (vs. 0.4 in inferno): keeps rocky texture without punching
+          // holes through the thin lower-hemisphere shell (act_thresh = -0.05, only 0.06
+          // SDF headroom above the void).
+          + caveWallOffset(x, y, z) * 0.25
 
           // Three rocky platform bands at different heights.
           // Each uses EXACT EQ_INFERNO_ISLE platformShape geometry:
@@ -57,11 +60,14 @@ carving:
     samplers:
       # ── Platform levels ──────────────────────────────────────────────────────
       # All three share identical geometry with EQ_INFERNO_ISLE's platformShape.
-      # The smoothstep(-0.3, -0.6, special_caves) gate ensures platforms only grow
-      # from the wall (special_caves > -0.3) and fade to zero in the open interior,
-      # preventing solid lumps from appearing mid-air in the hollow.
       #
-      # (1 - smoothstep(0, 6, abs(height - y))) gives the vertical taper:
+      # Wall-proximity gate: smoothstep(-0.6, -0.3, special_caves)
+      #   edge0 < edge1 so the smooth ramp is correct (NOT inverted):
+      #   special_caves ≤ -0.6 (deep interior) → 0  (no platform)
+      #   special_caves in (-0.6, -0.3)        → smooth ramp 0→1
+      #   special_caves ≥ -0.3 (near wall)     → 1  (full platform)
+      #
+      # Vertical gate: (1 - smoothstep(0, 6, abs(height - y)))
       #   1.0 exactly at the platform height, smoothly → 0 at ±6 blocks.
       #
       # CELLULAR returns [-1, 0]; (-cellular - 0.25) is positive at cell centres
@@ -76,7 +82,7 @@ carving:
           if(abs(platformLowY - y) > 6, 0,
             (1 - smoothstep(0, 6, abs(platformLowY - y)))
             * (-platformsLow(x, z) - 0.25)
-            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * smoothstep(-0.6, -0.3, special_caves(x, y, z))
             * 3.5
           )
         functions:
@@ -109,7 +115,7 @@ carving:
           if(abs(platformMidY - y) > 6, 0,
             (1 - smoothstep(0, 6, abs(platformMidY - y)))
             * (-platformsMid(x, z) - 0.25)
-            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * smoothstep(-0.6, -0.3, special_caves(x, y, z))
             * 3.5
           )
         functions:
@@ -142,7 +148,7 @@ carving:
           if(abs(platformHighY - y) > 6, 0,
             (1 - smoothstep(0, 6, abs(platformHighY - y)))
             * (-platformsHigh(x, z) - 0.25)
-            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * smoothstep(-0.6, -0.3, special_caves(x, y, z))
             * 3.5
           )
         functions:

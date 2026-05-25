@@ -30,6 +30,11 @@ carving:
       megaCaveStrength: 0.3
       megaCaveSize: 0.3
 
+      # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+      # Carves a passage from the special-cave dome to the overlapping pit wall.
+      # Set to 0 to suppress; or comment out the matching line in the expression.
+      pitCaveTunnel_enabled: 1
+
     expression: |
       -carvingThreshold
       + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip unnecessary calculations
@@ -64,6 +69,10 @@ carving:
         ),
         carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y
       ))
+      // ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+      // Carves a passage from the special-cave dome to overlapping pit walls.
+      // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.
+      + pitCaveTunnel_enabled * pitCaveTunnel(x, y, z)
     samplers:
       cavePillars:
         dimensions: 2
@@ -97,3 +106,105 @@ carving:
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.0075
+
+      # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+      # Computes the void contribution that connects a special-cave dome to the
+      # side wall of an overlapping pit (warped_pit + riftWellPlacement zone).
+      #
+      # Strength mask (2D):
+      #   cave  — special_caves(x,0,z) removes the y-component, giving a pure xz
+      #           cave-proximity mask:  0 at biome boundary, 1 at cave shell.
+      #   pit   — riftWellPlacement lerped from outer transition to threshold.
+      #   combined: cave_strength × pit_strength × str_cap.
+      #
+      # Passage vertical bounds:
+      #   ymin = lerp(riftWellPlacement, thresh-trans, ymin_outer, thresh, pit_floor)
+      #            + tunnelNoise × noise_amp
+      #     → ymin_outer (≈3, just above sinkhole floor) at outer pit edge
+      #     → elevationDetailedBlockHeight(x,z) (actual pit-floor y) at inner pit
+      #
+      #   ymax = (cave_upper + tunnelNoise × noise_amp) × mag  +  ymin
+      #     → ceiling tracks cave_upper scaled by mag from the passage floor
+      #     → with mag=0.8 and cave_upper=40: passage ≈ 32 blocks tall
+      #
+      # Both bounds share one tunnelNoise(x,z) sample so the band shifts as a
+      # unit per column; the mag scale also modulates the passage height.
+      pitCaveTunnel:
+        dimensions: 3
+        type: EXPRESSION
+        variables:
+          cave_pit_thresh:  ${customization.yml:cave_pit_thresh}
+          cave_pit_trans:   ${customization.yml:cave_pit_trans}
+          cave_act_dist:    ${customization.yml:special_cave_biome_activation}
+          cave_upper:       ${customization.yml:cave_upper}
+          # y-floor of the passage at the outermost pit transition edge.
+          # 3 ≈ just above the sinkhole terrain surface for base=0 sinkholes.
+          ymin_outer:   3
+          # Passage ceiling scale: ymax = (cave_upper + noise) × mag + ymin.
+          # 0.8 → passage height ≈ 80 % of cave_upper above the passage floor.
+          mag:          0.8
+          # ±blocks FBM noise on both the floor (ymin) and ceiling (ymax).
+          noise_amp:    5
+          # Vertical taper width in blocks at the ymin and ymax band edges.
+          fade:         5
+          # Maximum carving contribution — must exceed carvingThreshold (0.54).
+          str_cap:      0.7
+        expression: |
+          // ── Early exit: zero outside the cave-and-pit overlap zone ──────────
+          // (1) warped_pit > 0: inside the warped pit xz region.
+          // (2) riftWellPlacement > thresh−trans: inside the well activation band.
+          // (3) special_caves(x,0,z) < cave_act_dist: inside the cave xz zone.
+          //     Evaluating special_caves at y=0 suppresses the y-component of the
+          //     ellipsoid SDF, giving a pure horizontal (xz-only) cave mask.
+          if(warped_pit(x,z) <= 0
+             || riftWellPlacement(x,z) <= cave_pit_thresh - cave_pit_trans
+             || special_caves(x, 0, z) >= cave_act_dist,
+            0,
+
+            // ── Combined 2D strength: cave_proximity × pit_proximity ──────────
+            min(1, max(0, lerp(special_caves(x, 0, z),
+                               cave_act_dist, 0,
+                               0, 1)))
+            * min(1, max(0, lerp(riftWellPlacement(x, z),
+                                 cave_pit_thresh - cave_pit_trans, 0,
+                                 cave_pit_thresh, 1)))
+
+            // ── Vertical passage mask across [ymin, ymax] ────────────────────
+            // Lower ramp: 0 at y = ymin, 1 at y = ymin + fade
+            * min(1, max(0,
+                (y - (lerp(riftWellPlacement(x,z),
+                           cave_pit_thresh - cave_pit_trans, ymin_outer,
+                           cave_pit_thresh, elevationDetailedBlockHeight(x,z))
+                      + tunnelNoise(x,z) * noise_amp))
+                / fade
+              ))
+            // Upper ramp: 1 at y = ymax − fade, 0 at y = ymax
+            // ymax = (cave_upper + noise) × mag + ymin  (shared tunnelNoise)
+            * min(1, max(0,
+                ((cave_upper + tunnelNoise(x,z) * noise_amp) * mag
+                 + lerp(riftWellPlacement(x,z),
+                        cave_pit_thresh - cave_pit_trans, ymin_outer,
+                        cave_pit_thresh, elevationDetailedBlockHeight(x,z))
+                 + tunnelNoise(x,z) * noise_amp
+                 - y)
+                / fade
+              ))
+
+            * str_cap
+          )
+        functions:
+          lerp: $math/functions/interpolation.yml:functions.lerp
+        samplers:
+          # 2D FBM for organic passage floor/ceiling boundary variation.
+          # Must be 2D (not 3D) so the floor/ceiling heights are consistent per
+          # vertical column — 3D noise would introduce mid-column discontinuities.
+          tunnelNoise:
+            dimensions: 2
+            type: FBM
+            octaves: 3
+            gain:       0.5
+            lacunarity: 2.0
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.015
+              salt: 55503

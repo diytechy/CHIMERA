@@ -6,16 +6,21 @@ abstract: true
 vars: &variables
   act_thresh:       $customization.yml:special_cave_void_activation
   cave_lower:       $customization.yml:cave_lower
-  # Blocks above cave_lower that pillars reach before tapering to nothing.
-  pillarHeight:     32
+  cave_upper:       $customization.yml:cave_upper
+  # Half-height (in blocks) of each pillar arm.  Stalagmites grow UP from cave_lower,
+  # stalactites grow DOWN from cave_upper; both use the same half-height.
+  # cave height = cave_upper - cave_lower = 40 - (-30) = 70 blocks.
+  # pillarHeight=55 → arms overlap 40 blocks in the middle → pillars span full cave.
+  pillarHeight:     55
   # CELLULAR Distance threshold: pillar where (-pillars) > pillarThreshold.
   # Distance sampler returns [-1,0]; higher threshold = thinner, sharper pillars.
   pillarThreshold:  0.60
-  # Gain applied to the supra-threshold cellular value.  Must be large enough
-  # that pillarScale × (1 - pillarThreshold) > 5 so pillar solid overcomes the
-  # cave void contribution (≈-5.75 at cell center) AND forces the -clamp above 0.
-  # With threshold=0.60: scale × 0.40 ≥ ~15  →  scale ≥ 15.  Use 40 for margin.
-  pillarScale:      40
+  # Gain applied to the supra-threshold cellular value.  Must be large enough that
+  # pillarScale × (1 - pillarThreshold) × min_height_factor > |hollow| at cave midpoint.
+  # cave midpoint (y≈5): min_height_factor ≈ 1-35/55 = 0.36.
+  # hollow at cell center (special_caves≈-1): (-1+0.05)×5 = -4.75.
+  # need: scale × 0.40 × 0.36 > 4.75  →  scale > 33.  Use 50 for margin.
+  pillarScale:      50
 
 terrain:
   blend:
@@ -69,18 +74,21 @@ carving:
       # Returns [-1,0]: -1 at each cell centre, 0 at edges.
       # (-pillars - pillarThreshold) → positive only within the inner
       #   (1 - pillarThreshold) = 40% of the cell-distance range, i.e. a
-      #   column of radius ≈ 29 × 0.20 ≈ 6 blocks at y = cave_lower.
+      #   column of radius ≈ 29 × 0.20 ≈ 6 blocks.
       #
-      # Height profile: linear taper from 1 at cave_lower to 0 at
-      #   cave_lower + pillarHeight.  Pillars are widest at the floor and
-      #   narrow naturally as they rise, matching stalactite / stalagmite
-      #   visual convention.
+      # Height profile: BIDIRECTIONAL — stalagmites from floor + stalactites from
+      #   ceiling.  max(stalagmite_factor, stalactite_factor):
+      #     stalagmite: 1 at cave_lower (-30), 0 at cave_lower + pillarHeight (-30+55 = 25)
+      #     stalactite: 1 at cave_upper (+40), 0 at cave_upper - pillarHeight (40-55 = -15)
+      #   Both arms are active from y ≈ -15 to y ≈ 25 (40-block overlap in mid-cave)
+      #   where they reinforce each other, creating full-height pillars at cell centres.
       #
-      # Max return value at cell centre, floor level:
-      #   (1 - 0.60) × 40 × 1 = 16.0
-      # Required to overcome cave at centre (special_caves ≈ -1):
-      #   need total expr > 0 for -clamp to return negative (solid):
-      #   (-1 - act_thresh) × 5 + 16.0 ≈ -5.75 + 16.0 = 10.25 > 0 ✓
+      # Max return value at floor / ceiling:
+      #   (1 - 0.60) × 50 × 1 = 20.0
+      # Required to overcome cave at cell centre (special_caves ≈ -1):
+      #   need total expr > 0: (-1 + 0.05) × 5 + 20 = -4.75 + 20 = 15.25 > 0 ✓
+      # At cave midpoint (y ≈ 5, min_height_factor ≈ 0.36):
+      #   pillarShape = 0.40 × 50 × 0.36 = 7.2.  Total: -4.75 + 7.2 = 2.45 > 0 ✓
       # caveCarverFade (tight lower hemisphere): deeply negative inside cave
       #   → max(main_solid -2.5, deeply_negative_fade) = -2.5 (solid) ✓
       pillarShape:
@@ -91,8 +99,10 @@ carving:
           max(0,
             (-pillars(x, z) - pillarThreshold)
             * pillarScale
-            * if(y > cave_lower + pillarHeight, 0,
-                max(0, 1 - (y - cave_lower) / pillarHeight))
+            * max(
+                max(0, 1 - (y - cave_lower) / pillarHeight),   // stalagmite from floor
+                max(0, 1 - (cave_upper - y) / pillarHeight)    // stalactite from ceiling
+              )
           )
         samplers:
           pillars:

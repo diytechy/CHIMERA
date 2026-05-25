@@ -40,12 +40,12 @@ carving:
         -clamp(
           max(
             // Main hollow.
-            //(special_caves(x, y, z) - act_thresh) * .5
+            (special_caves(x, y, z) - act_thresh) * 5
 
             // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
             // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
-            //+ caveWallOffset(x, y, z) * .03
-            -100
+            + caveWallOffset(x, y, z) * .3
+            //-100
             ,
             // Pillar takes preference where it exists. tomb_pillars returns -100 outside
             // pillar columns so the hollow signal dominates the max there.

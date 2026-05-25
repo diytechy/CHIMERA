@@ -111,9 +111,9 @@ carving:
           // Only generate pillars inside the inner 60% of the cave's XZ radius.
           if(pillarExists(x, z),
               
-              -basepillars(x, z) - 0.72           // positive at cell centres (~0.28 max)
-              + basepillarsCenter(x, z) * 0.12    // per-column size variation
-              + pillarWidthRand(y, x / 10) * 0.09 // width variation along height
+              -basepillars(x, z) - 0.8           // positive at cell centres (~0.28 max)
+              + basepillarsCenter(x, z) * 0.07    // per-column size variation
+              + pillarWidthRand(y, x / 10) * 0.06 // width variation along height
             
               //* pillarScale
               //// Bidirectional height profile: both arms overlap in mid-cave,
@@ -137,7 +137,7 @@ carving:
           basepillars: &pillarConf
             dimensions: 2
             type: CELLULAR
-            frequency: 0.06   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
+            frequency: 0.03   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
             jitter: 0.5
             distance: Euclidean
           basepillarsCenter:
@@ -152,7 +152,7 @@ carving:
               #type: CONSTANT
               #value: 1
               type: EXPRESSION
-              expression: if(special_radius_norm(x, z) >= 0.8, 0,1)
+              expression: if(special_radius_norm(x, z) >= 0.85, 0,1)
           pillarWidthRand:
             dimensions: 2
             type: FBM

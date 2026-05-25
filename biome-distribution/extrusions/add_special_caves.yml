@@ -14,7 +14,34 @@ extrusions:
       # -0.25 - No special cave
       # 0 to 1 - Non-inferno special cave
       expression: |
-        if(((warped_pit(x,z)>0.0)&&(riftWellPlacement(x,z)>0.7)),-0.25,
+        //
+        // Suppress special caves inside pit/well regions so the surface sinkhole
+        // biome and the underground match.  Three conditions, evaluated in order
+        // from cheapest (raw pixel) to most expensive (warped cellular):
+        //
+        //  1. riftLandDistributor(x,z) > 0  [RAW coordinates]
+        //     Gate: only suppress when we are in rift-eligible land (far from
+        //     rivers, on continents).  Evaluated at the un-warped point so the
+        //     boundary aligns with Stage 1 of build_rift_regions.yml, which also
+        //     uses raw coordinates.  Previously this check lived INSIDE the pit
+        //     expressions and was therefore evaluated at domain-warped coords,
+        //     creating notchy mismatches between the surface and underground
+        //     pit boundaries.
+        //
+        //  2. warped_pit(x,z) > 0.0  [DOMAIN_WARP OS2 0.002 amp 60 — matches Stage 2]
+        //     Pit zone check.  Now that riftLandDistributor has been removed from
+        //     cold_pit / warm_pit, this warp only involves warp-stable rift-cell
+        //     NoiseLookups (riftContinents, riftFarRiverDist, riftTemperature,
+        //     riftRegions), so the boundary precisely mirrors Stage 2's surface
+        //     biome assignment.
+        //
+        //  3. riftWellPlacement(x,z) > 0.7  [internal FBM warp]
+        //     Within the pit, only suppress in the inner well core.  The outer
+        //     0–0.7 band is intentionally left open so special caves can coexist
+        //     with sinkhole biomes (the EQ_SINKHOLE_CAVE_CONNECT carver then
+        //     links the two underground regions).
+        //
+        if(((riftLandDistributor(x,z)>0)&&(warped_pit(x,z)>0.0)&&(riftWellPlacement(x,z)>0.4)),-0.25,
           if(special_caveInferno(x,y,z),-0.75,
             if(special_caveNonInferno(x,y,z),
               special_caveNonInferno(x,y,z),-0.25)
@@ -30,6 +57,8 @@ extrusions:
             frequency: 0.002
           sampler:
             type: EXPRESSION
+            # cold_pit / warm_pit no longer contain riftLandDistributor internally;
+            # that check is now performed at raw coordinates above.
             expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)
     to:
       - INFERNO_ISLES: 1

@@ -485,6 +485,25 @@ The `platforms` sub-sampler uses CELLULAR `Distance` (the default), which return
 
 This creates solid platforms at cell centers (positive contribution overcomes the carver baseline) and slightly more void at cell edges. The **threshold for platform-creating cells** is where `−platforms − 0.25 > 0`, i.e., where `platforms < −0.25`.
 
+## Domain-warp evaluation-point contamination
+
+When a `DOMAIN_WARP` wraps an EXPRESSION that internally calls sub-samplers, **all sub-sampler calls inside the expression evaluate at the warped coordinates**, not the original (x,z). This is expected for cellular NoiseLookup samplers (which return a constant per-cell value anyway), but breaks for any sampler that evaluates **per-pixel regional functions** (e.g. FBM noise, river distance grids, or continental values).
+
+**Concrete example (`rifts.yml`):**
+
+Stage 2 of `build_rift_regions.yml` applies `DOMAIN_WARP(OS2, freq=0.002, amp=60)` to the pit-classification expression. That expression calls `cold_pit(x,z)` and `warm_pit(x,z)`, which previously checked `riftLandDistributor(x,z)>0` inside them. With a 60-block warp amplitude, the evaluation point can cross a `continentalRiverDistSparseFarGrid` or `continents` boundary — flipping `riftLandDistributor` from true to false (or vice versa) compared to the raw coordinates. This carves ragged notches in the pit boundary that are invisible on the surface (Stage 1 pre-filters with raw `riftLandDistributor`) but directly corrupt the underground cave-suppression boundary.
+
+**The distinction:** all the other conditions in `cold_pit`/`warm_pit` — `riftContinents`, `riftFarRiverDist`, `riftTemperature`, `riftRegions` — are **rift-cell NoiseLookups**. They return the cell-center value for whichever rift cell contains the warped point; that value is constant across the whole cell, so warping only determines WHICH cell is queried, not the within-cell value. These warp cleanly. Per-pixel functions do not.
+
+**Rule:** inside any expression that will be wrapped by DOMAIN_WARP, only use:
+- Cellular NoiseLookup / CellValue samplers (constant within each cell)
+- Constants / variables
+- Expressions that themselves only use the above
+
+Move per-pixel regional guards (river-distance, continents, elevation) **outside** the DOMAIN_WARP, evaluated at raw coordinates as a separate gate.
+
+**Applied fix:** removed `riftLandDistributor(x,z)>0` from `cold_pit`, `warm_pit`, `cold_rift`, `warm_rift` in `rifts.yml`. Re-added it at raw coordinates as the outermost check in `add_special_caves.yml`'s cave-suppression expression. Stage 1 of `build_rift_regions.yml` (which already gates on raw `riftLandDistributor`) ensures the surface biome boundary is unchanged.
+
 ## Abstract biome pattern for extending carving
 
 When adding extra carving to a biome variant that inherits CARVING_LAND through a base class:

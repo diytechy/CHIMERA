@@ -119,25 +119,30 @@ samplers:
     dimensions: 2
     variables:
       pit_threshold: -0.5
+    # riftLandDistributor intentionally removed: it evaluates per-pixel regional
+    # functions (continentalRiverDistSparseFarGrid, continents) that produce
+    # ragged notches when evaluated at domain-warped coordinates.  Stage 1 of
+    # build_rift_regions.yml already gates on raw riftLandDistributor before any
+    # pixel reaches Stage 2, so the pre-filter is intact.  All remaining
+    # conditions here are rift-cell NoiseLookups (constant per cell, warp-stable).
     expression: |
       (riftContinents(x,z)>0)&&
-      (riftLandDistributor(x,z)>0)&&
-      (riftFarRiverDist(x,z)>200) && 
+      (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)<-0.3) && 
+      (riftTemperature(x,z)<-0.3) &&
       (riftRegions(x,z)<pit_threshold)
-        
+
   warm_pit:
     type: EXPRESSION
     dimensions: 2
     variables:
       pit_threshold: -0.4
+    # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
-      (riftLandDistributor(x,z)>0)&&
-      (riftFarRiverDist(x,z)>200) && 
+      (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)>0) && 
+      (riftTemperature(x,z)>0) &&
       (riftRegions(x,z)<pit_threshold)
 
   cold_rift:
@@ -145,23 +150,23 @@ samplers:
     dimensions: 2
     variables:
       rift_threshold: 0.6
+    # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
-      (riftLandDistributor(x,z)>0)&&
-      (riftFarRiverDist(x,z)>200) && 
-      (riftInRangeOfSpot(x,z)<0) && 
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)<-0.1) 
+      (riftTemperature(x,z)<-0.1)
 
   warm_rift:
     type: EXPRESSION
     dimensions: 2
     variables:
       rift_threshold: 0.7
+    # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
-      (riftLandDistributor(x,z)>0)&&
-      (riftFarRiverDist(x,z)>200) && 
-      (riftInRangeOfSpot(x,z)<0) && 
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)>0) 
+      (riftTemperature(x,z)>0)

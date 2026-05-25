@@ -17,7 +17,7 @@ vars: &variables
   # threshold_excess = 1 − 0.72 = 0.28.  cave midpoint height_factor ≈ 0.364.
   # hollow at cell centre (special_caves≈−1): (−1+0.05)×5 = −4.75.
   # need tomb_pillars > 4.75: 0.28 × scale × 0.364 > 4.75 → scale > 46.5.  Use 100.
-  pillarScale:      100
+  pillarScale:      200
 
 terrain:
   blend:
@@ -91,7 +91,7 @@ carving:
         variables: *variables
         expression: |
           // Only generate pillars inside the inner 60% of the cave's XZ radius.
-          if(special_radius(x, z) >= 0.6, 0,
+          if(pillarExists(x, z),
             max(0,
               (
                 -basepillars(x, z) - 0.72           // positive at cell centres (~0.28 max)
@@ -106,17 +106,28 @@ carving:
                   max(0, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
                 )
             )
+            ,0
           )
         samplers:
           basepillars: &pillarConf
             dimensions: 2
             type: CELLULAR
-            frequency: 0.088   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
-            jitter: 1
+            frequency: 0.06   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
+            jitter: 0.5
             distance: Euclidean
           basepillarsCenter:
             <<: *pillarConf
             return: CellValue
+          pillarExists:
+            <<: *pillarConf
+            return: NoiseLookup
+            salt-loookup: false
+            lookup: 
+              dimensions: 2
+              #type: CONSTANT
+              #value: 1
+              type: EXPRESSION
+              expression: if(special_radius(x, z) >= 0.8, 0,1)
           pillarWidthRand:
             dimensions: 2
             type: FBM

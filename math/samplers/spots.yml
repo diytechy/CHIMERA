@@ -515,6 +515,12 @@ samplers:
             lerp(riftWellPlacement(x,z),cave_pit_thresh-cave_pit_trans,0,cave_pit_thresh,1)
             ,
             0)
+            
+  special_caves_linear:
+    dimensions: 3
+    type: EXPRESSION
+    expression: |
+      0
 
   special_caves:
     dimensions: 3

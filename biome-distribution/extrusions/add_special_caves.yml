@@ -3,20 +3,35 @@ extrusions:
     #from: SPECIAL_CAVES
     sampler:
       type: EXPRESSION
-      #If inside a pit (warm or cold) AND inside the rift well zone (>0.2), force no special cave.
-      #The 0.2 threshold intentionally lets special caves override the pit a small distance inward.
+      #If inside a pit (warm or cold) AND inside the rift well zone (above threshold), force no
+      #special cave.  The threshold intentionally lets special caves override the pit inward.
       #warped_pit applies the same DOMAIN_WARP (amplitude 60, OPEN_SIMPLEX_2, freq 0.002) used by
-      #build_rift_regions Stage 1 when it assigns _warm_well/_cold_well, so the pit boundary
+      #build_rift_regions Stage 2 when it assigns _warm_well/_cold_well, so the pit boundary
       #seen here matches the actual surface biome boundary instead of raw un-warped coordinates.
-      #If low temperature, compress the range so as to not place infernos in frozen regions.
       #Mapped into linear distribution assuming 4 regions:
       # -0.75 - Inferno
-      # -0.25 - No special cave
+      # -0.25 - No special cave / SELF
       # 0 to 1 - Non-inferno special cave
+      variables:
+        # riftWellPlacement value above which cave suppression begins (inner well core).
+        # Below this threshold special caves are fully allowed at every y in the range.
+        well_suppress_threshold: 0.4
+        # riftWellPlacement value above which suppression is total (no special cave at any y).
+        # Between well_suppress_threshold and well_full_suppress the suppressed-y ceiling
+        # drops linearly from sinkhole_floor down to cave_floor, producing a smooth vertical
+        # transition at the sinkhole / special-cave biome boundary.
+        well_full_suppress: 0.8
+        # Nominal y-floor of the sinkhole surface biome (base-0 biomes → y ≈ 0).
+        # At riftWellPlacement = well_suppress_threshold the suppression ceiling starts here,
+        # leaving the underground cave zone intact.
+        sinkhole_floor: 0
+        # Bottom of the special-cave void.  At riftWellPlacement = well_full_suppress
+        # the suppression ceiling has dropped to this level, consuming the entire cave range.
+        cave_floor: ${customization.yml:cave_lower}
       expression: |
         //
         // Suppress special caves inside pit/well regions so the surface sinkhole
-        // biome and the underground match.  Three conditions, evaluated in order
+        // biome and the underground match.  Four conditions, evaluated in order
         // from cheapest (raw pixel) to most expensive (warped cellular):
         //
         //  1. riftLandDistributor(x,z) > 0  [RAW coordinates]
@@ -35,18 +50,33 @@ extrusions:
         //     riftRegions), so the boundary precisely mirrors Stage 2's surface
         //     biome assignment.
         //
-        //  3. riftWellPlacement(x,z) > 0.7  [internal FBM warp]
+        //  3. riftWellPlacement(x,z) > well_suppress_threshold  [internal FBM warp]
         //     Within the pit, only suppress in the inner well core.  The outer
-        //     0–0.7 band is intentionally left open so special caves can coexist
-        //     with sinkhole biomes (the EQ_SINKHOLE_CAVE_CONNECT carver then
-        //     links the two underground regions).
+        //     0–threshold band is intentionally left open so special caves can
+        //     coexist with sinkhole biomes (EQ_SINKHOLE_CAVE_CONNECT links them).
         //
-        if(((riftLandDistributor(x,z)>0)&&(warped_pit(x,z)>0.0)&&(riftWellPlacement(x,z)>0.4)),-0.25,
+        //  4. y > lerp(riftWellPlacement, threshold, full_suppress, sinkhole_floor, cave_floor)
+        //     Smooth vertical transition instead of a hard binary cutoff at the
+        //     threshold.  The suppressed-y ceiling is lerped from sinkhole_floor
+        //     (at well_suppress_threshold) down to cave_floor (at well_full_suppress).
+        //     Cells near the sinkhole/cave boundary therefore retain special-cave
+        //     biome in the lower y range while the upper y range stays sinkhole,
+        //     creating a gradual merge rather than a sharp underground seam.
+        //     When riftWellPlacement > well_full_suppress the lerp output falls
+        //     below cave_floor, making the y condition true for every voxel in the
+        //     extrusion range — equivalent to full suppression with no extra branch.
+        //
+        if(((riftLandDistributor(x,z)>0)&&(warped_pit(x,z)>0.0)&&
+            (riftWellPlacement(x,z)>well_suppress_threshold)&&
+            (y>lerp(riftWellPlacement(x,z),well_suppress_threshold,well_full_suppress,sinkhole_floor,cave_floor))),
+          -0.25,
           if(special_caveInferno(x,y,z),-0.75,
             if(special_caveNonInferno(x,y,z),
               special_caveNonInferno(x,y,z),-0.25)
           )
         )
+      functions:
+        lerp: $math/functions/interpolation.yml:functions.lerp
       samplers:
         warped_pit:
           dimensions: 2

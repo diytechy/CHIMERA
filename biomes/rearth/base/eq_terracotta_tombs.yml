@@ -11,7 +11,7 @@ vars: &variables
   # stalactites grow DOWN from cave_upper; both use the same half-height.
   # cave height = cave_upper - cave_lower = 40 - (-30) = 70 blocks.
   # pillarHeight=55 → arms overlap 40 blocks in the middle → pillars span full cave.
-  pillarHeight:     5
+  pillarHeight:     100
   # Gain applied to the supra-threshold cellular value.  Must be large enough that
   # pillarScale × (1 − threshold_excess) × min_height_factor > |hollow| at cave midpoint.
   # threshold_excess = 1 − 0.72 = 0.28.  cave midpoint height_factor ≈ 0.364.
@@ -115,13 +115,12 @@ carving:
               + basepillarsCenter(x, z) * 0.07    // per-column size variation
               + pillarWidthRand(y, x / 10) * 0.06 // width variation along height
             
-              //* pillarScale
-              //// Bidirectional height profile: both arms overlap in mid-cave,
-              //// producing full-height columns at cell centres.
-              //* max(
-              //    max(-0.5, 1 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
-              //    max(-0.5, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
-              //  )
+              // Bidirectional height profile: both arms overlap in mid-cave,
+              // producing full-height columns at cell centres.
+              + max(
+                  max(0, 0.25 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
+                  max(0, 0.25 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
+                )
             ,-0.5
           )
         functions:

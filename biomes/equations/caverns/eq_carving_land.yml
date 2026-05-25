@@ -141,68 +141,81 @@ carving:
         variables:
           cave_pit_thresh:  ${customization.yml:cave_pit_thresh}
           cave_pit_trans:   ${customization.yml:cave_pit_trans}
-          cave_act_dist:    ${customization.yml:special_cave_biome_activation}
           cave_upper:       ${customization.yml:cave_upper}
-          # y-floor of the passage at the outermost pit transition edge.
-          # 3 ≈ just above the sinkhole terrain surface for base=0 sinkholes.
-          ymin_outer:   3
-          # Passage ceiling scale: ymax = (cave_upper + noise) × mag + ymin.
-          # 0.8 → passage height ≈ 80 % of cave_upper above the passage floor.
+          # y-floor of the passage at the cave-shell end of the tunnel (passageway = 0).
+          # 0 = sea level / cave entrance height.
+          ymin_outer:   0
+          # Passage ceiling scale: ymax = cave_upper × norm_strength × mag + ymin.
+          # 0.8 → passage height ≈ 80 % of cave_upper at peak norm_strength.
           mag:          0.8
           # ±blocks FBM noise on both the floor (ymin) and ceiling (ymax).
           noise_amp:    5
-          # Vertical taper width in blocks at the ymin and ymax band edges.
+          # Vertical taper width in blocks at the floor and ceiling band edges.
           fade:         5
-          # Maximum carving contribution — must exceed carvingThreshold (0.54).
+          # Maximum carving contribution (> 0 = void in the carving expression).
           str_cap:      0.7
+          # Bulk factor added to riftWellPlacement and special_radius before multiplying.
+          # Allows the tunnel to extend when cave and pit are nearby but not perfectly
+          # overlapping.  0 = strict overlap only; 0.3 = moderate extension.
+          trans_bulk:   0.3
+          # special_radius value at the cave XZ shell — passageway = 0 is anchored here.
+          cave_shell_r: 0.5
         expression: |
-          // ── Early exit: zero outside the cave-and-pit overlap zone ──────────
-          // (1) warped_pit > 0: inside the warped pit xz region.
-          // (2) riftWellPlacement > thresh−trans: inside the well activation band.
-          // (3) special_radius(x,z) < cave_act_dist: inside the cave xz zone.
-          //     Evaluating special_caves at y=0 suppresses the y-component of the
-          //     ellipsoid SDF, giving a pure horizontal (xz-only) cave mask.
-          if(warped_pit(x,z) <= 0,
-            -0.5,
+          // ── Early exit: no carving outside the pit overlap zone ──────────────
+          if(warped_pit(x,z) <= 0, -0.5,
 
-            // ── Combined 2D strength: cave_proximity × pit_proximity ──────────
-            min(1, max(0, lerp(special_radius(x, z),
-                               cave_act_dist, 0,
-                               0, 1)))
-            * min(1, max(0, lerp(riftWellPlacement(x, z),
-                                 cave_pit_thresh - cave_pit_trans, 0,
-                                 cave_pit_thresh, 1)))
+            // ── Strength mask with trans_bulk ──────────────────────────────────
+            // raw = (riftWellPlacement + B) × (special_radius + B) / (1 + B)²
+            //   • Positive when cave and pit are simultaneously reachable; B widens reach.
+            //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.
+            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk) <= 0,
+              -0.5,
 
-            // ── Vertical passage mask across [ymin, ymax] ────────────────────
-            // Lower ramp: 0 at y = ymin, 1 at y = ymin + fade
-            * min(1, max(0,
-                (y - (lerp(riftWellPlacement(x,z),
-                           cave_pit_thresh - cave_pit_trans, ymin_outer,
-                           cave_pit_thresh, elevationDetailedBlockHeight(x,z))
-                      + tunnelNoise(x,z) * noise_amp))
-                / fade
-              ))
-            // Upper ramp: 1 at y = ymax − fade, 0 at y = ymax
-            // ymax = (cave_upper + noise) × mag + ymin  (shared tunnelNoise)
-            * min(1, max(0,
-                ((cave_upper + tunnelNoise(x,z) * noise_amp) * mag
-                 + lerp(riftWellPlacement(x,z),
-                        cave_pit_thresh - cave_pit_trans, ymin_outer,
-                        cave_pit_thresh, elevationDetailedBlockHeight(x,z))
-                 + tunnelNoise(x,z) * noise_amp
-                 - y)
-                / fade
-              ))
+              // norm_strength = raw ^ 0.3
+              //   ^0.3 keeps the passageway broadly strong while rolling to 0 at the
+              //   raw-zero boundary (riftWellPlacement = −trans_bulk on the pit side).
+              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk)
+                / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
 
-            * str_cap
+              // ── Passageway-end fades ────────────────────────────────────────
+              // Cave-centre fade (passageway = −1 → 0):
+              //   0 when special_radius = 0 (cave centre), 1 when special_radius ≥ cave_shell_r.
+              * min(1, special_radius(x,z) / cave_shell_r)
+              // Pit-centre  fade (passageway = 1 → 2):
+              //   1 when riftWellPlacement = 0 (pit edge), 0 when riftWellPlacement = 1 (pit centre).
+              * max(0, min(1, 1 - riftWellPlacement(x,z)))
+
+              // ── Vertical tunnel mask ────────────────────────────────────────
+              // ymin: linearly interpolated from ymin_outer (at riftWellPlacement = −cave_pit_trans,
+              //       passageway = 0) to pit_floor (at riftWellPlacement = 0, passageway = 1),
+              //       with FBM noise for organic variation.
+              // Lower ramp: 0 at y = ymin → 1 at y = ymin + fade.
+              * min(1, max(0,
+                  (y - (lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,
+                             0, elevationDetailedBlockHeight(x,z))
+                        + tunnelNoise(x,z) * noise_amp))
+                  / fade
+                ))
+
+              // ymax = cave_upper × norm_strength × mag + ymin.
+              // Upper ramp: 1 at y = ymax − fade → 0 at y = ymax.
+              * min(1, max(0,
+                  ( cave_upper
+                    * ((riftWellPlacement(x,z) + trans_bulk) * (special_radius(x,z) + trans_bulk)
+                       / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
+                    * mag
+                    + lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,
+                           0, elevationDetailedBlockHeight(x,z))
+                    + tunnelNoise(x,z) * noise_amp
+                    - y)
+                  / fade
+                ))
+
+              * str_cap
+            )
           )
         functions:
           lerp: $math/functions/interpolation.yml:functions.lerp
-          normalize_shell:
-            arguments: [cave_r,pit_r,cave_srt,cave_end,pit_srt,pit_end]
-            expression: |
-              //dist_into_shell
-              0
 
         samplers:
           # 2D FBM for organic passage floor/ceiling boundary variation.

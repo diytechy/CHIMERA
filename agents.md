@@ -393,3 +393,110 @@ When a palette/sampler doesn't behave as expected:
 6. **For palettes: is the sampler 2D?** 2D samplers give the same value across all Y at one (x, z), creating vertical-column patches not per-block randomness.
 7. **For slant: is the threshold below 1.0?** With DotProduct, anything > 1.0 always fires.
 8. **For carving/terrain: are the floor and cap symmetric?** Interpolation requires `floor ≤ −cap` to prevent solid bleed into air regions.
+
+---
+
+# Special Caves / Carving Reference
+
+This section documents what was learned while building and debugging the special cave system (`special_caves`, `eq_inferno_isle`, extrusions, platform carvers, connecting passages). Read this before touching anything in `biomes/rearth/base/eq_inferno_isle.yml`, `math/samplers/spots.yml`, or `biome-distribution/extrusions/add_special_caves.yml`.
+
+## special_caves sampler — semantic and range
+
+`special_caves(x, y, z)` (defined in `math/samplers/spots.yml`) returns:
+
+| Location | Value |
+|---|---|
+| Cell center (xz), y=0 | −1 |
+| xz shell at y=0 | 0 |
+| Just outside the shell | small positive |
+| Deep outside | large positive |
+
+It is defined as `normalize_shell((R_xz² + R_y^p)^0.5 − 1, ...)` where the `normalize_shell` function scales the raw ellipsoidal distance so that a fixed threshold corresponds to the same **block depth** in every direction (not just at the xz equator).
+
+`special_caveDist(x, y, z)` is the companion approximate **block-distance** to the shell:
+- **positive** = inside the ellipsoid (distance to wall from inside)
+- **0** = at the shell surface
+- **negative** = outside the ellipsoid (distance to wall from outside)
+
+Use `special_caves` to define the hollow boundary (correct ellipsoid shape). Use `special_caveDist` when you need a block-scale proximity measure (e.g., fade widths, connecting passage reach).
+
+## Carving sign convention (CHIMERA pack)
+
+```
+carving sampler > 0  →  void (air)
+carving sampler ≤ 0  →  solid (rock/terrain)
+```
+
+`EQ_CARVING_LAND` starts at `−carvingThreshold = −0.54`. Cave features add positive contributions. `EQ_INFERNO_ISLE`'s main carver is `max(−clamp(inner, −2.5, 2.5), carver_fade)` — the negation of the clamped inner expression means positive carving whenever `inner < 0` (inside the hollow).
+
+**Void threshold math for connection passages:** if the base carver sits at −0.54, a connection contribution of +X creates void where X > 0.54. Over a linear ramp of reach R blocks, the effective passage half-width is `(1 − 0.54) × R ≈ 0.46 × R`.
+
+## Extrusion vs. carving — critical architecture difference
+
+This distinction cost significant debugging time:
+
+- **Terrain blending** (the `blend:` block in a biome) uses the **un-extruded surface biome** for ALL neighbour columns. `ChunkInterpolator.getBiome(cx+dx, cz+dz)` calls `getSurface()`, not `biomeColumn.get(y)`. Setting `blend.distance: 0` disables blending for the centre column but neighbors still use their un-extruded biomes. This means **terrain samplers of extruded biomes are heavily diluted (~2–5% weight) by surrounding surface biomes**, making terrain-based cave hollowing essentially impossible.
+
+- **Carving does NOT blend.** `LazilyEvaluatedInterpolator.cachedSample()` calls `biomeProvider.getBiome(xi, y, zi, seed)` which returns the extruded biome directly. The special cave carver (from `EQ_INFERNO_ISLE`) therefore runs at full strength within the extrusion zone regardless of surrounding surface biomes.
+
+**Rule:** Use carving (not terrain) for underground features in extruded biomes.
+
+## LazilyEvaluatedInterpolator y-shift (Terra engine bug — fixed on branch `CarverFix`)
+
+The original `LazilyEvaluatedInterpolator` had a top-down scan populating sparse-grid cells at the *first* y that visited them (top of cell), but the interpolation formula treated sample values as if they sat at the *bottom* of each cell. This shifted y-dependent carving down by `verticalRes − 1 = 3 blocks`.
+
+**Symptom:** caves/features appear 3 blocks lower than the expression implies. A cave expected at y=[−30, 40] appears at y=[−33, 37].
+
+**Fix (applied to `C:\Projects\Terra`, branch `CarverFix`):** renamed the private helper to `cachedSample` and pinned each cache cell to its canonical bottom-of-cell y:
+```java
+int y = Math.min(max, yIndex * verticalRes + min);
+```
+No extra evaluations — just ensures the correct y is passed to `carver.getSample`.
+
+## Extrusion range must be wider than the carver's active zone
+
+`add_special_caves.yml` places the INFERNO_ISLES (and other special cave) biomes via a SET extrusion over the range `[cave_lower, cave_upper]`. If this range is narrower than where the carver's expression goes non-trivial (e.g. `cave_lower − 4`), then at those boundary y levels the biome is the un-extruded surface biome and the **surface biome's carver runs instead** — producing wrong cave geometry or non-cave blocks leaking in.
+
+**Rule:** extrusion range ≥ carver active range. Use `min: ${customization.yml:cave_lower}`, not a hardcoded literal.
+
+## Paralithic smoothstep with inverted edges always returns 0
+
+The expression engine implements:
+```
+smoothstep(edge0, edge1, x):
+  if x <= edge0  →  0
+  if x >= edge1  →  1
+  else           →  smooth interpolation
+```
+
+**If `edge0 > edge1`** (e.g., `smoothstep(6, 3, diff)` to get a decreasing ramp), then for any `x ≤ edge0 = 6` the first branch fires and always returns 0. The interpolation body never executes.
+
+**Fix:** to get a ramp that is 1 at `input=0` and 0 at `input=maxVal`, use:
+```
+1 - smoothstep(0, maxVal, input)
+```
+This uses a valid increasing smoothstep and inverts the result.
+
+## Platform carver — CELLULAR return range matters
+
+The `platforms` sub-sampler uses CELLULAR `Distance` (the default), which returns approximately **[−1, 0]** within a Voronoi cell (−1 at cell center, approaching 0 at edges). The expression `(−platforms − 0.25)` therefore evaluates to:
+- **+0.75** at cell centers (negative of −1 minus 0.25)
+- **−0.25** at cell edges
+
+This creates solid platforms at cell centers (positive contribution overcomes the carver baseline) and slightly more void at cell edges. The **threshold for platform-creating cells** is where `−platforms − 0.25 > 0`, i.e., where `platforms < −0.25`.
+
+## Abstract biome pattern for extending carving
+
+When adding extra carving to a biome variant that inherits CARVING_LAND through a base class:
+
+1. Create a new `abstract: true` biome (e.g. `EQ_SINKHOLE_CAVE_CONNECT`).
+2. Define `carving.sampler` that **includes the standard carver as a sub-sampler**:
+   ```yaml
+   samplers:
+     carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
+   expression: |
+     carver(x, y, z) + extra_contribution(x, y, z)
+   ```
+3. Add the new abstract biome **last** in the variant's `extends:` list so it takes precedence over CARVING_LAND.
+
+This avoids Terra's inheritance ambiguity when multiple parents define `carving` and ensures both carvers combine correctly.

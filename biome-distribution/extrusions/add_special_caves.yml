@@ -14,7 +14,7 @@ extrusions:
       # -0.25 - No special cave
       # 0 to 1 - Non-inferno special cave
       expression: |
-        if(((warped_pit(x,z)>0.0)&&(riftWellPlacement(x,z)>0.4)),-0.25,
+        if(((warped_pit(x,z)>0.0)&&(riftWellPlacement(x,z)>0.7)),-0.25,
           if(special_caveInferno(x,y,z),-0.75,
             if(special_caveNonInferno(x,y,z),
               special_caveNonInferno(x,y,z),-0.25)

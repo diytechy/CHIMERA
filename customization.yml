@@ -199,6 +199,8 @@ continental-coast-cutoff: 0.02
 # the ratio*diameter to give block thickness estimate at the shell.
 special_cave_biome_activation: 0.05
 special_cave_void_activation: -0.05
+special_cave_void_transition: -0.10
+special_cave_void_full: -0.15
 cave_dia: 150
 cave_dist: 300
 cave_upper: 40

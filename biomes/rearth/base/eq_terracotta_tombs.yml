@@ -57,8 +57,8 @@ carving:
 
           // Shared carver fade — tight lower hemisphere returns deeply negative values
           // inside the cave (≈-5 at the cave centre), so max(main, fade) defers to main.
-          -100
-          //caveCarverFade(x, y, z)
+          //-100
+          caveCarverFade(x, y, z)
       )
     functions:
       clamp:
@@ -151,7 +151,9 @@ carving:
               #type: CONSTANT
               #value: 1
               type: EXPRESSION
-              expression: if(special_radius_norm(x, z) >= 0.85, 0,1)
+              variables:
+                act_full:   ${customization.yml:special_cave_void_transition}
+              expression: if(special_radius_norm(x, z) >= (1+act_full), 0,1)
           pillarWidthRand:
             dimensions: 2
             type: FBM

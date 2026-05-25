@@ -78,13 +78,16 @@ samplers:
     variables:
       act_dist:   ${customization.yml:special_cave_biome_activation}
       act_thresh: ${customization.yml:special_cave_void_activation}
+      act_trans:  ${customization.yml:special_cave_void_transition}
+      act_full:   ${customization.yml:special_cave_void_full}
     expression: |
-      if(y < 0,
-        //When below, don't carve all the way through, but fade out near shell.
+      herp(y, 
+        -4, //Below -4, don't carve all the way through, but fade out near shell.
         lerp(special_caves(x,y,z), 0, -0.5, act_dist, carver(x,y,z)),
-        //When above, smooth fade all the way through to the activation threshold
-        lerp(special_caves(x,y,z), act_thresh-0.1, 0, act_dist, carver(x,y,z)))
+        4, //When above 4, smooth fade all the way through to the activation threshold
+        lerp3(special_caves(x,y,z), act_full, -0.5, act_trans, 0, act_dist, carver(x,y,z)))
     functions:
       lerp: $math/functions/interpolation.yml:functions.lerp
+      lerp3: $math/functions/interpolation.yml:functions.lerp3
     samplers:
       carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler

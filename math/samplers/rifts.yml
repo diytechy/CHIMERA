@@ -5,6 +5,39 @@ riftCell: &riftCell
   salt: 1357
   jitter: 0.5
 
+# ── Warp anchors ──────────────────────────────────────────────────────────────
+#
+# Two distinct warps are used at different pipeline stages, and they intentionally
+# differ.  Anchoring them here makes the relationship explicit and prevents the
+# two halves from drifting independently.
+#
+# pitWarp  — Stage 2 boundary (build_rift_regions.yml Stage 2 REPLACE).
+#   Assigns the outer pit / well zones (_cold_well, _warm_well) from the raw
+#   cold_pit / warm_pit expressions.  warped_pit must use the identical warp so
+#   underground pit-zone queries align with the surface biome boundary.
+#   ⚠ build_rift_regions.yml Stage 2 inlines the same warp values; YAML anchors
+#   cannot cross files — if you change pitWarp here you must also update Stage 2.
+#
+# wellWarp — Stage 4 boundary (build_rift_regions.yml Stage 4 REPLACE_LIST).
+#   Stage 4 calls riftWellPlacement(x,z) directly, so this sampler's warp IS
+#   Stage 4's warp.  FBM over a coarser frequency gives each well cell an
+#   organic shape independent of the crisper Stage 2 OS2 deformation.
+#   Changing wellWarp directly changes Stage 4 sinkhole placement on the surface.
+#
+pitWarp: &pitWarp
+  type: OPEN_SIMPLEX_2
+  frequency: 0.002
+
+wellWarp: &wellWarp
+  type: FBM
+  octaves: 4
+  gain: 0.3
+  sampler:
+    type: OPEN_SIMPLEX_2
+    frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+
+# ──────────────────────────────────────────────────────────────────────────────
+
 samplers:
   riftLandDistributor:
     dimensions: 2
@@ -77,15 +110,9 @@ samplers:
 
   riftWellPlacement:
     dimensions: 2
-    type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
+    type: DOMAIN_WARP
     amplitude: 60
-    warp:
-      type: FBM
-      octaves: 4
-      gain: 0.3
-      sampler:
-        type: OPEN_SIMPLEX_2
-        frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+    warp: *wellWarp    # Stage 4 boundary — see wellWarp anchor above
     sampler:
       type: EXPRESSION
       variables:
@@ -175,9 +202,7 @@ samplers:
     dimensions: 2
     type: DOMAIN_WARP
     amplitude: 60
-    warp:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.002
+    warp: *pitWarp    # Stage 2 boundary — must match build_rift_regions.yml Stage 2
     sampler:
       type: EXPRESSION
       # cold_pit / warm_pit no longer contain riftLandDistributor internally;

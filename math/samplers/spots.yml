@@ -485,7 +485,7 @@ samplers:
       normalize_shell(
         (
           //First compute normalized radius on the x/z plane:
-          (max(pit_transition(x,z),(cell_spot(x,z)+1))*((cave_dist*2)/cave_dia))^2
+          (max(pit_transition(x,z),(cell_spot(x,z)+1)*((cave_dist*2)/cave_dia)))^2
 
           //Then add in the normalized y component; cave_y_power controls curvature:
           //higher values flatten the top/bottom cap, lower values approach a sphere.

@@ -57,9 +57,11 @@ samplers:
       act_dist:   ${customization.yml:special_cave_biome_activation}
       act_thresh: ${customization.yml:special_cave_void_activation}
     expression: |
-      if((y + caveShellNoise(x,y,z)*10) < 0,
-        lerp(max(special_caves(x,y,z), y*0.2), 0, -5, act_dist, carver(x,y,z)),
-        lerp(special_caves(x,y,z), act_thresh, 0, act_dist, carver(x,y,z)))
+      if(y < 0,
+        //When below, don't carve all the way through, but fade out near shell.
+        lerp(special_caves(x,y,z), 0, -0.5, act_dist, carver(x,y,z)),
+        //When above, smooth fade all the way through to the activation threshold
+        lerp(special_caves(x,y,z), act_thresh-0.1, 0, act_dist, carver(x,y,z)))
     functions:
       lerp: $math/functions/interpolation.yml:functions.lerp
     samplers:

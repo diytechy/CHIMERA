@@ -30,6 +30,7 @@ terrain:
     value: 10
 
 carving:
+  #Pillars always get preference, then global carving, then shell. 
   sampler:
     dimensions: 3
     type: EXPRESSION
@@ -37,28 +38,33 @@ carving:
     expression: |
       max(
         -clamp(
-          // Main hollow.
-          (special_caves(x, y, z) - act_thresh) * 5.0
+          max(
+            // Main hollow.
+            (special_caves(x, y, z) - act_thresh) * 5.0
 
-          // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
-          // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
-          + caveWallOffset(x, y, z) * 0.3
+            // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+            // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
+            + caveWallOffset(x, y, z) * 0.3
 
-          // Pillar solid contribution: positive at pillar cell centres pushes the inner
-          // expression above zero so -clamp returns negative (solid).
-          + tomb_pillars(x, y, z)
+            // Pillar solid contribution: positive at pillar cell centres pushes the inner
+            // expression above zero so -clamp returns negative (solid).
 
-        // Clamp matched to standard carver range [-0.54, +0.46].
-        // Old ±2.5 caused void bleed at shell and void holes in narrow pillars:
-        //   pillar solid edge (−0.5 after negate) next to cave void (+2.5) → midpoint +1.0 (void eats pillar).
-        // [-0.6, +0.5]: pillar solid (-0.6) / cave void (+0.5) → midpoint -0.05 (solid ✓).
-        ,-0.6, 0.5),
+            // Clamp matched to standard carver range [-0.54, +0.46].
+            // Old ±2.5 caused void bleed at shell and void holes in narrow pillars:
+            //   pillar solid edge (−0.5 after negate) next to cave void (+2.5) → midpoint +1.0 (void eats pillar).
+            // [-0.6, +0.5]: pillar solid (-0.6) / cave void (+0.5) → midpoint -0.05 (solid ✓).
+            
 
-        // Shared carver fade — tight lower hemisphere returns deeply negative
-        // values inside the cave (extrapolates below -5 at the cave centre), so
-        // max(main, fade) always defers to the main -clamp expression.
-        // No subtraction from the fade is needed.
-        caveCarverFade(x, y, z)
+            // Shared carver fade — tight lower hemisphere returns deeply negative
+            // values inside the cave (extrapolates below -5 at the cave centre), so
+            // max(main, fade) always defers to the main -clamp expression.
+            // No subtraction from the fade is needed.
+            ,
+            //-100
+            tomb_pillars(x, y, z)
+          )
+          ,-0.6, 0.5),
+          caveCarverFade(x, y, z)
       )
     functions:
       clamp:
@@ -106,7 +112,7 @@ carving:
                   max(0, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
                 )
             )
-            ,0
+            ,-100
           )
         samplers:
           basepillars: &pillarConf

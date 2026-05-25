@@ -73,7 +73,7 @@ carving:
         // ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
         // Carves a passage from the special-cave dome to overlapping pit walls.
         // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.
-        if(pitCaveTunnel_enabled,pitCaveTunnel(x, y, z),-100)
+        if(pitCaveTunnel_enabled,pitCaveTunnel(x, y, z),-carvingThreshold)
         )
     samplers:
       cavePillars:
@@ -157,7 +157,7 @@ carving:
           # Bulk factor added to riftWellPlacement and special_radius_norm before multiplying.
           # Allows the tunnel to extend when cave and pit are nearby but not perfectly
           # overlapping.  0 = strict overlap only; 0.3 = moderate extension.
-          trans_bulk:   0.3
+          trans_bulk:   0.0
           # special_radius_norm value at the cave XZ shell — passageway = 0 is anchored here.
           cave_shell_r: 0.5
         expression: |
@@ -165,16 +165,16 @@ carving:
           if(warped_pit(x,z) <= 0, -0.5,
 
             // ── Strength mask with trans_bulk ──────────────────────────────────
-            // raw = (riftWellPlacement + B) × (special_radius_norm + B) / (1 + B)²
+            // raw = (riftWellPlacement + B) × (special_radius + B) / (1 + B)²
             //   • Positive when cave and pit are simultaneously reachable; B widens reach.
             //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.
-            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk) <= 0,
+            if((riftWellPlacement(x,z) + trans_bulk) * ((1-special_radius(x,z)) + trans_bulk) <= 0,
               -0.5,
 
               // norm_strength = raw ^ 0.3
               //   ^0.3 keeps the passageway broadly strong while rolling to 0 at the
               //   raw-zero boundary (riftWellPlacement = −trans_bulk on the pit side).
-              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
+              ((riftWellPlacement(x,z) + trans_bulk) * ((1-special_radius(x,z)) + trans_bulk)
                 / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
 
               // ── Passageway-end fades ────────────────────────────────────────

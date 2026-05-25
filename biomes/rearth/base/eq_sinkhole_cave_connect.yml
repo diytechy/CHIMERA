@@ -41,10 +41,10 @@ carving:
       # Upper bound of the connecting passage.
       # Set a few blocks above the nominal sinkhole floor (base = 0) so the
       # tunnel mouth stays open despite surface-noise variation.
-      connect_top:   10
+      connect_top:   20
       # Block distance outside the cave shell at which the passage tapers
       # fully to zero.  Effective passage void width ≈ (1 – 0.54) × reach.
-      connect_reach: 30
+      connect_reach: 50
       # FBM amplitude (blocks) applied to special_caveDist to create an
       # organic, non-circular passage boundary.
       warp_amp:      8

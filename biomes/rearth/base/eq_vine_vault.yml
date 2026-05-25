@@ -2,9 +2,14 @@ id: EQ_CAVE_JUNGLE
 type: BIOME
 abstract: true
 
+# Tunable parameters — all sub-samplers pull from this anchor via variables: *variables.
 vars: &variables
-  base: -30
-  middleHeight: -7
+  act_thresh:  $customization.yml:special_cave_void_activation
+  # y-position of the rock-shelf band (lower-upper portion of the cave, above midline).
+  shelfHeight: 10
+  # Half-width (in blocks) of the shelf vertical fade.  Shelves exist within
+  # (shelfHeight - shelfWidth) to (shelfHeight + shelfWidth).
+  shelfWidth:  8
 
 terrain:
   blend:
@@ -15,41 +20,84 @@ terrain:
     dimensions: 3
     type: CONSTANT
     value: 10
-    
+
 carving:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      10
-      //-clamp(max((special_caves(x, y * 3.5, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
-      //+ max((-platforms(x,z) -0.83 + abs(wallOffset(y, x / 20,  z / 24)) * 0.05) * 14, 0)
-      //, -10, 10) * 16
+      max(
+        -clamp(
+          // Main hollow — same (special_caves - act_thresh) × 5 scaling as EQ_INFERNO_ISLE.
+          (special_caves(x, y, z) - act_thresh) * 5.0
+
+          // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+          + caveWallOffset(x, y, z) * 0.4
+
+          // Rock shelves carved into the wall at shelfHeight.
+          // These are void pockets that create mossy ledges for vine growth.
+          + shelfShape(x, y, z)
+
+        ,-2.5, 2.5),
+
+        // Shared open-floor carver fade (special_cave_carving.yml:caveCarverFade).
+        // Unlike EQ_INFERNO_ISLE, both hemispheres use the same lerp(act_thresh→act_dist)
+        // so the cave floor is rough and textured — no lava fill to worry about.
+        caveCarverFade(x, y, z)
+      )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
+      smoothstep:
+        arguments: [edge0, edge1, x]
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
     samplers:
-      platforms:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 3
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.02
-        sampler:
-          type: CELLULAR
-          frequency: 0.03
-      wallOffset:
+      # Rock shelves carved into the wall at shelfHeight — identical logic to
+      # EQ_INFERNO_ISLE's platformShape, adapted for a jungle shelf aesthetic:
+      #   • shelfHeight = 10 places ledges in the upper-mid portion of the cave
+      #   • lower threshold (-0.2 vs -0.25) increases shelf frequency
+      #   • wider cellular + domain warp gives broader, more organic shelf shapes
+      # Active only in the outer shell zone (special_caves > -0.3 → smoothstep zero
+      # in the hollow interior) so shelves don't intrude on open air.
+      shelfShape:
         dimensions: 3
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.025
-        octaves: 2
-        lacunarity: 2.8
-        gain: 0.5
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          if(abs(shelfHeight - y) > shelfWidth, 0,
+            (1 - smoothstep(0, shelfWidth, abs(shelfHeight - y)))
+            * (-shelves(x, z) - 0.2)
+            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * 3.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          shelves:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 8
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.015
+            sampler:
+              type: CELLULAR
+              frequency: 0.04
+
   sampler-2d:
     dimensions: 2
     type: CONSTANT

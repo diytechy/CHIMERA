@@ -2,9 +2,20 @@ id: EQ_TERRACOTTA_TOMBS
 type: BIOME
 abstract: true
 
+# Tunable parameters — all sub-samplers pull from this anchor via variables: *variables.
 vars: &variables
-  base: -30
-  pillarHeight: 38
+  act_thresh:       $customization.yml:special_cave_void_activation
+  cave_lower:       $customization.yml:cave_lower
+  # Blocks above cave_lower that pillars reach before tapering to nothing.
+  pillarHeight:     32
+  # CELLULAR Distance threshold: pillar where (-pillars) > pillarThreshold.
+  # Distance sampler returns [-1,0]; higher threshold = thinner, sharper pillars.
+  pillarThreshold:  0.70
+  # Gain applied to the supra-threshold cellular value.  Must be large enough
+  # that pillarScale × (1 - pillarThreshold) > 5 so pillar solid overcomes the
+  # cave void contribution (≈-4.75 at cell center) AND forces the -clamp above 0.
+  # With threshold=0.70: scale × 0.30 ≥ ~8  →  scale ≥ 27.  Use 55 for margin.
+  pillarScale:      55
 
 terrain:
   blend:
@@ -15,46 +26,82 @@ terrain:
     dimensions: 3
     type: CONSTANT
     value: 10
-    
+
 carving:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      -clamp(
-        max((special_caves(x, y, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -5)
-        + max((-pillars(x,z) -0.95 + abs(pillarWidthRand(y, x / 20 + z / 24)) * 0.033) * 170
-          + min(base - y + elevationDetailedBlockHeight(x,z) + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1), 0)^3 * 3, 0)
-         , -10, 10) * 16
-      // + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
+      max(
+        -clamp(
+          // Main hollow.
+          (special_caves(x, y, z) - act_thresh) * 5.0
+
+          // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+          // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
+          + caveWallOffset(x, y, z) * 0.3
+
+          // PILLAR solid contribution.
+          // Adding a large positive value here makes the -clamp output negative
+          // (solid) at pillar locations, overriding the cave void signal.
+          // See pillarShape comment below for the geometry.
+          + pillarShape(x, y, z)
+
+        ,-2.5, 2.5),
+
+        // Shared carver fade MINUS the same pillar contribution.
+        // The combining max() means void wins unless BOTH branches are solid.
+        // Without this subtraction, caveCarverFade extrapolates to a large
+        // positive (void) value deep inside the cave and overrides the pillar.
+        // Subtracting pillarShape here keeps the fade branch solidly negative
+        // at pillar locations so the max() returns the pillar-solid main value.
+        caveCarverFade(x, y, z) - pillarShape(x, y, z)
+      )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
-      pillars:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.037
-      basepillarsCenter:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.037
-        return: CellValue
-      pillarWidthRand:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2S
-        frequency: 0.3
-      wallOffset:
+      # Pillar solid contribution.
+      #
+      # Geometry
+      # ────────
+      # pillars: CELLULAR Distance, frequency 0.025 (≈40-block cell period).
+      # Returns [-1,0]: -1 at each cell centre, 0 at edges.
+      # (-pillars - pillarThreshold) → positive only within the inner
+      #   (1 - pillarThreshold) = 30% of the cell-distance range, i.e. a
+      #   column of radius ≈ 40 × 0.15 ≈ 6 blocks at y = cave_lower.
+      #
+      # Height profile: linear taper from 1 at cave_lower to 0 at
+      #   cave_lower + pillarHeight.  Pillars are widest at the floor and
+      #   narrow naturally as they rise, matching stalactite / stalagmite
+      #   visual convention.
+      #
+      # Max return value at cell centre, floor level:
+      #   (1 - 0.70) × 55 × 1 = 16.5
+      # Required to overcome cave at centre (special_caves ≈ -1):
+      #   need total expr > 0 for -clamp to return negative (solid):
+      #   (-1 - act_thresh) × 5 + 16.5 = -4.75 + 16.5 = 11.75 > 0 ✓
+      # caveCarverFade at centre (extrapolated): ≈ +2.85
+      #   2.85 - 16.5 = -13.65 (solid) ✓  →  max(-solid, -solid) = solid ✓
+      pillarShape:
         dimensions: 3
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.025
-        octaves: 2
-        lacunarity: 2.8
-        gain: 0.5
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          max(0,
+            (-pillars(x, z) - pillarThreshold)
+            * pillarScale
+            * if(y > cave_lower + pillarHeight, 0,
+                max(0, 1 - (y - cave_lower) / pillarHeight))
+          )
+        samplers:
+          pillars:
+            dimensions: 2
+            type: CELLULAR
+            frequency: 0.025
+
   sampler-2d:
     dimensions: 2
     type: CONSTANT

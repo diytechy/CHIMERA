@@ -206,6 +206,7 @@ samplers:
     - math/samplers/biomes_ocean.yml:samplers
     - math/samplers/biomes_large.yml:samplers
     - math/samplers/rifts.yml:samplers
+    - math/samplers/special_cave_carving.yml:samplers
 
 slant:
   calculation-method: DotProduct

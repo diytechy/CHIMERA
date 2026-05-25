@@ -54,7 +54,8 @@ carving:
 
           // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
           //               ±1.5 blocks at y-poles — stays within the thin pole shell.
-          + wallOffset(x, y, z) * 0.4
+          // Shared pack-level sampler (special_cave_carving.yml:caveWallOffset).
+          + caveWallOffset(x, y, z) * 0.4
 
           // Platform creation with smooth falloff
           + platformShape(x, y, z)
@@ -134,8 +135,9 @@ carving:
         # slight surface texture without punching through toward the hollow void.
         # The lava_cave_floor threshold of -2 fills any air created in that zone,
         # so the lava floor always covers these shallow surface carvings.
+        # caveShellNoise and caveWallOffset are pack-level (special_cave_carving.yml).
         expression: |
-          if((y + shellNoise(x,y,z)*10) < 0,
+          if((y + caveShellNoise(x,y,z)*10) < 0,
             lerp(
               max(special_caves(x,y,z), y*0.2)
               , 0, -5, act_dist, carver(x,y,z)),
@@ -146,30 +148,13 @@ carving:
           lerp: $math/functions/interpolation.yml:functions.lerp
         samplers:
           carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler
-          # 3D noise (not 2D) so the perturbation varies vertically too — the flat
-          # seam appears across the whole 3D shell surface, not just top/bottom.
-          shellNoise:
-            dimensions: 3
-            type: FBM
-            sampler:
-              type: OPEN_SIMPLEX_2
-              frequency: 0.15
-            octaves: 2
-            gain: 0.5
         #dimensions: 3
         #type: EXPRESSION
         #variables: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.variables
         #expression: $biomes/equations/caverns/eq_carving_land.yml:carving:sampler.expresion
 
-      wallOffset:
-        dimensions: 3
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.035
-        octaves: 3
-        lacunarity: 2.2
-        gain: 0.45
+      # wallOffset removed — replaced by pack-level caveWallOffset(x,y,z).
+      # shellNoise removed from carver_fade — replaced by pack-level caveShellNoise(x,y,z).
 
       # 2D FBM for y-coordinate warping. Must be 2D (not 3D) so the offset is
       # consistent for the entire vertical column at each xz position — a 3D

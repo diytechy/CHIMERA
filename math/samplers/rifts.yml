@@ -120,7 +120,7 @@ samplers:
       expression: |
         if(riftHybDistFromCenter(x,z)<spotActivateDist,
           lerp(riftHybDistFromCenter(x,z),-1,1,spotActivateDist,0),
-          -1)
+          lerp(riftHybDistFromCenter(x,z),spotActivateDist,0,0,-1))
 
   riftCanyon:
     type: EXPRESSION

@@ -1,0 +1,57 @@
+samplers:
+
+  # ── Shared carving samplers for all special-cave biomes ───────────────────
+  # Called directly by name from EQ_INFERNO_ISLE, EQ_CAVE_JUNGLE, and
+  # EQ_TERRACOTTA_TOMBS.  Changing these values affects all three simultaneously.
+  # ─────────────────────────────────────────────────────────────────────────
+
+  # 3-D FBM wall texture.  OS2S, frequency 0.035, 3 octaves.
+  # Gives ~30-block-scale rocky stria on all special-cave walls.
+  # Biome expressions multiply this by 0.3–0.4 to control relief depth.
+  caveWallOffset:
+    dimensions: 3
+    type: FBM
+    sampler:
+      type: OPEN_SIMPLEX_2S
+      frequency: 0.035
+    octaves: 3
+    lacunarity: 2.2
+    gain: 0.45
+
+  # 3-D FBM for cave-shell boundary perturbation.
+  # Used as (y + caveShellNoise*10) to shift the upper/lower hemisphere split
+  # by ±10 blocks so the ceiling/floor transition looks organic, not geometrically
+  # flat.  3-D (not 2-D) so the perturbation also varies vertically, avoiding
+  # horizontal banding on tunnel walls.
+  caveShellNoise:
+    dimensions: 3
+    type: FBM
+    sampler:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.15
+    octaves: 2
+    gain: 0.5
+
+  # Carver-fade for caves with an OPEN lower hemisphere (EQ_CAVE_JUNGLE,
+  # EQ_TERRACOTTA_TOMBS).  Applies the same lerp(act_thresh→0→act_dist) to
+  # BOTH hemispheres so the cave floor is carved as organically as the ceiling.
+  #
+  # EQ_INFERNO_ISLE uses its own local carver_fade (tight lower hemisphere to
+  # preserve the solid lava floor) and does NOT reference this sampler.
+  #
+  # Return value:
+  #   special_caves = act_thresh (-0.05) → 0          (no bleed at void edge)
+  #   special_caves = act_dist   (+0.05) → carver(x,y,z)  (normal land carving at biome boundary)
+  #   special_caves ≪ act_thresh          → very negative  (solid deep inside the cave)
+  caveCarverFade:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      act_dist:   ${customization.yml:special_cave_biome_activation}
+      act_thresh: ${customization.yml:special_cave_void_activation}
+    expression: |
+      lerp(special_caves(x, y, z), act_thresh, 0, act_dist, carver(x,y,z))
+    functions:
+      lerp: $math/functions/interpolation.yml:functions.lerp
+    samplers:
+      carver: $biomes/equations/caverns/eq_carving_land.yml:carving.sampler

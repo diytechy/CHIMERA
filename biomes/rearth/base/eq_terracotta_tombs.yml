@@ -10,12 +10,12 @@ vars: &variables
   pillarHeight:     32
   # CELLULAR Distance threshold: pillar where (-pillars) > pillarThreshold.
   # Distance sampler returns [-1,0]; higher threshold = thinner, sharper pillars.
-  pillarThreshold:  0.70
+  pillarThreshold:  0.60
   # Gain applied to the supra-threshold cellular value.  Must be large enough
   # that pillarScale × (1 - pillarThreshold) > 5 so pillar solid overcomes the
-  # cave void contribution (≈-4.75 at cell center) AND forces the -clamp above 0.
-  # With threshold=0.70: scale × 0.30 ≥ ~8  →  scale ≥ 27.  Use 55 for margin.
-  pillarScale:      55
+  # cave void contribution (≈-5.75 at cell center) AND forces the -clamp above 0.
+  # With threshold=0.60: scale × 0.40 ≥ ~15  →  scale ≥ 15.  Use 40 for margin.
+  pillarScale:      40
 
 terrain:
   blend:
@@ -50,13 +50,11 @@ carving:
 
         ,-2.5, 2.5),
 
-        // Shared carver fade MINUS the same pillar contribution.
-        // The combining max() means void wins unless BOTH branches are solid.
-        // Without this subtraction, caveCarverFade extrapolates to a large
-        // positive (void) value deep inside the cave and overrides the pillar.
-        // Subtracting pillarShape here keeps the fade branch solidly negative
-        // at pillar locations so the max() returns the pillar-solid main value.
-        caveCarverFade(x, y, z) - pillarShape(x, y, z)
+        // Shared carver fade — tight lower hemisphere returns deeply negative
+        // values inside the cave (extrapolates below -5 at the cave centre), so
+        // max(main, fade) always defers to the main -clamp expression.
+        // No subtraction from the fade is needed.
+        caveCarverFade(x, y, z)
       )
     functions:
       clamp:
@@ -67,11 +65,11 @@ carving:
       #
       # Geometry
       # ────────
-      # pillars: CELLULAR Distance, frequency 0.025 (≈40-block cell period).
+      # pillars: CELLULAR Distance, frequency 0.035 (≈29-block cell period).
       # Returns [-1,0]: -1 at each cell centre, 0 at edges.
       # (-pillars - pillarThreshold) → positive only within the inner
-      #   (1 - pillarThreshold) = 30% of the cell-distance range, i.e. a
-      #   column of radius ≈ 40 × 0.15 ≈ 6 blocks at y = cave_lower.
+      #   (1 - pillarThreshold) = 40% of the cell-distance range, i.e. a
+      #   column of radius ≈ 29 × 0.20 ≈ 6 blocks at y = cave_lower.
       #
       # Height profile: linear taper from 1 at cave_lower to 0 at
       #   cave_lower + pillarHeight.  Pillars are widest at the floor and
@@ -79,12 +77,12 @@ carving:
       #   visual convention.
       #
       # Max return value at cell centre, floor level:
-      #   (1 - 0.70) × 55 × 1 = 16.5
+      #   (1 - 0.60) × 40 × 1 = 16.0
       # Required to overcome cave at centre (special_caves ≈ -1):
       #   need total expr > 0 for -clamp to return negative (solid):
-      #   (-1 - act_thresh) × 5 + 16.5 = -4.75 + 16.5 = 11.75 > 0 ✓
-      # caveCarverFade at centre (extrapolated): ≈ +2.85
-      #   2.85 - 16.5 = -13.65 (solid) ✓  →  max(-solid, -solid) = solid ✓
+      #   (-1 - act_thresh) × 5 + 16.0 ≈ -5.75 + 16.0 = 10.25 > 0 ✓
+      # caveCarverFade (tight lower hemisphere): deeply negative inside cave
+      #   → max(main_solid -2.5, deeply_negative_fade) = -2.5 (solid) ✓
       pillarShape:
         dimensions: 3
         type: EXPRESSION
@@ -100,7 +98,7 @@ carving:
           pillars:
             dimensions: 2
             type: CELLULAR
-            frequency: 0.025
+            frequency: 0.035
 
   sampler-2d:
     dimensions: 2

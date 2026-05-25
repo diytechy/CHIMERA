@@ -30,6 +30,12 @@ blend:
     y-range:
       min: -64   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
       max: 301   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
+    # When true, neighbor blend positions sample the extruded biome at each Y level instead of
+    # the surface biome. This produces more accurate underground terrain blending (e.g. cave
+    # biomes blend with their actual depth-level neighbors rather than their surface counterparts),
+    # at the cost of rebuilding the blend map at every Y level rather than once per (x,z) center.
+    # Default: false (surface-biome neighbors, matches previous behaviour).
+    extruded-neighbors: false
 
 carving:
   resolution:

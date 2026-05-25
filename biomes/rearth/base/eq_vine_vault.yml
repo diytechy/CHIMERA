@@ -4,12 +4,12 @@ abstract: true
 
 # Tunable parameters — all sub-samplers pull from this anchor via variables: *variables.
 vars: &variables
-  act_thresh:  $customization.yml:special_cave_void_activation
-  # y-position of the rock-shelf band (lower-upper portion of the cave, above midline).
-  shelfHeight: 10
-  # Half-width (in blocks) of the shelf vertical fade.  Shelves exist within
-  # (shelfHeight - shelfWidth) to (shelfHeight + shelfWidth).
-  shelfWidth:  8
+  act_thresh:    $customization.yml:special_cave_void_activation
+  # y-positions of the three rock-platform bands.
+  # Each level is spaced ≥20 blocks apart to avoid overlap (platform half-width = ±6).
+  platformLowY:  -18   # near cave floor — where vines terminate and moss begins
+  platformMidY:    5   # cave midpoint — main vine-anchor tier
+  platformHighY:  25   # near ceiling — where ceiling vines originate
 
 terrain:
   blend:
@@ -35,45 +35,47 @@ carving:
           // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
           + caveWallOffset(x, y, z) * 0.4
 
-          // Rock shelves carved into the wall at shelfHeight.
-          // These are void pockets that create mossy ledges for vine growth.
-          + shelfShape(x, y, z)
+          // Three rocky platform bands at different heights.
+          // Each uses EXACT EQ_INFERNO_ISLE platformShape geometry:
+          //   domain-warp amplitude=5, OS2 warp freq=0.02, CELLULAR freq=0.05,
+          //   threshold=-0.25, ±6-block vertical range, scale=3.5.
+          // Unique salts per level prevent platforms from stacking into vertical columns.
+          + platformLow(x, y, z)
+          + platformMid(x, y, z)
+          + platformHigh(x, y, z)
 
         ,-2.5, 2.5),
 
-        // Shared open-floor carver fade (special_cave_carving.yml:caveCarverFade).
-        // Unlike EQ_INFERNO_ISLE, both hemispheres use the same lerp(act_thresh→act_dist)
-        // so the cave floor is rough and textured — no lava fill to worry about.
+        // Shared carver fade — tight lower hemisphere (solid below cave midline)
+        // gives a firm floor for vine-root feature placement.
         caveCarverFade(x, y, z)
       )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
-      smoothstep:
-        arguments: [edge0, edge1, x]
-        expression: |
-          if(x <= edge0, 0,
-            if(x >= edge1, 1,
-              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
-            )
-          )
     samplers:
-      # Rock shelves carved into the wall at shelfHeight — identical logic to
-      # EQ_INFERNO_ISLE's platformShape, adapted for a jungle shelf aesthetic:
-      #   • shelfHeight = 10 places ledges in the upper-mid portion of the cave
-      #   • lower threshold (-0.2 vs -0.25) increases shelf frequency
-      #   • wider cellular + domain warp gives broader, more organic shelf shapes
-      # Active only in the outer shell zone (special_caves > -0.3 → smoothstep zero
-      # in the hollow interior) so shelves don't intrude on open air.
-      shelfShape:
+      # ── Platform levels ──────────────────────────────────────────────────────
+      # All three share identical geometry with EQ_INFERNO_ISLE's platformShape.
+      # The smoothstep(-0.3, -0.6, special_caves) gate ensures platforms only grow
+      # from the wall (special_caves > -0.3) and fade to zero in the open interior,
+      # preventing solid lumps from appearing mid-air in the hollow.
+      #
+      # (1 - smoothstep(0, 6, abs(height - y))) gives the vertical taper:
+      #   1.0 exactly at the platform height, smoothly → 0 at ±6 blocks.
+      #
+      # CELLULAR returns [-1, 0]; (-cellular - 0.25) is positive at cell centres
+      # (~0.75) and negative at cell edges (~-0.25), creating solid outcroppings.
+      # ─────────────────────────────────────────────────────────────────────────
+
+      platformLow:
         dimensions: 3
         type: EXPRESSION
         variables: *variables
         expression: |
-          if(abs(shelfHeight - y) > shelfWidth, 0,
-            (1 - smoothstep(0, shelfWidth, abs(shelfHeight - y)))
-            * (-shelves(x, z) - 0.2)
+          if(abs(platformLowY - y) > 6, 0,
+            (1 - smoothstep(0, 6, abs(platformLowY - y)))
+            * (-platformsLow(x, z) - 0.25)
             * smoothstep(-0.3, -0.6, special_caves(x, y, z))
             * 3.5
           )
@@ -87,16 +89,83 @@ carving:
                 )
               )
         samplers:
-          shelves:
+          platformsLow:
             dimensions: 2
             type: DOMAIN_WARP
-            amplitude: 8
+            amplitude: 5
+            salt: 1001
             warp:
               type: OPEN_SIMPLEX_2
-              frequency: 0.015
+              frequency: 0.02
             sampler:
               type: CELLULAR
-              frequency: 0.04
+              frequency: 0.05
+
+      platformMid:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          if(abs(platformMidY - y) > 6, 0,
+            (1 - smoothstep(0, 6, abs(platformMidY - y)))
+            * (-platformsMid(x, z) - 0.25)
+            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * 3.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          platformsMid:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 5
+            salt: 1002
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.02
+            sampler:
+              type: CELLULAR
+              frequency: 0.05
+
+      platformHigh:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          if(abs(platformHighY - y) > 6, 0,
+            (1 - smoothstep(0, 6, abs(platformHighY - y)))
+            * (-platformsHigh(x, z) - 0.25)
+            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * 3.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          platformsHigh:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 5
+            salt: 1003
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.02
+            sampler:
+              type: CELLULAR
+              frequency: 0.05
 
   sampler-2d:
     dimensions: 2

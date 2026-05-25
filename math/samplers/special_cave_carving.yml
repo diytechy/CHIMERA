@@ -32,17 +32,24 @@ samplers:
     octaves: 2
     gain: 0.5
 
-  # Carver-fade for caves with an OPEN lower hemisphere (EQ_CAVE_JUNGLE,
-  # EQ_TERRACOTTA_TOMBS).  Applies the same lerp(act_thresh→0→act_dist) to
-  # BOTH hemispheres so the cave floor is carved as organically as the ceiling.
+  # Shared carver-fade used by ALL three special-cave biomes (including inferno isle,
+  # which now references this instead of maintaining a local copy).
   #
-  # EQ_INFERNO_ISLE uses its own local carver_fade (tight lower hemisphere to
-  # preserve the solid lava floor) and does NOT reference this sampler.
+  # Upper hemisphere (y ≥ caveShellNoise perturbation of 0):
+  #   Smooth lerp from act_thresh (start of hollow) → act_dist (biome boundary).
+  #   Produces ~8-block wall texture on ceiling and upper walls.
+  #
+  # Lower hemisphere (y < caveShellNoise perturbation of 0):
+  #   Tight fade: at the shell surface (special_caves≈0) output = -5 (solid),
+  #   transitioning to carver at act_dist.  max(special_caves, y*0.2) bounds
+  #   the interpolation input so the floor stays solidly shut regardless of
+  #   how deep the cave floor extends — features (lava fill, terrain) connect
+  #   cleanly to the sealed lower shell.
   #
   # Return value:
-  #   special_caves = act_thresh (-0.05) → 0          (no bleed at void edge)
-  #   special_caves = act_dist   (+0.05) → carver(x,y,z)  (normal land carving at biome boundary)
-  #   special_caves ≪ act_thresh          → very negative  (solid deep inside the cave)
+  #   special_caves = act_thresh → 0            (no bleed past hollow edge, upper only)
+  #   special_caves = act_dist  → carver(x,y,z) (normal land carving at biome boundary)
+  #   lower shell (special_caves ≈ 0, y < 0) → ≈ -5 (solid)
   caveCarverFade:
     dimensions: 3
     type: EXPRESSION
@@ -50,7 +57,9 @@ samplers:
       act_dist:   ${customization.yml:special_cave_biome_activation}
       act_thresh: ${customization.yml:special_cave_void_activation}
     expression: |
-      lerp(special_caves(x, y, z), act_thresh, 0, act_dist, carver(x,y,z))
+      if((y + caveShellNoise(x,y,z)*10) < 0,
+        lerp(max(special_caves(x,y,z), y*0.2), 0, -5, act_dist, carver(x,y,z)),
+        lerp(special_caves(x,y,z), act_thresh, 0, act_dist, carver(x,y,z)))
     functions:
       lerp: $math/functions/interpolation.yml:functions.lerp
     samplers:

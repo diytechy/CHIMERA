@@ -108,12 +108,20 @@ carving:
         type: EXPRESSION
         variables: *variables
         expression: |
+          // Only generate pillars inside the inner 60% of the cave's XZ radius.
           if(pillarExists(x, z),
-            (1 - smoothstep(-0.95, -0.30,
-                basepillars(x, z)
-                - basepillarsCenter(x, z) * 0.12   // per-column size variation
-                - pillarWidthRand(y, x / 10) * 0.09 // width variation along height
-            )) - 0.5
+              
+              -basepillars(x, z) - 0.72           // positive at cell centres (~0.28 max)
+              + basepillarsCenter(x, z) * 0.12    // per-column size variation
+              + pillarWidthRand(y, x / 10) * 0.09 // width variation along height
+            
+              //* pillarScale
+              //// Bidirectional height profile: both arms overlap in mid-cave,
+              //// producing full-height columns at cell centres.
+              //* max(
+              //    max(-0.5, 1 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
+              //    max(-0.5, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
+              //  )
             ,-0.5
           )
         functions:

@@ -519,3 +519,72 @@ When adding extra carving to a biome variant that inherits CARVING_LAND through 
 3. Add the new abstract biome **last** in the variant's `extends:` list so it takes precedence over CARVING_LAND.
 
 This avoids Terra's inheritance ambiguity when multiple parents define `carving` and ensures both carvers combine correctly.
+
+---
+
+# Feature Stage Blending Reference
+
+This section documents how the `trees` and `flora` stage blend settings interact with biome boundaries, using VINE_VAULT / FUNGAL_UNDERGROWTH as the concrete case study.
+
+## How stage blending works
+
+`pack.yml` gives two stages a global Gaussian blend:
+
+```yaml
+- id: trees
+  type: FEATURE
+  blend:
+    amplitude: 30          # features from neighbouring biomes bleed up to 30 blocks in
+    sampler:
+      type: GAUSSIAN
+      salt: 2583
+
+- id: flora
+  type: FEATURE
+  blend:
+    amplitude: 30
+    sampler:
+      type: GAUSSIAN
+      salt: 2934
+```
+
+Within a stage, Terra places the **home biome's features first** (in the order they appear in the biome's feature list), then the **blend layer from neighbouring biomes is written on top**. Blended features therefore "win" any block overlap with the home biome's features.
+
+`landforms` and `preprocessors` have **no blend** — only `trees` and `flora` are affected.
+
+## VINE_VAULT ← FUNGAL_UNDERGROWTH bleed (the mushroom case)
+
+`FUNGAL_UNDERGROWTH` (`biomes/cave/substratum/fungal_undergrowth.yml`) is distributed as part of the `STANDARD_CAVES` pool (`add_cave_biomes.yml`) at the same underground depth range as VINE_VAULT's special-cave extrusion. The two biomes can therefore exist horizontally adjacent in the same y band.
+
+`FUNGAL_UNDERGROWTH` puts two features in its **`trees` stage**:
+
+| Feature | Distributor | Structure height |
+|---|---|---|
+| `GIANT_RED_MUSHROOMS` | `PADDED_GRID width:17 padding:6` | 20–30 blocks |
+| `GIANT_BROWN_MUSHROOMS` | `PADDED_GRID width:9 padding:2` | 20–30 blocks |
+
+Both features (`features/substratum/vegetation/mushrooms/giant_red_mushrooms.yml` / `giant_brown_mushrooms.yml`) use locators that require only:
+- Air at offsets 0, 3, 5 (headroom)
+- Solid at offsets −1, −3 (ground)
+- Adjacent solid at −1
+
+**No mycelium check.** VINE_VAULT's cave interior — large air void above a solid `GRASS_DENSE_MOSSY` floor (moss block, grass block, dirt) — satisfies all conditions. Within 30 blocks of the biome border the blend layer can place these 20–30-block mushroom stems inside VINE_VAULT.
+
+Because blended features write after the home biome's features, wherever a blended `GIANT_RED/BROWN_MUSHROOM` overlaps a `VINE_VAULT_JUNGLE_TREES` jungle tree, the mushroom blocks overwrite the jungle-tree blocks.
+
+## Identifying blend-injection candidates for any biome
+
+1. Find all biomes that can appear in the same y range (check `add_cave_biomes.yml` and `add_special_caves.yml` range fields).
+2. Check each neighbour's **`trees`** and **`flora`** feature lists.
+3. For each neighbour feature, read its locator: if it only guards on air/solid (not a specific block type like mycelium), it can trigger on any sufficiently open surface — including the target biome's cave floor.
+
+## Suppressing unwanted blend-injected features
+
+**Option A — exclude the biome from the trees-stage blend entirely:**
+Add a tag (e.g. `NO_BLEND_TREES`) to VINE_VAULT and add it to a `no-blend-tags` list under the `trees` stage in `pack.yml` (Terra supports this via the stage config).
+
+**Option B — guard the source feature's locator:**
+Add a `MATCH_SET` check to `GIANT_RED_MUSHROOMS` / `GIANT_BROWN_MUSHROOMS` that requires a FUNGAL_UNDERGROWTH-specific block (e.g. `coarse_dirt`, `rooted_dirt`, or `brown_concrete_powder`) at offset −1. This stops them firing on VINE_VAULT's moss/grass floor even when blended.
+
+**Option C — add a competing trees feature to VINE_VAULT:**
+A high-density `PADDED_GRID` feature that places a passable block (air, or a decorative block) can saturate the grid slots and prevent the blended mushroom feature from finding valid distributor positions — though this is fragile and not recommended.

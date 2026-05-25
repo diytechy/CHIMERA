@@ -112,25 +112,29 @@ carving:
       # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
       # Computes the void contribution that connects a special-cave dome to the
       # side wall of an overlapping pit (warped_pit + riftWellPlacement zone).
+      # 
+      # Passageway (2D) defines the traversal between the special cave and the rift / pit
+      # At -1: At the center of the special cave, where the carver fades out.
+      # At 0: At the edge of the special cave shell, where special radius is 0.5
+      # At 1: At the edge of the pit, where riftWellPlacement is 0.
+      # At 2: At the center of the rift, where the carver fades out.
       #
+      # 
       # Strength mask (2D):
-      #   cave  — special_caves(x,0,z) removes the y-component, giving a pure xz
-      #           cave-proximity mask:  0 at biome boundary, 1 at cave shell.
-      #   pit   — riftWellPlacement lerped from outer transition to threshold.
-      #   combined: cave_strength × pit_strength × str_cap.
+      #   Defines the strength of the tunnel, a function of the normalized transition strength
+      #   where the raw transition strength is ((riftWellPlacement + trans_bulk) * (special_radius + + trans_bulk))/(1++ trans_bulk)^2
+      # where trans_bulk can be increases to allow greater tunnelling distances when the special cave
+      # and pit do not directly intersect.
       #
-      # Passage vertical bounds:
-      #   ymin = lerp(riftWellPlacement, thresh-trans, ymin_outer, thresh, pit_floor)
-      #            + tunnelNoise × noise_amp
-      #     → ymin_outer (≈3, just above sinkhole floor) at outer pit edge
-      #     → elevationDetailedBlockHeight(x,z) (actual pit-floor y) at inner pit
+      # The noramlized transition strength would be the raw transition strength^0.3 to keep the strength generally higher, but would roll
+      # out as the passageway reaches it's fade -1 and 2.
+
+      # The base (y-min) of the tunnel is always anchored as a interpolation across the passageway:
+      # At passageway of 0 (edge of special cave) ymin nominal should be 0.
+      # At passageway of 1 (edge of pit) ymin nominal should be pit_floor, which is just the detailed block height.
       #
-      #   ymax = (cave_upper + tunnelNoise × noise_amp) × mag  +  ymin
-      #     → ceiling tracks cave_upper scaled by mag from the passage floor
-      #     → with mag=0.8 and cave_upper=40: passage ≈ 32 blocks tall
-      #
-      # Both bounds share one tunnelNoise(x,z) sample so the band shifts as a
-      # unit per column; the mag scale also modulates the passage height.
+      # The y-max of the tunnel is cave_upper * normalized transition strength + y-min
+    
       pitCaveTunnel:
         dimensions: 3
         type: EXPRESSION
@@ -158,8 +162,7 @@ carving:
           // (3) special_radius(x,z) < cave_act_dist: inside the cave xz zone.
           //     Evaluating special_caves at y=0 suppresses the y-component of the
           //     ellipsoid SDF, giving a pure horizontal (xz-only) cave mask.
-          if(warped_pit(x,z) <= 0
-             || special_radius(x, z) >= 0.5,
+          if(warped_pit(x,z) <= 0,
             -0.5,
 
             // ── Combined 2D strength: cave_proximity × pit_proximity ──────────
@@ -195,6 +198,12 @@ carving:
           )
         functions:
           lerp: $math/functions/interpolation.yml:functions.lerp
+          normalize_shell:
+            arguments: [cave_r,pit_r,cave_srt,cave_end,pit_srt,pit_end]
+            expression: |
+              //dist_into_shell
+              0
+
         samplers:
           # 2D FBM for organic passage floor/ceiling boundary variation.
           # Must be 2D (not 3D) so the floor/ceiling heights are consistent per

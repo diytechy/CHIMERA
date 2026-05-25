@@ -12,18 +12,11 @@ vars: &variables
   # cave height = cave_upper - cave_lower = 40 - (-30) = 70 blocks.
   # pillarHeight=55 → arms overlap 40 blocks in the middle → pillars span full cave.
   pillarHeight:     55
-  # CELLULAR Distance threshold: pillar where (-pillars) > pillarThreshold.
-  # Distance sampler returns [-1,0]; higher threshold = thinner, sharper pillars.
-  # At freq 0.035 (≈29-block cell period), threshold controls pillar radius:
-  #   threshold=0.60 → inner 40% of distance range → ~6-block radius (ROOM-FILLING)
-  #   threshold=0.80 → inner 20% of distance range → ~3-block radius (~6-block diameter)
-  pillarThreshold:  0.80
   # Gain applied to the supra-threshold cellular value.  Must be large enough that
-  # pillarScale × (1 - pillarThreshold) × min_height_factor > |hollow| at cave midpoint.
-  # cave midpoint (y≈5): min_height_factor ≈ 1-35/55 = 0.364.
-  # hollow at cell center (special_caves≈-1): (-1+0.05)×5 = -4.75.
-  # clamp ceiling = 2.5, so need total > 2.5: 0.20 × scale × 0.364 > 4.75+2.5 = 7.25
-  # → scale > 99.3.  Use 100.
+  # pillarScale × (1 − threshold_excess) × min_height_factor > |hollow| at cave midpoint.
+  # threshold_excess = 1 − 0.72 = 0.28.  cave midpoint height_factor ≈ 0.364.
+  # hollow at cell centre (special_caves≈−1): (−1+0.05)×5 = −4.75.
+  # need tomb_pillars > 4.75: 0.28 × scale × 0.364 > 4.75 → scale > 46.5.  Use 100.
   pillarScale:      100
 
 terrain:
@@ -45,20 +38,16 @@ carving:
       max(
         -clamp(
           // Main hollow.
-          min(
-            (special_caves(x, y, z) - act_thresh) * 5.0
+          (special_caves(x, y, z) - act_thresh) * 5.0
 
-            // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
-            // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
-            + caveWallOffset(x, y, z) * 0.3
+          // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+          // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
+          + caveWallOffset(x, y, z) * 0.3
 
-            // PILLAR solid contribution.
-            // Adding a large positive value here makes the -clamp output negative
-            // (solid) at pillar locations, overriding the cave void signal.
-            // See pillarShape comment below for the geometry.
-            ,
-            tomb_pillars(x,y,z)
-          )
+          // Pillar solid contribution: positive at pillar cell centres pushes the inner
+          // expression above zero so -clamp returns negative (solid).
+          + tomb_pillars(x, y, z)
+
         ,-2.5, 2.5),
 
         // Shared carver fade — tight lower hemisphere returns deeply negative
@@ -74,52 +63,66 @@ carving:
     samplers:
       # Pillar solid contribution.
       #
-      # Geometry
-      # ────────
-      # pillars: CELLULAR Distance, frequency 0.035 (≈29-block cell period).
-      # Returns [-1,0]: -1 at each cell centre, 0 at edges.
-      # (-pillars - pillarThreshold) → positive only within the inner
-      #   (1 - pillarThreshold) = 40% of the cell-distance range, i.e. a
-      #   column of radius ≈ 29 × 0.20 ≈ 6 blocks.
+      # Geometry (eq_pillars-style, adapted for carving context)
+      # ─────────────────────────────────────────────────────────
+      # basepillars: CELLULAR Distance at frequency 0.088 (4× eq_pillars 0.022).
+      #   Cell period ≈ 11 blocks → column radius ≈ (1−0.72) × 5.5 ≈ 1.6 blocks,
+      #   ~4× narrower than eq_pillars' ~6-block radius at the same threshold.
       #
-      # Height profile: BIDIRECTIONAL — stalagmites from floor + stalactites from
-      #   ceiling.  max(stalagmite_factor, stalactite_factor):
-      #     stalagmite: 1 at cave_lower (-30), 0 at cave_lower + pillarHeight (-30+55 = 25)
-      #     stalactite: 1 at cave_upper (+40), 0 at cave_upper - pillarHeight (40-55 = -15)
-      #   Both arms are active from y ≈ -15 to y ≈ 25 (40-block overlap in mid-cave)
-      #   where they reinforce each other, creating full-height pillars at cell centres.
+      # Existence gate: special_radius(x,z) < 0.6 — pillars only inside the inner
+      #   60% of the cave's XZ radius so they never grow into the cave walls.
       #
-      # Max return value at floor / ceiling:
-      #   (1 - 0.80) × 100 × 1 = 20.0
-      # Required to overcome cave at cell centre (special_caves ≈ -1):
-      #   need total expr > 0: (-1 + 0.05) × 5 + 20 = -4.75 + 20 = 15.25 > 0 ✓
-      # At cave midpoint (y ≈ 5, min_height_factor ≈ 0.364):
-      #   pillarShape = 0.20 × 100 × 0.364 = 7.28.  Total: -4.75 + 7.28 = 2.53 > 0 ✓
-      # caveCarverFade (tight lower hemisphere): deeply negative inside cave
-      #   → max(main_solid -2.5, deeply_negative_fade) = -2.5 (solid) ✓
+      # Height profile: BIDIRECTIONAL — stalagmites from floor + stalactites from ceiling.
+      #     stalagmite: 1 at cave_lower (−30), 0 at cave_lower + pillarHeight (25)
+      #     stalactite: 1 at cave_upper ( 40), 0 at cave_upper − pillarHeight (−15)
+      #   Arms overlap from y≈−15 to y≈25 (40 blocks), creating full-height columns.
+      #
+      # Scale proof at cave midpoint (y≈5, min_height_factor≈0.364):
+      #   max pillar signal = (1−0.72 + 0.12 + 0.09) × 100 × 0.364 = 0.49 × 36.4 ≈ 17.8
+      #   hollow at cell centre: (−1+0.05)×5 = −4.75
+      #   total: −4.75 + 17.8 = 13.05 → clamped to +2.5 → -clamp = −2.5 (solid) ✓
       tomb_pillars:
-        dimensions: 3
-        type: EXPRESSION
-        expression: |
-          100
-      pillarShape:
         dimensions: 3
         type: EXPRESSION
         variables: *variables
         expression: |
-          max(0,
-            (-pillars(x, z) - pillarThreshold)
-            * pillarScale
-            * max(
-                max(0, 1 - (y - cave_lower) / pillarHeight),   // stalagmite from floor
-                max(0, 1 - (cave_upper - y) / pillarHeight)    // stalactite from ceiling
+          // Only generate pillars inside the inner 60% of the cave's XZ radius.
+          if(special_radius(x, z) >= 0.6, 0,
+            max(0,
+              (
+                -basepillars(x, z) - 0.72           // positive at cell centres (~0.28 max)
+                + basepillarsCenter(x, z) * 0.12    // per-column size variation
+                + pillarWidthRand(y, x / 10) * 0.09 // width variation along height
               )
+              * pillarScale
+              // Bidirectional height profile: both arms overlap in mid-cave,
+              // producing full-height columns at cell centres.
+              * max(
+                  max(0, 1 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
+                  max(0, 1 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
+                )
+            )
           )
         samplers:
-          pillars:
+          basepillars: &pillarConf
             dimensions: 2
             type: CELLULAR
-            frequency: 0.035
+            frequency: 0.088   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
+            jitter: 1
+            distance: Euclidean
+          basepillarsCenter:
+            <<: *pillarConf
+            return: CellValue
+          pillarWidthRand:
+            dimensions: 2
+            type: FBM
+            sampler:
+              dimensions: 2
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.1
+            octaves: 2
+            lacunarity: 2
+            gain: 0.35
 
   sampler-2d:
     dimensions: 2

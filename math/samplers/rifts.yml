@@ -170,3 +170,16 @@ samplers:
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
       (riftTemperature(x,z)>0)
+
+  warped_pit:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.002
+    sampler:
+      type: EXPRESSION
+      # cold_pit / warm_pit no longer contain riftLandDistributor internally;
+      # that check is now performed at raw coordinates above.
+      expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)

@@ -15,7 +15,7 @@ extrusions:
       variables:
         # riftWellPlacement value above which cave suppression begins (inner well core).
         # Below this threshold special caves are fully allowed at every y in the range.
-        well_suppress_threshold: 0.4
+        cave_pit_thresh: ${customization.yml:cave_pit_thresh}
         # riftWellPlacement value above which suppression is total (no special cave at any y).
         # Between well_suppress_threshold and well_full_suppress the suppressed-y ceiling
         # drops linearly from sinkhole_floor down to cave_floor, producing a smooth vertical
@@ -67,8 +67,7 @@ extrusions:
         //     extrusion range — equivalent to full suppression with no extra branch.
         //
         if(((riftLandDistributor(x,z)>0)&&(warped_pit(x,z)>0.0)&&
-            (riftWellPlacement(x,z)>well_suppress_threshold)&&
-            (y>lerp(riftWellPlacement(x,z),well_suppress_threshold,well_full_suppress,sinkhole_floor,cave_floor))),
+            (riftWellPlacement(x,z)>cave_pit_thresh)),
           -0.25,
           if(special_caveInferno(x,y,z),-0.75,
             if(special_caveNonInferno(x,y,z),
@@ -77,19 +76,6 @@ extrusions:
         )
       functions:
         lerp: $math/functions/interpolation.yml:functions.lerp
-      samplers:
-        warped_pit:
-          dimensions: 2
-          type: DOMAIN_WARP
-          amplitude: 60
-          warp:
-            type: OPEN_SIMPLEX_2
-            frequency: 0.002
-          sampler:
-            type: EXPRESSION
-            # cold_pit / warm_pit no longer contain riftLandDistributor internally;
-            # that check is now performed at raw coordinates above.
-            expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)
     to:
       - INFERNO_ISLES: 1
       - SELF: 1

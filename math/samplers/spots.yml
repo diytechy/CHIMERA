@@ -485,7 +485,7 @@ samplers:
       normalize_shell(
         (
           //First compute normalized radius on the x/z plane:
-          ((cell_spot(x,z)+1)*((cave_dist*2)/cave_dia))^2
+          (max(pit_transition(x,z),(cell_spot(x,z)+1))*((cave_dist*2)/cave_dia))^2
 
           //Then add in the normalized y component; cave_y_power controls curvature:
           //higher values flatten the top/bottom cap, lower values approach a sphere.
@@ -495,6 +495,21 @@ samplers:
         )^0.5-1,
         y, cave_lower, cave_upper, cave_dia/2, cave_y_power)
     samplers:
+      pit_transition:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          cave_pit_thresh: ${customization.yml:cave_pit_thresh}
+          cave_pit_trans: ${customization.yml:cave_pit_trans}
+          #If near a pit, override the special cave radius
+          #with the distance to the pit transition so the walls
+          #of the special cave are not cut off.
+
+        expression: |
+          if(warped_pit(x,z),
+            lerp(riftWellPlacement(x,z),cave_pit_thresh-cave_pit_trans,0,cave_pit_thresh,1)
+            ,
+            0)
       cell_spot: &caveSettings
         dimensions: 2
         type: CELLULAR

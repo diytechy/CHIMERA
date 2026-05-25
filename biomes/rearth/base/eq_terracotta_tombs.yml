@@ -45,18 +45,20 @@ carving:
       max(
         -clamp(
           // Main hollow.
-          (special_caves(x, y, z) - act_thresh) * 5.0
+          min(
+            (special_caves(x, y, z) - act_thresh) * 5.0
 
-          // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
-          // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
-          + caveWallOffset(x, y, z) * 0.3
+            // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+            // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
+            + caveWallOffset(x, y, z) * 0.3
 
-          // PILLAR solid contribution.
-          // Adding a large positive value here makes the -clamp output negative
-          // (solid) at pillar locations, overriding the cave void signal.
-          // See pillarShape comment below for the geometry.
-          + pillarShape(x, y, z)
-
+            // PILLAR solid contribution.
+            // Adding a large positive value here makes the -clamp output negative
+            // (solid) at pillar locations, overriding the cave void signal.
+            // See pillarShape comment below for the geometry.
+            ,
+            tomb_pillars(x,y,z)
+          )
         ,-2.5, 2.5),
 
         // Shared carver fade — tight lower hemisphere returns deeply negative
@@ -95,6 +97,11 @@ carving:
       #   pillarShape = 0.20 × 100 × 0.364 = 7.28.  Total: -4.75 + 7.28 = 2.53 > 0 ✓
       # caveCarverFade (tight lower hemisphere): deeply negative inside cave
       #   → max(main_solid -2.5, deeply_negative_fade) = -2.5 (solid) ✓
+      tomb_pillars:
+        dimensions: 3
+        type: EXPRESSION
+        expression: |
+          100
       pillarShape:
         dimensions: 3
         type: EXPRESSION

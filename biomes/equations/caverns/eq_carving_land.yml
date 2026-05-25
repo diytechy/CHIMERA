@@ -36,43 +36,45 @@ carving:
       pitCaveTunnel_enabled: 1
 
     expression: |
-      -carvingThreshold
-      + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip unnecessary calculations
-        min(carvingCap,
-          max(
-            // Spaghetti Caves
+      max(
+        -carvingThreshold
+        + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip unnecessary calculations
+          min(carvingCap,
             max(
-              spaghettiStrengthLarge * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),
-              spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)
-            ),
-            // Cheese caves
-            if(y>cheeseMaxHeight,0,
-              maskSmooth(
-                cheeseStrength * (simplex3(
-                  x * cheeseHorizontalFrequency,
-                  (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,
-                  z * cheeseHorizontalFrequency
-                )+1)/2
-                // Mega caves
-                +lerp(megaCaves(x, y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)
-                // Pillars
-                -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1) * pillarStrength,
-      
-                // Cheese clamp parameters
-                cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper, y
+              // Spaghetti Caves
+              max(
+                spaghettiStrengthLarge * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),
+                spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)
+              ),
+              // Cheese caves
+              if(y>cheeseMaxHeight,0,
+                maskSmooth(
+                  cheeseStrength * (simplex3(
+                    x * cheeseHorizontalFrequency,
+                    (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,
+                    z * cheeseHorizontalFrequency
+                  )+1)/2
+                  // Mega caves
+                  +lerp(megaCaves(x, y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)
+                  // Pillars
+                  -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1) * pillarStrength,
+        
+                  // Cheese clamp parameters
+                  cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper, y
+                )
               )
             )
-          )
-        ),
-        // Clamp parameters
-        carvingMinHeight, carvingMinHeight + carvingMinTaper, y
-        ),
-        carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y
-      ))
-      // ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
-      // Carves a passage from the special-cave dome to overlapping pit walls.
-      // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.
-      + pitCaveTunnel_enabled * pitCaveTunnel(x, y, z)
+          ),
+          // Clamp parameters
+          carvingMinHeight, carvingMinHeight + carvingMinTaper, y
+          ),
+          carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y
+        )),
+        // ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+        // Carves a passage from the special-cave dome to overlapping pit walls.
+        // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.
+        if(pitCaveTunnel_enabled,pitCaveTunnel(x, y, z),-100)
+        )
     samplers:
       cavePillars:
         dimensions: 2
@@ -153,16 +155,15 @@ carving:
           // ── Early exit: zero outside the cave-and-pit overlap zone ──────────
           // (1) warped_pit > 0: inside the warped pit xz region.
           // (2) riftWellPlacement > thresh−trans: inside the well activation band.
-          // (3) special_caves(x,0,z) < cave_act_dist: inside the cave xz zone.
+          // (3) special_radius(x,z) < cave_act_dist: inside the cave xz zone.
           //     Evaluating special_caves at y=0 suppresses the y-component of the
           //     ellipsoid SDF, giving a pure horizontal (xz-only) cave mask.
           if(warped_pit(x,z) <= 0
-             || riftWellPlacement(x,z) <= cave_pit_thresh - cave_pit_trans
-             || special_caves(x, 0, z) >= cave_act_dist,
-            0,
+             || special_radius(x, z) >= 0.5,
+            -0.5,
 
             // ── Combined 2D strength: cave_proximity × pit_proximity ──────────
-            min(1, max(0, lerp(special_caves(x, 0, z),
+            min(1, max(0, lerp(special_radius(x, z),
                                cave_act_dist, 0,
                                0, 1)))
             * min(1, max(0, lerp(riftWellPlacement(x, z),

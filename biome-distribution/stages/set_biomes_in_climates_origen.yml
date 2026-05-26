@@ -133,6 +133,10 @@ stages:
         - AUTUMNAL_WOODLANDS: 1
         - MAPLE_WOODLANDS: 1
         - OAK_WOODLANDS: 1
+        - BIRCH_WOODLANDS: 1
+        - ENCHANTED_WOODLANDS: 1
+        - REDWOOD_WOODLANDS: 1
+        - SUGAR_PINE_WOODLANDS: 1
       boreal-warm-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
@@ -497,12 +501,13 @@ stages:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
         - MESA_MONUMENTS: 1
+        - PALM_FOREST: 1
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
-        - OAK_SAVANNA: 1
         - DRY_WOODLANDS: 1
-        - TROPICAL_MESA: 1
+        - SAVANNA_OVERHANGS: 1
+        - SCARLET_SANCTUARY: 1
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1

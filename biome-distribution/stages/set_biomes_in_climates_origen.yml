@@ -38,12 +38,13 @@ stages:
       # Start of standard biome distribution
 
       ice-cap-flat:
-        - ICE_SPIKES: 1
-        - FROSTBOUND_CHASMS: 1
-      ice-cap:
-        - ICE_CAPS: 2
-        - LAND_GLACIER: 2
+        - FROSTBOUND_CHASMS: 3
+        - MUSKEG: 1
         - TUNDRA_TRACKS: 1
+      ice-cap:
+        - FROSTY_FINGERS: 1
+        - LAND_GLACIER: 1
+        - ICE_SPIKES: 1
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
@@ -55,10 +56,10 @@ stages:
         - FRIGID_WASTELANDS: 1
 
       tundra-flat:
-        - MUSKEG: 2
-        - TUNDRA_TRACKS: 2
-        - ICE_SPIKES: 1
-        - FROSTBOUND_CHASMS: 1
+        - MUSKEG: 1
+        - TUNDRA_TRACKS: 1
+        - FROSTCOATED_BOG: 1
+        - FROZEN_MARSH: 1
       tundra:
         - TUNDRA: 1
         - FROZEN_FUNGI: 1
@@ -75,8 +76,9 @@ stages:
 
 
       boreal-snowy-flat:
-        - FROSTCOATED_BOG: 1
         - FROZEN_MARSH: 1
+        - LAVENDER_FIELDS: 3
+        - FROSTCOATED_BOG: 1
       boreal-snowy:
         - SNOWY_TAIGA: 1
         - SNOWY_BIRCH_FOREST: 1
@@ -95,8 +97,8 @@ stages:
 
 
       boreal-cold-flat:
-        - LAVENDER_FIELDS: 3
-        - SCULK_SWAMP: 2
+        - SCULK_SWAMP: 1
+        - FOSSILIZED_FENLANDS: 1
       boreal-cold:
         - TAIGA_CLEARING: 1
         - maple-groves: 1
@@ -124,6 +126,8 @@ stages:
         - maple-groves: 1
         - PINE_CANOPY: 2
         - FOSSILIZED_FENLANDS: 1
+        - MARSH: 3
+        - SWAMP: 2
       boreal-warm:
         - SEQUOIA_FOREST: 3
         - OLD_GROWTH_SEQUOIA_FOREST: 2
@@ -131,13 +135,11 @@ stages:
         - TAIGA: 2
         - FIR_FIELDS: 1
         - TALL_TIMBERLAND: 1
-        - AUTUMNAL_WOODLANDS: 1
-        - MAPLE_WOODLANDS: 1
-        - OAK_WOODLANDS: 1
-        - BIRCH_WOODLANDS: 1
-        - ENCHANTED_WOODLANDS: 1
-        - REDWOOD_WOODLANDS: 1
-        - SUGAR_PINE_WOODLANDS: 1
+        #- OAK_WOODLANDS: 1
+        #- BIRCH_WOODLANDS: 1
+        #- ENCHANTED_WOODLANDS: 1
+        #- REDWOOD_WOODLANDS: 1
+        #- SUGAR_PINE_WOODLANDS: 1
       boreal-warm-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
@@ -510,6 +512,7 @@ stages:
         - DRY_WOODLANDS: 1
         - SAVANNA_OVERHANGS: 1
         - SCARLET_SANCTUARY: 1
+        - CANOPY_CASCADES: 1
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
@@ -525,6 +528,7 @@ stages:
         - MONSOON_FOREST: 1
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
+        - CLOUD_FOREST: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1

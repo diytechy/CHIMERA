@@ -20,8 +20,8 @@ biomes:
     sampler:
       type: EXPRESSION
       expression: |
-        0
-        //noisebase(x,z)+noise(x,z)*2
+        //0
+        noisebase(x,z)+noise(x,z)*2
       samplers:
         noisebase:
           dimensions: 2
@@ -34,7 +34,7 @@ biomes:
 
   provider:
     type: PIPELINE
-    resolution: 4 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
+    resolution: 32 #Chunk sampler is actually sampling every 4 blocks so generally doesn't have a benefit with higher resolution except for block placement.
     #y-resolution: 4
 
     # Fast-path for stronghold ring position searches (world creation).

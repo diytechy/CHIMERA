@@ -98,8 +98,6 @@ stages:
         - SCULK_SWAMP: 2
       boreal-cold:
         - TAIGA_CLEARING: 1
-        - TAIGA: 1
-        - FIR_FIELDS: 1
         - maple-groves: 1
         - BLACK_FOREST: 1
         - AUTUMNAL_WOODLANDS: 1
@@ -129,9 +127,12 @@ stages:
         - SEQUOIA_FOREST: 3
         - OLD_GROWTH_SEQUOIA_FOREST: 1
         - TAIGA_CLEARING: 3
-        - TAIGA: 3
-        - FIR_FIELDS: 2
+        - TAIGA: 2
+        - FIR_FIELDS: 1
         - TALL_TIMBERLAND: 1
+        - AUTUMNAL_WOODLANDS: 1
+        - MAPLE_WOODLANDS: 1
+        - OAK_WOODLANDS: 1
       boreal-warm-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
@@ -230,11 +231,13 @@ stages:
         - CHAPARRAL: 1
         - MOORLAND: 1
         - TEMPERATE_GRASSLAND: 1
+        - TALL_TIMBERLAND: 1
       temperate-warm-dry:
         - CHAPARRAL: 1
         - MOORLAND: 1
         - TEMPERATE_GRASSLAND: 1
         - DRY_FIR_FIELDS: 1
+        - TALL_TIMBERLAND: 1
       temperate-warm-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
         - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
@@ -497,9 +500,13 @@ stages:
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1
+        - OAK_SAVANNA: 1
+        - DRY_WOODLANDS: 1
+        - TROPICAL_MESA: 1
       tropical-savanna-dry-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
+        - TROPICAL_MESA: 1
 
       tropical-savanna-wet-flat:
         - BAMBOO_BASIN: 1
@@ -514,6 +521,7 @@ stages:
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1
         - MESA_MONUMENTS: 1
+        - TROPICAL_MESA: 1
       polar-island:
         - POLAR_MUSHROOM_FIELDS: 1
         #- FROSTY_FINGERS: 1

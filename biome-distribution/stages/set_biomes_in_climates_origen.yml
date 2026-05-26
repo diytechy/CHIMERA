@@ -41,8 +41,9 @@ stages:
         - ICE_SPIKES: 1
         - FROSTBOUND_CHASMS: 1
       ice-cap:
-        - ICE_CAPS: 1
-        - LAND_GLACIER: 1
+        - ICE_CAPS: 2
+        - LAND_GLACIER: 2
+        - TUNDRA_TRACKS: 1
       ice-cap-highlands:
         - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
@@ -125,7 +126,7 @@ stages:
         - FOSSILIZED_FENLANDS: 1
       boreal-warm:
         - SEQUOIA_FOREST: 3
-        - OLD_GROWTH_SEQUOIA_FOREST: 1
+        - OLD_GROWTH_SEQUOIA_FOREST: 2
         - TAIGA_CLEARING: 3
         - TAIGA: 2
         - FIR_FIELDS: 1
@@ -502,6 +503,7 @@ stages:
         - SAVANNA: 1
         - MESA_MONUMENTS: 1
         - PALM_FOREST: 1
+        - DRY_PALM_FOREST: 1
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
         - SAVANNA: 1

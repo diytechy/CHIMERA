@@ -9,7 +9,7 @@ stages:
 
     default-from: tropical-rainforest
     default-to:
-      - hot-desert: &desert       3
+      - hot-desert: &desert       4
       - hot-desert: &desertBorder 1
       - hot-steppe: &semiArid     1
       - tropical-savanna-dry: &mid          2
@@ -24,28 +24,31 @@ stages:
         - tropical-monsoon: *mildlyWet
         - tropical-monsoon: *veryWet
       tropical-savanna-wet:
-        - hot-steppe: *desert
+        - hot-desert: *desert
         - hot-steppe: *desertBorder
-        - hot-steppe: *semiArid
+        - temperate-hot-dry: *semiArid
         - tropical-savanna-wet: *mid
         - tropical-savanna-wet: *mildlyWet
         - tropical-savanna-wet: *veryWet
       temperate-hot:
         - hot-desert: *desert
-        - temperate-steppe: *desertBorder
+        - hot-steppe: *desertBorder
         - temperate-hot-dry: *semiArid
+        - temperate-hot: *mid
         - temperate-hot: *mildlyWet
         - temperate-hot: *veryWet
       temperate-warm:
-        - temperate-warm-dry: *desert
-        - temperate-steppe: *desertBorder
+        - temperate-steppe: *desert
+        - temperate-warm-dry: *desertBorder
         - temperate-warm-dry: *semiArid
+        - temperate-warm: *mid
         - temperate-warm: *mildlyWet
         - temperate-warm: *veryWet
       temperate-cold:
         - temperate-warm-dry: *desert
-        - temperate-steppe: *desertBorder
+        - temperate-warm-dry: *desertBorder
         - temperate-warm-dry: *semiArid
+        - temperate-cold: *mid
         - temperate-cold: *mildlyWet
         - temperate-cold: *veryWet
       boreal-hot:
@@ -70,12 +73,12 @@ stages:
         - boreal-cold: *mildlyWet
         - boreal-cold: *veryWet
       boreal-snowy:
-        - cold-desert: *desert
-        - cold-steppe: *desertBorder
-        - boreal-snowy-dry: *semiArid
+        - boreal-snowy-dry: *desert
+        - boreal-snowy-dry: *desertBorder
+        - boreal-snowy: *semiArid
         - boreal-snowy: *mid
         - boreal-snowy: *mildlyWet
-        - boreal-snowy: *veryWet
+        - boreal-snowy-wet: *veryWet
 
   # =========================================================================
   # Mesa precipitation (cellular)

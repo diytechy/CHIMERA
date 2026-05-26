@@ -68,7 +68,7 @@ stages:
       type: EXPRESSION
       expression: segment(BiomeShapeLandmassMountains(x, z), BiomeShapeLandmassFlatness(x, z), highlandsThreshold, flatnessFactor)
       variables:
-        highlandsThreshold: (${math/samplers/elevation.yml:variables.mountainMaskZero} + ${math/samplers/elevation.yml:variables.mountainMaskFull}) / 2
+        highlandsThreshold: ((${math/samplers/elevation.yml:variables.mountainMaskFull} - ${math/samplers/elevation.yml:variables.mountainMaskZero} )*0.35 + ${math/samplers/elevation.yml:variables.mountainMaskZero})
         flatnessFactor: $customization.yml:forced-sealevel-factor
         #mountainMaskZero: $math/samplers/elevation.yml:variables.mountainMaskZero
         #mountainMaskFull: $math/samplers/elevation.yml:variables.mountainMaskFull
@@ -117,6 +117,10 @@ stages:
         - boreal-snowy-flat: 1
         - boreal-snowy: 1
         - boreal-snowy-highlands: 1
+      boreal-snowy-wet:
+        - boreal-snowy-wet-flat: 1
+        - boreal-snowy-wet: 1
+        - boreal-snowy-wet-highlands: 1
       boreal-hot-dry:
         - boreal-hot-dry-flat: 1
         - boreal-hot-dry: 1

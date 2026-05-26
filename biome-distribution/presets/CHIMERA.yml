@@ -64,7 +64,7 @@ biomes:
           noisebase:
             dimensions: 2
             type: OPEN_SIMPLEX_2
-            frequency: 0.05
+            frequency: 0.1
           noise:
             dimensions: 2
             type: WHITE_NOISE

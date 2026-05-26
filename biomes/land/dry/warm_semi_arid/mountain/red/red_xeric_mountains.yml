@@ -8,6 +8,7 @@ tags:
 - DEEP_DARK
 - LAND_CAVES
 - SPECIAL_CAVES
+- ARID_COAST_HIGHLANDS
 palette:
 - RED_XERIC: $meta.yml:top-y
 - << meta.yml:palette-underwater

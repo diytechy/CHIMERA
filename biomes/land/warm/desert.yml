@@ -14,6 +14,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_DESERT_RIVER
+  - ARID_COAST_FLAT
 
 palette:
   - SAND: $meta.yml:top-y

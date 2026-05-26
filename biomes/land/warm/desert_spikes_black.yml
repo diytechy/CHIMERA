@@ -11,6 +11,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_BLACK_RIVER
+  - ARID_COAST_FLAT
 
 palette:
   - BLOCK:minecraft:black_concrete_powder: $meta.yml:top-y

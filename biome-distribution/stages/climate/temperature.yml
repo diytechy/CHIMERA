@@ -6,9 +6,9 @@ stages:
 
     default-from: land
     default-to:
-      - ice-cap: &iceCap         3
+      - ice-cap: &iceCap         4
       - tundra: &tundra         1
-      - boreal-snowy: &borealSnowy    3
+      - boreal-snowy: &borealSnowy    4
       - boreal-cold: &borealCold     1
       - boreal-warm: &borealWarm     1
       - boreal-hot: &borealHot      1

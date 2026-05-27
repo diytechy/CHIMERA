@@ -59,7 +59,7 @@ stages:
         - boreal-warm: *mildlyWet
         - boreal-hot: *veryWet
       boreal-warm:
-        - boreal-warm-dry: *desert
+        - cold-steppe: *desertBorder
         - cold-steppe: *desertBorder
         - boreal-warm-dry: *semiArid
         - boreal-warm-dry: *mid
@@ -74,10 +74,10 @@ stages:
         - boreal-cold: *veryWet
       boreal-snowy:
         - boreal-snowy-dry: *desert
-        - boreal-snowy-dry: *desertBorder
+        - boreal-snowy: *desertBorder
         - boreal-snowy: *semiArid
         - boreal-snowy: *mid
-        - boreal-snowy: *mildlyWet
+        - boreal-snowy-wet: *mildlyWet
         - boreal-snowy-wet: *veryWet
 
   # =========================================================================

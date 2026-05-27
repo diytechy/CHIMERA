@@ -44,11 +44,13 @@ stages:
         - FROSTY_FINGERS: 1
         - LAND_GLACIER: 1
         - ICE_SPIKES: 1
-        - FROZEN_SPIRES: 2
+        - FROZEN_SPIRES: 1
       ice-cap-highlands:
-        - SNOWY_BLACKSTONE_MOUNTAINS: 2
         - ICE_CAPS: 4
         - BITTER_HEIGHTS: 2
+        - MOUNTAIN_MIRRORS: 2
+        - VERTICAL_VISTAS_FROZEN: 1
+        - PERMAFROST_CLIFFS: 1
 
       tundra-flat:
         - TUNDRA_TRACKS: 1
@@ -61,7 +63,8 @@ stages:
         - MOUNTAIN_MIRRORS: 2
         - BARE_BOULDERFIELDS: 1
         - VERTICAL_VISTAS_FROZEN: 1
-        - BITTER_HEIGHTS: 1
+        - BITTER_HEIGHTS: 2
+        - PERMAFROST_CLIFFS: 1
 
 
       boreal-snowy-flat:
@@ -73,7 +76,7 @@ stages:
         - SNOWY_BIRCH_FOREST: 4
         - DARK_OAK_WOODLANDS: 6
         - OAK_WOODLANDS: 6
-        - SPRUCE_WOODLANDS: 8
+        - SPRUCE_WOODLANDS: 6
         - SNOWY_SPIRES: 4
         - SUGAR_PINE_WOODLANDS: 6
         - MONTANE_FOREST: 1
@@ -96,12 +99,14 @@ stages:
         - MAPLE_WOODLANDS: 4
         - SNOWY_SPIRES: 2
         - REDWOOD_WOODLANDS: 4
-        - ICEBOUND_JUNGLE: 8
+        - ICEBOUND_JUNGLE: 4
+        - SAKURA_WOODLANDS: 4
+        - FRIGID_WASTELANDS: 4
       boreal-snowy-wet-highlands:
         - SAKURA_WOODLANDS: 4
         - FRIGID_WASTELANDS: 4
         - REDWOOD_WOODLANDS: 4
-        - LAVENDER_CRAGS: 4
+        - LAVENDER_CRAGS: 8
         - ICEBOUND_JUNGLE: 4
       boreal-snowy-dry-flat:
         - FROSTCOATED_BOG: 1
@@ -114,7 +119,7 @@ stages:
         - MONTANE_FOREST: 2
       boreal-snowy-dry-highlands:
         - SNOWY_MOUNTAINS: 1
-        - DRIPSTONE_BARRENS: 4
+        - DRIPSTONE_BARRENS: 2
         - FROSTBOUND_CHASMS: 4
         - PERMAFROST_CLIFFS: 3
 
@@ -147,9 +152,9 @@ stages:
       boreal-warm-flat:
         #- PRAIRIE: 2
         #- SUNFLOWER_PRAIRIE: 1
-        #- ASPEN_FOREST: 1
+        - ASPEN_FOREST: 1
         #- FIR_FIELDS: 1
-        #- BIRCH_FOREST: 2
+        - BIRCH_FOREST: 2
         #- maple-groves: 1
         #- PINE_CANOPY: 2
         - MARSH: 3
@@ -161,9 +166,11 @@ stages:
         - TAIGA_CLEARING: 2
         #- FIR_FIELDS: 2
       boreal-warm-dry:
-        #- TAIGA: 1
         - PINE_CANOPY: 1
-        #- FIR_FIELDS: 1
+        - PINE_BARRENS: 1
+        - MONTANE_FOREST: 1
+        - BOREAL_SHRUBLAND: 1
+
       boreal-warm-dry-highlands:
         - MOUNTAINS: 1
         - VERTICAL_VISTAS_WARM: 1
@@ -213,6 +220,7 @@ stages:
         - BOREAL_SHRUBLAND: 1
         - maple-groves: 1
         - TAIGA: 1
+        - BIRCH_FOREST: 2
         - FIR_FIELDS: 1
       boreal-hot-dry-highlands:
         - MOUNTAINS: 1
@@ -231,9 +239,7 @@ stages:
         - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
 
       temperate-warm-dry-flat:
-        - STEPPE: 1
-        - CHAPARRAL: 1
-        - MOORLAND: 1
+        - SUNFLOWER_PRAIRIE: 1
         - TEMPERATE_GRASSLAND: 1
         - TALL_TIMBERLAND: 1
       temperate-warm-dry:
@@ -300,8 +306,8 @@ stages:
         - PALM_FOREST: 1
         - TEMPERATE_RAINFOREST: 1
         - ROCKY_GRASSLAND: 1
-        - OAK_FOREST: 1
-        - OAK_SAVANNA: 1
+        - BROADLEAF_FOREST: 1
+        - DARK_FOREST: 1
         - SAKURA_STREAMS: 3
         - VERDANT_VALLEYS: 3
       temperate-hot:
@@ -324,7 +330,6 @@ stages:
 
       # Red hot desert
       hot-desert-flat-red:
-        - ARID_SPIKES: 1
         - BADLANDS: 1
         - BADLANDS_BUTTES: 1
         - RED_DESERT: 1
@@ -337,7 +342,6 @@ stages:
         - RED_DESERT: 1
       hot-desert-highlands-red:
         - ARID_SPIKES: 1
-        - BADLANDS: 1
         - BADLANDS_BUTTES: 1
       
       # Orange hot desert
@@ -348,10 +352,10 @@ stages:
         - ORANGE_XERIC_SHRUBLAND: 1
       hot-desert-orange:
         - ARID_SPIKES: 1
+        - ROCKY_DESERT: 1
         - ORANGE_DESERT: 1
-        - DESERT_SPIKES_GOLD: 1
+        - DESERT_SPIKES_GOLD: 2
       hot-desert-highlands-orange:
-        - ORANGE_DESERT: 1
         - DESERT_SPIKES_GOLD: 1
 
       # White hot desert
@@ -365,15 +369,10 @@ stages:
         - DESERT: 2
         - ROCKY_DESERT: 1
         - PEARLESCENT_DESERT: 1
-        - DESERT_PILLARS: 1
-        - DESERT_SPIKES: 1
-        - DESERT_TERRACES: 1
       hot-desert-highlands-white:
         - DESERT_PILLARS: 1
         - DESERT_SPIKES: 1
         - DESERT_TERRACES: 1
-        - ROCKY_DESERT: 1
-        - PEARLESCENT_DESERT: 1
 
       # Black hot desert
       hot-desert-flat-black:
@@ -402,6 +401,7 @@ stages:
         - SCARLET_SANCTUARY: 1
       hot-steppe-highlands-red:
         - RED_XERIC_MOUNTAINS: 1
+        - ARID_ARBORETUM: 1
 
       # Orange hot steppe
       hot-steppe-flat-orange:
@@ -413,6 +413,7 @@ stages:
       hot-steppe-highlands-orange:
         - ORANGE_XERIC_MOUNTAINS: 1
         - ORANGE_DRY_PALM_FOREST: 1
+        - ARID_ARBORETUM: 1
 
       # White hot steppe
       hot-steppe-flat-white:
@@ -444,6 +445,8 @@ stages:
         - ROCKY_GRASSLAND: 1
       temperate-steppe-highlands:
         - XERIC_MOUNTAINS: 1
+        - ARID_ARBORETUM: 1
+        - DIKSAM_PLATEAU: 1
 
       cold-desert-flat:
         - SALT_FLATS: 1
@@ -468,6 +471,7 @@ stages:
 
       tropical-rainforest-flat:
         - TROPICAL_FLOODPLAIN: 1
+        - WATERY_WILDS: 1
       tropical-rainforest:
         - BAMBOO_JUNGLE: 1
         - OVERGROWN_CLIFFS: 1
@@ -475,7 +479,6 @@ stages:
         - TROPICAL_RAINFOREST: 1
         - LUSH_LOOPS: 1
         - CANOPY_CASCADES: 1
-        - WATERY_WILDS: 1
       tropical-rainforest-highlands:
         - JUNGLE: 1
         - ROCKY_JUNGLE: 1
@@ -484,9 +487,9 @@ stages:
 
       tropical-monsoon-flat:
         - PALM_FOREST: 1
-        - TROPICAL_FLOODPLAIN: 1
         - CANOPY_CASCADES: 1
       tropical-monsoon:
+        - BAMBOO_JUNGLE: 1
         - DRY_WOODLANDS: 1
         - JUNGLE: 1
         - ROCKY_JUNGLE: 1

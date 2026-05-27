@@ -163,29 +163,16 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     variables:
-      pit_threshold: -0.4
+      pit_threshold: -0.5
     # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)>0) &&
+      (riftTemperature(x,z)>0.2) &&
       (riftRegions(x,z)<pit_threshold)
 
   cold_rift:
-    type: EXPRESSION
-    dimensions: 2
-    variables:
-      rift_threshold: 0.6
-    # See cold_pit comment — riftLandDistributor removed for same reason.
-    expression: |
-      (riftContinents(x,z)>0)&&
-      (riftFarRiverDist(x,z)>200) &&
-      (riftInRangeOfSpot(x,z)<0) &&
-      (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)<-0.1)
-
-  warm_rift:
     type: EXPRESSION
     dimensions: 2
     variables:
@@ -196,7 +183,20 @@ samplers:
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)>0)
+      (riftTemperature(x,z)<-0.3)
+
+  warm_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.77
+    # See cold_pit comment — riftLandDistributor removed for same reason.
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)>0.2)
 
   warped_pit:
     dimensions: 2

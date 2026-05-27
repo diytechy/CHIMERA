@@ -35,7 +35,8 @@ terrain:
     variables: *variables
     expression: |
       -y + base + elevationDetailedBlockHeight(x,z)
-      + scale * spikes(
+      + min(scale,maxHeight(x,z)-elevationDetailedBlockHeight(x,z))
+      * spikes(
         x+y*spikeSlantStrength*spikeDirection(x, z),
         z+y*spikeSlantStrength*spikeDirection(x, z+1000)
       )

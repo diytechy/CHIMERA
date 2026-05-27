@@ -16,7 +16,7 @@ samplers:
         z: 10000
         sampler:
           type: FBM
-          gain: 0.4
+          gain: 0.3
           octaves: 2
           sampler:
             type: OPEN_SIMPLEX_2

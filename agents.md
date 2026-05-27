@@ -557,6 +557,43 @@ smoothstep(edge0, edge1, x):
 ```
 This uses a valid increasing smoothstep and inverts the result.
 
+## Hard if-splits in carving expressions create discontinuities
+
+**Symptom:** flat single-block-thick walls along the y-axis (or x/z axis), sharp horizontal "shelves" that appear and disappear consistently along a constant coordinate, "perfect" 4-block branches whose width and length match the carving grid step.
+
+**Common cause: a hard `if(condition, branchA, branchB)` where branchA ≠ branchB at the boundary.** The two branches evaluate to different values right at the threshold, so density flips instantaneously across one block. The 4-block sparse interpolator then propagates that flip into a visible wall.
+
+**Worked example (caveCarverFade y-split, fixed in `Fixed discontinuities after forever` commit):**
+
+Original `caveCarverFade`:
+```
+if(y < 0,
+  lerp(special_caves, 0, -0.5, act_dist, carver),       // lower hemisphere
+  lerp(special_caves, act_thresh-0.1, 0, act_dist, carver))  // upper hemisphere
+```
+
+At `special_caves ≈ 0` (cave shell) when the *adjacent* land biome happens to have a standard cave passage there (`carver = +0.46`):
+- Upper-hemisphere lerp: ≈ `0.75 × carver = +0.35` → passage bleeds through, void
+- Lower-hemisphere lerp: `-0.5` (returns the `a` knot at `t = at`) → sealed, solid
+- Jump at y=0: **0.85 in fade value** → outer `max(main, fade)` flips from void to solid → visible flat wall
+
+The fade values dominated the `max()` only at this specific intersection — at most points the main carver expression won and the discontinuity was invisible. That's why it survived as a latent bug until a standard cave passage happened to align with a special cave shell.
+
+**Fix:** replace the hard split with a smooth Hermite interpolation over a buffer band:
+```
+herp(y, -4, lower_branch, 4, upper_branch)
+```
+`herp` blends the two branches smoothly over `y ∈ [-4, 4]` (8-block window). Same expressions in both branches; only the *transition* is smoothed.
+
+**Companion fix — align knot values across stages.** The upper-hemisphere lerp was also rewritten as `lerp3` with an extra knot at `act_full=-0.15` returning `-0.5`, so both branches agree at that special_caves value. This keeps the herp blend smooth at the cave interior (both branches see the same `-0.5` at `act_full`), with the transition zone reserved for the meaningful difference at the shell.
+
+**Diagnostic order** when you see flat single-block walls in carving output:
+1. **Check for hard if-splits first** — search the carver expression for `if(…)` branches and verify both sides produce *continuous* values across the condition boundary. This is the most common root cause of flat-wall artifacts and the cheapest to fix.
+2. Check sparse-grid magnitude asymmetry (see "Interpolation mechanics" — value range mismatches between adjacent grid corners cause similar-looking spikes, but with a 4-block *length* rather than an axis-aligned plane).
+3. Check that thresholds across coupled sub-expressions move together (e.g., pillar-existence threshold tied to fade `act_full` parameter rather than a duplicated literal — when one moves, the other stays in lock-step).
+
+**Use shared customization parameters for tied thresholds.** When a pillar existence gate, a carver fade knot, and a biome boundary all need to land at the same `special_caves` value, give that value a name in `customization.yml` and reference it from every site. Drift between duplicated literals reintroduces exactly this class of discontinuity.
+
 ## Platform carver — CELLULAR return range matters
 
 The `platforms` sub-sampler uses CELLULAR `Distance` (the default), which returns approximately **[−1, 0]** within a Voronoi cell (−1 at cell center, approaching 0 at edges). The expression `(−platforms − 0.25)` therefore evaluates to:

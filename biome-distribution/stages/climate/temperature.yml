@@ -6,9 +6,9 @@ stages:
 
     default-from: land
     default-to:
-      - ice-cap: &iceCap         3
-      - tundra: &tundra         2
-      - boreal-snowy: &borealSnowy    1
+      - ice-cap: &iceCap         4
+      - tundra: &tundra         1
+      - boreal-snowy: &borealSnowy    4
       - boreal-cold: &borealCold     1
       - boreal-warm: &borealWarm     1
       - boreal-hot: &borealHot      1
@@ -98,6 +98,15 @@ stages:
       - hot-mesa: *tropicalCold
       - hot-mesa: *tropicalWarm
       - hot-mesa: *tropicalHot
+
+  - type: REPLACE
+    sampler:
+      type: EXPRESSION
+      expression: if((BiomeShapeLargelandPrecipitation(x, z)<0.1)&&(BiomeShapeLargelandTemperature(x, z)>-0.1),1,-1)
+    from: vast-forest
+    to:
+      - SELF: 1
+      - arid-pale-garden: 1
 
   - type: REPLACE
     sampler:

@@ -14,6 +14,7 @@ tags:
 - DEEP_DARK
 - LAND_CAVES
 - SPECIAL_CAVES
+- POLAR_COAST_HIGHLANDS
 ocean:
   palette: FROZEN_OCEAN
 palette:

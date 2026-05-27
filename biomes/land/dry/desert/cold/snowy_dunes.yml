@@ -13,6 +13,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_FROZEN_RIVER
+  - POLAR_COAST_FLAT
 
 palette:
   - SNOW: $meta.yml:top-y

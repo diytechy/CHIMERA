@@ -1463,6 +1463,19 @@ Steppes
 Coasts
 biome-specific rivers for highland biomes.
 
+
+######################
+
+Biome Tuning:
+
+List all biomes that only use sealevel elevation, those should only be ascribed to "flat" regions.
+
+Make sure hydraxia biomes are properly ascribed to their boreal snowy region, tundra, or polar region properly.  If there is not enough room here, expand the weightings of temperature.yml in biome distribution.
+
+Rocky refuge (A dry, temperate location) is getting sucked into a bunch of places it probably shouldn't be...
+
+Take boreal-snowy, broken into additional boreal-snowy-dry and  boreal-snowy-wet.  These should be broken into their Hydraxia specific components from C:\Projects\Hydraxia\biome_distribution\stages\distribution\distribute_biome_types_convert.yml, except for SEARING_TORS and any others which are already distributed into polar and tundra regions, 
+
 1. Clean remaining carving / special caves.
 1A. Replace special caves using a special method for pit biomes, otherwise, use set?
 1Ai. For pit biomes, allow a more permissive replacement to ensure overlap?  Or current risk is always present?

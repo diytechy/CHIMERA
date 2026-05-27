@@ -20,8 +20,8 @@ biomes:
     sampler:
       type: EXPRESSION
       expression: |
-        0
-        //noisebase(x,z)+noise(x,z)*2
+        //0
+        noisebase(x,z)+noise(x,z)*2
       samplers:
         noisebase:
           dimensions: 2
@@ -64,7 +64,7 @@ biomes:
           noisebase:
             dimensions: 2
             type: OPEN_SIMPLEX_2
-            frequency: 0.05
+            frequency: 0.1
           noise:
             dimensions: 2
             type: WHITE_NOISE

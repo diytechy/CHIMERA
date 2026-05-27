@@ -102,7 +102,7 @@ stages:
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      expression: if((BiomeShapeLargelandPrecipitation(x, z)<0)&&(BiomeShapeLargelandTemperature(x, z)>0),1,-1)
+      expression: if((BiomeShapeLargelandPrecipitation(x, z)<0.1)&&(BiomeShapeLargelandTemperature(x, z)>-0.1),1,-1)
     from: vast-forest
     to:
       - SELF: 1

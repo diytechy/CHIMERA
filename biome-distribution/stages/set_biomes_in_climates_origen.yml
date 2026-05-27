@@ -80,6 +80,7 @@ stages:
         - SNOWY_SPIRES: 4
         - SUGAR_PINE_WOODLANDS: 6
         - MONTANE_FOREST: 1
+        - BARE_BOULDERFIELDS: 1
       boreal-snowy-highlands:
         - SNOWY_MOUNTAINS: 7
         - ALPINE_ASCENDANCY: 1
@@ -153,7 +154,7 @@ stages:
         #- PRAIRIE: 2
         #- SUNFLOWER_PRAIRIE: 1
         - ASPEN_FOREST: 1
-        #- FIR_FIELDS: 1
+        - FIR_FIELDS: 1
         - BIRCH_FOREST: 2
         #- maple-groves: 1
         #- PINE_CANOPY: 2
@@ -164,12 +165,13 @@ stages:
         #- TAIGA: 1
         - PINE_CANOPY: 1
         - TAIGA_CLEARING: 2
-        #- FIR_FIELDS: 2
+        - FIR_FIELDS: 1
       boreal-warm-dry:
         - PINE_CANOPY: 1
         - PINE_BARRENS: 1
         - MONTANE_FOREST: 1
         - BOREAL_SHRUBLAND: 1
+        - ASPEN_FOREST: 2
 
       boreal-warm-dry-highlands:
         - MOUNTAINS: 1
@@ -410,6 +412,7 @@ stages:
       hot-steppe-orange:
         - ORANGE_XERIC_SHRUBLAND: 1
         - ORANGE_DRY_PALM_FOREST: 1
+        - FIRMIHIN_FOREST: 1
       hot-steppe-highlands-orange:
         - ORANGE_XERIC_MOUNTAINS: 1
         - ORANGE_DRY_PALM_FOREST: 1
@@ -488,6 +491,7 @@ stages:
       tropical-monsoon-flat:
         - PALM_FOREST: 1
         - CANOPY_CASCADES: 1
+        - BAMBOO_BASIN: 1
       tropical-monsoon:
         - BAMBOO_JUNGLE: 1
         - DRY_WOODLANDS: 1

@@ -1496,3 +1496,5 @@ Can you do a deep review of this pack (whose main / starting definition is pack.
 7. Update Terra to pull a pack config to determine if terrain should blend into extruded neighbors or surface neighbors only.
 
 7A. Update Terra to take both terrain function and blending definition from extruded biome ate center location.
+
+R

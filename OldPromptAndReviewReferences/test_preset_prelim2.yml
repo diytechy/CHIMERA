@@ -1,6 +1,0 @@
-biomes:
-  provider:
-    pipeline:
-      stages:
-      - << biome-distribution/stages/climate/elevation.yml:stages
-      - '***PRELIM_CHK_HERE***'

@@ -187,18 +187,25 @@ biomes:
         - << biome-distribution/stages/special/border_biomes.yml:stages
         - << biome-distribution/stages/add_coast.yml:stages
         # ========================================
-        # SMOOTHING PASSES
+        # Biome blending pass
         # ========================================
         - type: FRACTAL_EXPAND
           sampler:
             type: WHITE_NOISE
 
-        - type: SMOOTH
+        - type: FRACTAL_EXPAND
           sampler:
             type: WHITE_NOISE
-        - type: SMOOTH
+
+        - type: FRACTAL_EXPAND
           sampler:
             type: WHITE_NOISE
+            
+
+        - type: FRACTAL_EXPAND
+          sampler:
+            type: WHITE_NOISE
+            
 
         - << biome-distribution/stages/add_rivers.yml:stages
         #- << biome-distribution/stages/PopulateTestStage.yml:stages

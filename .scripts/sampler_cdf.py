@@ -45,6 +45,28 @@ from typing import Any, Dict, List, Optional, Tuple
 SAMPLER_DIST_CONFIG = Path(__file__).parent / "sampler_distributions.yml"
 RESOLVED_SAMPLERS_PATH = Path(".artifacts") / "resolved_samplers.yml"
 
+# =============================================================================
+# Diagnostics — flip on via --explain-expressions in calculate_biome_percentages
+# =============================================================================
+EXPLAIN_EXPRESSIONS: bool = False
+
+
+def _explain(label: str, expr: str, cdf: Optional["NumericalCDF"] = None) -> None:
+    """Emit a one-line diagnostic when EXPLAIN_EXPRESSIONS is set."""
+    if not EXPLAIN_EXPRESSIONS:
+        return
+    expr_one_line = ' '.join(expr.split())
+    if len(expr_one_line) > 120:
+        expr_one_line = expr_one_line[:117] + '...'
+    summary = ''
+    if cdf is not None:
+        pdf = cdf._get_pdf()
+        total = sum(pdf) or 1.0
+        mean = sum(pdf[i] * cdf._val(i) for i in range(cdf.BINS)) / total
+        p_in_range = cdf.eval_cdf(1.0) - cdf.eval_cdf(-1.0)
+        summary = f'  mean={mean:+.3f}  P[-1,1]={p_in_range:.3f}'
+    print(f'[EXPR/{label}] {expr_one_line}{summary}', file=sys.stderr)
+
 
 # =============================================================================
 # SamplerDistribution — leaf-noise empirical CDFs
@@ -324,6 +346,25 @@ class NumericalCDF:
                 cdf_values.append(1.0)
         return cls(cdf_values)
 
+    @classmethod
+    def mixture(cls, cdfs: List["NumericalCDF"],
+                weights: List[float]) -> "NumericalCDF":
+        """
+        Mixture distribution: F(v) = Σ wᵢ · Fᵢ(v) with weights normalised to 1.
+        Used to model conditional outputs like ``if(cond, branch_then, branch_else)``
+        where each branch may itself be a non-trivial CDF.
+        """
+        if not cdfs:
+            return cls.uniform()
+        total = sum(max(0.0, w) for w in weights)
+        if total <= 0:
+            return cls.uniform()
+        norm = [max(0.0, w) / total for w in weights]
+        new_cdf: List[float] = []
+        for i in range(cls.BINS + 1):
+            new_cdf.append(sum(w * c.cdf[i] for c, w in zip(cdfs, norm)))
+        return cls(new_cdf)
+
     # ── transformations ──
 
     def shift(self, c: float) -> "NumericalCDF":
@@ -365,6 +406,17 @@ class NumericalCDF:
         s = (out_hi - out_lo) / (in_hi - in_lo)
         d = out_lo - s * in_lo
         return clamped.scale(s).shift(d)
+
+    def abs_dist(self) -> "NumericalCDF":
+        """Distribution of |X|: fold negative half onto positive."""
+        new_cdf: List[float] = []
+        for i in range(self.BINS + 1):
+            v = self._val(i)
+            if v < 0:
+                new_cdf.append(0.0)
+            else:
+                new_cdf.append(max(0.0, self.eval_cdf(v) - self.eval_cdf(-v)))
+        return NumericalCDF(new_cdf)
 
     # ── binary ops (independence assumption) ──
 
@@ -692,6 +744,275 @@ def _try_pattern_arithmetic(expr: str,
         if a is not None and b is not None:
             return a.min_with(b)
 
+    # ── 6. abs(funcCall(x,z)) ──
+    m = re.match(
+        rf'^abs\(\s*([a-zA-Z_]\w*)\s*\(\s*x[^,)]*,\s*z[^,)]*\)\s*\)\s*$',
+        s
+    )
+    if m:
+        inner = _lookup_sampler_cdf(m.group(1), local_samplers, sd, pack_reg, _depth)
+        if inner is not None:
+            return inner.abs_dist()
+
+    # ── 7. min(funcCall(x,z), k)  or  min(k, funcCall(x,z)) ──
+    for cap_pat in (
+        rf'^min\(\s*([a-zA-Z_]\w*)\s*\(\s*x[^,)]*,\s*z[^,)]*\)\s*,\s*(.+?)\s*\)\s*$',
+        rf'^min\(\s*(.+?)\s*,\s*([a-zA-Z_]\w*)\s*\(\s*x[^,)]*,\s*z[^,)]*\)\s*\)\s*$',
+    ):
+        m = re.match(cap_pat, s)
+        if m:
+            func_first = cap_pat.startswith(r'^min\(\s*([a-zA-Z_]')
+            func_name = m.group(1 if func_first else 2)
+            k_raw     = m.group(2 if func_first else 1)
+            k = _eval_constant_expr(k_raw, variables)
+            if k is None:
+                try: k = float(k_raw)
+                except ValueError: k = None
+            if k is not None:
+                inner = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
+                if inner is not None:
+                    return inner.clamp_dist(NumericalCDF.LO, k)
+            break
+
+    # ── 8. max(funcCall(x,z), k)  or  max(k, funcCall(x,z)) ──
+    for cap_pat in (
+        rf'^max\(\s*([a-zA-Z_]\w*)\s*\(\s*x[^,)]*,\s*z[^,)]*\)\s*,\s*(.+?)\s*\)\s*$',
+        rf'^max\(\s*(.+?)\s*,\s*([a-zA-Z_]\w*)\s*\(\s*x[^,)]*,\s*z[^,)]*\)\s*\)\s*$',
+    ):
+        m = re.match(cap_pat, s)
+        if m:
+            func_first = cap_pat.startswith(r'^max\(\s*([a-zA-Z_]')
+            func_name = m.group(1 if func_first else 2)
+            k_raw     = m.group(2 if func_first else 1)
+            k = _eval_constant_expr(k_raw, variables)
+            if k is None:
+                try: k = float(k_raw)
+                except ValueError: k = None
+            if k is not None:
+                inner = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
+                if inner is not None:
+                    return inner.clamp_dist(k, NumericalCDF.HI)
+            break
+
+    return None
+
+
+# =============================================================================
+# Generic if-expression / clause / branch resolution
+# =============================================================================
+
+def _split_top_level(expr: str, sep: str) -> List[str]:
+    """
+    Split ``expr`` on ``sep`` at top level (depth-0 parens only).  ``sep`` may
+    be multi-character (e.g. ``'&&'``).  Returns a list of stripped parts.
+    """
+    parts: List[str] = []
+    depth = 0
+    current: List[str] = []
+    i, n, sep_len = 0, len(expr), len(sep)
+    while i < n:
+        ch = expr[i]
+        if ch == '(':
+            depth += 1
+            current.append(ch)
+            i += 1
+        elif ch == ')':
+            depth -= 1
+            current.append(ch)
+            i += 1
+        elif depth == 0 and expr[i:i + sep_len] == sep:
+            parts.append(''.join(current).strip())
+            current = []
+            i += sep_len
+        else:
+            current.append(ch)
+            i += 1
+    parts.append(''.join(current).strip())
+    return parts
+
+
+def _split_if_args(expr: str) -> Optional[Tuple[str, str, str]]:
+    """
+    Parse ``if(cond, then, else)`` → (cond, then, else), respecting paren depth
+    when splitting the comma-separated args.  Returns None if ``expr`` is not an
+    exact ``if(...)`` form consuming the whole string.
+    """
+    s = expr.strip()
+    m = re.match(r'^if\s*\(', s)
+    if not m:
+        return None
+    paren_start = m.end() - 1
+    depth, end = 0, -1
+    for i in range(paren_start, len(s)):
+        if s[i] == '(':
+            depth += 1
+        elif s[i] == ')':
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    if end < 0 or s[end + 1:].strip():
+        return None
+    parts = _split_top_level(s[paren_start + 1:end], ',')
+    if len(parts) != 3:
+        return None
+    return (parts[0], parts[1], parts[2])
+
+
+def _try_func_call(s: str) -> Optional[str]:
+    """Return func_name if ``s`` is exactly ``name(...)`` (paren-balanced), else None."""
+    s_strip = s.strip()
+    m = re.match(r'^([a-zA-Z_]\w*)\s*\(', s_strip)
+    if not m:
+        return None
+    paren_start = m.end() - 1
+    depth, end = 0, -1
+    for i in range(paren_start, len(s_strip)):
+        if s_strip[i] == '(':
+            depth += 1
+        elif s_strip[i] == ')':
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    if end < 0 or s_strip[end + 1:].strip():
+        return None
+    return m.group(1)
+
+
+_COMPARE_OPS = ('>=', '<=', '==', '!=', '>', '<')
+
+
+def _split_comparison(clause: str) -> Optional[Tuple[str, str, str]]:
+    """Split a clause into (lhs, op, rhs) on the first top-level comparison op."""
+    depth, i, n = 0, 0, len(clause)
+    while i < n:
+        ch = clause[i]
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+        elif depth == 0:
+            for op in _COMPARE_OPS:
+                if clause[i:i + len(op)] == op:
+                    lhs = clause[:i].strip()
+                    rhs = clause[i + len(op):].strip()
+                    if lhs and rhs:
+                        return (lhs, op, rhs)
+        i += 1
+    return None
+
+
+def _resolve_clause_side(side: str,
+                         local_samplers: Dict,
+                         variables: Dict[str, Any],
+                         sd: SamplerDistribution,
+                         pack_reg: Optional[PackSamplerRegistry],
+                         _depth: int
+                         ) -> Tuple[Optional[NumericalCDF], Optional[float]]:
+    """
+    Resolve one side of a comparison.  Returns ``(cdf, scalar)`` with exactly
+    one non-None entry on success, or ``(None, None)`` if unresolved.
+    """
+    s = side.strip()
+    val = _eval_constant_expr(s, variables)
+    if val is not None:
+        return None, val
+    fname = _try_func_call(s)
+    if fname:
+        cdf = _lookup_sampler_cdf(fname, local_samplers, sd, pack_reg, _depth)
+        if cdf is not None:
+            return cdf, None
+    return None, None
+
+
+def _clause_probability(clause: str,
+                        local_samplers: Dict,
+                        variables: Dict[str, Any],
+                        sd: SamplerDistribution,
+                        pack_reg: Optional[PackSamplerRegistry],
+                        _depth: int) -> Optional[float]:
+    """Return P(clause) for a single comparison ``side OP side``."""
+    parts = _split_comparison(clause)
+    if parts is None:
+        return None
+    lhs, op, rhs = parts
+    lhs_cdf, lhs_val = _resolve_clause_side(
+        lhs, local_samplers, variables, sd, pack_reg, _depth)
+    rhs_cdf, rhs_val = _resolve_clause_side(
+        rhs, local_samplers, variables, sd, pack_reg, _depth)
+
+    # funcCall OP constant
+    if lhs_cdf is not None and rhs_val is not None:
+        cdf_at = lhs_cdf.eval_cdf(rhs_val)
+        if op in ('>', '>='):
+            return max(0.0, min(1.0, 1.0 - cdf_at))
+        if op in ('<', '<='):
+            return max(0.0, min(1.0, cdf_at))
+        return 0.5
+
+    # constant OP funcCall  →  flip the comparison
+    if lhs_val is not None and rhs_cdf is not None:
+        cdf_at = rhs_cdf.eval_cdf(lhs_val)
+        if op in ('<', '<='):
+            return max(0.0, min(1.0, 1.0 - cdf_at))
+        if op in ('>', '>='):
+            return max(0.0, min(1.0, cdf_at))
+        return 0.5
+
+    # funcA OP funcB (independence assumption via difference CDF)
+    if lhs_cdf is not None and rhs_cdf is not None:
+        diff = lhs_cdf.subtract(rhs_cdf)
+        zero_p = diff.eval_cdf(0.0)
+        if op in ('>', '>='):
+            return max(0.0, min(1.0, 1.0 - zero_p))
+        if op in ('<', '<='):
+            return max(0.0, min(1.0, zero_p))
+        return 0.5
+
+    return None
+
+
+def _resolve_branch_cdf(branch: str,
+                        local_samplers: Dict,
+                        variables: Dict[str, Any],
+                        sd: SamplerDistribution,
+                        pack_reg: Optional[PackSamplerRegistry],
+                        _depth: int) -> Optional[NumericalCDF]:
+    """
+    Resolve a then-/else-branch of an if-expression to a NumericalCDF.
+
+    Supports: numeric literal / constant expr in ``variables``, bare function
+    call ``f(x,z)``, arithmetic over a function call (via
+    ``_try_pattern_arithmetic``), or a recursive ``if(...)`` expression.
+    """
+    s = branch.strip()
+    if not s:
+        return None
+
+    # Recursive if
+    if re.match(r'^if\s*\(', s):
+        cdf = _resolve_binary_if_cdf(s, local_samplers, variables, sd, pack_reg, _depth)
+        if cdf is not None:
+            return cdf
+
+    # Pure constant / variable expression
+    val = _eval_constant_expr(s, variables)
+    if val is not None:
+        return NumericalCDF.constant(val)
+
+    # Bare function call
+    fname = _try_func_call(s)
+    if fname:
+        cdf = _lookup_sampler_cdf(fname, local_samplers, sd, pack_reg, _depth)
+        if cdf is not None:
+            return cdf
+
+    # Arithmetic patterns over a function call (shift / scale / linear)
+    cdf = _try_pattern_arithmetic(s, local_samplers, variables, sd, pack_reg, _depth)
+    if cdf is not None:
+        return cdf
+
     return None
 
 
@@ -702,157 +1023,46 @@ def _resolve_binary_if_cdf(expr: str,
                           pack_reg: Optional[PackSamplerRegistry],
                           _depth: int) -> Optional[NumericalCDF]:
     """
-    Resolve a binary if-expression of one of these forms:
+    Resolve an ``if(cond, then, else)`` expression to a NumericalCDF.
 
-        if(funcCall OP threshold, val_then, val_else)
-        if(funcA(args) OP funcB(args), val_then, val_else)
-        if(funcCall OP threshold && funcCall2 OP threshold, val_then, val_else)
+    Supports:
+      - **cond**: N-clause boolean joined by ``&&`` at top level; each clause
+        is a comparison ``side OP side`` where each side is a function call or
+        a constant/variable expression.
+      - **then / else**: numeric literal, function call, simple arithmetic
+        over a function call, or a recursive ``if(...)``.
 
-    where val_then / val_else are numeric literals.  Computes P(condition)
-    against the function CDFs and returns a 2-point distribution.
+    P(cond) is computed under independence (product of clause probabilities).
+    The output is a mixture CDF over the resolved then/else branches.
 
-    Returns None if no pattern matches.
+    Returns None if the structure cannot be parsed.
     """
-    e = ' '.join(expr.split())
+    parts = _split_if_args(expr)
+    if parts is None:
+        return None
+    cond_str, then_str, else_str = parts
 
-    # ── (a) Simple: if(func(args) OP num_or_const, val_then, val_else) ──
-    m = re.match(
-        rf'^if\s*\(\s*'
-        rf'([a-zA-Z_]\w*)\s*\([^)]*\)'
-        rf'\s*(>=|<=|>|<|==|!=)\s*'
-        rf'((?:{_NUM_RE})|(?:\([^)]+\)))'
-        rf'\s*,\s*({_NUM_RE})\s*,\s*({_NUM_RE})\s*\)\s*$',
-        e
-    )
-    if m:
-        func_name = m.group(1)
-        op        = m.group(2)
-        thresh_raw = m.group(3)
-        threshold = _eval_constant_expr(thresh_raw, variables)
-        if threshold is None:
-            try:
-                threshold = float(thresh_raw)
-            except ValueError:
-                threshold = None
-        if threshold is not None:
-            val_then  = float(m.group(4))
-            val_else  = float(m.group(5))
-            return _binary_if_result(func_name, op, threshold, val_then, val_else,
-                                     local_samplers, sd, pack_reg, _depth)
-
-    # ── (b) func1 OP func2: if(funcA(args) OP funcB(args), val_then, val_else) ──
-    m = re.match(
-        rf'^if\s*\(\s*'
-        rf'([a-zA-Z_]\w*)\s*\([^)]*\)'
-        rf'\s*(>=|<=|>|<|==|!=)\s*'
-        rf'([a-zA-Z_]\w*)\s*\([^)]*\)'
-        rf'\s*,\s*({_NUM_RE})\s*,\s*({_NUM_RE})\s*\)\s*$',
-        e
-    )
-    if m:
-        nameA = m.group(1)
-        op    = m.group(2)
-        nameB = m.group(3)
-        val_then = float(m.group(4))
-        val_else = float(m.group(5))
-        cdfA = _lookup_sampler_cdf(nameA, local_samplers, sd, pack_reg, _depth)
-        cdfB = _lookup_sampler_cdf(nameB, local_samplers, sd, pack_reg, _depth)
-        if cdfA is not None and cdfB is not None:
-            diff = cdfA.subtract(cdfB)
-            zero_p = diff.eval_cdf(0.0)
-            if op in ('>', '>='):
-                p_then = 1.0 - zero_p
-            elif op in ('<', '<='):
-                p_then = zero_p
-            else:
-                p_then = 0.5
-            return _two_point(val_then, val_else, p_then)
-
-    # ── (c) Compound &&: two AND-joined simple comparisons ──
-    m = re.match(
-        rf'^if\s*\(\s*'
-        rf'([a-zA-Z_]\w*)\s*\([^)]*\)'
-        rf'\s*(>=|<=|>|<|==|!=)\s*'
-        rf'((?:{_NUM_RE})|(?:\([^)]+\)))'
-        rf'\s*&&\s*'
-        rf'([a-zA-Z_]\w*)\s*\([^)]*\)'
-        rf'\s*(>=|<=|>|<|==|!=)\s*'
-        rf'((?:{_NUM_RE})|(?:\([^)]+\)))'
-        rf'\s*,\s*'
-        rf'((?:{_NUM_RE})|(?:[a-zA-Z_]\w*\s*\([^)]*\)))'
-        rf'\s*,\s*({_NUM_RE})\s*\)\s*$',
-        e
-    )
-    if m:
-        nA, opA, tA_raw = m.group(1), m.group(2), m.group(3)
-        nB, opB, tB_raw = m.group(4), m.group(5), m.group(6)
-        val_then_str = m.group(7)
-        val_else = float(m.group(8))
-        # Both comparison thresholds must be numeric/constant
-        tA = _eval_constant_expr(tA_raw, variables)
-        if tA is None:
-            try: tA = float(tA_raw)
-            except ValueError: tA = None
-        tB = _eval_constant_expr(tB_raw, variables)
-        if tB is None:
-            try: tB = float(tB_raw)
-            except ValueError: tB = None
-        if tA is None or tB is None:
+    clauses = _split_top_level(cond_str, '&&')
+    p_then = 1.0
+    for clause in clauses:
+        if not clause:
             return None
-        # val_then can be a function call or a number — but only handle numeric here
-        try:
-            val_then = float(val_then_str)
-        except ValueError:
+        p = _clause_probability(
+            clause, local_samplers, variables, sd, pack_reg, _depth)
+        if p is None:
             return None
-        # Compute P(A_cond AND B_cond) under independence assumption
-        cdfA = _lookup_sampler_cdf(nA, local_samplers, sd, pack_reg, _depth)
-        cdfB = _lookup_sampler_cdf(nB, local_samplers, sd, pack_reg, _depth)
-        if cdfA is None or cdfB is None:
-            return None
-        pA = (1.0 - cdfA.eval_cdf(tA)) if opA in ('>', '>=') else cdfA.eval_cdf(tA)
-        pB = (1.0 - cdfB.eval_cdf(tB)) if opB in ('>', '>=') else cdfB.eval_cdf(tB)
-        p_then = max(0.0, min(1.0, pA * pB))
-        return _two_point(val_then, val_else, p_then)
+        p_then *= p
+    p_then = max(0.0, min(1.0, p_then))
 
-    return None
+    then_cdf = _resolve_branch_cdf(
+        then_str, local_samplers, variables, sd, pack_reg, _depth)
+    else_cdf = _resolve_branch_cdf(
+        else_str, local_samplers, variables, sd, pack_reg, _depth)
+    if then_cdf is None or else_cdf is None:
+        return None
 
-
-def _binary_if_result(func_name: str, op: str, threshold: float,
-                     val_then: float, val_else: float,
-                     local_samplers: Dict,
-                     sd: SamplerDistribution,
-                     pack_reg: Optional[PackSamplerRegistry],
-                     _depth: int) -> NumericalCDF:
-    """Build the 2-point CDF for if(funcName OP threshold, val_then, val_else)."""
-    cond_cdf = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
-    if cond_cdf is not None:
-        cdf_at = cond_cdf.eval_cdf(threshold)
-        if op in ('>', '>='):
-            p_then = 1.0 - cdf_at
-        elif op in ('<', '<='):
-            p_then = cdf_at
-        else:
-            p_then = 0.5
-    else:
-        # Heuristic by function name when CDF unavailable.
-        name_lower = func_name.lower()
-        if 'mask' in name_lower or 'mountain' in name_lower or 'spike' in name_lower:
-            p_then = 0.10
-        elif 'plain' in name_lower or 'flat' in name_lower:
-            p_then = 0.30
-        else:
-            p_then = 0.25
-    return _two_point(val_then, val_else, p_then)
-
-
-def _two_point(val_then: float, val_else: float, p_then: float) -> NumericalCDF:
-    """Construct a 2-point CDF: mass p_then at val_then, (1−p_then) at val_else."""
-    val_lo, val_hi = min(val_then, val_else), max(val_then, val_else)
-    if val_then < val_else:
-        p_lo = p_then
-    else:
-        p_lo = 1.0 - p_then
-    return NumericalCDF.binary(val_lo, val_hi, p_lo)
+    return NumericalCDF.mixture(
+        [then_cdf, else_cdf], [p_then, 1.0 - p_then])
 
 
 def _resolve_expression_cdf(sampler: Dict,
@@ -878,6 +1088,7 @@ def _resolve_expression_cdf(sampler: Dict,
     # Try arithmetic patterns first (covers bare call, shift, scale, max, min, linear)
     cdf = _try_pattern_arithmetic(expr, local_samplers, variables, sd, pack_reg, _depth)
     if cdf is not None:
+        _explain('arith', expr, cdf)
         return cdf
 
     # Affine wrapper "f(x, z) * k + c" (kept for legacy paths even though _try_pattern covers it)
@@ -898,20 +1109,26 @@ def _resolve_expression_cdf(sampler: Dict,
                 shift_val = sign * float(affine_pattern.group(4))
             cdf = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
             if cdf is not None:
-                return cdf.scale(scale_val).shift(shift_val)
+                out = cdf.scale(scale_val).shift(shift_val)
+                _explain('affine', expr, out)
+                return out
         except ValueError:
             pass
 
     # Binary if patterns
     cdf = _resolve_binary_if_cdf(expr, local_samplers, variables, sd, pack_reg, _depth)
     if cdf is not None:
+        _explain('if', expr, cdf)
         return cdf
 
     # Generic nested-if fallback — assume 50/50 split between two outputs ∈ {-1, 1}
     if re.search(r'\bif\b', expr) and \
        set(re.findall(r'(?<![a-zA-Z0-9_])(-?1)(?!\.\d)', expr)) <= {'-1', '1'}:
-        return NumericalCDF.uniform(-1.0, 1.0)
+        out = NumericalCDF.uniform(-1.0, 1.0)
+        _explain('FALLBACK-binary', expr, out)
+        return out
 
+    _explain('UNRESOLVED', expr)
     return None
 
 

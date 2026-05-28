@@ -58,6 +58,7 @@ import yaml
 import re
 import sys
 import csv
+import math
 from enum import Enum
 from pathlib import Path
 from collections import defaultdict
@@ -107,13 +108,33 @@ RIVER_STAGE_TAGS: Set[str] = {
 # =============================================================================
 # BORDER STAGE MODEL CONSTANTS
 # =============================================================================
-# Border stages convert a fraction of the 'replace' biome where it neighbours
-# the 'from' biome.  The actual geometry-dependent border fraction is hard to
-# model accurately without spatial simulation, so we use a flat 1:20 ratio:
-# 5% of the replace biome is converted to the border biome.  This is a rough
-# calibration based on benchmarks — rivers and similar "border" biomes
-# typically occupy 1–5% of their parent biome's area.
-BORDER_FRACTION = 0.05   # 1:20 ratio — border takes 5% of replace biome
+# Terra's BORDER stages (see BorderStage.java) replace a center cell that
+# carries the ``replace`` tag whenever any of its 8 immediate neighbours carries
+# the ``from`` tag.  The geometrically-driven fraction of replace cells that
+# are actually converted is approximated by:
+#
+#     border_frac = min(BORDER_MAX_FRACTION,
+#                       BORDER_SCALE_FACTOR * sqrt(p_from_tag))
+#
+# where ``p_from_tag`` is the summed probability of all biomes carrying the
+# ``from`` (neighbour) tag in the current distribution.  Square-root scaling
+# models perimeter-to-area ratios for spatially-correlated biome patches.  The
+# constants are tunable; ``.scripts/calibrate_border.py`` sweeps them against
+# ``benchmark_CHIMERA.csv``.
+BORDER_SCALE_FACTOR = 0.08
+BORDER_MAX_FRACTION = 0.05
+
+
+def _border_fraction(from_total_prob: float) -> float:
+    """
+    Fraction of a ``replace``-tag biome that gets converted to border biomes,
+    given the total probability mass of ``from``-tag (neighbour-trigger) biomes
+    in the current distribution.  See BORDER_SCALE_FACTOR / BORDER_MAX_FRACTION.
+    """
+    if from_total_prob <= 0:
+        return 0.0
+    return min(BORDER_MAX_FRACTION,
+               BORDER_SCALE_FACTOR * math.sqrt(from_total_prob))
 
 # =============================================================================
 # CLIMATE DATA PRESET  (edit if the main climate-stages preset changes)
@@ -1384,15 +1405,17 @@ class StageProcessor:
             # No 'replace' biomes exist, no borders possible
             return new_dist
 
+        # Per-biome border conversion fraction (geometric, sqrt-of-from model).
+        # Pre-compute once; same for every replace biome in this stage.
+        border_frac = _border_fraction(from_total_prob)
+
         # Process each matching replace biome
         for replace_biome in replace_biomes:
             replace_prob = new_dist.get(replace_biome)
             if replace_prob <= 0:
                 continue
 
-            # Border fraction: flat 1:20 ratio (5% of replace biome → border).
-            # See BORDER_FRACTION at module top for rationale.
-            border_prob = replace_prob * BORDER_FRACTION
+            border_prob = replace_prob * border_frac
 
             # Transfer probability from replace_biome to to_biome(s)
             new_dist.probabilities[replace_biome] = replace_prob - border_prob
@@ -1462,13 +1485,14 @@ class StageProcessor:
         if not replace_biomes:
             return new_dist
 
+        border_frac = _border_fraction(from_total_prob)
+
         for replace_biome in replace_biomes:
             replace_prob = new_dist.get(replace_biome)
             if replace_prob <= 0:
                 continue
 
-            # Border fraction: flat 1:20 ratio (5% of replace biome → border).
-            border_prob = replace_prob * BORDER_FRACTION
+            border_prob = replace_prob * border_frac
 
             new_dist.probabilities[replace_biome] = replace_prob - border_prob
 
@@ -2968,6 +2992,13 @@ def main():
         artifacts_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         print(f"Warning: Could not create artifacts directory {artifacts_dir}: {e}", file=sys.stderr)
+
+    # CLI flag: --explain-expressions emits per-expression resolution diagnostics
+    # to stderr (which path matched, or UNRESOLVED for uniform fallback).
+    if '--explain-expressions' in sys.argv:
+        import sampler_cdf as _sc
+        _sc.EXPLAIN_EXPRESSIONS = True
+        print("Expression-resolution diagnostics enabled (stderr)", file=sys.stderr)
 
     print("Terra Biome Percentage Calculator")
     print("=" * 70)

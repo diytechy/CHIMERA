@@ -1,0 +1,5 @@
+# NoiseTool CLI stub: renders the `temperature` climate field.
+# Requires --common pointed at .artifacts/resolved_samplers.yml so the named
+# `temperature` sampler is in scope. See docs/CAPTURES.md for the full command.
+type: EXPRESSION
+expression: temperature(x, z)

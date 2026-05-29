@@ -1,0 +1,8 @@
+# Standalone NoiseTool CLI stub (no --common needed): a plain 3-octave FBM over
+# OpenSimplex2. Useful as a "hello world" to confirm the CLI renders, and to
+# illustrate the FBM frequency trap (set frequency on the INNER leaf, not the FBM).
+type: FBM
+octaves: 3
+sampler:
+  type: OPEN_SIMPLEX_2
+  frequency: 0.01

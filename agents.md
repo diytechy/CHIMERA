@@ -1,3 +1,62 @@
+# CHIMERA — Agent & Documentation Gateway
+
+CHIMERA is a Terra **config pack** (not engine code) for the diytechy "Abhorant vibe-coded"
+Terra fork. This file is the **gateway**: it points to the full per-area definition docs and
+then holds the deep, hard-won operational knowledge ("gotchas") those docs link back into.
+
+**Two layers of documentation:**
+
+- **Definitions / how-to** live in each directory's `README.md` (what a thing is, its schema,
+  worked examples, branch-vs-base notes, and NoiseTool screenshot placeholders).
+- **Gotchas / tuning experience** live in *this* file, in the deep-reference sections below.
+  The READMEs deep-link into them; start at a README, follow the link here when you hit a wall.
+
+## Documentation map
+
+| Area | Definition doc | Hot topics |
+|---|---|---|
+| Pack overview / build | [Repository Overview](#repository-overview) (below) + [`README.md`](README.md) | `pack.yml`, addons, `.scripts/AuditAndPackage.bat` |
+| Top-level tunables | [`customization.yml`](customization.yml) | biome sizes, climate ranges, flatness, sea level |
+| Samplers & math | [`math/README.md`](math/README.md) | every sampler `type:`, named pack samplers, functions |
+| Biome placement | [`biome-distribution/README.md`](biome-distribution/README.md) | provider chain, pipeline stages, extrusions |
+| Biome definitions | [`biomes/README.md`](biomes/README.md) | biome schema, terrain equations, carving, slant |
+| Feature placement | [`features/README.md`](features/README.md) | generation stages, distributors/locators, blend |
+| Terrain blocks | [`palettes/README.md`](palettes/README.md) | palette layers, material selection, slant palettes |
+| Structures | [`structures/README.md`](structures/README.md) | TerraScript `.tesf` / Sponge `.schem` |
+| Sampler visualisation | [`docs/CAPTURES.md`](docs/CAPTURES.md) + `C:\Projects\NoiseTool\README.md` | NoiseTool headless CLI, screenshot commands |
+
+The canonical **branch-vs-base legend** (🟢 base Polydev Terra / 🔶 diytechy fork or bundled
+addon) is defined in [`math/README.md`](math/README.md#branch-vs-base-legend) and used across
+all the docs.
+
+## Visualising samplers (NoiseTool CLI)
+
+The NoiseTool can render any sampler to a PNG **headlessly** — for documentation screenshots and
+for validating sampler YAML (non-zero exit + printed error on failure):
+
+```bat
+RenderNoise.bat --common C:\Projects\CHIMERA\.artifacts\resolved_samplers.yml ^
+  --in C:\Projects\CHIMERA\docs\noise\temperature.yml ^
+  --out C:\Projects\CHIMERA\docs\img\samplers\temperature.png ^
+  --seed 2403 --size 512x512 --multiplier 24 --color-scale grayscale
+```
+
+The one-line sampler stubs are in [`docs/noise/`](docs/noise/); every documentation image and
+its exact regeneration command is catalogued in [`docs/CAPTURES.md`](docs/CAPTURES.md). Full flag
+reference: `C:\Projects\NoiseTool\README.md`. Run `python .scripts\resolve_samplers.py` first to
+(re)generate `.artifacts\resolved_samplers.yml` so named pack samplers are in scope.
+
+## Deep-reference index (this file)
+
+The sections below are the operational knowledge base. Linked from the READMEs:
+
+- [Biome Distribution Balancing](#biome-distribution-balancing--reference) — distribution tuning, the flatness gate, sealevel-locked biomes, runaway-biome patterns.
+- [Sampler / Noise Reference](#sampler--noise-reference) — FBM frequency trap, output ranges, LinearNormalizer calibration, EXPRESSION scoping, terraces, interpolation bleed.
+- [Special Caves / Carving Reference](#special-caves--carving-reference) — `special_caves`, carving sign convention, extrusion-vs-carving, discontinuity fixes.
+- [Feature Stage Blending Reference](#feature-stage-blending-reference) — how `trees`/`flora` blend across biome borders, and how to suppress unwanted bleed.
+
+---
+
 # Biome Distribution Balancing — Reference
 
 This document captures what was learned while rebalancing biome surface percentages so that no standard land biome occurs more than ~10× more often than another. Read this before making large changes to the climate / biome-distribution pipeline.

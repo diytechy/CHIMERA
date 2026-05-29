@@ -1,0 +1,5 @@
+# NoiseTool CLI stub: renders the `continents` field (land vs ocean mask driver).
+# Positive = land-ward, negative = ocean-ward; threshold 0 is the coastline.
+# Requires --common .artifacts/resolved_samplers.yml. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: continents(x, z)

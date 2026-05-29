@@ -27,7 +27,7 @@ palette:
 slant-depth: 15
 
 slant:
-  - threshold: 1
+  - threshold: 0.8
     palette:
       - SNOWY_ICE_SLANT: $meta.yml:top-y
       - SNOW_ICE_STONE_MIX: $meta.yml:ocean-level

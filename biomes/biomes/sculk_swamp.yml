@@ -18,7 +18,7 @@ palette:
   - << palettes/rock_layers.yml:palette
 
 slant:
-  - threshold: 2
+  - threshold: 0.6
     palette:
       - SCULK_GRASS: 319
       - << palettes/rock_layers.yml:palette

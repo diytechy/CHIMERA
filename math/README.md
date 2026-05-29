@@ -320,6 +320,7 @@ so pointing `--common` at the full resolved file is cheap.
 | `precipitation` | ![precipitation field](../docs/img/samplers/precipitation.png) | grayscale |
 | `continents` | ![continents mask](../docs/img/samplers/continents.png) | grayscale (threshold 0 = coast) |
 | `elevation` | ![elevation field](../docs/img/samplers/elevation.png) | terrain (0–320) |
+| `DENDRY` 🔶 (demo) | ![dendry network](../docs/img/samplers/dendry_demo.png) | grayscale (dendritic river/valley network) |
 
 > Note: `elevation`, `temperature`, `precipitation` and `continents` are **normalised** fields
 > (roughly `[0, 0.6]` for `elevation`, `[-1, 1]` for the climates), **not** raw world heights.

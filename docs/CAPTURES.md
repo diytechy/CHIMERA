@@ -34,6 +34,7 @@ Let `PACK=C:\Projects\CHIMERA` and `RES=%PACK%\.artifacts\resolved_samplers.yml`
 | `docs/img/samplers/precipitation.png` | `RenderNoise.bat --common %RES% --in %PACK%\docs\noise\precipitation.yml --out %PACK%\docs\img\samplers\precipitation.png --seed 2403 --size 512x512 --multiplier 24` |
 | `docs/img/samplers/continents.png` | `RenderNoise.bat --common %RES% --in %PACK%\docs\noise\continents.yml --out %PACK%\docs\img\samplers\continents.png --seed 2403 --size 512x512 --multiplier 48` |
 | `docs/img/samplers/elevation.png` | `RenderNoise.bat --common %RES% --in %PACK%\docs\noise\elevation.yml --out %PACK%\docs\img\samplers\elevation.png --seed 2403 --size 512x512 --multiplier 24 --color-scale terrain` |
+| `docs/img/samplers/dendry_demo.png` 🔶 | `RenderNoise.bat --in %PACK%\docs\noise\dendry_demo.yml --out %PACK%\docs\img\samplers\dendry_demo.png --seed 2403 --size 256x256 --multiplier 4` (slow; DENDRY addon only — keep `--size` modest) |
 
 ## Biome distribution (referenced from [biome-distribution/README.md](../biome-distribution/README.md))
 
@@ -44,6 +45,16 @@ to illustrate the partition it produces.
 |---|---|---|
 | `docs/img/distribution/continents.png` | continent/ocean split (source stage) | same as `continents.png` above, copied into `distribution/` |
 | `docs/img/distribution/temperature_bands.png` | `temperature` field (drives the band `REPLACE_LIST`) | `RenderNoise.bat --common %RES% --in %PACK%\docs\noise\temperature.yml --out %PACK%\docs\img\distribution\temperature_bands.png --seed 2403 --size 512x512 --multiplier 24` |
+
+## Features / Palettes / Biomes (referenced from the respective READMEs)
+
+These use self-contained stubs (no `--common` needed) except the biome terrain field.
+
+| Image | Illustrates | Command |
+|---|---|---|
+| `docs/img/features/distributor.png` | SAMPLER distributor placement field (white = above threshold) | `RenderNoise.bat --in %PACK%\docs\noise\feature_distributor.yml --out %PACK%\docs\img\features\distributor.png --seed 2403 --size 512x512 --multiplier 2` |
+| `docs/img/palettes/selection.png` | Palette material-index field (`floor((v+1)/2·N)`, N=4 bands) | `RenderNoise.bat --in %PACK%\docs\noise\palette_selection.yml --out %PACK%\docs\img\palettes\selection.png --seed 2403 --size 512x512 --multiplier 2` |
+| `docs/img/biomes/elevation.png` | Elevation field driving land terrain (terrain color scale) | `RenderNoise.bat --common %RES% --in %PACK%\docs\noise\elevation.yml --out %PACK%\docs\img\biomes\elevation.png --seed 2403 --size 512x512 --multiplier 24 --color-scale terrain` |
 
 To add a new capture: drop a stub in `docs/noise/`, add a row here, run the command, and
 reference `docs/img/<folder>/<name>.png` from the relevant README.

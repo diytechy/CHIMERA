@@ -1,0 +1,13 @@
+# NoiseTool CLI stub (self-contained): illustrates palette material selection.
+# A palette layer expands its weighted materials into an array of length N and picks
+#   index = clamp(floor((value + 1) / 2 * N), 0, N - 1)
+# from a selection sampler. This renders that index field directly for N = 4, so the
+# discrete material "bands" (and their vertical-column patch shape) are visible.
+# Render with the default grayscale-normalized color scale. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: floor((select(x, z) + 1) / 2 * 4)
+samplers:
+  select:
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.02

@@ -55,6 +55,10 @@ biomes:
     blend:
       amplitude: 3
       terrain-coordinate-noise-warp: false
+      # Stochastically select between neighbouring biome cell samples per-block,
+      # dissolving the 4-block resolution grid's square border steps into a
+      # noise-feathered gradient. See PipelineBiomeProvider.
+      interpolate: true
       sampler:
         type: EXPRESSION
         expression: |
@@ -189,26 +193,38 @@ biomes:
         # ========================================
         # Biome blending pass
         # ========================================
-        - type: FRACTAL_EXPAND
-          sampler:
-            type: WHITE_NOISE
-
-        - type: FRACTAL_EXPAND
-          sampler:
-            type: WHITE_NOISE
-
-        - type: FRACTAL_EXPAND
-          sampler:
-            type: WHITE_NOISE
-            
-
-        - type: FRACTAL_EXPAND
-          sampler:
-            type: WHITE_NOISE
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+##
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+##
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #    
+##
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
             
 
         - << biome-distribution/stages/add_rivers.yml:stages
         #- << biome-distribution/stages/PopulateTestStage.yml:stages
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
 
         - << biome-distribution/stages/add_trenches.yml:stages
         

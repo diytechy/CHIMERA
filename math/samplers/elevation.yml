@@ -527,7 +527,7 @@ samplers:
       cellHalfDist: ${customization.yml:biomeSpread.cellDistance} /2
       # Mesa / coast: no precise block-to-unit anchor; tune these as needed
       mesaBlocksPerUnit: ${customization.yml:continental-mesa-region-allowed-distance} /2
-      coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} 
+      coastBlocksPerUnit: ${customization.yml:continental-baseline-distance} / 25
       riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
       biomeBorder: 20
     expression: |

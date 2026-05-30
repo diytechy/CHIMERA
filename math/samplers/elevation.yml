@@ -12,8 +12,8 @@ variables: &variables
   plainsMaskFull: 0.85
   hillMaxElevation: 0.2
   mountainCap: 0.9
-  mountainMaskFlat: 0.25
-  mountainMaskZero: 0.3
+  mountainMaskFlat: 0.3
+  mountainMaskZero: 0.35
   mountainMaskFull: 0.55
   mountainContZero: 0.0
   mountainContFull: 0.5
@@ -130,6 +130,8 @@ samplers:
     #2.75-mesa_threshold
     variables:
       mesa_threshold: $customization.yml:continental-mesa-region-allowed-threshold
+
+  #Positive when on / into mesa's first step, negative when outside
   mesaFootDist:
     dimensions: 2
     type: EXPRESSION
@@ -267,21 +269,22 @@ samplers:
               frequency: 1 / ${customization.yml:flatness-noise-scale}
 
   flatness:
-    # Output: 0 = Not flat at all, sealevel_factor = Fully flat complete.
+    # Output: 0 = Not flat at all, sealevel_factor = Fully flat.
+    # Higher output = flatter = LOWER terrain (nonMountainElevation scales by 1 - flatness).
     # Used to blend between flat and mountainous terrain, and to determine biome distribution.
-    # Input 1: rawFlatness ->
-    # When below the threshold:
-    #   Flatness if fully active at the factor multiplier.
-    # Input 2: mountainMask -> 
-    # When above the flatness threshold:
-    #   Start the transition to fully reject flatness.
+    # Input 1: rawFlatness  -> AT/ABOVE sealevel_threshold, flatness is fully active (factor).
+    #   Higher rawFlatness = flatter. LOWER forced-sealevel-activation-threshold = more flat,
+    #   but it MUST stay > forced-sealevel-blend (else the not-flat anchor falls below
+    #   rawFlatness' [0,1] range and flatness pins near its max everywhere).
+    # Input 2: |mountainMask| -> AT/ABOVE mountainMaskZero, flatness is rejected (0): mountains override.
+    # Input 3: mesaFootDist   -> on a mesa step (>= 0), flatness is rejected (0).
     dimensions: 2
     type: EXPRESSION
     expression: |
       min(
         min(
           lerp(rawFlatness(x, z), sealevel_threshold - sealevel_blend, 0, sealevel_threshold, sealevel_factor),
-          lerp(abs(mountainMask(x, z)), mountainMaskFlat, 0, mountainMaskZero, sealevel_factor)),
+          lerp(abs(mountainMask(x, z)), mountainMaskFlat, sealevel_factor, mountainMaskZero, 0)),
         lerp(mesaFootDist(x, z), -0.1, sealevel_factor, 0, 0))
     functions: $math/functions/interpolation.yml:functions
     variables: *variables

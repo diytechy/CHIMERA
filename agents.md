@@ -111,14 +111,15 @@ elif flatness < flatnessFactor → 0 (LOWLANDS)
 else → -1 (FLAT)
 ```
 
-`flatness` is the output of two `herp(...)` calls min'd together. Both herps interpolate from `flatness-factor` down to 0. So the `flatness` value is in `[0, flatness-factor]`. The condition `flatness >= flatness-factor` means **flatness must equal its own max**, which only happens when BOTH:
+`flatness` is the `min` of three `lerp(...)` terms (`rawFlatness`, `|mountainMask|`, `mesaFootDist`), each clamped to `[0, flatness-factor]` (`forced-sealevel-factor`). `flatness == flatness-factor` (fully flat → FLAT biome) requires all three at their max at once:
 
-1. `rawFlatness ≤ flatness-percent` (or `forced-sealevel-activation-threshold` after the user renamed it)
-2. `|mountainMask| ≤ mountainMaskFlat`
+1. `rawFlatness ≥ forced-sealevel-activation-threshold` — **higher `rawFlatness` = flatter.**
+2. `|mountainMask| ≤ mountainMaskFlat` — not in a mountain band. Mountains drive this term to 0, **overriding** flatness.
+3. `mesaFootDist ≤ -0.1` — not on a mesa step.
 
-**This means `flatness-factor` does NOT control how much land is FLAT.** It controls how *aggressively* flat terrain is flattened. The actual FLAT share is controlled by `forced-sealevel-activation-threshold` (formerly `flatness-percent`) and the mountain mask threshold.
+Verified down the elevation chain: **more `rawFlatness` → more `flatness` → more FLAT biomes *and* lower terrain** (`nonMountainElevation` scales by `1 − flatness`). `flatness-factor` is the ceiling/aggressiveness, **not** the FLAT share.
 
-Raising the activation threshold from 0.26 → 0.31 expanded the FLAT zone from ~13% to ~25% of land and was the single biggest unblocker for the rare-biome floor.
+The FLAT share is set by **`forced-sealevel-activation-threshold`: lower = more flat** (less `rawFlatness` needed to qualify); raising it shrinks the flat zone. ⚠️ It must stay **greater than `forced-sealevel-blend`**, or the term's not-flat anchor (`threshold − blend`) drops below `rawFlatness`'s `[0,1]` range and `flatness` pins near its max everywhere (an over-flat bug). *(An older note here said raising the threshold `0.26 → 0.31` expanded the flat zone — that predates the `rawFlatness`/`mountainMask` term-direction fixes, which inverted this relationship.)*
 
 ## Sealevel-locked biomes (must remain flat-only)
 
@@ -175,7 +176,7 @@ This means **don't blindly flatten climate weights** — it would crush the pola
 
 ## Key levers in order of blast radius
 
-1. **`forced-sealevel-activation-threshold`** (customization.yml) — controls FLAT zone share. Single biggest lever for lifting marsh/swamp/bog floor.
+1. **`forced-sealevel-activation-threshold`** (customization.yml) — controls FLAT zone share (**lower = more flat**; must stay `> forced-sealevel-blend`). Single biggest lever for lifting marsh/swamp/bog floor.
 2. **`climate/temperature.yml` weights** — affects every biome in that temperature band.
 3. **`climate/precipitation.yml` weights** — particularly `desertBorder: 2` exclusively feeds `temperate-steppe` and `cold-steppe`. Lowering to 1 cuts XERIC_SHRUBLAND, DRYBRUSH, COLD_STEPPE share.
 4. **`Distribute_Major_Regions.yml` carve ratios** — `SELF: N` directly controls special-feature density.
@@ -224,7 +225,7 @@ When moving biomes to non-flat midlands:
 ## Reaching 5× (the unfinished goal)
 
 To compress further, the remaining levers are:
-1. **More flatness expansion** — `forced-sealevel-activation-threshold` 0.31 → ~0.42 lifts floor by ~50%.
+1. **More flatness expansion** — *lower* `forced-sealevel-activation-threshold` toward `forced-sealevel-blend` (lower = more flat). *(The earlier "raise 0.31 → 0.42" note predates the flatness term-direction fix, which inverted the lever.)*
 2. **Variety injection into tropical-monsoon-flat/highlands** (currently thin 3-entry lists) — drops MONSOON_FOREST.
 3. **Precipitation `desertBorder: 2 → 1`** — cuts XERIC_SHRUBLAND, DRYBRUSH, COLD_STEPPE by ~15%.
 4. **Variety into `tropical-savanna-dry`** to dilute SAVANNA/GRASS_SAVANNA cluster.

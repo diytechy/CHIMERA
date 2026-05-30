@@ -74,7 +74,7 @@ terrain-base-y-level: 65
 legacy-terrain-base-y-level: 80
 # Special level for legacy terrain, which uses different samplers to drive terrain changes.
 
-terrain-base-biome-shift: 0.6
+terrain-base-biome-shift: 0.9
 # Used to shift river elevation down to stay compatible with biome elevation shifting.
 
 min-river-support-height: 45

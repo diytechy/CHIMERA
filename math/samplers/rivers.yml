@@ -166,12 +166,12 @@ samplers:
     expression: |
       //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),
+      if((aroundContinent(x,z) > 0.05) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
-          lerp(continents(round(x/4)*4,round(z/4)*4), coastStart, 0, coastFull, elevationTerraced(round(x/4)*4,round(z/4)*4)),
+          lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
           // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
           //
-          lerp(flatness(round(x/4)*4,round(z/4)*4), flatnessFactor-blend, elevationTerraced(round(x/4)*4,round(z/4)*4), flatnessFactor, 0)
+          lerp(flatness(x,z), flatnessFactor-blend, elevationTerraced(x,z), flatnessFactor, 0)
         ),
       0)
 

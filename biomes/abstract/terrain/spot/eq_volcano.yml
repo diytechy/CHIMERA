@@ -16,6 +16,8 @@ terrain:
     type: EXPRESSION
     expression: -y + base + sampler2d(x,z)
     # + elevationDetailedBlockHeight(x,z)
+    #  -y + base + herp(distanceToVolcanicRim(x, z),0,sampler2d(x,z),
+    #  1,elevationDetailedBlockHeight(x,z))
     variables: *variables
     samplers:
       sampler2d:

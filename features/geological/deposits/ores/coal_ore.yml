@@ -16,10 +16,14 @@ distributor:
   threshold: *densityThreshold
 
 locator:
-  type: GAUSSIAN_RANDOM
-  amount: 1
-  height: *range
-  standard-deviation: *standard-deviation
+  type: AND
+  locators:
+    - type: GAUSSIAN_RANDOM
+      amount: 1
+      height: *range
+      standard-deviation: *standard-deviation
+    - type: BELOW_TOP_TERRAIN_SURFACE  # keep ore at least 7 blocks below the terrain surface
+      offset: -7
 
 structures:
   distribution:

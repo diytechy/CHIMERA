@@ -44,7 +44,17 @@ if ! command -v zip &> /dev/null; then
     exit 1
 fi
 
-# Create zip file excluding hidden files/folders
-zip -r "$OUTPUT_FILE" * -x ".*" -x "*/.*"
+# Pack contents allowlist — keep in sync with build.gradle.kts (packZip),
+# .github/workflows/release-zip.yml, and AuditAndPackage.bat.
+# Using an allowlist (rather than just excluding hidden files) means newly
+# added repo folders (tools/, docs/, memory/, archive-investigations/, build
+# artifacts, …) stay out of the shipped pack by default.
+PACK_CONTENTS=(
+    pack.yml meta.yml customization.yml substratum_meta.yml
+    biomes biome-distribution features palettes math structures
+)
+
+# Create zip from the allowlist; -x still drops any nested hidden files.
+zip -r "$OUTPUT_FILE" "${PACK_CONTENTS[@]}" -x "*/.*"
 
 echo "Package created: $OUTPUT_FILE"

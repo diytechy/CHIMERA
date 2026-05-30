@@ -145,7 +145,7 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     variables:
-      pit_threshold: -0.5
+      pit_threshold: -0.66
     # riftLandDistributor intentionally removed: it evaluates per-pixel regional
     # functions (continentalRiverDistSparseFarGrid, continents) that produce
     # ragged notches when evaluated at domain-warped coordinates.  Stage 1 of
@@ -163,40 +163,40 @@ samplers:
     type: EXPRESSION
     dimensions: 2
     variables:
-      pit_threshold: -0.4
+      pit_threshold: -0.66
     # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)>0) &&
+      (riftTemperature(x,z)>0.2) &&
       (riftRegions(x,z)<pit_threshold)
 
   cold_rift:
     type: EXPRESSION
     dimensions: 2
     variables:
-      rift_threshold: 0.6
+      rift_threshold: 0.74
     # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)<-0.1)
+      (riftTemperature(x,z)<-0.3)
 
   warm_rift:
     type: EXPRESSION
     dimensions: 2
     variables:
-      rift_threshold: 0.7
+      rift_threshold: 0.82
     # See cold_pit comment — riftLandDistributor removed for same reason.
     expression: |
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)>0)
+      (riftTemperature(x,z)>0.2)
 
   warped_pit:
     dimensions: 2

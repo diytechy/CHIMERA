@@ -14,6 +14,7 @@ tags:
   - SPECIAL_CAVES
   - JUNGLE_CAVES
   - USE_RIVER_TEMPERATE_SWAMP
+  - TROPICAL_COAST_FLAT
 
 palette:
   - BAMBOO_PONDS: $meta.yml:top-y

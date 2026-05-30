@@ -11,7 +11,7 @@ palette:
 - << palettes/rock_layers.yml:palette
 slant-depth: 50
 slant:
-- threshold: 4
+- threshold: 0.4
   palette:
   - ICE_LAYERS: 319
   - << palettes/rock_layers.yml:palette

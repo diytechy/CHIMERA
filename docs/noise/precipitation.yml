@@ -1,0 +1,4 @@
+# NoiseTool CLI stub: renders the `precipitation` climate field.
+# Requires --common .artifacts/resolved_samplers.yml. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: precipitation(x, z)

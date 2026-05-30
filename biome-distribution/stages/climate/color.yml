@@ -39,3 +39,8 @@ stages:
         - hot-steppe-highlands-red: *red
         - hot-steppe-highlands-orange: *orange
         - hot-steppe-highlands-white: *white
+      arid-pale-garden:
+        - BLACK_ARID_PALE_GARDEN: *black
+        - RED_ARID_PALE_GARDEN: *red
+        - ORANGE_ARID_PALE_GARDEN: *orange
+        - ARID_PALE_GARDEN: *white

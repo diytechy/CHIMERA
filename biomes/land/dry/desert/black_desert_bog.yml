@@ -21,6 +21,21 @@ climate:
 
 vanilla: minecraft:dripstone_caves
 
+# Replace Terra's default sub-sealevel water with lava, but only inside the bog
+# basin (biomeInfluence > 0.5). The fluid fills from sea level down to the terrain
+# floor; outside the lip the fluid surface is dropped to the world floor so no
+# liquid (water or lava) is ever placed.
+ocean:
+  level: $meta.yml:ocean-level
+  palette: BLOCK:minecraft:lava
+  sampler:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      olevel: $meta.yml:ocean-level
+      nofill: $meta.yml:bottom-y
+    expression: |
+      if(biomeInfluence(x, z) > 0.75, olevel, nofill)
 
 tags:
   - LOW_CAVES

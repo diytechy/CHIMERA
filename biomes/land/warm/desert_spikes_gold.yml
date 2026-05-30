@@ -7,6 +7,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_DESERT_RIVER
+  - ARID_COAST_FLAT
 
 slant:
   - threshold: 0.55

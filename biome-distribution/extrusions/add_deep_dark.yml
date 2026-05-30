@@ -17,7 +17,7 @@ extrusions:
   - type: REPLACE
     range:
       min: -62
-      max: $meta.yml:deepslate-top
+      max: 0
     sampler:
       dimensions: 2
       type: CONSTANT
@@ -30,7 +30,7 @@ extrusions:
   - type: SET
     range:
       min: -62
-      max: $meta.yml:deepslate-top
+      max: 0
     sampler:
       type: EXPRESSION
       expression: |

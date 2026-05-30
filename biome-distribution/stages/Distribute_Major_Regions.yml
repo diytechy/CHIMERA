@@ -99,7 +99,7 @@ stages:
         if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
           BiomeShapeLandmassValue(x, z), -1)
     to:
-      SELF: 9
+      SELF: 2
       CARVING_CREAKS: 1
 #
   #
@@ -129,7 +129,7 @@ stages:
         BiomeShapeLargelandValue(x,z)
     #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
     to:
-      SELF: 24
+      SELF: 50
       vast-forest: 1
   #Create archipelago distributions on ocean.
   #Only create when close to land.

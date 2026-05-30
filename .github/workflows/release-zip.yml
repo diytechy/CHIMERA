@@ -13,9 +13,13 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+    # Pack contents allowlist — keep in sync with build.gradle.kts (packZip),
+    # .scripts/pack.sh, and .scripts/AuditAndPackage.bat. Listing the pack
+    # dirs/files explicitly keeps non-pack repo folders (tools/, docs/, memory/,
+    # archive-investigations/, build artifacts, …) out of the release zip.
     - uses: vimtor/action-zip@v1.1
       with:
-        files: ./
+        files: pack.yml meta.yml customization.yml substratum_meta.yml biomes biome-distribution features palettes math structures
         dest: origen-${{github.ref_name}}.zip
     - uses: ncipollo/release-action@v1
       with:

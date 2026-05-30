@@ -12,6 +12,20 @@ variables: &variables
   erosionMax: 0.95
   erosionMin: 0
 
+  # ─── River network thresholds (single source) ──────────────────────
+  # The Dendry sampler returns `dendryRiverMax` where there is NO river.
+  # A sample counts as "river present" when it is below dendryRiverMax minus
+  # a tolerance. Keep continentalDendryRiversPrecise.max == dendryRiverMax.
+  dendryRiverMax: &dendryRiverMax 1.52
+  riverReportTolerance: &riverReportTolerance 0.02
+
+  # ─── Coast thresholds in continents(x,z) units ─────────────────────
+  # continents(x,z): 0 at the coastline, positive inland, negative seaward.
+  coastRiverStart:    &coastRiverStart    0.05   # coast edge — river elevation ramps up / branching begins here
+  coastRiverFull:     &coastRiverFull     0.1    # river elevation reaches its full inland value here
+  oceanRiverFarFade:  &oceanRiverFarFade  -0.30  # seaward: beyond this (more negative) → no river (dist = 1)
+  oceanRiverNearFade: &oceanRiverNearFade -0.20  # seaward: river distance field fully applied here
+
 # ─── River terrain variables ──────────────────────────────────────
 # Shared by all river terrain samplers via *rtv anchor.
 river-terrain-variables: &rtv
@@ -123,11 +137,13 @@ samplers:
     #type: CONSTANT
     #value: 0
     type: EXPRESSION
+    variables:
+      coastStart: *coastRiverStart
     expression: |
-      if(((continents(x, z)>0.05)&&
+      if(((continents(x, z)>coastStart)&&
       (mesaFootDist(x,z)<0)&&
-      (riverPrecipitation(x, z)>0)&&
-      (riverElevationInput(x,z)>0)), 
+      (riverPrecipitation(x, z)>0.15)&&
+      (aroundContinent(x,z)>0)),
       (((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)
 
   RiverOverhangMask:
@@ -145,12 +161,17 @@ samplers:
       threshold: $customization.yml:forced-sealevel-activation-threshold
       blend: $customization.yml:forced-sealevel-blend
       flatnessFactor: $customization.yml:forced-sealevel-factor
+      coastStart: *coastRiverStart
+      coastFull: *coastRiverFull
     expression: |
+      //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),
+      if((aroundContinent(x,z) > 0.05) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
-          herp(continents(round(x/4)*4,round(z/4)*4), 0.05, 0, 0.1, elevationTerraced(round(x/4)*4,round(z/4)*4)),
-          herp(rawFlatness(round(x/4)*4,round(z/4)*4), threshold-blend, 0, threshold, elevationTerraced(round(x/4)*4,round(z/4)*4))
+          lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
+          // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
+          //
+          lerp(flatness(x,z), flatnessFactor-blend, elevationTerraced(x,z), flatnessFactor, 0)
         ),
       0)
 
@@ -159,7 +180,7 @@ samplers:
     type: DENDRY
     # Use default, n = 2, at higher values river dries out due to how narrow the channel becomes.
     n: 3
-    max: 1.52
+    max: *dendryRiverMax
     sampler:
       dimensions: 2
       type: EXPRESSION
@@ -190,33 +211,41 @@ samplers:
   continentalRiverElev:
     dimensions: 2
     type: EXPRESSION
-      #If we're below the maximum reportable level (default at 2.55), pass through, otherwise set to minimum terrain height.
-      #This has been updated to the corresponding max.
-    expression: if(continentalDendryRivers(x,1.0,z)<1.5, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
+      # Dendry reports `dendryRiverMax` where there is no river. Pass the river
+      # elevation through when below that max (minus a tolerance), else 0.
+    expression: if(continentalDendryRivers(x,1.0,z) < noRiverMax - reportTolerance, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
     #expression: elevationTerraced(x,z)
     variables:
       terrain_base_biome_shift: $customization.yml:terrain-base-biome-shift
+      noRiverMax: *dendryRiverMax
+      reportTolerance: *riverReportTolerance
 
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      oceanFar: *oceanRiverFarFade
+      oceanNear: *oceanRiverNearFade
     expression: |
       //if(continentalRiverElev(x,z)>0,
       //  continentalDendryRivers(x,0.0,z),
-      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      //  herp(continents(x,z),oceanFar,1.0,oceanNear,continentalDendryRivers(x,0.0,z))
       //)
-      herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      herp(continents(x,z),oceanFar,1.0,oceanNear,continentalDendryRivers(x,0.0,z))
     functions: $math/functions/interpolation.yml:functions
 
   continentalRiverDistFar:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      oceanFar: *oceanRiverFarFade
+      oceanNear: *oceanRiverNearFade
     expression: |
       //if(continentalRiverElev(x,z)>0,
       //  continentalRiverDistSparseNormalized(x,z),
-      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      //  herp(continents(x,z),oceanFar,1.0,oceanNear,continentalRiverDistSparseNormalized(x,z))
       //)
-      herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      herp(continents(x,z),oceanFar,1.0,oceanNear,continentalRiverDistSparseNormalized(x,z))
     functions: $math/functions/interpolation.yml:functions
 
   continentalRiverLevel:

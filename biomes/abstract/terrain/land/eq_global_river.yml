@@ -16,7 +16,7 @@ ocean:
 terrain:
   blend:
     distance: 3     # 0 = disabled (sharp edges)
-    step: 3
+    step: 4
     weight: 1.0
   min-density:
     sampler:

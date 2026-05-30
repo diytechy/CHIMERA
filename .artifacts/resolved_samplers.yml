@@ -157,6 +157,7 @@ samplers:
           distance: Hybrid
           salt: 101.0
           return: NoiseLookup
+          salt-lookup: false
           lookup:
             type: EXPRESSION
             dimensions: 2
@@ -424,7 +425,7 @@ samplers:
             dimensions: 2
             type: OPEN_SIMPLEX_2S
             salt: 6891423.0
-            frequency: 0.001
+            frequency: 0.0003333333333
           salt-lookup: false
   BiomeShapeLandmassPlainsMask:
     dimensions: 2
@@ -934,6 +935,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -966,6 +978,11 @@ samplers:
         continental_landmass(x, z),
         spawnIsland(x, z)
       )
+  continentsSparse:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      continents(round(x/4)*4, round(z/4)*4)
   blotSpots:
     dimensions: 2
     type: EXPRESSION
@@ -1004,21 +1021,21 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      spotRadius: 24
+      rVal: 16
     expression: |-
-      max(continental_landmass_sparse(x, z),
+      min(continental_landmass_sparse(x, z),
         min(min(min(min(
-          continental_landmass_sparse(x + spotRadius(x, z), z),
-          continental_landmass_sparse(x - spotRadius(x, z), z)),
+          continental_landmass_sparse(x + rVal, z),
+          continental_landmass_sparse(x - rVal, z)),
         min(
-          continental_landmass_sparse(x, z + spotRadius(x, z)),
-          continental_landmass_sparse(x, z - spotRadius(x, z)))),
+          continental_landmass_sparse(x, z + rVal),
+          continental_landmass_sparse(x, z - rVal))),
         min(
-          continental_landmass_sparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-          continental_landmass_sparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
+          continental_landmass_sparse(x + rVal, z + rVal),
+          continental_landmass_sparse(x + rVal, z - rVal))),
         min(
-          continental_landmass_sparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-          continental_landmass_sparse(x - spotRadius(x, z), z - spotRadius(x, z))))
+          continental_landmass_sparse(x - rVal, z + rVal),
+          continental_landmass_sparse(x - rVal, z - rVal)))
       )
   mountainMask:
     dimensions: 2
@@ -1072,12 +1089,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1137,6 +1154,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1174,12 +1202,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1239,6 +1267,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1276,12 +1315,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1341,6 +1380,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1492,12 +1542,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1557,6 +1607,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1593,12 +1654,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1658,6 +1719,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1692,12 +1764,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1732,7 +1804,7 @@ samplers:
       min(
         min(
           lerp(rawFlatness(x, z), sealevel_threshold - sealevel_blend, 0, sealevel_threshold, sealevel_factor),
-          lerp(abs(mountainMask(x, z)), mountainMaskFlat, 0, mountainMaskZero, sealevel_factor)),
+          lerp(abs(mountainMask(x, z)), mountainMaskFlat, sealevel_factor, mountainMaskZero, 0)),
         lerp(mesaFootDist(x, z), -0.1, sealevel_factor, 0, 0))
     functions:
       lerp:
@@ -1787,6 +1859,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -1817,12 +1900,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1850,12 +1933,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -1924,12 +2007,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -2033,6 +2116,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2123,6 +2217,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2169,12 +2274,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -2366,6 +2471,17 @@ samplers:
                 arguments:
                 - x
                 expression: 3*x^2-2*x^3
+          smoothstep:
+            arguments:
+            - edge0
+            - edge1
+            - x
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
           parabolicMap:
             arguments:
             - t
@@ -2444,6 +2560,17 @@ samplers:
                 arguments:
                 - x
                 expression: 3*x^2-2*x^3
+          smoothstep:
+            arguments:
+            - edge0
+            - edge1
+            - x
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
           parabolicMap:
             arguments:
             - t
@@ -2519,6 +2646,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2549,12 +2687,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -2589,12 +2727,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -2664,6 +2802,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2703,12 +2852,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -2737,7 +2886,7 @@ samplers:
       riverNominalBoundary: 50
       cellHalfDist: 160
       mesaBlocksPerUnit: 1000
-      coastBlocksPerUnit: '6000'
+      coastBlocksPerUnit: 240
       riverBiomeActivationThreshold: '0.15'
       biomeBorder: 20
     expression: |
@@ -2802,6 +2951,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2897,6 +3057,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -2930,12 +3101,12 @@ samplers:
       plainsMaskFull: 0.85
       hillMaxElevation: 0.2
       mountainCap: 0.9
-      mountainMaskFlat: 0.25
-      mountainMaskZero: 0.3
+      mountainMaskFlat: 0.3
+      mountainMaskZero: 0.35
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.1
+      sealevel_threshold: 0.5
       sealevel_blend: 0.15
       sealevel_factor: 0.85
       globalScale: 1
@@ -3013,6 +3184,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3137,6 +3319,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3176,24 +3369,32 @@ samplers:
           rawPrecipitation(round((x+r/2)/4)*4, round((z-r*0.866)/4)*4)
         )
       )
+  riftLandDistributor:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverDistThreshold: 160
+    expression: |
+      if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&
+      (continents(x,z)>0.1)),1,-1)
   riftHybDistFromCenter:
     dimensions: 2
     type: CELLULAR
-    frequency: 0.003333333333
+    frequency: 0.004
     salt: 1357.0
     jitter: 0.5
     distance: Hybrid
   riftRegions:
     dimensions: 2
     type: CELLULAR
-    frequency: 0.003333333333
+    frequency: 0.004
     salt: 1357.0
     jitter: 0.5
     return: CellValue
   riftTemperature:
     dimensions: 2
     type: CELLULAR
-    frequency: 0.003333333333
+    frequency: 0.004
     salt: 1357.0
     jitter: 0.5
     return: NoiseLookup
@@ -3205,7 +3406,7 @@ samplers:
   riftInRangeOfSpot:
     dimensions: 2
     type: CELLULAR
-    frequency: 0.003333333333
+    frequency: 0.004
     salt: 1357.0
     jitter: 0.5
     return: NoiseLookup
@@ -3214,10 +3415,37 @@ samplers:
       type: EXPRESSION
       expression: nearSpotRift(x,z)
     salt-lookup: false
+  riftContinents:
+    dimensions: 2
+    type: CELLULAR
+    frequency: 0.004
+    salt: 1357.0
+    jitter: 0.5
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      variables:
+        radius: 100
+      expression: |
+        min(continentsSparse(x, z),
+          min(min(min(min(
+            continentsSparse(x + radius, z),
+            continentsSparse(x - radius, z)),
+          min(
+            continentsSparse(x, z + radius),
+            continentsSparse(x, z - radius))),
+          min(
+            continentsSparse(x + radius, z + radius),
+            continentsSparse(x + radius, z - radius))),
+          min(
+            continentsSparse(x - radius, z + radius),
+            continentsSparse(x - radius, z - radius))))
+    salt-lookup: false
   riftFarRiverDist:
     dimensions: 2
     type: CELLULAR
-    frequency: 0.003333333333
+    frequency: 0.004
     salt: 1357.0
     jitter: 0.5
     return: NoiseLookup
@@ -3236,7 +3464,7 @@ samplers:
       gain: 0.3
       sampler:
         type: OPEN_SIMPLEX_2
-        frequency: 0.003333333333
+        frequency: 0.004
     sampler:
       type: EXPRESSION
       variables:
@@ -3244,7 +3472,7 @@ samplers:
       expression: |
         if(riftHybDistFromCenter(x,z)<spotActivateDist,
           lerp(riftHybDistFromCenter(x,z),-1,1,spotActivateDist,0),
-          -1)
+          lerp(riftHybDistFromCenter(x,z),spotActivateDist,0,0,-1))
   riftCanyon:
     type: EXPRESSION
     dimensions: 2
@@ -3260,6 +3488,60 @@ samplers:
         type: CELLULAR
         frequency: 0.0015
         seed: 23456345
+  cold_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.66
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)<-0.3) &&
+      (riftRegions(x,z)<pit_threshold)
+  warm_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.66
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)>0.2) &&
+      (riftRegions(x,z)<pit_threshold)
+  cold_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.74
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)<-0.3)
+  warm_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.82
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)>0.2)
+  warped_pit:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.002
+    sampler:
+      type: EXPRESSION
+      expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)
   riverSampler:
     dimensions: 2
     type: EXPRESSION
@@ -3283,6 +3565,12 @@ samplers:
       erosionMaxDistance: 0.3
       erosionMax: 0.95
       erosionMin: 0
+      dendryRiverMax: 1.52
+      riverReportTolerance: 0.02
+      coastRiverStart: 0.05
+      coastRiverFull: 0.1
+      oceanRiverFarFade: -0.3
+      oceanRiverNearFade: -0.2
   continentalRiverWidth:
     dimensions: 2
     type: EXPRESSION
@@ -3316,8 +3604,14 @@ samplers:
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
-    expression: "if(((continents(x, z)>0.05)&&\n(mesaFootDist(x,z)<0)&&\n(riverPrecipitation(x, z)>0)&&\n(riverElevationInput(x,z)>0)),\
-      \ \n(((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)\n"
+    variables:
+      coastStart: 0.05
+    expression: |
+      if(((continents(x, z)>coastStart)&&
+      (mesaFootDist(x,z)<0)&&
+      (riverPrecipitation(x, z)>0.15)&&
+      (aroundContinent(x,z)>0)),
+      (((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)
   RiverOverhangMask:
     dimensions: 2
     type: PERLIN
@@ -3326,15 +3620,20 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      threshold: 0.1
+      threshold: 0.5
       blend: 0.15
       flatnessFactor: 0.85
+      coastStart: 0.05
+      coastFull: 0.1
     expression: |
+      //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0),
+      if((aroundContinent(x,z) > 0.2) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
-          herp(continents(round(x/4)*4,round(z/4)*4), 0.05, 0, 0.1, elevationTerraced(round(x/4)*4,round(z/4)*4)),
-          herp(rawFlatness(round(x/4)*4,round(z/4)*4), threshold-blend, 0, threshold, elevationTerraced(round(x/4)*4,round(z/4)*4))
+          lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
+          // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
+          //
+          lerp(flatness(x,z), flatnessFactor-blend, elevationTerraced(x,z), flatnessFactor, 0)
         ),
       0)
   continentalDendryRiversPrecise:
@@ -3369,18 +3668,23 @@ samplers:
   continentalRiverElev:
     dimensions: 2
     type: EXPRESSION
-    expression: if(continentalDendryRivers(x,1.0,z)<1.5, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
+    expression: if(continentalDendryRivers(x,1.0,z) < noRiverMax - reportTolerance, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
     variables:
-      terrain_base_biome_shift: 0.95
+      terrain_base_biome_shift: 0.8
+      noRiverMax: 1.52
+      reportTolerance: 0.02
   continentalRiverDist:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      oceanFar: -0.3
+      oceanNear: -0.2
     expression: |
       //if(continentalRiverElev(x,z)>0,
       //  continentalDendryRivers(x,0.0,z),
-      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      //  herp(continents(x,z),oceanFar,1.0,oceanNear,continentalDendryRivers(x,0.0,z))
       //)
-      herp(continents(x,z),-0.30,1.0,-0.20,continentalDendryRivers(x,0.0,z))
+      herp(continents(x,z),oceanFar,1.0,oceanNear,continentalDendryRivers(x,0.0,z))
     functions:
       lerp:
         arguments:
@@ -3434,6 +3738,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3454,12 +3769,15 @@ samplers:
   continentalRiverDistFar:
     dimensions: 2
     type: EXPRESSION
+    variables:
+      oceanFar: -0.3
+      oceanNear: -0.2
     expression: |
       //if(continentalRiverElev(x,z)>0,
       //  continentalRiverDistSparseNormalized(x,z),
-      //  herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      //  herp(continents(x,z),oceanFar,1.0,oceanNear,continentalRiverDistSparseNormalized(x,z))
       //)
-      herp(continents(x,z),-0.30,1.0,-0.20,continentalRiverDistSparseNormalized(x,z))
+      herp(continents(x,z),oceanFar,1.0,oceanNear,continentalRiverDistSparseNormalized(x,z))
     functions:
       lerp:
         arguments:
@@ -3513,6 +3831,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3742,6 +4071,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3840,6 +4180,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -3941,6 +4292,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4033,6 +4395,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4125,6 +4498,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4291,6 +4675,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4406,6 +4801,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4514,6 +4920,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -4656,6 +5073,17 @@ samplers:
               arguments:
               - x
               expression: 3*x^2-2*x^3
+        smoothstep:
+          arguments:
+          - edge0
+          - edge1
+          - x
+          expression: |
+            if(x <= edge0, 0,
+              if(x >= edge1, 1,
+                ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+              )
+            )
         parabolicMap:
           arguments:
           - t
@@ -4682,363 +5110,43 @@ samplers:
             z: 0
           normalize: true
           radius: 400
-  spotDistance:
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 7
-    warp:
+  caveWallOffset:
+    dimensions: 3
+    type: FBM
+    sampler:
+      type: OPEN_SIMPLEX_2S
+      frequency: 0.035
+    octaves: 3
+    lacunarity: 2.2
+    gain: 0.45
+  caveShellNoise:
+    dimensions: 3
+    type: FBM
+    sampler:
       type: OPEN_SIMPLEX_2
-      frequency: 0.015
+      frequency: 0.15
+    octaves: 2
+    gain: 0.5
+  yShellWarp:
+    dimensions: 2
+    type: FBM
     sampler:
-      type: EXPRESSION
-      expression: (noise(x, z)+1)*spread
-      variables:
-        spread: 1500
-        riftDistance: 300
-        largeSpawnRadiusOffset: 2000
-        biomeBorder: 20
-        largeBiomeBorder: 100
-        minRadius: 50
-        maxRadius: 150
-        minExtHeight: 0.05
-        maxExtHeight: 0.2
-        minVolHeight: 0.2
-        maxVolHeight: 0.4
-        prismaticMinHeight: 0.0
-        prismaticMaxHeight: 0.0
-        prismaticMinCenterDepth: 0.03
-        prismaticMaxCenterDepth: 0.01
-        spotMinEdgeRadius: 0.1
-        spotMaxEdgeRadius: 0.25
-        prismaticMinEdgeRadius: 0.5
-        prismaticMaxEdgeRadius: 0.7
-        sinkholeMinEdgeRadius: 0.6
-        sinkholeMaxEdgeRadius: 0.7
-        largeMinRadius: 500
-        largeMaxRadius: 1500
-        volcanoMinCenterDepth: 0.03
-        volcanoMaxCenterDepth: 0.3
-      samplers:
-        noise:
-          dimensions: 2
-          type: CELLULAR
-          frequency: 0.0006666666667
-          salt: 3.0
-          jitter: 0.8
-          distance: Euclidean
-  spotSizePercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 3.0
-      jitter: 0.8
-      return: CellValue
-  spotRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  spotAngle:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: Angle
-  nearSpot:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + 35, 1, -1)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  nearSpotRift:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder + riftDistance/2, 1, -1)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  spotCenterRiverDistFar:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    lookup:
-      dimensions: 2
-      type: EXPRESSION
-      expression: continentalRiverDistSparseFarGrid(x,z)
-  spotApproxRiverDist:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: spotCenterRiverDistFar(x, z)
-  spotTemperature:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: temperature(x, z)
-  spotPrecipitation:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: precipitation(x, z)
-  spotCenterNotNearRiver:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(spotApproxRiverDist(x,z)>150,1,0)
-  spotCenterContinents:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: continents(x, z)
-  spotCenterOnOcean:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(spotCenterContinents(x,z)<-0.1,1,0)
-  spotCenterOnLand:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if((spotCenterContinents(x,z)>0 && spotCenterNotNearRiver(x,z)),1,0)
-  spotBaseElevation:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      type: EXPRESSION
-      expression: elevationSparse(x, z)
-  largeSpotDistance:
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 7
-    warp:
       type: OPEN_SIMPLEX_2
-      frequency: 0.01
-    sampler:
-      type: EXPRESSION
-      expression: (noise(x, z)+1)*spread
-      variables:
-        spread: 1500
-        riftDistance: 300
-        largeSpawnRadiusOffset: 2000
-        biomeBorder: 20
-        largeBiomeBorder: 100
-        minRadius: 50
-        maxRadius: 150
-        minExtHeight: 0.05
-        maxExtHeight: 0.2
-        minVolHeight: 0.2
-        maxVolHeight: 0.4
-        prismaticMinHeight: 0.0
-        prismaticMaxHeight: 0.0
-        prismaticMinCenterDepth: 0.03
-        prismaticMaxCenterDepth: 0.01
-        spotMinEdgeRadius: 0.1
-        spotMaxEdgeRadius: 0.25
-        prismaticMinEdgeRadius: 0.5
-        prismaticMaxEdgeRadius: 0.7
-        sinkholeMinEdgeRadius: 0.6
-        sinkholeMaxEdgeRadius: 0.7
-        largeMinRadius: 500
-        largeMaxRadius: 1500
-        volcanoMinCenterDepth: 0.03
-        volcanoMaxCenterDepth: 0.3
-      samplers:
-        noise:
-          dimensions: 2
-          type: CELLULAR
-          frequency: 0.0002409638554
-          salt: 1236.0
-          jitter: 0.2771084337
-          distance: Euclidean
-  largeSpotSizePercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0002409638554
-      salt: 1236.0
-      jitter: 0.2771084337
-      return: CellValue
-  largeSpotRadius:
-    dimensions: 2
+      frequency: 0.018
+    octaves: 2
+    gain: 0.5
+    salt: 5678309.0
+  caveCarverFade:
+    dimensions: 3
     type: EXPRESSION
-    expression: lerp(spotSizePercent(x, z), 0, minRadius, 1, maxRadius)
+    variables:
+      act_dist: '0.05'
+      act_thresh: '-0.05'
+      act_trans: '-0.1'
+      act_full: '-0.15'
+    expression: "herp(y, \n  -4, //Below -4, don't carve all the way through, but fade out near shell.\n  lerp(special_caves(x,y,z),\
+      \ 0, -0.5, act_dist, carver(x,y,z)),\n  4, //When above 4, smooth fade all the way through to the activation threshold\n\
+      \  lerp3(special_caves(x,y,z), act_full, -0.5, act_trans, 0, act_dist, carver(x,y,z)))\n"
     functions:
       lerp:
         arguments:
@@ -5075,788 +5183,115 @@ samplers:
                 if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
                 if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
               )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  volcanoActivity:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    lookup:
-      type: WHITE_NOISE
-      salt: 4128.0
-  spotFluidLevel:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    lookup:
-      dimensions: 2
-      type: POSITIVE_WHITE_NOISE
-      salt: 7341.0
-  spotHeightPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 2847.0
-      jitter: 0.8
-      return: CellValue
-  spotFluidPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 9173.0
-      jitter: 0.8
-      return: CellValue
-  sinkholeDepthPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 6541.0
-      jitter: 0.8
-      return: CellValue
-  sinkholeFluidPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      dimensions: 2
-      type: CELLULAR
-      frequency: 0.0006666666667
-      salt: 3178.0
-      jitter: 0.8
-      return: CellValue
-  spotMinElev:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    salt-lookup: false
-    lookup:
-      dimensions: 2
-      type: EXPRESSION
-      expression: |
-        max(elevationSparse(x, z),
-          min(min(min(min(
-            elevationSparse(x + spotRadius(x, z), z),
-            elevationSparse(x - spotRadius(x, z), z)),
-          min(
-            elevationSparse(x, z + spotRadius(x, z)),
-            elevationSparse(x, z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        )
-  sinkholeEdgeRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotEdgeRadiusPercent(x, z), 0, sinkholeMinEdgeRadius, 1, sinkholeMaxEdgeRadius)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  distanceToSinkholeRim:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-    expression: |
-      if(spotDistance(x, z) < spotRadius(x, z) * sinkholeEdgeRadius(x, z),
-        spotDistance(x, z) / (spotRadius(x, z) * sinkholeEdgeRadius(x, z)) - 1,
-        lerp(spotDistance(x, z), spotRadius(x, z) * sinkholeEdgeRadius(x, z), 0, spotRadius(x, z) + biomeBorder, 1)
-      )
-  prismaticFluidLevel:
-    type: EXPRESSION
-    dimensions: 2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-    expression: lerp(spotFluidPercent(x, z), 0, 0.5, 1, 1)
-  spotEdgeRadiusPercent:
-    dimensions: 2
-    type: CELLULAR
-    frequency: 0.0006666666667
-    salt: 3.0
-    jitter: 0.8
-    return: NoiseLookup
-    lookup:
-      dimensions: 2
-      type: POSITIVE_WHITE_NOISE
-      salt: 5812.0
-  spotEdgeRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  prismaticEdgeRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotEdgeRadiusPercent(x, z), 0, prismaticMinEdgeRadius, 1, prismaticMaxEdgeRadius)
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  volcanicEdgeRadius:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotEdgeRadiusPercent(x, z), 0, spotMinEdgeRadius, 1, spotMaxEdgeRadius)
-    functions:
-      lerp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-            if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-          )
-      lerp3:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        - ct
-        - c
-        expression: lerp(t, at, a, bt, lerp(t, bt, b, ct, c))
-        functions:
-          lerp:
-            arguments:
-            - t
-            - at
-            - a
-            - bt
-            - b
-            expression: |
-              if(at<bt,
-                if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
-                if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
-              )
-      herp:
-        arguments:
-        - t
-        - at
-        - a
-        - bt
-        - b
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, hermite((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          hermite:
-            arguments:
-            - x
-            expression: 3*x^2-2*x^3
-      parabolicMap:
-        arguments:
-        - t
-        - bt
-        - b
-        - at
-        - a
-        expression: |
-          if(at<bt,
-            if(t<=at,a,if(t>=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b )),
-            if(t>=at,a,if(t<=bt,b, interpolation((t-bt)/(at-bt))*(a-b)+b ))
-          )
-        functions:
-          interpolation:
-            arguments:
-            - x
-            expression: x^2
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  volcanoCenterDepth:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, volcanoMinCenterDepth, 1, volcanoMaxCenterDepth)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  prismaticCenterDepth:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4), 0, prismaticMinCenterDepth, 1, prismaticMaxCenterDepth)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  distanceToSpotEdge:
-    dimensions: 2
-    type: EXPRESSION
-    expression: spotDistance(x, z) / spotRadius(x, z)
-  distanceToPrismaticRim:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-    expression: |
-      if(spotDistance(x, z) < spotRadius(x, z) * prismaticEdgeRadius(x, z),
-        spotDistance(x, z) / (spotRadius(x, z) * prismaticEdgeRadius(x, z)) - 1,
-        lerp(spotDistance(x, z),spotRadius(x, z) * prismaticEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
-      )
-  distanceToVolcanicRim:
-    dimensions: 2
-    type: EXPRESSION
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-    expression: |
-      if(spotDistance(x, z) < spotRadius(x, z) * volcanicEdgeRadius(x, z),
-        spotDistance(x, z) / (spotRadius(x, z) * volcanicEdgeRadius(x, z)) - 1,
-        lerp(spotDistance(x, z),spotRadius(x, z) * volcanicEdgeRadius(x, z),0,spotRadius(x, z) + biomeBorder,1)
-      )
-  volcanoErosion:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      noise(
-        spotDistance(x, z) + spotSizePercent(x, z) * offsetAmplitude,
-        sin(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude,
-        cos(spotAngle(x, z)) * angleFrequency + spotSizePercent(x, z) * offsetAmplitude
-      )
-    variables:
-      angleFrequency: 150
-      offsetAmplitude: 10000
     samplers:
-      noise:
+      carver:
         dimensions: 3
-        type: FBM
-        octaves: 3
-        sampler:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.033
-  spotPlacer:
-    dimensions: 2
-    type: EXPRESSION
-    expression: |
-      if(spotDistance(x, z) < spotRadius(x, z) + biomeBorder,
-        if(spotCenterOnOcean(x,z), -1.0,
-          if(spotCenterOnLand(x,z), 1.0, 0.0)),0.0)
-    variables:
-      spread: 1500
-      riftDistance: 300
-      largeSpawnRadiusOffset: 2000
-      biomeBorder: 20
-      largeBiomeBorder: 100
-      minRadius: 50
-      maxRadius: 150
-      minExtHeight: 0.05
-      maxExtHeight: 0.2
-      minVolHeight: 0.2
-      maxVolHeight: 0.4
-      prismaticMinHeight: 0.0
-      prismaticMaxHeight: 0.0
-      prismaticMinCenterDepth: 0.03
-      prismaticMaxCenterDepth: 0.01
-      spotMinEdgeRadius: 0.1
-      spotMaxEdgeRadius: 0.25
-      prismaticMinEdgeRadius: 0.5
-      prismaticMaxEdgeRadius: 0.7
-      sinkholeMinEdgeRadius: 0.6
-      sinkholeMaxEdgeRadius: 0.7
-      largeMinRadius: 500
-      largeMaxRadius: 1500
-      volcanoMinCenterDepth: 0.03
-      volcanoMaxCenterDepth: 0.3
-  elevationAcrossSpot:
-    dimensions: 2
-    type: EXPRESSION
-    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
-  elevationAcrossOceanSpot:
-    dimensions: 2
-    type: EXPRESSION
-    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,0,1,nonMountainElevation(x,z))
-  SinkholeDepth:
-    dimensions: 2
-    type: EXPRESSION
-    expression: lerp(spotHeightPercent(x,z),0,0.15,1,0.2)
-  sinkholeMinElev:
-    dimensions: 2
-    type: EXPRESSION
-    expression: spotMinElev(x,z) - SinkholeDepth(x,z)
-  special_caveSampler:
-    dimensions: 3
-    type: EXPRESSION
-    expression: "if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, \n  special_caveVariation(x,y*2,z),\n\
-      \  -1)\n"
-  special_caves:
-    dimensions: 3
-    type: CELLULAR
-    frequency: 0.005
-    jitter: 0.05
-    salt: 24.0
-  special_caveVariation:
-    dimensions: 3
-    type: CELLULAR
-    frequency: 0.005
-    jitter: 0.05
-    salt: 24.0
-    return: CellValue
-  special_caveElevation:
-    dimensions: 3
-    type: CELLULAR
-    frequency: 0.005
-    jitter: 0.05
-    salt: 24.0
-    return: NoiseLookup
-    lookup:
-      dimensions: 3
-      type: EXPRESSION
-      expression: continents(x, z)
+        type: EXPRESSION
+        variables:
+          carvingThreshold: 0.54
+          carvingMinHeight: -63
+          carvingMinTaper: 8
+          carvingMaxHeight: '300'
+          carvingMaxTaper: 25
+          carvingCap: 1
+          cheeseStrength: 0.8
+          cheeseHorizontalFrequency: 1.5
+          cheeseVerticalFrequency: 3
+          cheeseMaxHeight: 90
+          cheeseMaxTaper: 40
+          spaghettiStrengthLarge: 0.6
+          spaghettiStrengthSmall: 0.56
+          pillarStrength: 0.5
+          pillarRadius: 0.02
+          megaCaveStrength: 0.3
+          megaCaveSize: 0.3
+          pitCaveTunnel_enabled: 0
+        expression: "max(\n  -carvingThreshold\n  + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip\
+          \ unnecessary calculations\n    min(carvingCap,\n      max(\n        // Spaghetti Caves\n        max(\n          spaghettiStrengthLarge\
+          \ * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),\n          spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)\n\
+          \        ),\n        // Cheese caves\n        if(y>cheeseMaxHeight,0,\n          maskSmooth(\n            cheeseStrength\
+          \ * (simplex3(\n              x * cheeseHorizontalFrequency,\n              (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,\n\
+          \              z * cheeseHorizontalFrequency\n            )+1)/2\n            // Mega caves\n            +lerp(megaCaves(x,\
+          \ y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)\n            // Pillars\n            -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1)\
+          \ * pillarStrength,\n  \n            // Cheese clamp parameters\n            cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper,\
+          \ y\n          )\n        )\n      )\n    ),\n    // Clamp parameters\n    carvingMinHeight, carvingMinHeight + carvingMinTaper,\
+          \ y\n    ),\n    carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y\n  )),\n  // ── Pit-cave upper-hemisphere\
+          \ tunnel ──────────────────────────────────\n  // Carves a passage from the special-cave dome to overlapping pit walls.\n\
+          \  // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.\n  if(pitCaveTunnel_enabled,pitCaveTunnel(x,\
+          \ y, z),-carvingThreshold)\n  )\n"
+        samplers:
+          cavePillars:
+            dimensions: 2
+            type: CELLULAR
+            frequency: 0.05
+          megaCaves:
+            dimensions: 3
+            type: OPEN_SIMPLEX_2
+            salt: 777.0
+            frequency: 0.003
+          pitCaveTunnel:
+            dimensions: 3
+            type: EXPRESSION
+            variables:
+              cave_pit_thresh: '0.1'
+              cave_pit_trans: '0.4'
+              cave_upper: '40'
+              ymin_outer: 0
+              mag: 0.8
+              noise_amp: 5
+              fade: 5
+              str_cap: 0.7
+              trans_bulk: 0.0
+              cave_shell_r: 0.5
+            expression: "// ── Early exit: no carving outside the pit overlap zone ──────────────\nif(warped_pit(x,z) <= 0,\
+              \ -0.5,\n\n  // ── Strength mask with trans_bulk ──────────────────────────────────\n  // raw = (riftWellPlacement\
+              \ + B) × (special_radius + B) / (1 + B)²\n  //   • Positive when cave and pit are simultaneously reachable; B\
+              \ widens reach.\n  //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.\n  // NOTE: must\
+              \ use special_radius_norm (not 1-special_radius). The latter peaks at\n  //   the cave CENTRE (sr=0 → 1-sr=1)\
+              \ and is negative outside the shell, so the\n  //   conditional only fires INSIDE the cave — carving extra void\
+              \ where the cave\n  //   already exists. special_radius_norm = max(pit_transition, special_radius)\n  //   is\
+              \ non-negative everywhere and rises through the pit/cave transition band.\n  if((riftWellPlacement(x,z) + trans_bulk)\
+              \ * (special_radius_norm(x,z) + trans_bulk) <= 0,\n    -0.5,\n\n    // norm_strength = raw ^ 0.3\n    //   ^0.3\
+              \ keeps the passageway broadly strong while rolling to 0 at the\n    //   raw-zero boundary (riftWellPlacement\
+              \ = −trans_bulk on the pit side).\n    ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)\n\
+              \      / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3\n\n    // ── Passageway-end fades ────────────────────────────────────────\n\
+              \    // Cave-centre fade (passageway = −1 → 0):\n    //   0 when special_radius_norm = 0 (cave centre), 1 when\
+              \ special_radius_norm ≥ cave_shell_r.\n    * min(1, special_radius_norm(x,z) / cave_shell_r)\n    // Pit-centre\
+              \  fade (passageway = 1 → 2): \n    //   1 when riftWellPlacement = 0 (pit edge), 0 when riftWellPlacement = 1\
+              \ (pit centre).\n    * max(0, min(1, 1 - riftWellPlacement(x,z)))\n\n    // ── Vertical tunnel mask ────────────────────────────────────────\n\
+              \    // ymin: linearly interpolated from ymin_outer (at riftWellPlacement = −cave_pit_trans,\n    //       passageway\
+              \ = 0) to pit_floor (at riftWellPlacement = 0, passageway = 1),\n    //       with FBM noise for organic variation.\n\
+              \    // Lower ramp: 0 at y = ymin → 1 at y = ymin + fade.\n    * min(1, max(0,\n        (y - (lerp(riftWellPlacement(x,z),\
+              \ -cave_pit_trans, ymin_outer,\n                   0, elevationDetailedBlockHeight(x,z))\n              + tunnelNoise(x,z)\
+              \ * noise_amp))\n        / fade\n      ))\n\n    // ymax = cave_upper × norm_strength × mag + ymin.\n    // Upper\
+              \ ramp: 1 at y = ymax − fade → 0 at y = ymax.\n    * min(1, max(0,\n        ( cave_upper\n          * ((riftWellPlacement(x,z)\
+              \ + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)\n             / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3\n\
+              \          * mag\n          + lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,\n                 0, elevationDetailedBlockHeight(x,z))\n\
+              \          + tunnelNoise(x,z) * noise_amp\n          - y)\n        / fade\n      ))\n\n    * str_cap\n  )\n)\n"
+            functions:
+              lerp:
+                arguments:
+                - t
+                - at
+                - a
+                - bt
+                - b
+                expression: |
+                  if(at<bt,
+                    if(t<=at,a,if(t>=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at))),
+                    if(t>=at,a,if(t<=bt,b,a*(t-bt)/(at-bt)+b*(t-at)/(bt-at)))
+                  )
+            samplers:
+              tunnelNoise:
+                dimensions: 2
+                type: FBM
+                octaves: 3
+                gain: 0.5
+                lacunarity: 2.0
+                sampler:
+                  type: OPEN_SIMPLEX_2
+                  frequency: 0.015
+                  salt: 55503.0
   rawTemperature:
     dimensions: 2
     type: EXPRESSION
@@ -5874,7 +5309,7 @@ samplers:
         z: 10000
         sampler:
           type: FBM
-          gain: 0.4
+          gain: 0.3
           octaves: 2
           sampler:
             type: OPEN_SIMPLEX_2
@@ -5937,6 +5372,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -5955,7 +5401,7 @@ samplers:
             - x
             expression: x^2
     variables:
-      lapseRate: 0.5
+      lapseRate: 0.7
       lapseStart: 0.2
   trenchNoise:
     dimensions: 2
@@ -6059,6 +5505,17 @@ samplers:
             arguments:
             - x
             expression: 3*x^2-2*x^3
+      smoothstep:
+        arguments:
+        - edge0
+        - edge1
+        - x
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
       parabolicMap:
         arguments:
         - t
@@ -6217,6 +5674,17 @@ functions:
         arguments:
         - x
         expression: 3*x^2-2*x^3
+  smoothstep:
+    arguments:
+    - edge0
+    - edge1
+    - x
+    expression: |
+      if(x <= edge0, 0,
+        if(x >= edge1, 1,
+          ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+        )
+      )
   parabolicMap:
     arguments:
     - t

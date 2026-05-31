@@ -2,11 +2,13 @@
 
 # CHIMERA
 
-A comprehensive overworld configuration pack for Minecraft 1.21+ and [Abhorant vibe-coded Terra](https://github.com/diytechy/Terra).
+A comprehensive overworld configuration pack for Minecraft 26.1+ and [Abhorant vibe-coded Terra](https://github.com/diytechy/Terra).
 
 CHIMERA brings together content from four separate Terra config packs into a single unified world generation experience, featuring hundreds of diverse biomes spanning overworld land, ocean, cave, and river environments.
 
-> This pack is still in active development — bugs and issues are to be expected.
+It also features rolling rivers that flow up terrain, and are fully interconnected into a global river network.
+
+> This pack could potentially use more tuning — bugs and issues are to be expected.
 
 ## Combined Packs
 
@@ -21,7 +23,6 @@ CHIMERA integrates content from the following projects:
 
 Most top-level settings such as biome and river sizes can be found in [customization.yml](customization.yml).
 
-In order to combine these biomes, some elevation and stitching changes were used.  These do occationally create some discontinuities, but at this moment I do not have a good method to repair these.
 
 ---
 

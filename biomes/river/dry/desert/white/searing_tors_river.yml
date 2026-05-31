@@ -6,6 +6,7 @@ extends:
   - SEARING_TORS
   - EQ_RIVER_CARVING
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

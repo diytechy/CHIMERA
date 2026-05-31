@@ -8,13 +8,17 @@ vars: &variables
   height: 4
 
 terrain:
+  blend:
+    distance: 4     # 0 = disabled (sharp edges)
+    step: 4
+    weight: 1.5
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      -y + base + BiomeShapeSealevelElevation(x,z) + 
-      (0.5 - abs(biomeInfluence(x,z)-0.5))*5 + //Creates a raised lip around the bog
+      -y + base + BiomeShapeSealevelElevation(x,z) + 1 +
+      ((1.0 - abs(biomeInfluence(x,z)-0.5)*2)^0.5)*2 + //Creates a raised lip around the bog
       //((-((y / (base-1))^2)) + 1) + ((simplex2(x*2, z*2)/4)) * biomeInfluence(x,z)
       ((noise(x,z)) * height - 3) * biomeInfluence(x,z)
     samplers:

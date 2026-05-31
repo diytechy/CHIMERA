@@ -14,6 +14,7 @@ tags:
 - DEEP_DARK
 - LAND_CAVES
 - SPECIAL_CAVES
+- ARID_COAST_HIGHLANDS
 palette:
 - XERIC: $meta.yml:top-y
 - << meta.yml:palette-underwater
@@ -24,6 +25,7 @@ slant:
   - XERIC: $meta.yml:top-y
   - << meta.yml:palette-underwater
   - << meta.yml:palette-bottom
+
 - threshold: 0.4
   palette:
   - XERIC_SLANT: $meta.yml:top-y

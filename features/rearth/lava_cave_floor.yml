@@ -5,13 +5,24 @@ distributor:
   type: "YES"
 
 locator:
-  type: PATTERN
-  range:
-    min: -28
-    max: -15
-  pattern:
-    type: MATCH_AIR
-    offset: 0
+  type: AND
+  locators:
+  - type: PATTERN
+    range: &range
+      max: -8
+      min: -38
+    pattern:
+      type: MATCH_AIR
+      offset: 0
+  - type: SAMPLER_3D
+    range: *range
+    sampler:
+      type: EXPRESSION
+      # special_caveDist: positive inside the ellipsoid, 0 at the shell, negative outside.
+      # threshold -2 lets lava fill right up to the cell boundary and very rarely
+      # (≤2 blocks) past it; MATCH_AIR above prevents placement in solid rock.
+      expression: -special_caves(x,y,z)
+    threshold: -0.05
 
 structures:
   distribution:

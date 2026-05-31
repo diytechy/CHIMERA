@@ -8,4 +8,5 @@ color: $biomes/colors.yml:CORAL_OCEAN_SLOPES
 vanilla: minecraft:warm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

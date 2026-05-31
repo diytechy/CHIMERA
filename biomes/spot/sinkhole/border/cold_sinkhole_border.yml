@@ -10,4 +10,5 @@ color: $biomes/colors.yml:COLD_SINKHOLE_BORDER
 vanilla: minecraft:plains
 
 tags:
+  - SPECIAL_CAVES
   - SINKHOLE

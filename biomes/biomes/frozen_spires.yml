@@ -10,7 +10,7 @@ palette:
 - SNOWY_ICE: 319
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 2.7
+- threshold: 0.51
   palette:
   - BLOCK:minecraft:ice: 319
   - << palettes/rock_layers.yml:palette
@@ -28,6 +28,7 @@ features:
   entities:
   - POLAR_BEARS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - DEEP_DARK
 - POLAR_COAST_HIGHLANDS

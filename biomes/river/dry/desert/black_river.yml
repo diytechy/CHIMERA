@@ -3,12 +3,17 @@ type: BIOME
 vanilla: minecraft:dripstone_caves
 extends:
   - EQ_GLOBAL_RIVER
-  - BLACK_DESERT_BOG
+  - LAVA_FIELDS
   - EQ_RIVER_CARVING
 
 colors:
   fog: 0xc0d8ff
   water: 0x444488
+
+ocean:
+  level: $meta.yml:ocean-level
+  palette: BLOCK:minecraft:water
+
 
 palette:
   - BLACK_DESERT_RIVER: $meta.yml:top-y
@@ -26,6 +31,7 @@ slant:
 
 color: $biomes/colors.yml:DESERT_RIVER
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   landforms:
@@ -36,9 +42,10 @@ features:
     - PALM_TREES_SPARSE
   structures:
     - MOB_ROOMS
-    - SPARSE_FOSSILS
   processors:
   - RIVER_SOULSAND
   river-decoration:
   - COVE_GLOW_LICHEN
+  postprocessors:
+    - BLACK_RIVER_WHIRLPOOL
 

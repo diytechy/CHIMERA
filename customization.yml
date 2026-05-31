@@ -10,7 +10,7 @@ biomeSpread:
   #are realized (depends on terrain sampler used)
   
   # Rift region distance for cells that will contain rifts.
-  riftDistance: 300
+  riftDistance: 250
   
   # Basic size of island region features
   # Increase to make regions larger.
@@ -39,7 +39,7 @@ biomeSpread:
   mountainFrequency: 0.004  # shared frequence of some larger mountain biomes, allows them to blend easier
 
   canyons:
-    minY: 35 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
+    minY: 40 # how deep down the canyons will go. This is an absolute Y height. Increase to make the canyons shallower
     canyonAmount: 0.0 # How rare the canyons should be. Range 0-1, with 1 disabling all canyons
 
 # This file provides various general options for configuring this config pack.
@@ -74,9 +74,8 @@ terrain-base-y-level: 65
 legacy-terrain-base-y-level: 80
 # Special level for legacy terrain, which uses different samplers to drive terrain changes.
 
-terrain-base-biome-shift: 0.95
-# How much should biomes be shifted upward according to their position on the continent.
-# Only used for biomes that don't explicitly use an elevation-based sampler.
+terrain-base-biome-shift: 0.9
+# Used to shift river elevation down to stay compatible with biome elevation shifting.
 
 min-river-support-height: 45
 #How far down should river support be projected
@@ -138,7 +137,7 @@ continental-mountain-range-sampler-freq: 1500
 
 #Affect how apart mesa ranges are allowed to generate, and the absolute squared filter value (from -0.25 to 0.25) the region filter must exceed for mountain details to be added.  Refer to use in continental sampler funciton.
 continental-mesa-region-allowed-distance: 2000
-continental-mesa-region-allowed-threshold: .25
+continental-mesa-region-allowed-threshold: .31
 
 
 #Both mesas and mountains are regulated to a maximum peak height, which slowly changes over height across the map to give slight range to range variance.  Can be anything from 0.5 to inf, but will cause coastal lines to grow correspondedly flatter.
@@ -190,6 +189,32 @@ continental-max-lake-ratio: 0.1
 
 continental-coast-cutoff: 0.02
 #Defines how much of the continental ratio will be reserved for coastal biomes. Higher values will result in wider coastal regions, while lower values will result in thinner coastal regions.
+
+# ---
+# Special caves
+# ---
+
+#Activation threshold gives transition region, it is equivalent to
+# the ratio*diameter to give block thickness estimate at the shell.
+special_cave_biome_activation: 0.05
+special_cave_void_activation: -0.05
+special_cave_void_transition: -0.10
+special_cave_void_full: -0.15
+cave_dia: 150
+cave_dist: 300
+cave_upper: 40
+cave_lower: -30
+cave_y_curve_power: 2.5
+cave_pit_thresh: 0.1
+cave_pit_trans: 0.4
+# Exponent for the y-axis term of the special cave ellipsoid shape.
+# Higher values (e.g. 4) flatten the top/bottom cap and steepen the side walls;
+# lower values (approaching 2) give a more uniform sphere-like cross-section.
+# Used in special_caves and special_caveDist (carver fade / lava floor boundary).
+# NOTE: special_caves defines the hollow boundary (correct inner ellipsoid shape).
+#       special_caveDist is only used near the shell surface (carver fade width,
+#       lava floor threshold) where its block-distance approximation is accurate.
+# Default: 4
 
 # ---
 # Elevation
@@ -271,16 +296,21 @@ elevation-fuzz: 0.25
 # Flatness
 # ---
 
-flatness-scale: 1.05
-# Default: 1
+flatness-noise-scale: 1800
+#How often flatness noise oscillates
 
-flatness-percent: 0.26
+forced-sealevel-activation-threshold: 0.75
+# Default: TODO
+# Value that controls when the flatness mask fully activates.
+# Decrease to get more flat biome distribution, will cut into mid-level biomes.
+# Range from 0 to 1.
+# In general should be greater than forced-sealevel-blend
+
+# Controls how gradual the transition is between flat and mountainous biomes. Higher values result in more gradual blending, while lower values result in more sudden transitions.
+forced-sealevel-blend: 0.2
 # Default: TODO
 
-flatness-blend: 0.35
-# Default: TODO
-
-flatness-factor: 0.85
+forced-sealevel-factor: 0.85
 # How much to flatten by. 1 = 100% flat, 0 = no flattening
 # Default: 0.95
 
@@ -302,7 +332,7 @@ temperature-min: -1.1
 temperature-max: 1.25
 # Default: 1
 
-temperature-altitude-lapse-rate: 0.5
+temperature-altitude-lapse-rate: 0.7
 # How fast temperature drops with altitude
 # Default: 1.3
 
@@ -329,7 +359,7 @@ precipitation-max: 1.1
 precipitation-ocean-threshold: -1
 # Default -1
 
-precipitation-land-threshold: 0.2
+precipitation-land-threshold: 0.4
 # Default: 0.4
 
 # ---

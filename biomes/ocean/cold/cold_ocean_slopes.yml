@@ -8,4 +8,5 @@ color: $biomes/colors.yml:COLD_OCEAN_SLOPES
 vanilla: minecraft:cold_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

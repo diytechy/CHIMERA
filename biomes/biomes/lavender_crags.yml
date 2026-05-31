@@ -10,7 +10,7 @@ palette:
   - << palettes/rock_layers.yml:palette
  
 slant:
-  - threshold: 4
+  - threshold: 0.4
     palette:
       - BLOCK:minecraft:calcite: 319
       - RIVER_BANK: 61
@@ -44,5 +44,7 @@ features:
     - ALLAYS
     
 tags:
+  - SPECIAL_CAVES
   - LAND_CAVES
   - USE_CHILLY_CREEK_RIVER
+  - BOREAL_COAST_HIGHLANDS

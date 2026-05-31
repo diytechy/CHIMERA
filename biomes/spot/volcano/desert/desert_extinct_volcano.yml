@@ -10,5 +10,6 @@ color: $biomes/colors.yml:DESERT_EXTINCT_VOLCANO
 vanilla: minecraft:desert
 
 tags:
+  - SPECIAL_CAVES
   - LOW_CAVES
   - USE_DESERT_RIVER

@@ -11,6 +11,7 @@ color: $biomes/colors.yml:COLD_DEEP_OCEAN
 vanilla: minecraft:deep_cold_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
 
 features:

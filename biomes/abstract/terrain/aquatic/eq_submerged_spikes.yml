@@ -39,16 +39,25 @@ terrain:
     variables: *variables
     expression: |
       max(
-        -y + base
+        -y + base + lerp(biomeInfluence(x,z),
+          0, oceanElevationBlockHeight(x,z),
+          1, sampler2d(x,z)
+        )
         + scale * spikes(
           x+y*spikeSlantStrength*spikeDirection(x, z),
           z+y*spikeSlantStrength*spikeDirection(x, z+1000)
         )
-        * herp(y, base, 1, base - scale * elevationCutoff, 0)
+        * herp(y, base, 1, base - scale * elevationCutoff, 0) * biomeInfluence(x,z)
       ,
         -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
     samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
       spikeDirection: # Determines the direction large spikes slant towards
         dimensions: 2
         type: OPEN_SIMPLEX_2
@@ -101,8 +110,8 @@ terrain:
               return: CellValue
               frequency: 0.035
               salt: 2
+
   sampler-2d:
-    type: EXPRESSION
-    expression: |
-      scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
-    variables: *variables
+    dimensions: 2
+    type: CONSTANT
+    value: 0

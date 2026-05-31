@@ -5,7 +5,7 @@ abstract: true
 vars: &variables
   base: $customization.yml:terrain-base-y-level
   height: 7
-  pillarHeight: 50
+  pillarHeight: 40
 
 terrain:
   #blend:
@@ -51,6 +51,7 @@ terrain:
           pillarsExist:
             <<: *pillarConf
             return: NoiseLookup
+            salt-lookup: false
             lookup: 
               dimensions: 2
               #type: CONSTANT

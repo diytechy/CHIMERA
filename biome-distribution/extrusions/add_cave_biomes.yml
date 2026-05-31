@@ -1,6 +1,7 @@
 vars: &variables
   max_lower_limit: ${meta.yml:ocean-level} - 13
   base: ${customization.yml:terrain-base-y-level}
+  scale: $customization.yml:terrain-height
 
 # If inside cave percentages-temp threshold, prescribe to inner biome dist.
 #Else if just inside temp threshold, prescribe to edge biome dist or random inner dist based on randomizer.
@@ -9,9 +10,13 @@ extrusions:
   - type: REPLACE
     from: LAVA_TUBES
     sampler:
-      type: CONSTANT
+      type: EXPRESSION
+      variables: *variables
+      #If beneath the spot, set to lava tubes.
+      expression: if(y<(base+scale * spotBaseElevation(x, z)),-1,1)
     to:
       - LAVA_TUBES: 1
+      - SELF: 1
     range:
       min: ${meta.yml:bottom-y}+1
       max: ${meta.yml:ocean-level}

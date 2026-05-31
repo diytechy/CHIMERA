@@ -15,10 +15,14 @@ distributor:
   threshold: *densityThreshold
 
 locator:
-  type: RANDOM
-  amount: 1
-  height: *range
-  salt: *salt
+  type: AND
+  locators:
+    - type: RANDOM
+      amount: 1
+      height: *range
+      salt: *salt
+    - type: BELOW_TOP_TERRAIN_SURFACE  # keep ore at least 7 blocks below the terrain surface
+      offset: -7
 
 structures:
   distribution:

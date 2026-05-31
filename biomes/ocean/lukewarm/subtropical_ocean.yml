@@ -11,6 +11,7 @@ color: $biomes/colors.yml:SUBTROPICAL_OCEAN
 vanilla: minecraft:lukewarm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
   - USE_SUBTROPICAL_TRENCH
 

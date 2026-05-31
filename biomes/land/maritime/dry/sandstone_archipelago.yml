@@ -16,7 +16,7 @@ colors:
   water-fog: 0x32A598
 
 tags:
-  - LAND_CAVES
+  - OCEAN_CAVES
   - SPECIAL_CAVES
   - USE_RIVER
 

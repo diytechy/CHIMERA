@@ -1,0 +1,130 @@
+id: EQ_VINE_VAULT
+type: BIOME
+abstract: true
+
+vars: &variables
+  # y-positions of the three rock-platform bands.
+  # Each level is spaced ≥20 blocks apart to avoid overlap (platform half-width = ±6).
+  platformLowY:  -18   # near cave floor — where vines terminate and moss begins
+  platformMidY:    5   # cave midpoint — main vine-anchor tier
+  platformHighY:  25   # near ceiling — where ceiling vines originate
+
+  act_thresh: $customization.yml:special_cave_void_activation
+  #act_thresh: 12.0
+  #special_cave_void_activation: ${customization.yml:special_cave_void_activation}special_cave_void_activation
+  #"<<":
+  #  - biomes/equations/caverns/eq_carving_land.yml:variables
+
+terrain:
+  blend:
+    distance: 0     # 0 = disabled (sharp edges)
+    step: 4
+    weight: 1.0
+  sampler:
+    dimensions: 3
+    type: CONSTANT
+    value: 10
+
+carving:
+  sampler:
+    dimensions: 3
+    type: EXPRESSION
+    variables: *variables
+    expression: |
+      max(
+        -clamp(
+          // y-WARPED special_caves: each xz column samples the ellipsoid at a different
+          // effective y. At the upper/lower poles the shell is naturally thin and flat
+          // (normalize_shell factor ≈ 0.43 at upper pole, ≈ 0.32 at lower pole), so on
+          // the 4-block sparse grid adjacent columns share the same ceiling y → visible
+          // staircase. Per-column ±6 block y-offset displaces the boundary, dissolving
+          // the staircase into organic curves. yShellWarp is 2D (consistent per column).
+          (special_caves(x, y + yShellWarp(x, z) * 6, z) - act_thresh) * 5.0
+
+          // Wall texture: ±0.4 in expression-space ≈ ±6 blocks at xz equator,
+          //               ±1.5 blocks at y-poles.
+          // Shared pack-level sampler (special_cave_carving.yml:caveWallOffset).
+          + caveWallOffset(x, y, z) * 0.4
+
+          // Platform creation with smooth falloff
+          + platformShape(x, y, z)
+
+        // Clamp matched to standard carver range [-0.54, +0.46].
+        // [-0.6, +0.5]: midpoint(+0.5, -0.54) = -0.02 solid ✓; midpoint(-0.6, +0.46) = -0.07 solid ✓.
+        ,-0.6, 0.5),
+        caveCarverFade(x, y, z)
+      )
+    functions:
+      clamp:
+        arguments: [x, a, b]
+        expression: min(max(x, a), b)
+    samplers:
+      platformShape:
+        dimensions: 3
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          // Three rock-platform bands, each evaluated by platformAt(h, y, platVal, caveVal).
+          // Samplers cannot be called inside function bodies — all sampler results are
+          // evaluated here and forwarded as arguments.
+          //   platVal = platforms(x,z)       — local CELLULAR sampler
+          //   caveVal = special_caves(x,y,z) — pack-level ellipsoid sampler
+          // max() keeps whichever tier contributes the strongest solid signal at (x,y,z).
+          // caveVal uses the same yShellWarp as the outer carver so the wall-proximity
+          // fade matches the warped cave shape (otherwise platforms would key off the
+          // un-warped flat shell while the surrounding void uses the warped one).
+          max(platformAt(platformLowY,  y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z)),
+          max(platformAt(platformMidY,  y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z)),
+              platformAt(platformHighY, y, platforms(x, z), special_caves(x, y + yShellWarp(x, z) * 6, z))))
+        functions:
+          platformAt:
+            # Solid contribution of a single platform tier centred at height h.
+            # Returns 0 outside the ±6-block vertical band, otherwise:
+            #   smooth vertical falloff (1 at h, 0 at h±6)
+            #   × cellular platform presence (~0.75 at cell centres, ~-0.25 at edges)
+            #   × wall-proximity fade (active only near the cave shell, 0 deep in void)
+            #   × overall scale
+            # platVal: platforms(x,z)       — pre-evaluated by outer expression (local sampler)
+            # caveVal: special_caves(x,y,z) — pre-evaluated by outer expression (pack sampler)
+            arguments: [h, py, platVal, caveVal]
+            expression: |
+              if(abs(h - py) > 6, 0,
+                // Smooth vertical falloff: 1 at h, 0 at ±6 blocks.
+                (1 - smoothstep(0, 6, abs(h - py)))
+                // Platform presence: CELLULAR returning ~[-1,0];
+                // -platVal-0.25 is positive at cell centres, negative at edges.
+                * (-platVal - 0.25)
+                // Wall-proximity fade: active only in the near-wall band
+                // (special_caves > -0.3), zero deep in the void (≤ -0.6).
+                * smoothstep(-0.3, -0.6, caveVal)
+                * 3.5
+              )
+            functions:
+              smoothstep:
+                arguments: [edge0, edge1, x]
+                expression: |
+                  if(x <= edge0, 0,
+                    if(x >= edge1, 1,
+                      ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                    )
+                  )
+        samplers:
+          platforms:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 5
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.02
+            sampler:
+              type: CELLULAR
+              frequency: 0.05
+      # carver_fade   → pack-level caveCarverFade(x,y,z)   in math/samplers/special_cave_carving.yml
+      # wallOffset    → pack-level caveWallOffset(x,y,z)   "
+      # shellNoise    → pack-level caveShellNoise(x,y,z)   "
+      # yShellWarp    → pack-level yShellWarp(x,z)         " (must be pack-level so platformShape
+      #                  child sampler can see it — child samplers can't reference siblings)
+  #sampler-2d:
+  #  dimensions: 2
+  #  type: CONSTANT
+  #  value: 0

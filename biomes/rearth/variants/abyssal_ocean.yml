@@ -1,10 +1,9 @@
 id: ABYSSAL_ALLEYS
 type: BIOME
 vanilla: minecraft:deep_cold_ocean
-extends: 
+extends:
   - PALETTE_OCEAN
   - ENVIRONMENT_MARINE_OCEAN
-  - CARVING_OCEAN
   - BASE
   - EQ_ABYSSAL_OCEAN
 

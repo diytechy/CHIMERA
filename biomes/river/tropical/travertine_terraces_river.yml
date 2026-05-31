@@ -10,6 +10,7 @@ color: $biomes/colors.yml:TRAVERTINE_TERRACES_RIVER
 
 vanilla: minecraft:river
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

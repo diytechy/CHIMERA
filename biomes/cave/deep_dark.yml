@@ -19,6 +19,7 @@ climate:
   temperature: 1.0
   downfall: 1.0
 tags:
+  - SPECIAL_CAVES
   - DEEP_DARK
 palette:
   - BLOCK:minecraft:stone: $meta.yml:top-y

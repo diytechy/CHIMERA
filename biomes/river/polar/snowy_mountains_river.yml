@@ -7,6 +7,7 @@ extends:
 - EQ_RIVER_CARVING
 color: $biomes/colors.yml:SNOWY_MOUNTAINS_RIVER
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

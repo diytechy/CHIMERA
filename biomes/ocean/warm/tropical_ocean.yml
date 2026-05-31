@@ -11,6 +11,7 @@ color: $biomes/colors.yml:TROPICAL_OCEAN
 vanilla: minecraft:warm_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES
   - USE_TROPICAL_TRENCH
 

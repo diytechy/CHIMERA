@@ -6,6 +6,7 @@ extends:
 - BASE
 color: $biomes/colors.yml:BOREAL_MESA
 tags:
+- SPECIAL_CAVES
 - USE_COLD_RIVER
 - BOREAL_COAST_FLAT
 - LAND_CAVES

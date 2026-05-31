@@ -5,6 +5,7 @@ vanilla: minecraft:windswept_hills
 color: $biomes/substratum_cave_colors.yml:CAVES
 
 tags:
+  - SPECIAL_CAVES
   - LAND_CAVES
 
 terrain:

@@ -1,6 +1,6 @@
 id: VINE_VAULT
 type: BIOME
-extends: [ ORES_DEFAULT , EQ_CAVE_JUNGLE]
+extends: [ ORES_DEFAULT , EQ_VINE_VAULT]
 vanilla: minecraft:lush_caves
 color: $biomes/colors.yml:DRIPSTONE_CAVES
 
@@ -16,15 +16,24 @@ slant:
   - threshold: 0.9
     palette:
       - MOSS_STONE: $meta.yml:top-y
-      - << meta.yml:palette-bottom
+      - BEDROCK: $meta.yml:bedrock-top
+      - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
   - threshold: 0.4
     palette:
       - MOSSY_COBBLESTONE_STONE: $meta.yml:top-y
-      - << meta.yml:palette-bottom
+      - BEDROCK: $meta.yml:bedrock-top
+      - BLOCK:minecraft:bedrock: $meta.yml:bottom-y
 
 palette:
   - GRASS_DENSE_MOSSY: 319
   - << meta.yml:palette-bedrock
+
+carving:
+  update-palette: true  # Cave void increments paletteLevel by default (acts as solid depth).
+                        # For a ~70-block tall cave this pushes the floor to paletteLevel≈70 → stone.
+                        # Setting true resets the counter on each carved block so the cave floor
+                        # gets depth 0 (grass/moss) and depth 1 (dirt) from GRASS_DENSE_MOSSY,
+                        # satisfying the plantable-blocks check needed for tree feature placement.
 
 features:
   global-preprocessors:
@@ -41,4 +50,4 @@ features:
     - CROSSING_VINES_CAVES
     - LARGE_CEILING_VINES_CAVES
   trees:
-    - SINKHOLE_JUNGLE_TREES
+    - VINE_VAULT_JUNGLE_TREES

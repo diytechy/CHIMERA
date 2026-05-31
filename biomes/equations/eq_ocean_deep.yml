@@ -8,7 +8,10 @@ terrain:
     type: EXPRESSION
     expression: |
       max(
-        -y + base
+        -y + lerp(biomeInfluence(x,z),
+          0, oceanBase + oceanElevationBlockHeight(x,z),
+          1, base + sampler2d(x,z)
+        )
       ,
         -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
@@ -16,10 +19,16 @@ terrain:
       base: 20
       ocean_level: $meta.yml:ocean-level
       scale: $customization.yml:terrain-ocean-depth
+      oceanBase: $customization.yml:terrain-ocean-base-y-level
+    samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          height: 30
+        expression: "|simplex2(x/2, z/2)| * height"
 
   sampler-2d:
     dimensions: 2
-    type: EXPRESSION
-    variables:
-      height: 30
-    expression: "|simplex2(x/2, z/2)| * height"
+    type: CONSTANT
+    value: 0

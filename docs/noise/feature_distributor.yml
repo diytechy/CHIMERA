@@ -1,0 +1,12 @@
+# NoiseTool CLI stub (self-contained): illustrates a SAMPLER-type feature distributor.
+# A SAMPLER distributor places its feature wherever the sampler exceeds `threshold`.
+# This renders that boolean placement field (white = allowed, black = not) using a
+# coherent OpenSimplex base, so the "patches" where a feature may generate are visible.
+# Render with the default grayscale-normalized color scale. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: if(density(x, z) > 0.6, 1, 0)
+samplers:
+  density:
+    dimensions: 2
+    type: OPEN_SIMPLEX_2
+    frequency: 0.03

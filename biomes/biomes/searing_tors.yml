@@ -21,7 +21,7 @@ colors:
   water: 0x880088
   water-fog: 0x000000
 slant:
-- threshold: 4
+- threshold: 0.4
   palette:
   - BLOCK:minecraft:blackstone: 319
   - << palettes/rock_layers.yml:palette
@@ -38,6 +38,7 @@ features:
   #entities:
   #- BLAZES
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 - DEEP_DARK_GROVE
 - BOREAL_COAST_HIGHLANDS

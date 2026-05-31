@@ -4,40 +4,167 @@ abstract: true
 
 vars: &variables
   middleHeight: -7
+  act_thresh: $customization.yml:special_cave_void_activation
+  #act_thresh: 12.0
+  #special_cave_void_activation: ${customization.yml:special_cave_void_activation}special_cave_void_activation
+  #"<<":
+  #  - biomes/equations/caverns/eq_carving_land.yml:variables
 
 terrain:
+  blend:
+    distance: 0     # 0 = disabled (sharp edges)
+    step: 4
+    weight: 1.0
+  sampler:
+    dimensions: 3
+    type: CONSTANT
+    value: 10
+
+carving:
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(max((special_caves(x, y * 2, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -2)
-      + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
+      max(
+        -clamp(
+          // special_caves returns [-1, 0]: -1 at cell center, 0 at ellipsoid boundary.
+          // Its y-component uses cave_y_curve_power (default ^4), which makes the top
+          // and bottom nearly flat. The ChunkInterpolator evaluates density once per
+          // 4 blocks; a flat boundary produces a 4-block staircase.
+          //
+          // WHY special_caves (not special_caveDist) defines the hollow:
+          //   special_caveDist uses a weighted blend (f_xz*dist_xz + f_y*dist_y).
+          //   Off-axis, dist_xz can be large (e.g. 45 blocks) while dist_y is small
+          //   (e.g. 3 blocks). The xz weight then dominates and "uses up" most of the
+          //   dist=12 budget, pulling the hollow floor closer to the y-pole surface —
+          //   the opposite of what an ellipsoid should do. This manifests as the floor
+          //   and ceiling appearing higher (more toward centre) than expected.
+          //   A special_caves threshold always produces the correct scaled inner
+          //   ellipsoid regardless of direction.
+          //
+          // Threshold 0.16 corresponds to ~12 blocks from the xz-equatorial shell.
+          //   At the y-poles the shell is thinner (~2.5 blocks) due to the ^p curvature;
+          //   this is expected for an ellipsoid and keeps the floor close to cave_lower.
+          //
+          // Fix: warp y by a smooth 2D noise (yWarp) before evaluating special_caves.
+          //   This shifts the hollow boundary to a different y per column, dissolving
+          //   the flat-top staircase into organic curves. Amplitude 6 = ~3× grid step.
+          (special_caves(x, y, z) - act_thresh) * 5.0
+
+          // Wall texture: ±0.5 in expression-space ≈ ±7.5 blocks at xz equator,
+          //               ±1.5 blocks at y-poles — stays within the thin pole shell.
+          // Shared pack-level sampler (special_cave_carving.yml:caveWallOffset).
+          + caveWallOffset(x, y, z) * 0.4
+
+          // Platform creation with smooth falloff
+          + platformShape(x, y, z)
+
+        // Clamp matches the standard carver range ([-0.54, +0.46]).
+        // Old ±2.5: interior void at +2.5 next to standard-cave solid at -0.54 → midpoint
+        //   +0.98 (void bleed into shell).  Platform solid at -2.5 next to cave void at +2.5
+        //   → midpoint 0 but asymmetric with standard-cave grid points.
+        // New [-0.6, +0.5]: void cap +0.5 ≤ 0.54 → midpoint with std solid = -0.02 (solid ✓).
+        //   Solid floor -0.6: midpoint with std void +0.46 = -0.07 (solid ✓).
+        ,-0.6, 0.5),
+        //-1000
+        caveCarverFade(x, y, z)
+      )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
+      smoothstep:
+        arguments: [edge0, edge1, x]
+        expression: |
+          if(x <= edge0, 0,
+            if(x >= edge1, 1,
+              ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+            )
+          )
     samplers:
-      platforms:
-        dimensions: 2
-        type: DOMAIN_WARP
-        amplitude: 3
-        warp:
-          type: OPEN_SIMPLEX_2
-          frequency: 0.02
-        sampler:
-          type: CELLULAR
-          frequency: 0.05
-      wallOffset:
+      platformShape:
         dimensions: 3
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.025
-        octaves: 2
-        lacunarity: 2.8
-        gain: 0.5
-  sampler-2d:
-    dimensions: 2
-    type: CONSTANT
-    value: 0
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          // Distance from platform height
+          if(abs(middleHeight - y) > 6, 0,
+            // Smooth vertical falloff: 1 at middleHeight, 0 at ±6 blocks.
+            // Uses (1 - smoothstep(0,6,diff)) because smoothstep only handles
+            // increasing ramps (edge0<edge1); calling smoothstep(6,3,diff) with
+            // inverted edges would always return 0 since diff<=edge0 is always true.
+            (1 - smoothstep(0, 6, abs(middleHeight - y)))
+            // Platform presence based on cellular pattern.
+            // platforms is CELLULAR returning ~[-1,0]; -platforms-0.25 is positive
+            // (~0.75) at cell centers and negative (~-0.25) at cell edges,
+            // creating solid rocky outcroppings at cell-center positions.
+            * (-platforms(x, z) - 0.25)
+            // Scale by distance from cavity edge: active only in the near-wall band
+            // (special_caves > -0.3), zero deep in the void (special_caves <= -0.3).
+            * smoothstep(-0.3, -0.6, special_caves(x, y, z))
+            * 3.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          platforms:
+            dimensions: 2
+            type: DOMAIN_WARP
+            amplitude: 5
+            warp:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.02
+            sampler:
+              type: CELLULAR
+              frequency: 0.05
+      # carver_fade removed — definition is now pack-level caveCarverFade(x,y,z)
+      #   in math/samplers/special_cave_carving.yml (identical expression).
+      # wallOffset removed — replaced by pack-level caveWallOffset(x,y,z).
+      # shellNoise removed — replaced by pack-level caveShellNoise(x,y,z).
+
+      # 2D FBM for y-coordinate warping. Must be 2D (not 3D) so the offset is
+      # consistent for the entire vertical column at each xz position — a 3D
+      # sampler would vary per block and could create mid-column discontinuities.
+      # Period ~56 blocks (frequency 0.018) gives 3-4 variation cycles across a
+      # typical 200-block cave diameter without introducing noisy fine-scale breaks.
+      yWarp:
+        dimensions: 2
+        type: EXPRESSION
+        expression: |
+          0
+          //if(y>0
+          //  ceilWarp(x,z),
+          //  florWarp(x,z))
+          //  + 1
+
+        samplers:
+          ceilWarp:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.018
+            octaves: 2
+            gain: 0.5
+            salt: 5678309
+          florWarp:
+            dimensions: 2
+            type: FBM
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.018
+            octaves: 2
+            gain: 0.5
+            salt: 56783092
+  #sampler-2d:
+  #  dimensions: 2
+  #  type: CONSTANT
+  #  value: 0

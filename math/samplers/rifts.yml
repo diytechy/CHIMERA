@@ -5,7 +5,50 @@ riftCell: &riftCell
   salt: 1357
   jitter: 0.5
 
+# ── Warp anchors ──────────────────────────────────────────────────────────────
+#
+# Two distinct warps are used at different pipeline stages, and they intentionally
+# differ.  Anchoring them here makes the relationship explicit and prevents the
+# two halves from drifting independently.
+#
+# pitWarp  — Stage 2 boundary (build_rift_regions.yml Stage 2 REPLACE).
+#   Assigns the outer pit / well zones (_cold_well, _warm_well) from the raw
+#   cold_pit / warm_pit expressions.  warped_pit must use the identical warp so
+#   underground pit-zone queries align with the surface biome boundary.
+#   ⚠ build_rift_regions.yml Stage 2 inlines the same warp values; YAML anchors
+#   cannot cross files — if you change pitWarp here you must also update Stage 2.
+#
+# wellWarp — Stage 4 boundary (build_rift_regions.yml Stage 4 REPLACE_LIST).
+#   Stage 4 calls riftWellPlacement(x,z) directly, so this sampler's warp IS
+#   Stage 4's warp.  FBM over a coarser frequency gives each well cell an
+#   organic shape independent of the crisper Stage 2 OS2 deformation.
+#   Changing wellWarp directly changes Stage 4 sinkhole placement on the surface.
+#
+pitWarp: &pitWarp
+  type: OPEN_SIMPLEX_2
+  frequency: 0.002
+
+wellWarp: &wellWarp
+  type: FBM
+  octaves: 4
+  gain: 0.3
+  sampler:
+    type: OPEN_SIMPLEX_2
+    frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+
+# ──────────────────────────────────────────────────────────────────────────────
+
 samplers:
+  riftLandDistributor:
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
+    # Common distributor for rift land.
+    expression: |
+      if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&
+      (continents(x,z)>0.1)),1,-1)
+
   riftHybDistFromCenter:
     <<: *riftCell
     distance: Hybrid
@@ -32,6 +75,30 @@ samplers:
       expression: nearSpotRift(x,z)
     salt-lookup: false
 
+  riftContinents:
+    <<: *riftCell
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: EXPRESSION
+      variables:
+        radius: ${customization.yml:biomeSpread.riftDistance}*0.4
+      expression: |
+        min(continentsSparse(x, z),
+          min(min(min(min(
+            continentsSparse(x + radius, z),
+            continentsSparse(x - radius, z)),
+          min(
+            continentsSparse(x, z + radius),
+            continentsSparse(x, z - radius))),
+          min(
+            continentsSparse(x + radius, z + radius),
+            continentsSparse(x + radius, z - radius))),
+          min(
+            continentsSparse(x - radius, z + radius),
+            continentsSparse(x - radius, z - radius))))
+    salt-lookup: false
+
   riftFarRiverDist:
     <<: *riftCell
     return: NoiseLookup
@@ -43,18 +110,17 @@ samplers:
 
   riftWellPlacement:
     dimensions: 2
-    type: DOMAIN_WARP #Tried with A = 400, warp freq = 0.001, lots of overlap
+    type: DOMAIN_WARP
     amplitude: 60
-    warp:
-      type: FBM
-      octaves: 4
-      gain: 0.3
-      sampler:
-        type: OPEN_SIMPLEX_2
-        frequency: 1 / ${customization.yml:biomeSpread.riftDistance}
+    warp: *wellWarp    # Stage 4 boundary — see wellWarp anchor above
     sampler:
       type: EXPRESSION
-      expression: if(riftHybDistFromCenter(x,z)<-0.6,1,-1)
+      variables:
+        spotActivateDist: -0.6
+      expression: |
+        if(riftHybDistFromCenter(x,z)<spotActivateDist,
+          lerp(riftHybDistFromCenter(x,z),-1,1,spotActivateDist,0),
+          lerp(riftHybDistFromCenter(x,z),spotActivateDist,0,0,-1))
 
   riftCanyon:
     type: EXPRESSION
@@ -71,3 +137,74 @@ samplers:
         type: CELLULAR
         frequency: 1 / ${customization.yml:biomeSpread.wellDistance} * 0.15
         seed: 23456345
+
+
+  # Value greater than threshold = Rift / canyon
+  # Value less than threshold = pit
+  cold_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.66
+    # riftLandDistributor intentionally removed: it evaluates per-pixel regional
+    # functions (continentalRiverDistSparseFarGrid, continents) that produce
+    # ragged notches when evaluated at domain-warped coordinates.  Stage 1 of
+    # build_rift_regions.yml already gates on raw riftLandDistributor before any
+    # pixel reaches Stage 2, so the pre-filter is intact.  All remaining
+    # conditions here are rift-cell NoiseLookups (constant per cell, warp-stable).
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)<-0.3) &&
+      (riftRegions(x,z)<pit_threshold)
+
+  warm_pit:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      pit_threshold: -0.66
+    # See cold_pit comment — riftLandDistributor removed for same reason.
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftTemperature(x,z)>0.2) &&
+      (riftRegions(x,z)<pit_threshold)
+
+  cold_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.74
+    # See cold_pit comment — riftLandDistributor removed for same reason.
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)<-0.3)
+
+  warm_rift:
+    type: EXPRESSION
+    dimensions: 2
+    variables:
+      rift_threshold: 0.82
+    # See cold_pit comment — riftLandDistributor removed for same reason.
+    expression: |
+      (riftContinents(x,z)>0)&&
+      (riftFarRiverDist(x,z)>200) &&
+      (riftInRangeOfSpot(x,z)<0) &&
+      (riftRegions(x,z)>rift_threshold) &&
+      (riftTemperature(x,z)>0.2)
+
+  warped_pit:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp: *pitWarp    # Stage 2 boundary — must match build_rift_regions.yml Stage 2
+    sampler:
+      type: EXPRESSION
+      # cold_pit / warm_pit no longer contain riftLandDistributor internally;
+      # that check is now performed at raw coordinates above.
+      expression: if(warm_pit(x,z)||cold_pit(x,z),1,-1)

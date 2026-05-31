@@ -1,0 +1,35 @@
+# NoiseTool CLI stub (self-contained): DENDRY dendritic-network sampler.
+# DENDRY is provided by the bundled `dendry-noise` addon (diytechy/DendryTerra) and is
+# NOT part of stock Polydev Terra. It produces branching, river/valley-like networks.
+# Rendering is comparatively slow (segment generation per grid cell) — use a modest
+# --size (e.g. 256x256) and expect several seconds to minutes. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: dendrysampler(x, 0.0, z)
+samplers:
+  dendrysampler:
+    dimensions: 3
+    type: DENDRY
+    n: 3
+    epsilon: 0
+    delta: 0.05
+    slope: 0.001
+    gridsize: 2000
+    curvature: 1.0
+    max-segments-per-level: 500
+    tangent-angle: 38
+    constellation-scale: 1
+    lowest-slope-cutoff: -1000
+    sampler:
+      type: PROBABILITY
+      sampler:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.0001
+    branches:
+      dimensions: 2
+      type: EXPRESSION
+      expression: SetSamp(x, z) + 1
+      samplers:
+        SetSamp:
+          dimensions: 2
+          type: OPEN_SIMPLEX_2
+          frequency: 0.01

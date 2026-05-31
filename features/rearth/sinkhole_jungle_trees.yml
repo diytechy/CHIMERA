@@ -15,6 +15,11 @@ distributor:
           type: OPEN_SIMPLEX_2
           salt: 0101
       threshold: 0.75
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        expression: -riftWellPlacement(x,z)
+      threshold: -0.2
 
 locator:
   type: AND
@@ -22,7 +27,7 @@ locator:
     - type: TOP
       range: &range
         min: $meta.yml:bottom-y
-        max: 0
+        max: $meta.yml:top-y
     - type: PATTERN
       range: *range
       pattern:

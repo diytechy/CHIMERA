@@ -9,19 +9,19 @@ palette:
 - SNOWY_GROUND: 319
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 3
+- threshold: 0.48
   palette:
   - BLOCK:minecraft:powder_snow: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 4
+- threshold: 0.4
   palette:
   - BLOCK:minecraft:snow_block: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 5
+- threshold: 0.34
   palette:
   - BLOCK:minecraft:blue_ice: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 6
+- threshold: 0.28
   palette:
   - BLOCK:minecraft:ice: 319
   - << palettes/rock_layers.yml:palette
@@ -36,6 +36,7 @@ features:
   entities:
   - POLAR_BEARS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - POLAR_COAST_HIGHLANDS
 - USE_DRAFTY_STREAM_RIVER

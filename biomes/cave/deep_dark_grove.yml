@@ -21,6 +21,7 @@ climate:
   downfall: 1.0
 
 tags:
+  - SPECIAL_CAVES
   - DEEP_DARK
   
 palette:

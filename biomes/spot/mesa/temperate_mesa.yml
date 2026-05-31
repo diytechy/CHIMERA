@@ -9,6 +9,7 @@ tags:
 - USE_RIVER
 - TEMPERATE_COAST_FLAT
 - LAND_CAVES
+- SPECIAL_CAVES
 vanilla: minecraft:plains
 palette:
 - GRASS: $meta.yml:top-y

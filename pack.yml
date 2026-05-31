@@ -1,5 +1,5 @@
 id: CHIMERA
-version: 0.0.4
+version: 0.0.5
 author: "Astrash, Sancires, Aureus, Rearth, Belikhun, RogueShade, DIYTechy"
 
 generator: NOISE_3D
@@ -22,14 +22,20 @@ blend:
       distance: 3
       step: 4
     no-blend-tags:
-      - subsurface
+    #  - subsurface
     # Y-range outside which blending is skipped entirely (center biome sample used directly).
     # Set to cover the actual terrain generation band: below y-min is always solid,
     # above y-max is always air. Tune these against your tallest and deepest terrain features.
     # Default (omitted): Integer.MIN_VALUE / Integer.MAX_VALUE = no Y-range restriction.
     y-range:
-      min: -20   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
+      min: -64   # deepest ocean floor with blend margin (~sea floor ~30, minus blend radius 12, minus safety)
       max: 301   # tallest mountain peak with blend margin (~250, plus blend radius 12, plus safety)
+    # When true, neighbor blend positions sample the extruded biome at each Y level instead of
+    # the surface biome. This produces more accurate underground terrain blending (e.g. cave
+    # biomes blend with their actual depth-level neighbors rather than their surface counterparts),
+    # at the cost of rebuilding the blend map at every Y level rather than once per (x,z) center.
+    # Default: false (surface-biome neighbors, matches previous behaviour).
+    extruded-neighbors: false
 
 carving:
   resolution:
@@ -206,6 +212,7 @@ samplers:
     - math/samplers/biomes_ocean.yml:samplers
     - math/samplers/biomes_large.yml:samplers
     - math/samplers/rifts.yml:samplers
+    - math/samplers/special_cave_carving.yml:samplers
 
 slant:
   calculation-method: DotProduct

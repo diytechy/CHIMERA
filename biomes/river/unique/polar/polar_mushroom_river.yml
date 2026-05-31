@@ -11,6 +11,7 @@ color: $biomes/colors.yml:POLAR_MUSHROOM_RIVER
 
 vanilla: minecraft:frozen_river
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   flora:

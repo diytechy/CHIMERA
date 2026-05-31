@@ -8,6 +8,7 @@ extends:
 color: $biomes/colors.yml:PALE_GARDEN_RIVER
 vanilla: minecraft:river
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

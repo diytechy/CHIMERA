@@ -1,6 +1,6 @@
 id: MARINE_MONOLITHS
 type: BIOME
-extends: [ CARVING_LAND, BASE , EQ_MARINE_MONOLITHS]
+extends: [ BASE , EQ_MARINE_MONOLITHS]
 vanilla: minecraft:beach
 color: $biomes/colors.yml:BEACH
 
@@ -10,10 +10,6 @@ palette:
   - DEEP_CALCITE_DIORITE: 110
   - MUDDY_BEACH: 61
   - << meta.yml:palette-bottom
-
-tags:
-  - LOW_CAVES
-
 
 features:
   global-preprocessors:

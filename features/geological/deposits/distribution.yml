@@ -72,7 +72,7 @@ iron-high:
     max: 384
 
 copper:
-  averageCountPerChunk: 60
+  averageCountPerChunk: 24
   salt: 2932
   range:
     min: -16
@@ -100,7 +100,7 @@ coal:
     max: 192
 
 coal-uniform:
-  averageCountPerChunk: 100
+  averageCountPerChunk: 22
   salt: 7012
   range:
     min: 136

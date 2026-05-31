@@ -9,4 +9,5 @@ color: $biomes/colors.yml:SUBTROPICAL_DEEP_DEPTHS_TRENCH
 vanilla: minecraft:deep_cold_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

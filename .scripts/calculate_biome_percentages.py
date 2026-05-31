@@ -58,16 +58,25 @@ import yaml
 import re
 import sys
 import csv
+import math
 from enum import Enum
 from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional, Set
 
-# =============================================================================
-# SAMPLER DISTRIBUTION CONFIG
-# =============================================================================
-SAMPLER_DIST_CONFIG = Path(__file__).parent / "sampler_distributions.yml"
+# Shared CDF / sampler resolution machinery
+from sampler_cdf import (
+    SAMPLER_DIST_CONFIG,
+    RESOLVED_SAMPLERS_PATH,
+    SamplerDistribution,
+    NumericalCDF,
+    PackSamplerRegistry,
+    resolve_sampler_cdf,
+    compute_slot_probabilities,
+    get_sampler_dist as _get_sampler_dist,
+    get_pack_registry as _get_pack_registry,
+)
 
 # =============================================================================
 # NAMED CLIMATE SAMPLERS  (edit if pack renames these expression functions)
@@ -99,26 +108,33 @@ RIVER_STAGE_TAGS: Set[str] = {
 # =============================================================================
 # BORDER STAGE MODEL CONSTANTS
 # =============================================================================
-# Border stages only replace cells where two biomes meet.  The fraction of a
-# biome's cells that are border-adjacent depends on spatial geometry.
+# Terra's BORDER stages (see BorderStage.java) replace a center cell that
+# carries the ``replace`` tag whenever any of its 8 immediate neighbours carries
+# the ``from`` tag.  The geometrically-driven fraction of replace cells that
+# are actually converted is approximated by:
 #
-# For a spatially-clustered biome occupying fraction p of the map, its
-# perimeter scales as sqrt(p) (blob-like regions), so the fraction of its
-# cells that are on the border is roughly proportional to 1/sqrt(p).
-# But for border detection we also need the "from" biome to be adjacent,
-# so the border fraction of the "replace" biome depends on both.
+#     border_frac = min(BORDER_MAX_FRACTION,
+#                       BORDER_SCALE_FACTOR * sqrt(p_from_tag))
 #
-# Model: fraction_converted = min(MAX, SCALE * sqrt(p_from) * (1 / sqrt(p_replace)))
-#      = min(MAX, SCALE * sqrt(p_from / p_replace))
-#
-# This captures: more "from" biome → more borders; larger "replace" biome → smaller
-# fraction of its cells are at the edge.
-#
-# SCALE is calibrated conservatively.  Border biomes in practice are thin strips
-# (1 cell wide at pipeline resolution), so even when two biomes share a long
-# border, only a small fraction of the replace biome's total area converts.
-BORDER_MAX_FRACTION  = 0.25   # max fraction of replace biome converted to border
-BORDER_SCALE_FACTOR  = 0.12   # multiplier for sqrt(p_from / p_replace)
+# where ``p_from_tag`` is the summed probability of all biomes carrying the
+# ``from`` (neighbour) tag in the current distribution.  Square-root scaling
+# models perimeter-to-area ratios for spatially-correlated biome patches.  The
+# constants are tunable; ``.scripts/calibrate_border.py`` sweeps them against
+# ``benchmark_CHIMERA.csv``.
+BORDER_SCALE_FACTOR = 0.08
+BORDER_MAX_FRACTION = 0.05
+
+
+def _border_fraction(from_total_prob: float) -> float:
+    """
+    Fraction of a ``replace``-tag biome that gets converted to border biomes,
+    given the total probability mass of ``from``-tag (neighbour-trigger) biomes
+    in the current distribution.  See BORDER_SCALE_FACTOR / BORDER_MAX_FRACTION.
+    """
+    if from_total_prob <= 0:
+        return 0.0
+    return min(BORDER_MAX_FRACTION,
+               BORDER_SCALE_FACTOR * math.sqrt(from_total_prob))
 
 # =============================================================================
 # CLIMATE DATA PRESET  (edit if the main climate-stages preset changes)
@@ -234,844 +250,8 @@ def _build_elevation_flat_biomes() -> Set[str]:
 
 
 # =============================================================================
-# Sampler Distribution  (CDF-based probability)
+# Local helpers that wrap the shared sampler_cdf module
 # =============================================================================
-
-class SamplerDistribution:
-    """
-    Loads piecewise-linear CDFs from sampler_distributions.yml and computes
-    the actual probability each slot in a weighted biome list receives.
-
-    Terra maps a sampler output value v to a slot index:
-        index = clamp(int(((v + 1) / 2) * arraySize), 0, arraySize - 1)
-    So slot i occupies the value range:
-        v_start = -1 + 2 * i        / arraySize
-        v_end   = -1 + 2 * (i + 1) / arraySize
-    P(slot i) = CDF(v_end) - CDF(v_start)
-
-    For sampler types tagged 'uniform':  uniform distribution on [-1, 1] assumed.
-    For sampler type 'constant':         always outputs 0; midpoint slot gets prob 1.
-    """
-
-    _UNIFORM_TAG  = "uniform"
-    _CONSTANT_TAG = "constant"
-
-    def __init__(self):
-        self._distributions: Dict[str, Any] = {}
-
-    @classmethod
-    def load(cls, path: Path) -> "SamplerDistribution":
-        """Load CDF breakpoints from sampler_distributions.yml."""
-        instance = cls()
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-            dist_map = data.get("distributions", {}) if data else {}
-            for k, v in dist_map.items():
-                instance._distributions[k] = v
-        except Exception as e:
-            print(f"Warning: Could not load sampler distributions from {path}: {e}",
-                  file=sys.stderr)
-        return instance
-
-    def cdf(self, sampler_type: str, v: float) -> float:
-        """CDF(v) for the given sampler type.  Clamps to [0, 1]."""
-        dist = self._distributions.get(sampler_type)
-
-        if dist is None or dist == self._UNIFORM_TAG:
-            return max(0.0, min(1.0, (v + 1.0) / 2.0))
-
-        if dist == self._CONSTANT_TAG:
-            return 0.0 if v < 0.0 else 1.0
-
-        if not isinstance(dist, list) or len(dist) < 2:
-            return max(0.0, min(1.0, (v + 1.0) / 2.0))
-
-        v0, c0 = dist[0]
-        vn, cn = dist[-1]
-        if v <= v0:
-            return float(c0)
-        if v >= vn:
-            return float(cn)
-
-        # Binary search for the enclosing segment
-        lo, hi = 0, len(dist) - 2
-        while lo < hi:
-            mid = (lo + hi) // 2
-            if dist[mid + 1][0] <= v:
-                lo = mid + 1
-            else:
-                hi = mid
-        va, ca = dist[lo]
-        vb, cb = dist[lo + 1]
-        if vb == va:
-            return float(ca)
-        t = (v - va) / (vb - va)
-        return float(ca + t * (cb - ca))
-
-    def slot_probabilities(self, sampler_type: str, weights: List[int]) -> List[float]:
-        """
-        Compute the probability each weighted-list slot receives from the sampler.
-
-        Args:
-            sampler_type: Leaf sampler type string (e.g. 'CELLULAR', 'OPEN_SIMPLEX_2').
-            weights:      Integer weights for each list entry (in YAML order).
-        Returns:
-            List of floats (same length as weights) summing to 1.0.
-        """
-        array_size = sum(weights)
-        if array_size == 0:
-            n = max(1, len(weights))
-            return [1.0 / n] * len(weights)
-
-        dist = self._distributions.get(sampler_type)
-        is_uniform  = (dist is None or dist == self._UNIFORM_TAG)
-        is_constant = (dist == self._CONSTANT_TAG)
-
-        if is_constant:
-            mid_slot = array_size // 2
-            probs = [0.0] * len(weights)
-            cumulative = 0
-            for i, w in enumerate(weights):
-                if cumulative <= mid_slot < cumulative + w:
-                    probs[i] = 1.0
-                    break
-                cumulative += w
-            return probs
-
-        cumulative = 0
-        probs = []
-        for w in weights:
-            v_start = -1.0 + 2.0 * cumulative          / array_size
-            v_end   = -1.0 + 2.0 * (cumulative + w)    / array_size
-            if is_uniform:
-                p = w / array_size
-            else:
-                p = self.cdf(sampler_type, v_end) - self.cdf(sampler_type, v_start)
-            probs.append(max(0.0, p))
-            cumulative += w
-
-        total = sum(probs)
-        if total > 0:
-            probs = [p / total for p in probs]
-        else:
-            probs = [1.0 / len(weights)] * len(weights)
-        return probs
-
-
-# Module-level lazy singleton for SamplerDistribution
-_sampler_dist_instance: Optional[SamplerDistribution] = None
-
-def _get_sampler_dist() -> SamplerDistribution:
-    global _sampler_dist_instance
-    if _sampler_dist_instance is None:
-        _sampler_dist_instance = SamplerDistribution.load(SAMPLER_DIST_CONFIG)
-    return _sampler_dist_instance
-
-
-# =============================================================================
-# Numerical CDF — discretized probability distribution
-# =============================================================================
-
-import math as _math
-
-class NumericalCDF:
-    """
-    Represents a probability distribution as a discretized CDF.
-
-    The CDF is sampled at BINS+1 evenly-spaced points over [LO, HI].
-    cdf[i] = P(X <= LO + i * step)  where step = (HI - LO) / BINS.
-
-    This allows numerically accurate composition of distributions through
-    shift, scale, clamp, convolution (add), product (mul), max, min.
-    """
-
-    BINS = 500       # 500 bins → 0.02 resolution over [-5, 5]; ample for slot computation
-    LO   = -5.0
-    HI   =  5.0
-
-    __slots__ = ('cdf',)
-
-    def __init__(self, cdf_values: List[float]):
-        self.cdf = cdf_values          # length = BINS + 1
-
-    # ── helpers ──────────────────────────────────────────────────────────
-
-    @classmethod
-    def _step(cls) -> float:
-        return (cls.HI - cls.LO) / cls.BINS
-
-    def _val(self, i: int) -> float:
-        return self.LO + i * self._step()
-
-    def _frac_index(self, v: float) -> float:
-        return (v - self.LO) / self._step()
-
-    # ── evaluate CDF at arbitrary value ──────────────────────────────────
-
-    def eval_cdf(self, v: float) -> float:
-        if v <= self.LO:
-            return 0.0
-        if v >= self.HI:
-            return 1.0
-        fi = self._frac_index(v)
-        i = int(fi)
-        t = fi - i
-        if i >= self.BINS:
-            return 1.0
-        return self.cdf[i] * (1.0 - t) + self.cdf[i + 1] * t
-
-    # ── slot probability (replaces SamplerDistribution.slot_probabilities) ─
-
-    def slot_probabilities(self, weights: List[int]) -> List[float]:
-        """
-        Probability each weighted-list slot receives.
-        Slot boundaries follow Terra's normalizeIndex:
-            v_start = -1 + 2 * cumulative / array_size
-            v_end   = -1 + 2 * (cumulative + w) / array_size
-        Values outside [-1, 1] clamp to the first/last slot.
-        """
-        array_size = sum(weights)
-        if array_size == 0:
-            n = max(1, len(weights))
-            return [1.0 / n] * len(weights)
-
-        cumulative = 0
-        probs: List[float] = []
-        for w in weights:
-            v_start = -1.0 + 2.0 * cumulative / array_size
-            v_end   = -1.0 + 2.0 * (cumulative + w) / array_size
-            p = self.eval_cdf(v_end) - self.eval_cdf(v_start)
-            probs.append(max(0.0, p))
-            cumulative += w
-
-        # First slot also captures all mass below -1; last slot captures all mass above +1
-        probs[0]  += self.eval_cdf(-1.0)                 # P(X < -1)
-        probs[-1] += 1.0 - self.eval_cdf(1.0)            # P(X > +1)
-
-        total = sum(probs)
-        if total > 0:
-            probs = [p / total for p in probs]
-        else:
-            probs = [1.0 / len(weights)] * len(weights)
-        return probs
-
-    # ── constructors ─────────────────────────────────────────────────────
-
-    @classmethod
-    def from_breakpoints(cls, breakpoints: List) -> "NumericalCDF":
-        """Create from piecewise-linear breakpoints [(value, cdf_value), ...]."""
-        step = cls._step()
-        cdf: List[float] = []
-        bp = breakpoints
-        j = 0  # pointer into breakpoints
-        for i in range(cls.BINS + 1):
-            v = cls.LO + i * step
-            if v <= bp[0][0]:
-                cdf.append(float(bp[0][1]))
-            elif v >= bp[-1][0]:
-                cdf.append(float(bp[-1][1]))
-            else:
-                while j < len(bp) - 2 and bp[j + 1][0] < v:
-                    j += 1
-                va, ca = bp[j]
-                vb, cb = bp[j + 1]
-                t = (v - va) / (vb - va) if vb != va else 0.0
-                cdf.append(float(ca + t * (cb - ca)))
-        return cls(cdf)
-
-    @classmethod
-    def uniform(cls, lo: float = -1.0, hi: float = 1.0) -> "NumericalCDF":
-        step = cls._step()
-        cdf = []
-        for i in range(cls.BINS + 1):
-            v = cls.LO + i * step
-            if v <= lo:
-                cdf.append(0.0)
-            elif v >= hi:
-                cdf.append(1.0)
-            else:
-                cdf.append((v - lo) / (hi - lo))
-        return cls(cdf)
-
-    @classmethod
-    def constant(cls, c: float = 0.0) -> "NumericalCDF":
-        step = cls._step()
-        cdf = [0.0 if (cls.LO + i * step) < c else 1.0
-               for i in range(cls.BINS + 1)]
-        return cls(cdf)
-
-    @classmethod
-    def gaussian(cls, mean: float = 0.0, std: float = 1.0) -> "NumericalCDF":
-        step = cls._step()
-        sqrt2 = _math.sqrt(2.0)
-        cdf = [0.5 * (1.0 + _math.erf((cls.LO + i * step - mean) / (std * sqrt2)))
-               for i in range(cls.BINS + 1)]
-        return cls(cdf)
-
-    # ── transformations ──────────────────────────────────────────────────
-
-    def shift(self, c: float) -> "NumericalCDF":
-        """Distribution of X + c."""
-        if c == 0:
-            return self
-        new_cdf = [self.eval_cdf(self._val(i) - c) for i in range(self.BINS + 1)]
-        return NumericalCDF(new_cdf)
-
-    def scale(self, c: float) -> "NumericalCDF":
-        """Distribution of X * c."""
-        if c == 1.0:
-            return self
-        if c == 0.0:
-            return NumericalCDF.constant(0.0)
-        if c > 0:
-            new_cdf = [self.eval_cdf(self._val(i) / c) for i in range(self.BINS + 1)]
-        else:
-            # Flip: P(cX ≤ v) = P(X ≥ v/c) = 1 − CDF(v/c)
-            new_cdf = [max(0.0, 1.0 - self.eval_cdf(self._val(i) / c))
-                       for i in range(self.BINS + 1)]
-        return NumericalCDF(new_cdf)
-
-    def clamp_dist(self, lo: float, hi: float) -> "NumericalCDF":
-        """Distribution of clamp(X, lo, hi).  Mass accumulates at boundaries."""
-        step = self._step()
-        new_cdf: List[float] = []
-        for i in range(self.BINS + 1):
-            v = self.LO + i * step
-            if v < lo:
-                new_cdf.append(0.0)
-            elif v >= hi:
-                new_cdf.append(1.0)
-            else:
-                # CDF at v = P(X ≤ v) — same as original in [lo, hi)
-                new_cdf.append(self.eval_cdf(v))
-        return NumericalCDF(new_cdf)
-
-    def linear_map(self, in_lo: float, in_hi: float,
-                   out_lo: float, out_hi: float) -> "NumericalCDF":
-        """Distribution after linear mapping [in_lo, in_hi] → [out_lo, out_hi] with clamping."""
-        # First clamp to input range, then affine transform
-        clamped = self.clamp_dist(in_lo, in_hi)
-        if in_hi == in_lo:
-            return NumericalCDF.constant(out_lo)
-        s = (out_hi - out_lo) / (in_hi - in_lo)
-        d = out_lo - s * in_lo
-        return clamped.scale(s).shift(d)
-
-    # ── binary operations (assuming independence) ────────────────────────
-
-    def _get_pdf(self) -> List[float]:
-        """PDF as BINS density values (unnormalized per-bin mass)."""
-        return [max(0.0, self.cdf[i + 1] - self.cdf[i]) for i in range(self.BINS)]
-
-    @classmethod
-    def _from_pdf(cls, pdf: List[float]) -> "NumericalCDF":
-        cdf = [0.0]
-        for p in pdf:
-            cdf.append(cdf[-1] + max(0.0, p))
-        total = cdf[-1]
-        if total > 0:
-            cdf = [c / total for c in cdf]
-        else:
-            return cls.uniform()
-        return cls(cdf)
-
-    def add(self, other: "NumericalCDF") -> "NumericalCDF":
-        """Distribution of X + Y (convolution, assuming independence)."""
-        pa = self._get_pdf()
-        pb = other._get_pdf()
-        n = self.BINS
-        # Discrete convolution — result has 2n−1 bins spanning [2*LO, 2*HI]
-        conv = [0.0] * (2 * n - 1)
-        for i in range(n):
-            if pa[i] == 0:
-                continue
-            for j in range(n):
-                conv[i + j] += pa[i] * pb[j]
-        # Build CDF of convolved result and resample to standard grid
-        conv_lo = 2.0 * self.LO
-        conv_range = 2.0 * (self.HI - self.LO)
-        conv_step = conv_range / len(conv)
-        # Cumulative sum → CDF at conv bin edges
-        cum = [0.0]
-        for c in conv:
-            cum.append(cum[-1] + max(0.0, c))
-        total = cum[-1]
-        if total <= 0:
-            return NumericalCDF.uniform()
-        cum = [c / total for c in cum]
-        # Resample onto standard grid [LO, HI]
-        step = self._step()
-        new_cdf: List[float] = []
-        for i in range(n + 1):
-            v = self.LO + i * step
-            fi = (v - conv_lo) / conv_step
-            idx = int(fi)
-            if idx < 0:
-                new_cdf.append(0.0)
-            elif idx >= len(cum) - 1:
-                new_cdf.append(1.0)
-            else:
-                t = fi - idx
-                new_cdf.append(cum[idx] * (1.0 - t) + cum[idx + 1] * t)
-        return NumericalCDF(new_cdf)
-
-    def max_with(self, other: "NumericalCDF") -> "NumericalCDF":
-        """Distribution of max(X, Y) assuming independence."""
-        new_cdf = [self.cdf[i] * other.cdf[i] for i in range(self.BINS + 1)]
-        return NumericalCDF(new_cdf)
-
-    def min_with(self, other: "NumericalCDF") -> "NumericalCDF":
-        """Distribution of min(X, Y) assuming independence."""
-        new_cdf = [1.0 - (1.0 - self.cdf[i]) * (1.0 - other.cdf[i])
-                   for i in range(self.BINS + 1)]
-        return NumericalCDF(new_cdf)
-
-    def __repr__(self):
-        mean = sum((self.cdf[i+1] - self.cdf[i]) * self._val(i)
-                   for i in range(self.BINS))
-        return f"NumericalCDF(mean≈{mean:.3f}, P[-1,1]≈{self.eval_cdf(1)-self.eval_cdf(-1):.3f})"
-
-
-# =============================================================================
-# Pack Sampler Registry — loads resolved pack samplers for CDF computation
-# =============================================================================
-
-RESOLVED_SAMPLERS_PATH = Path(".artifacts") / "resolved_samplers.yml"
-
-class PackSamplerRegistry:
-    """
-    Loads the resolved pack samplers from .artifacts/resolved_samplers.yml
-    and provides lookup by name for CDF computation.
-    """
-
-    def __init__(self):
-        self._configs: Dict[str, Any] = {}
-        self._cdf_cache: Dict[str, NumericalCDF] = {}
-
-    @classmethod
-    def load(cls, path: Path = RESOLVED_SAMPLERS_PATH) -> "PackSamplerRegistry":
-        reg = cls()
-        if not path.exists():
-            print(f"Warning: {path} not found — pack sampler CDF resolution unavailable",
-                  file=sys.stderr)
-            return reg
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-            samplers = data.get("samplers", {}) if data else {}
-            for name, cfg in samplers.items():
-                if isinstance(cfg, dict):
-                    reg._configs[name] = cfg
-            print(f"Loaded {len(reg._configs)} pack samplers from {path}", file=sys.stderr)
-        except yaml.YAMLError:
-            # YAML may fail on unresolved aliases — try loading line-by-line
-            # by stripping problematic alias references
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                # Remove lines with unresolved aliases (e.g., *UndefinedAlias)
-                import re as _re
-                cleaned = _re.sub(r'^.*\*[A-Z][a-zA-Z]+.*$', '', content, flags=_re.MULTILINE)
-                data = yaml.safe_load(cleaned)
-                samplers = data.get("samplers", {}) if data else {}
-                for name, cfg in samplers.items():
-                    if isinstance(cfg, dict):
-                        reg._configs[name] = cfg
-                print(f"Loaded {len(reg._configs)} pack samplers from {path} "
-                      f"(with alias cleanup)", file=sys.stderr)
-            except Exception as e2:
-                print(f"Warning: Could not load pack samplers from {path}: {e2}",
-                      file=sys.stderr)
-        except Exception as e:
-            print(f"Warning: Could not load pack samplers from {path}: {e}", file=sys.stderr)
-        return reg
-
-    def get_config(self, name: str) -> Optional[Dict]:
-        return self._configs.get(name)
-
-    def get_cdf(self, name: str) -> Optional[NumericalCDF]:
-        """Get (cached) NumericalCDF for a named pack sampler."""
-        if name in self._cdf_cache:
-            return self._cdf_cache[name]
-        cfg = self._configs.get(name)
-        if cfg is None:
-            return None
-        cdf = resolve_sampler_cdf(cfg, _get_sampler_dist(), self)
-        self._cdf_cache[name] = cdf
-        return cdf
-
-
-# Module-level lazy singleton
-_pack_registry_instance: Optional[PackSamplerRegistry] = None
-
-def _get_pack_registry() -> PackSamplerRegistry:
-    global _pack_registry_instance
-    if _pack_registry_instance is None:
-        _pack_registry_instance = PackSamplerRegistry.load()
-    return _pack_registry_instance
-
-
-# =============================================================================
-# Sampler CDF Resolver — walks a sampler config tree → NumericalCDF
-# =============================================================================
-
-def resolve_sampler_cdf(sampler: Any,
-                        sd: SamplerDistribution,
-                        pack_reg: Optional[PackSamplerRegistry] = None,
-                        _depth: int = 0) -> NumericalCDF:
-    """
-    Recursively resolve a sampler config dict into a NumericalCDF.
-
-    Handles:
-      - Leaf noise types (OPEN_SIMPLEX_2, PERLIN, …) via empirical CDFs
-      - CONSTANT → delta distribution
-      - CACHE / TRANSLATE / DOMAIN_WARP → transparent wrappers (same distribution)
-      - CLAMP / LINEAR / LINEAR_MAP → CDF transformations
-      - FBM → Gaussian approximation based on octaves/gain
-      - EXPRESSION_NORMALIZER → applies affine approximation to inner sampler
-      - ADD / SUB / MUL / DIV / MAX / MIN → binary distribution composition
-      - EXPRESSION → resolves referenced pack samplers when possible
-      - CELLULAR CellValue → uniform
-    """
-    MAX_DEPTH = 20
-    if _depth > MAX_DEPTH:
-        return NumericalCDF.uniform()
-
-    if not isinstance(sampler, dict):
-        return NumericalCDF.uniform()
-
-    t = sampler.get("type", "")
-
-    # ── CONSTANT ──
-    if t == "CONSTANT":
-        val = sampler.get("value", 0.0)
-        if isinstance(val, (int, float)):
-            return NumericalCDF.constant(float(val))
-        return NumericalCDF.constant(0.0)
-
-    # ── CELLULAR with CellValue return → uniform hash output ──
-    if t == "CELLULAR" and sampler.get("return") == "CellValue":
-        return NumericalCDF.uniform(-1.0, 1.0)
-
-    # ── CELLULAR with NoiseLookup → distribution of the lookup sampler ──
-    if t == "CELLULAR" and sampler.get("return") == "NoiseLookup":
-        lookup = sampler.get("lookup")
-        if lookup:
-            return resolve_sampler_cdf(lookup, sd, pack_reg, _depth + 1)
-        # Default CELLULAR (distance-based)
-        dist_data = sd._distributions.get("CELLULAR")
-        if isinstance(dist_data, list) and len(dist_data) >= 2:
-            return NumericalCDF.from_breakpoints(dist_data)
-        return NumericalCDF.uniform()
-
-    # ── Transparent wrappers (distribution unchanged) ──
-    if t in ("CACHE", "DOMAIN_WARP", "TRANSLATE"):
-        inner = sampler.get("sampler")
-        if inner:
-            return resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1)
-        return NumericalCDF.uniform()
-
-    # ── FBM — Gaussian approximation ──
-    if t in ("FBM", "RIDGED", "PINGPONG"):
-        inner = sampler.get("sampler")
-        octaves = sampler.get("octaves", 3)
-        gain = sampler.get("gain", 0.5)
-
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-
-        # Estimate variance of inner distribution
-        pdf = inner_cdf._get_pdf()
-        total_p = sum(pdf)
-        if total_p > 0:
-            inner_var = sum(pdf[i] * (inner_cdf._val(i) ** 2) for i in range(inner_cdf.BINS)) / total_p
-            inner_mean = sum(pdf[i] * inner_cdf._val(i) for i in range(inner_cdf.BINS)) / total_p
-            inner_var -= inner_mean ** 2
-        else:
-            inner_var = 1.0 / 3.0   # uniform [-1,1] variance
-            inner_mean = 0.0
-
-        # FBM: sum of gain^i * noise(x * lacunarity^i)
-        # Var(sum) = var_inner * sum(gain^(2i))
-        g2 = gain * gain
-        if abs(g2 - 1.0) < 1e-9:
-            var_sum = inner_var * octaves
-        else:
-            var_sum = inner_var * (1.0 - g2 ** octaves) / (1.0 - g2)
-        std_sum = max(0.01, _math.sqrt(max(0.0, var_sum)))
-
-        # Mean: sum of gain^i * inner_mean
-        if abs(gain - 1.0) < 1e-9:
-            mean_sum = inner_mean * octaves
-        else:
-            mean_sum = inner_mean * (1.0 - gain ** octaves) / (1.0 - gain)
-
-        # For RIDGED: abs(noise) → mean shifts, distribution folds
-        if t == "RIDGED":
-            # Rough approximation: output ≈ 1 − 2*|Gaussian|, concentrated near edges
-            # Use a half-normal-based approximation centered at 0
-            return NumericalCDF.gaussian(0.0, std_sum * 0.7)
-
-        return NumericalCDF.gaussian(mean_sum, std_sum)
-
-    # ── PSEUDOEROSION — similar to FBM in distribution ──
-    if t == "PSEUDOEROSION":
-        inner = sampler.get("sampler")
-        octaves = sampler.get("octaves", 3)
-        gain = sampler.get("gain", 0.5)
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-        # Approximate as FBM-like Gaussian
-        g2 = gain * gain
-        inner_var = 1.0 / 3.0  # rough estimate
-        var_sum = inner_var * (1.0 - g2 ** octaves) / max(1e-9, 1.0 - g2)
-        return NumericalCDF.gaussian(0.0, max(0.01, _math.sqrt(var_sum)))
-
-    # ── CLAMP ──
-    if t == "CLAMP":
-        inner = sampler.get("sampler")
-        lo = sampler.get("min", -1.0)
-        hi = sampler.get("max", 1.0)
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-        return inner_cdf.clamp_dist(float(lo), float(hi))
-
-    # ── LINEAR (maps to [min, max]) ──
-    if t == "LINEAR":
-        inner = sampler.get("sampler")
-        out_min = sampler.get("min", 0.0)
-        out_max = sampler.get("max", 1.0)
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-        # LINEAR maps the sampler's full range linearly to [min, max]
-        # Approximate: the inner sampler's output range is ~[-1, 1] for most noise
-        return inner_cdf.linear_map(-1.0, 1.0, float(out_min), float(out_max))
-
-    # ── LINEAR_MAP ──
-    if t == "LINEAR_MAP":
-        inner = sampler.get("sampler")
-        in_min = float(sampler.get("min", -1.0))
-        in_max = float(sampler.get("max", 1.0))
-        out_min = float(sampler.get("to-min", 0.0))
-        out_max = float(sampler.get("to-max", 1.0))
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-        return inner_cdf.linear_map(in_min, in_max, out_min, out_max)
-
-    # ── NORMALIZER / EXPRESSION_NORMALIZER ──
-    if t in ("NORMALIZER", "EXPRESSION_NORMALIZER"):
-        inner = sampler.get("sampler")
-        inner_cdf = resolve_sampler_cdf(inner, sd, pack_reg, _depth + 1) if inner else NumericalCDF.uniform()
-        # Try to detect simple affine expression: "in * k + c" or "(in + c) * k"
-        expr = str(sampler.get("expression", "in"))
-        affine = _parse_affine_expression(expr)
-        if affine is not None:
-            scale_val, shift_val = affine
-            return inner_cdf.scale(scale_val).shift(shift_val)
-        # Non-affine expression — return inner as best approximation
-        return inner_cdf
-
-    # ── Binary arithmetic: ADD, SUB, MUL, DIV, MAX, MIN ──
-    if t in ("ADD", "SUB", "MUL", "DIV", "MAX", "MIN"):
-        left = sampler.get("left")
-        right = sampler.get("right")
-        left_cdf = resolve_sampler_cdf(left, sd, pack_reg, _depth + 1) if left else NumericalCDF.uniform()
-        right_cdf = resolve_sampler_cdf(right, sd, pack_reg, _depth + 1) if right else NumericalCDF.uniform()
-
-        if t == "ADD":
-            return left_cdf.add(right_cdf)
-        elif t == "SUB":
-            return left_cdf.add(right_cdf.scale(-1.0))
-        elif t == "MUL":
-            # Check if right is CONSTANT → simple scaling
-            if isinstance(right, dict) and right.get("type") == "CONSTANT":
-                c = float(right.get("value", 1.0))
-                return left_cdf.scale(c)
-            if isinstance(left, dict) and left.get("type") == "CONSTANT":
-                c = float(left.get("value", 1.0))
-                return right_cdf.scale(c)
-            # General product — use Gaussian approximation for product of two RVs
-            # P(XY) has complex distribution; approximate by matching moments
-            pdf_l = left_cdf._get_pdf()
-            pdf_r = right_cdf._get_pdf()
-            tl = sum(pdf_l) or 1.0
-            tr = sum(pdf_r) or 1.0
-            ml = sum(pdf_l[i] * left_cdf._val(i) for i in range(left_cdf.BINS)) / tl
-            mr = sum(pdf_r[i] * right_cdf._val(i) for i in range(right_cdf.BINS)) / tr
-            vl = sum(pdf_l[i] * left_cdf._val(i)**2 for i in range(left_cdf.BINS)) / tl - ml**2
-            vr = sum(pdf_r[i] * right_cdf._val(i)**2 for i in range(right_cdf.BINS)) / tr - mr**2
-            # E[XY] = E[X]*E[Y] (independence), Var[XY] = E[X]²Var[Y] + E[Y]²Var[X] + Var[X]Var[Y]
-            mean_prod = ml * mr
-            var_prod = ml**2 * max(0, vr) + mr**2 * max(0, vl) + max(0, vl) * max(0, vr)
-            return NumericalCDF.gaussian(mean_prod, max(0.01, _math.sqrt(var_prod)))
-        elif t == "DIV":
-            # Approximate: if right is CONSTANT, divide
-            if isinstance(right, dict) and right.get("type") == "CONSTANT":
-                c = float(right.get("value", 1.0))
-                if c != 0:
-                    return left_cdf.scale(1.0 / c)
-            # General case: rough Gaussian approximation
-            return left_cdf  # conservative fallback
-        elif t == "MAX":
-            return left_cdf.max_with(right_cdf)
-        elif t == "MIN":
-            return left_cdf.min_with(right_cdf)
-
-    # ── EXPRESSION — try to resolve via pack sampler registry ──
-    if t == "EXPRESSION":
-        cdf = _resolve_expression_cdf(sampler, sd, pack_reg, _depth)
-        if cdf is not None:
-            return cdf
-        # Fallback: uniform
-        return NumericalCDF.uniform()
-
-    # ── PROBABILITY — used for weighting, output roughly uniform ──
-    if t == "PROBABILITY":
-        return NumericalCDF.uniform()
-
-    # ── Leaf noise types — look up empirical CDF ──
-    dist_data = sd._distributions.get(t)
-    if isinstance(dist_data, list) and len(dist_data) >= 2:
-        return NumericalCDF.from_breakpoints(dist_data)
-    if dist_data == SamplerDistribution._CONSTANT_TAG:
-        return NumericalCDF.constant(0.0)
-
-    # Default: uniform on [-1, 1]
-    return NumericalCDF.uniform()
-
-
-def _parse_affine_expression(expr: str) -> Optional[Tuple[float, float]]:
-    """
-    Try to parse an EXPRESSION_NORMALIZER expression as an affine function of 'in'.
-    Returns (scale, shift) such that output = in * scale + shift, or None if not affine.
-
-    Handles patterns like:
-      "in"                → (1, 0)
-      "in * 2"            → (2, 0)
-      "in * 2 + 0.5"      → (2, 0.5)
-      "-in"               → (-1, 0)
-      "(in + 1) / 2"      → (0.5, 0.5)
-      "(-in+1)/2"         → (-0.5, 0.5)
-      "in / 2 - 0.3"      → (0.5, -0.3)
-    """
-    s = expr.strip()
-
-    # Bail on anything that looks non-affine
-    if any(op in s for op in ['^', '**', 'if(', 'if (', 'max(', 'min(', 'herp(', 'lerp(']):
-        return None
-    if 'in' not in s:
-        return None
-
-    # Try a simple evaluation approach: substitute in=0 and in=1
-    try:
-        s_clean = s.replace('\n', ' ').strip()
-        val_at_0 = eval(s_clean.replace('in', '(0.0)'), {"__builtins__": {}}, {})
-        val_at_1 = eval(s_clean.replace('in', '(1.0)'), {"__builtins__": {}}, {})
-        # Verify linearity: check in=0.5
-        val_at_half = eval(s_clean.replace('in', '(0.5)'), {"__builtins__": {}}, {})
-        expected_half = (val_at_0 + val_at_1) / 2.0
-        if abs(val_at_half - expected_half) < 1e-6:
-            scale = val_at_1 - val_at_0
-            shift = val_at_0
-            return (scale, shift)
-    except Exception:
-        pass
-    return None
-
-
-def _resolve_expression_cdf(sampler: Dict,
-                            sd: SamplerDistribution,
-                            pack_reg: Optional[PackSamplerRegistry],
-                            _depth: int) -> Optional[NumericalCDF]:
-    """
-    Attempt to resolve an EXPRESSION sampler's distribution.
-
-    Strategy:
-    1. If expression is a single function call f(x, z) → look up f in pack registry
-    2. If expression is f(x, z) * k + c → look up f, apply scale+shift
-    3. If expression contains if() → try to detect binary output (-1/1)
-    4. Otherwise return None (caller falls back to uniform)
-    """
-    import re as _re
-
-    expr = str(sampler.get("expression", ""))
-    if not expr.strip():
-        return None
-
-    # Inline samplers defined in this EXPRESSION block
-    local_samplers = sampler.get("samplers", {})
-
-    # Detect single function call: "funcName(x, z)" or "funcName(x,z)"
-    single_call = _re.match(
-        r'^\s*([a-zA-Z_]\w*)\s*\(\s*x\s*(?:/[^,)]+)?\s*,\s*z\s*(?:/[^,)]+)?\s*\)\s*$',
-        expr.split('\n')[0].strip() if '\n' not in expr else ''
-    )
-    if not single_call and '\n' not in expr:
-        single_call = _re.match(
-            r'^\s*([a-zA-Z_]\w*)\s*\(\s*x\s*(?:/[^,)]+)?\s*,\s*z\s*(?:/[^,)]+)?\s*\)\s*$',
-            expr.strip()
-        )
-
-    if single_call:
-        func_name = single_call.group(1)
-        cdf = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
-        if cdf is not None:
-            return cdf
-
-    # Detect "f(x, z) * k + c" or "f(x, z) * k - c" pattern
-    # Number regex: optional sign, digits with optional decimal, optional exponent
-    _NUM = r'[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?'
-    affine_pattern = _re.match(
-        r'^\s*([a-zA-Z_]\w*)\s*\(\s*x\s*(?:/[^,)]+)?\s*,\s*z\s*(?:/[^,)]+)?\s*\)\s*'
-        r'\*\s*(' + _NUM + r')\s*'
-        r'(?:([+-])\s*(' + _NUM + r'))?\s*$',
-        expr.strip()
-    )
-    if affine_pattern:
-        func_name = affine_pattern.group(1)
-        try:
-            scale_val = float(affine_pattern.group(2))
-            if affine_pattern.group(3) and affine_pattern.group(4):
-                sign = 1.0 if affine_pattern.group(3) == '+' else -1.0
-                shift_val = sign * float(affine_pattern.group(4))
-            else:
-                shift_val = 0.0
-            cdf = _lookup_sampler_cdf(func_name, local_samplers, sd, pack_reg, _depth)
-            if cdf is not None:
-                return cdf.scale(scale_val).shift(shift_val)
-        except ValueError:
-            pass  # Fall through to other patterns
-
-    # Detect binary if-expression that outputs -1 or 1 (common in spot/region samplers)
-    # Pattern: if(condition, 1, -1) or if(condition, -1, 1)
-    binary_match = _re.search(r'if\s*\([^,]+,\s*(-?1)\s*,\s*(-?1)\s*\)', expr)
-    if binary_match:
-        # Output is either -1 or 1; approximate as uniform on {-1, 1}
-        # The probability split depends on the condition, which we can't easily evaluate
-        # Use uniform on [-1, 1] as approximation (slots at extremes get selected)
-        return NumericalCDF.uniform(-1.0, 1.0)
-
-    # Detect nested if that ultimately produces -1 or 1
-    if _re.search(r'\bif\b', expr) and set(_re.findall(r'(?<![a-zA-Z0-9_])(-?1)(?!\.\d)', expr)) <= {'-1', '1'}:
-        return NumericalCDF.uniform(-1.0, 1.0)
-
-    return None
-
-
-def _lookup_sampler_cdf(name: str,
-                        local_samplers: Dict,
-                        sd: SamplerDistribution,
-                        pack_reg: Optional[PackSamplerRegistry],
-                        _depth: int) -> Optional[NumericalCDF]:
-    """Look up a sampler by name in local samplers or pack registry."""
-    # Check local samplers first
-    if isinstance(local_samplers, dict) and name in local_samplers:
-        cfg = local_samplers[name]
-        if isinstance(cfg, dict):
-            return resolve_sampler_cdf(cfg, sd, pack_reg, _depth + 1)
-
-    # Check pack registry
-    if pack_reg is not None:
-        return pack_reg.get_cdf(name)
-
-    return None
-
 
 def _leaf_sampler_type(sampler: Any) -> str:
     """
@@ -1095,33 +275,28 @@ def _leaf_sampler_type(sampler: Any) -> str:
     return t if t else "uniform"
 
 
-def _compute_slot_probabilities(sampler_config: Any, weights: List[int]) -> List[float]:
-    """
-    Compute slot probabilities for a weighted biome list using full CDF resolution.
+# Convenience alias preserving the prior private name throughout this module.
+_compute_slot_probabilities = compute_slot_probabilities
 
-    This is the main entry point for probability computation.  It resolves the
-    sampler config tree into a NumericalCDF and delegates to NumericalCDF.slot_probabilities().
-    """
-    sd = _get_sampler_dist()
-    pack_reg = _get_pack_registry()
-    cdf = resolve_sampler_cdf(sampler_config, sd, pack_reg)
-    return cdf.slot_probabilities(weights)
 
 
 def _compute_climate_band_values(
     items: List[Tuple[str, int]],
     probs: List[float],
+    sampler_config: Optional[Any] = None,
 ) -> Dict[str, float]:
     """
     Compute the expected climate value (0–1) for each biome in a weighted list.
 
     For a climate stage (temperature / precipitation / elevation), the sampler
     selects a slot in the weighted list.  The climate value for a biome is the
-    expected value of the *sampler output* (mapped to [0, 1]) over the slots
-    assigned to that biome.
+    expected sampler output (mapped to [0, 1]) over the slots assigned to that
+    biome — i.e., E[V | V ∈ slot_range], NOT the slot midpoint.
 
-    This uses the resolved CDF of the sampler to compute the conditional
-    expected value for each slot, rather than assuming linear spacing.
+    For non-uniform sampler distributions (FBM, Gaussian-like), the slot
+    midpoint can be very different from the conditional mean.  When the
+    sampler config is available we use its NumericalCDF to compute the true
+    conditional mean; otherwise we fall back to the midpoint.
     """
     if not items:
         return {}
@@ -1130,8 +305,16 @@ def _compute_climate_band_values(
     if array_size == 0:
         return {}
 
-    # For each slot, compute the expected sampler value E[V | V in slot_range]
-    # Then map to [0, 1] using the overall range [-1, 1] (Terra's normalizeIndex domain)
+    # Resolve the sampler's CDF once; reuse for every slot.
+    cdf: Optional[NumericalCDF] = None
+    if sampler_config is not None:
+        try:
+            sd = _get_sampler_dist()
+            pack_reg = _get_pack_registry()
+            cdf = resolve_sampler_cdf(sampler_config, sd, pack_reg)
+        except Exception:
+            cdf = None
+
     cumulative = 0
     band_num: Dict[str, float] = {}
     band_den: Dict[str, float] = {}
@@ -1140,14 +323,15 @@ def _compute_climate_band_values(
         if p <= 0 or w <= 0:
             cumulative += w
             continue
-        # Slot value range in sampler space
         v_start = -1.0 + 2.0 * cumulative / array_size
         v_end   = -1.0 + 2.0 * (cumulative + w) / array_size
-        # Expected value in this slot: midpoint of the slot range weighted by PDF
-        # For simplicity, use the midpoint of the CDF-weighted range
-        v_mid = (v_start + v_end) / 2.0
-        # Map from [-1, 1] to [0, 1]
-        band_val = (v_mid + 1.0) / 2.0
+        # E[V | V ∈ [v_start, v_end]] when CDF is known; otherwise midpoint.
+        if cdf is not None:
+            v_mean = cdf.conditional_mean(v_start, v_end)
+        else:
+            v_mean = (v_start + v_end) / 2.0
+        # Map sampler space [-1, 1] → climate value [0, 1]
+        band_val = max(0.0, min(1.0, (v_mean + 1.0) / 2.0))
         band_num[to_biome] = band_num.get(to_biome, 0.0) + band_val * p
         band_den[to_biome] = band_den.get(to_biome, 0.0) + p
         cumulative += w
@@ -1198,6 +382,39 @@ def _is_river_stage(stage: Dict) -> bool:
             if val.startswith("USE_") and "RIVER" in val:
                 return True
     return False
+
+
+# Cached result of _rivers_disabled().
+_RIVERS_DISABLED_CACHE: Optional[bool] = None
+
+
+def _rivers_disabled() -> bool:
+    """True when the pack's river DENDRY sampler is switched off (``n`` negative).
+
+    The benchmark build disables rivers via ``math/samplers/rivers.yml`` by setting
+    the river DENDRY sampler's ``n: -1`` (the river channel then produces nothing, so
+    ``riverSampler`` always selects the SELF/no-river slot and no RIVER biomes are
+    generated).  The predictor cannot evaluate the DENDRY semantics, so without this
+    check it would model the river REPLACE stages at their nominal ``[SELF:1, RIVER:1]``
+    weights (~25% of the surface as rivers) and under-count every land biome by that
+    much.  Detecting the disable lets the predictor match the rivers-disabled benchmark.
+    """
+    global _RIVERS_DISABLED_CACHE
+    if _RIVERS_DISABLED_CACHE is not None:
+        return _RIVERS_DISABLED_CACHE
+    result = False
+    try:
+        txt = Path("math/samplers/rivers.yml").read_text(encoding="utf-8")
+        # Scan each DENDRY sampler block; a negative `n` means rivers are off.
+        for m in re.finditer(r'type:\s*DENDRY(.*?)(?=\n\s*\w+:\s*\n|\Z)', txt, re.S):
+            nm = re.search(r'^\s*n:\s*(-?\d+)', m.group(1), re.M)
+            if nm and int(nm.group(1)) < 0:
+                result = True
+                break
+    except Exception:
+        result = False
+    _RIVERS_DISABLED_CACHE = result
+    return result
 
 
 def _apply_climate_value(tracker: "ClimateTracker", sampler_name: str,
@@ -2008,7 +1225,7 @@ class StageProcessor:
         default_band_values: Dict[str, float] = {}
         if climate_name and default_items:
             default_band_values = _compute_climate_band_values(
-                default_items, default_probs)
+                default_items, default_probs, sampler_config)
 
         # Helper: add biome with origin and climate propagation
         def add_with_origin(to_biome: str, from_biome: str, prob: float,
@@ -2052,7 +1269,7 @@ class StageProcessor:
                         band_vals: Dict[str, float] = {}
                         if climate_name and to_items:
                             band_vals = _compute_climate_band_values(
-                                to_items, to_probs)
+                                to_items, to_probs, sampler_config)
                         for tb, p in biome_dist.items():
                             if p > 0:
                                 add_with_origin(tb, from_biome, from_prob * p,
@@ -2221,20 +1438,17 @@ class StageProcessor:
             # No 'replace' biomes exist, no borders possible
             return new_dist
 
+        # Per-biome border conversion fraction (geometric, sqrt-of-from model).
+        # Pre-compute once; same for every replace biome in this stage.
+        border_frac = _border_fraction(from_total_prob)
+
         # Process each matching replace biome
         for replace_biome in replace_biomes:
             replace_prob = new_dist.get(replace_biome)
             if replace_prob <= 0:
                 continue
 
-            # Border fraction: estimate how much of replace_biome gets converted.
-            # Border cells are where 'replace' biome is adjacent to 'from' biome.
-            # For spatially-clustered biomes: fraction ≈ SCALE * sqrt(p_from / p_replace)
-            # Capped at BORDER_MAX_FRACTION to avoid over-converting.
-            ratio = from_total_prob / max(1e-9, replace_prob)
-            border_factor = min(BORDER_MAX_FRACTION,
-                                BORDER_SCALE_FACTOR * _math.sqrt(ratio))
-            border_prob = replace_prob * border_factor
+            border_prob = replace_prob * border_frac
 
             # Transfer probability from replace_biome to to_biome(s)
             new_dist.probabilities[replace_biome] = replace_prob - border_prob
@@ -2304,16 +1518,14 @@ class StageProcessor:
         if not replace_biomes:
             return new_dist
 
+        border_frac = _border_fraction(from_total_prob)
+
         for replace_biome in replace_biomes:
             replace_prob = new_dist.get(replace_biome)
             if replace_prob <= 0:
                 continue
 
-            # Border fraction: same perimeter-based model as process_border
-            ratio = from_total_prob / max(1e-9, replace_prob)
-            border_factor = min(BORDER_MAX_FRACTION,
-                                BORDER_SCALE_FACTOR * _math.sqrt(ratio))
-            border_prob = replace_prob * border_factor
+            border_prob = replace_prob * border_frac
 
             new_dist.probabilities[replace_biome] = replace_prob - border_prob
 
@@ -2348,6 +1560,12 @@ class StageProcessor:
             return distribution
 
         stage_type = stage_config.get('type')
+
+        # When the pack ships with rivers disabled (benchmark build), the river
+        # REPLACE stages are effectively identity (riverSampler never selects RIVER).
+        # Skip them so the predictor doesn't model ~25% phantom river coverage.
+        if _rivers_disabled() and _is_river_stage(stage_config):
+            return distribution
 
         if stage_type == 'REPLACE_LIST':
             return StageProcessor.process_replace_list(stage_config, distribution)
@@ -2449,6 +1667,60 @@ class ExtrusionDistribution:
 class ExtrusionProcessor:
     """Processes extrusion definitions from preset files"""
 
+    # World Y constants from meta.yml (used to scale extrusion Y-range to a
+    # subsurface-volume fraction).  bottom-y=-64, top-y=319 → 383 blocks total.
+    # Most cave/subsurface activity lives between bottom-y and cave-top=200.
+    WORLD_Y_TOP    = 319
+    WORLD_Y_BOTTOM = -64
+    WORLD_Y_RANGE  = WORLD_Y_TOP - WORLD_Y_BOTTOM    # 383
+    # Resolved $meta.yml references commonly seen in extrusion 'range' fields
+    META_Y_VALUES = {
+        'top-y':              319,
+        'ocean-level':        62,
+        'sinkhole-ocean-level': 40,
+        'deepslate-top':      7,
+        'deepslate-bottom':  -7,
+        'cave-top':           200,
+        'cave-bottom':       -40,
+        'bedrock-top':       -60,
+        'bottom-y':          -64,
+    }
+
+    @staticmethod
+    def _resolve_y_value(val: Any) -> Optional[float]:
+        """Resolve a Y-range bound which may be a literal int or a $meta.yml ref."""
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str):
+            # Strip $ and $meta.yml: prefix, look up known keys
+            s = val.strip()
+            if s.startswith('$'):
+                s = s[1:]
+            if s.startswith('meta.yml:'):
+                s = s[len('meta.yml:'):]
+            # Try direct lookup
+            if s in ExtrusionProcessor.META_Y_VALUES:
+                return float(ExtrusionProcessor.META_Y_VALUES[s])
+        return None
+
+    @classmethod
+    def _y_range_fraction(cls, range_dict: Any) -> float:
+        """
+        Convert an extrusion's 'range:{min,max}' to a fraction of total world Y.
+
+        Returns 1.0 if the range field is missing or unresolvable (preserving
+        legacy behavior).  Otherwise returns (max−min)/WORLD_Y_RANGE clamped to
+        [0, 1].
+        """
+        if not isinstance(range_dict, dict):
+            return 1.0
+        y_min = cls._resolve_y_value(range_dict.get('min'))
+        y_max = cls._resolve_y_value(range_dict.get('max'))
+        if y_min is None or y_max is None or y_max <= y_min:
+            return 1.0
+        frac = (y_max - y_min) / cls.WORLD_Y_RANGE
+        return max(0.0, min(1.0, frac))
+
     @staticmethod
     def parse_extrusion_file(extrusion_path: Path) -> List[Dict]:
         """Load extrusions from a file"""
@@ -2467,6 +1739,10 @@ class ExtrusionProcessor:
 
         Returns list of (biome_id, parent, weight_fraction) tuples.
         Uses CDF-based slot probabilities when a sampler is present.
+
+        The weight_fraction is scaled by the extrusion's Y-range as a fraction
+        of total world height — an extrusion only producing blocks in a slim
+        Y-slice contributes proportionally less to the subsurface volume.
         """
         results = []
 
@@ -2481,11 +1757,17 @@ class ExtrusionProcessor:
         if not to_spec:
             return results
 
+        # Y-range scale: how much of total world Y this extrusion covers.
+        # When the range is missing (chained extrusions like LOW_CAVES_PRE →
+        # DEEP_DARK in add_deep_dark.yml), assume 1.0 so the parent's own
+        # Y-range governs.  Specific bound-pairs get scaled down.
+        y_scale = ExtrusionProcessor._y_range_fraction(extrusion_config.get('range'))
+
         # Parse the 'to' specification to get weights
         if isinstance(to_spec, str):
             # Single biome replacement
             if to_spec != 'SELF':
-                results.append((to_spec, from_biome, 1.0))
+                results.append((to_spec, from_biome, 1.0 * y_scale))
         elif isinstance(to_spec, list):
             # Weighted list — use CDF-based probabilities
             items = StageProcessor.parse_weighted_list_ordered(to_spec)
@@ -2498,7 +1780,7 @@ class ExtrusionProcessor:
                     if biome_id != 'SELF':
                         biome_probs[biome_id] = biome_probs.get(biome_id, 0.0) + p
                 for biome_id, weight_fraction in biome_probs.items():
-                    results.append((biome_id, from_biome, weight_fraction))
+                    results.append((biome_id, from_biome, weight_fraction * y_scale))
         elif isinstance(to_spec, dict):
             # Dict format
             items = [(k, int(v)) for k, v in to_spec.items()
@@ -2508,7 +1790,7 @@ class ExtrusionProcessor:
                     sampler_config, [w for _, w in items])
                 for (biome_id, _), p in zip(items, probs):
                     if biome_id != 'SELF':
-                        results.append((biome_id, from_biome, p))
+                        results.append((biome_id, from_biome, p * y_scale))
 
         return results
 
@@ -3749,6 +3031,13 @@ def main():
         artifacts_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         print(f"Warning: Could not create artifacts directory {artifacts_dir}: {e}", file=sys.stderr)
+
+    # CLI flag: --explain-expressions emits per-expression resolution diagnostics
+    # to stderr (which path matched, or UNRESOLVED for uniform fallback).
+    if '--explain-expressions' in sys.argv:
+        import sampler_cdf as _sc
+        _sc.EXPLAIN_EXPRESSIONS = True
+        print("Expression-resolution diagnostics enabled (stderr)", file=sys.stderr)
 
     print("Terra Biome Percentage Calculator")
     print("=" * 70)

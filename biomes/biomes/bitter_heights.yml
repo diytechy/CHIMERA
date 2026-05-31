@@ -11,7 +11,7 @@ palette:
 - RIVER_BANK: 61
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 4
+- threshold: 0.4
   palette:
   - BLOCK:minecraft:ice: 319
   - RIVER_BANK: 61
@@ -34,6 +34,7 @@ features:
   - POLAR_BEARS
   - GOATS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - DEEP_DARK_GROVE
 - USE_DRAFTY_STREAM_RIVER

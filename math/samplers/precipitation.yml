@@ -39,14 +39,14 @@ samplers:
     expression: |
       min(
         min(
-          min(precipitation(round(x/4)*4, round(z/4)*4),
-              precipitation(round((x+r)/4)*4, round(z/4)*4)),
-          min(precipitation(round((x+r/2)/4)*4, round((z+r*0.866)/4)*4),
-              precipitation(round((x-r/2)/4)*4, round((z+r*0.866)/4)*4))
+          min(rawPrecipitation(round(x/4)*4, round(z/4)*4),
+              rawPrecipitation(round((x+r)/4)*4, round(z/4)*4)),
+          min(rawPrecipitation(round((x+r/2)/4)*4, round((z+r*0.866)/4)*4),
+              rawPrecipitation(round((x-r/2)/4)*4, round((z+r*0.866)/4)*4))
         ),
         min(
-          min(precipitation(round((x-r)/4)*4, round(z/4)*4),
-              precipitation(round((x-r/2)/4)*4, round((z-r*0.866)/4)*4)),
-          precipitation(round((x+r/2)/4)*4, round((z-r*0.866)/4)*4)
+          min(rawPrecipitation(round((x-r)/4)*4, round(z/4)*4),
+              rawPrecipitation(round((x-r/2)/4)*4, round((z-r*0.866)/4)*4)),
+          rawPrecipitation(round((x+r/2)/4)*4, round((z-r*0.866)/4)*4)
         )
       )

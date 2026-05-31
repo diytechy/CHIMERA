@@ -9,6 +9,7 @@ color: $biomes/colors.yml:TEMPERATE_GRASSLAND
 tags:
 - USE_VERDANT_RIVER
 - TEMPERATE_COAST_FLAT
+- SPECIAL_CAVES
 palette:
 - GRASS: 319
 - SAND: 64

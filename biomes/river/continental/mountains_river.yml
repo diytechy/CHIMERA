@@ -13,6 +13,7 @@ colors:
   water: 0x007bf7
   water-fog: 0x007bf7
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   river-decoration:

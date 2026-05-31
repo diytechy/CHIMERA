@@ -3,12 +3,12 @@ BaseBiomeCell: &BaseBiomeCell
   dimensions: 2
   type: CELLULAR
   frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
-  jitter: 0.7
+  jitter: 0.6
   distance: Hybrid
 
 _oceanShape: &oceanShape
   <<: *BaseBiomeCell
-  salt: 105
+  salt: 101
 
 _outerWarpSmall: &outerWarpSmall
   dimensions: 2

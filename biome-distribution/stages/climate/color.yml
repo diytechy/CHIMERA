@@ -8,10 +8,10 @@ stages:
       expression: BiomeShapeLandmassColor(x, z)
     default-from: hot-desert-flat
     default-to:
-      - hot-desert-flat-black: &black 1
-      - hot-desert-flat-red: &red 1
-      - hot-desert-flat-orange: &orange 1
-      - hot-desert-flat-white: &white 2
+      - hot-desert-flat-black: &black 3
+      - hot-desert-flat-red: &red 2
+      - hot-desert-flat-orange: &orange 2
+      - hot-desert-flat-white: &white 4
     to:
       hot-desert:
         - hot-desert-black: *black
@@ -39,3 +39,8 @@ stages:
         - hot-steppe-highlands-red: *red
         - hot-steppe-highlands-orange: *orange
         - hot-steppe-highlands-white: *white
+      arid-pale-garden:
+        - BLACK_ARID_PALE_GARDEN: *black
+        - RED_ARID_PALE_GARDEN: *red
+        - ORANGE_ARID_PALE_GARDEN: *orange
+        - ARID_PALE_GARDEN: *white

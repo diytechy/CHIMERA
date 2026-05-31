@@ -2,49 +2,169 @@ id: EQ_TERRACOTTA_TOMBS
 type: BIOME
 abstract: true
 
+# Tunable parameters — all sub-samplers pull from this anchor via variables: *variables.
 vars: &variables
-  base: -30
-  pillarHeight: 38
+  act_thresh:       $customization.yml:special_cave_void_activation
+  cave_lower:       $customization.yml:cave_lower
+  cave_upper:       $customization.yml:cave_upper
+  # Half-height (in blocks) of each pillar arm.  Stalagmites grow UP from cave_lower,
+  # stalactites grow DOWN from cave_upper; both use the same half-height.
+  # cave height = cave_upper - cave_lower = 40 - (-30) = 70 blocks.
+  # pillarHeight=55 → arms overlap 40 blocks in the middle → pillars span full cave.
+  pillarHeight:     100
+  # Gain applied to the supra-threshold cellular value.  Must be large enough that
+  # pillarScale × (1 − threshold_excess) × min_height_factor > |hollow| at cave midpoint.
+  # threshold_excess = 1 − 0.72 = 0.28.  cave midpoint height_factor ≈ 0.364.
+  # hollow at cell centre (special_caves≈−1): (−1+0.05)×5 = −4.75.
+  # need tomb_pillars > 4.75: 0.28 × scale × 0.364 > 4.75 → scale > 46.5.  Use 100.
+  pillarScale:      200
 
 terrain:
+  blend:
+    distance: 0     # 0 = disabled (sharp edges)
+    step: 4
+    weight: 1.0
+  sampler:
+    dimensions: 3
+    type: CONSTANT
+    value: 10
+
+carving:
+  #Pillars always get preference, then global carving, then shell. 
   sampler:
     dimensions: 3
     type: EXPRESSION
     variables: *variables
     expression: |
-      clamp(
-        max((special_caves(x, y * 2, z) + 0.88) * 50 + wallOffset(x,y,z) * 3, -5)
-        + max((-pillars(x,z) -0.95 + abs(pillarWidthRand(y, x / 20 + z / 24)) * 0.033) * 170
-          + min(base - y + elevationDetailedBlockHeight(x,z) + pillarHeight * (basepillarsCenter(x,z) * 0.4 + 1), 0)^3 * 3, 0)
-         , -10, 10) * 16
-      // + max((4.9 - abs(middleHeight - y)), 0) * (-platforms(x,z) - 0.29), -10, 10) * 16
+      max(
+        -clamp(
+          max(
+            // Main hollow.
+            (special_caves(x, y, z) - act_thresh) * 5
+
+            // Shared pack-level wall texture (special_cave_carving.yml:caveWallOffset).
+            // Slightly reduced coefficient vs. inferno/jungle: harder desert-rock look.
+            + caveWallOffset(x, y, z) * .3
+            //-100
+            ,
+            // Pillar takes preference where it exists. tomb_pillars returns -100 outside
+            // pillar columns so the hollow signal dominates the max there.
+            tomb_pillars(x, y, z)
+          )
+          // Clamp matched to standard carver range [-0.54, +0.46]:
+          //   pillar solid (-0.6) / cave void (+0.5) → midpoint -0.05 (solid ✓).
+          ,-0.6, 0.5),
+
+          // Shared carver fade — tight lower hemisphere returns deeply negative values
+          // inside the cave (≈-5 at the cave centre), so max(main, fade) defers to main.
+          //-100
+          caveCarverFade(x, y, z)
+      )
     functions:
       clamp:
         arguments: [x, a, b]
         expression: min(max(x, a), b)
     samplers:
-      pillars:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.037
-      basepillarsCenter:
-        dimensions: 2
-        type: CELLULAR
-        frequency: 0.037
-        return: CellValue
-      pillarWidthRand:
-        dimensions: 2
-        type: OPEN_SIMPLEX_2S
-        frequency: 0.3
-      wallOffset:
+      # Pillar solid contribution.
+      #
+      # Geometry (eq_pillars-style, adapted for carving context)
+      # ─────────────────────────────────────────────────────────
+      # basepillars: CELLULAR Distance at frequency 0.088 (4× eq_pillars 0.022).
+      #   Cell period ≈ 11 blocks → column radius ≈ (1−0.72) × 5.5 ≈ 1.6 blocks,
+      #   ~4× narrower than eq_pillars' ~6-block radius at the same threshold.
+      #
+      # Existence gate: special_radius(x,z) < 0.6 — pillars only inside the inner
+      #   60% of the cave's XZ radius so they never grow into the cave walls.
+      #
+      # Height profile: BIDIRECTIONAL — stalagmites from floor + stalactites from ceiling.
+      #     stalagmite: 1 at cave_lower (−30), 0 at cave_lower + pillarHeight (25)
+      #     stalactite: 1 at cave_upper ( 40), 0 at cave_upper − pillarHeight (−15)
+      #   Arms overlap from y≈−15 to y≈25 (40 blocks), creating full-height columns.
+      #
+      # Pillar shape — smoothstep version (replaces the linear / clamp-based formulation).
+      #
+      # WHY smoothstep:
+      #   The previous linear formula produced a transition window of ~3 blocks in physical
+      #   space (gradient 0.145 per block over a carver range of ~0.5).  On the 4-block
+      #   sparse interpolation grid, a single corner could land at any point in that
+      #   window — so when a corner landed near carver=0 next to a pillar-center corner
+      #   at carver=-0.49, trilinear interpolation extended solid 3.6 blocks → the
+      #   "1-block-wide branch extending 4 blocks" artifact.
+      #
+      # Smoothstep edges chosen so the transition spans ≥ 1 grid step (4 blocks):
+      #   basepillars range -0.95 (solid core) → -0.30 (void edge) = 0.65 units
+      #   × 6.9 blocks per basepillars unit  =  ~4.5 blocks transition zone
+      #   The S-curve guarantees at least one grid corner lands in the gradient for any
+      #   pillar alignment, so the interpolation is governed by the function shape rather
+      #   than by which corner randomly falls where.
+      #
+      # Output range exactly [-0.5, +0.5] — symmetric, no clipping artifacts.
+      #
+      # basepillarsCenter and pillarWidthRand SUBTRACT from basepillars (rather than
+      # adding to the threshold), shifting the smoothstep input by ±0.2 → organic
+      # per-column / per-y boundary variation without breaking the gradient.
+      tomb_pillars:
         dimensions: 3
-        type: FBM
-        sampler:
-          type: OPEN_SIMPLEX_2S
-          frequency: 0.025
-        octaves: 2
-        lacunarity: 2.8
-        gain: 0.5
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          // Only generate pillars inside the inner 60% of the cave's XZ radius.
+          if(pillarExists(x, z),
+              
+              -basepillars(x, z) - 0.8           // positive at cell centres (~0.28 max)
+              + basepillarsCenter(x, z) * 0.07    // per-column size variation
+              + pillarWidthRand(y, x / 10) * 0.06 // width variation along height
+            
+              // Bidirectional height profile: both arms overlap in mid-cave,
+              // producing full-height columns at cell centres.
+              + max(
+                  max(0, 0.25 - (y - cave_lower) / pillarHeight),  // stalagmite from floor
+                  max(0, 0.25 - (cave_upper - y) / pillarHeight)   // stalactite from ceiling
+                )
+            ,-0.5
+          )
+        functions:
+          smoothstep:
+            arguments: [edge0, edge1, x]
+            expression: |
+              if(x <= edge0, 0,
+                if(x >= edge1, 1,
+                  ((x - edge0) / (edge1 - edge0))^2 * (3 - 2 * ((x - edge0) / (edge1 - edge0)))
+                )
+              )
+        samplers:
+          basepillars: &pillarConf
+            dimensions: 2
+            type: CELLULAR
+            frequency: 0.03   # 4× eq_pillars 0.022 → ~4× thinner columns (~1.6-block radius)
+            jitter: 0.5
+            distance: Euclidean
+          basepillarsCenter:
+            <<: *pillarConf
+            return: CellValue
+          pillarExists:
+            <<: *pillarConf
+            return: NoiseLookup
+            salt-lookup: false
+            lookup: 
+              dimensions: 2
+              #type: CONSTANT
+              #value: 1
+              type: EXPRESSION
+              variables:
+                act_full:   ${customization.yml:special_cave_void_transition}
+              expression: if(special_radius_norm(x, z) >= (1+act_full), 0,1)
+          pillarWidthRand:
+            dimensions: 2
+            type: FBM
+            sampler:
+              dimensions: 2
+              type: OPEN_SIMPLEX_2S
+              frequency: 0.1
+            octaves: 2
+            lacunarity: 2
+            gain: 0.35
+
   sampler-2d:
     dimensions: 2
     type: CONSTANT

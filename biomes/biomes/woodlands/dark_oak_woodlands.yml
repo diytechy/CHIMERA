@@ -12,12 +12,12 @@ palette:
 - RIVER_BANK: 61
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 3
+- threshold: 0.5
   palette:
   - ICE_STONE: 319
   - RIVER_BANK: 64
   - << palettes/rock_layers.yml:palette
-- threshold: 3.5
+- threshold: 0.4
   palette:
   - BLOCK:minecraft:stone: 319
   - << palettes/rock_layers.yml:palette
@@ -39,5 +39,7 @@ features:
   entities:
   - COMMON_MOBS
 tags:
+- SPECIAL_CAVES
 - LAND_CAVES
 - USE_DRAFTY_STREAM_RIVER
+- BOREAL_COAST_FLAT

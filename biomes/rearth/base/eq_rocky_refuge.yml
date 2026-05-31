@@ -83,6 +83,7 @@ terrain:
             type: CELLULAR
             frequency: 0.009
             return: NoiseLookup
+            salt-lookup: false
             lookup:
               dimensions: 2
               type: EXPRESSION

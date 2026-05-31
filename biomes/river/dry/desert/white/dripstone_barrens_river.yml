@@ -5,6 +5,7 @@ extends:
   - DRIPSTONE_BARRENS
   - EQ_RIVER_CARVING
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   # flora:

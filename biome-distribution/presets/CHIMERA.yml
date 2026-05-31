@@ -7,8 +7,8 @@ biomes:
   extrusions:
     # All cave extrusions
     - << biome-distribution/extrusions/add_deep_dark.yml:extrusions
-    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
     - << biome-distribution/extrusions/add_cave_biomes.yml:extrusions
+    - << biome-distribution/extrusions/add_special_caves.yml:extrusions
 
   # Y-axis domain warp applied before extrusion range checks.
   # Shifts the effective Y lookup up/down per-column, making cave/vertical
@@ -19,7 +19,9 @@ biomes:
     terrain-coordinate-noise-warp: false
     sampler:
       type: EXPRESSION
-      expression: noisebase(x,z)+noise(x,z)*2
+      expression: |
+        //0
+        noisebase(x,z)+noise(x,z)*2
       samplers:
         noisebase:
           dimensions: 2
@@ -51,11 +53,26 @@ biomes:
       ineligible-biome: OCEAN
 
     blend:
-      terrain-coordinate-noise-warp: false
       amplitude: 3
+      terrain-coordinate-noise-warp: false
+      # Stochastically select between neighbouring biome cell samples per-block,
+      # dissolving the 4-block resolution grid's square border steps into a
+      # noise-feathered gradient. See PipelineBiomeProvider.
+      interpolate: true
       sampler:
-        type: OPEN_SIMPLEX_2
-        frequency: 0.05
+        type: EXPRESSION
+        expression: |
+          noisebase(x,z)
+          //+noise(x,z)
+        samplers:
+          noisebase:
+            dimensions: 2
+            type: OPEN_SIMPLEX_2
+            frequency: 0.1
+          noise:
+            dimensions: 2
+            type: WHITE_NOISE
+            frequency: 2
     pipeline:
       source:
         type: SAMPLER
@@ -85,7 +102,7 @@ biomes:
         #    expression: BiomeShapeLandmassValue(x, z)
         #  from: land
         #  to:
-        #    - BLACK_DESERT_BOG: 1
+        #    - LAVA_FIELDS: 1
         #    - DESERT_SPIKES_BLACK: 1
         #    - SEARING_TORS: 1
         #    - SEARING_TORS: 1
@@ -174,21 +191,43 @@ biomes:
         - << biome-distribution/stages/special/border_biomes.yml:stages
         - << biome-distribution/stages/add_coast.yml:stages
         # ========================================
-        # SMOOTHING PASSES
+        # Biome blending pass
         # ========================================
+        - type: FRACTAL_EXPAND
+          sampler:
+            type: WHITE_NOISE
+        - type: SMOOTH
+          sampler:
+            type: WHITE_NOISE
+##
         #- type: FRACTAL_EXPAND
         #  sampler:
         #    type: WHITE_NOISE
-
-        - type: SMOOTH
-          sampler:
-            type: WHITE_NOISE
-        - type: SMOOTH
-          sampler:
-            type: WHITE_NOISE
+##
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #    
+##
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+            
 
         - << biome-distribution/stages/add_rivers.yml:stages
         #- << biome-distribution/stages/PopulateTestStage.yml:stages
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: FRACTAL_EXPAND
+        #  sampler:
+        #    type: WHITE_NOISE
+        #- type: SMOOTH
+        #  sampler:
+        #    type: WHITE_NOISE
 
         - << biome-distribution/stages/add_trenches.yml:stages
         

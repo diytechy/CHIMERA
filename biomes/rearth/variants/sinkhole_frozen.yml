@@ -4,8 +4,6 @@ vanilla: minecraft:snowy_plains
 color: $biomes/colors.yml:SNOWY_PLAINS
 extends:
   - SINKHOLE_BASE
-  - DEPOSITS_DEFAULT
-  - ORES_DEFAULT
 
 slant:
   - threshold: 0.5
@@ -16,8 +14,7 @@ slant:
 slant-depth: 40
 
 palette:
-  - GRASS: 319
-  - SNOW: -35
+  - SNOW: 319
   - DEEPSLATE: -54
   - BEDROCK: $meta.yml:bedrock-top
   - BLOCK:minecraft:bedrock: $meta.yml:bottom-y

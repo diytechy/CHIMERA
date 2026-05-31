@@ -3,9 +3,8 @@ stages:
   - type: REPLACE
     sampler:
       type: EXPRESSION
-      variables:
-        riverDistThreshold: ${customization.yml:biomeSpread.cellDistance}*0.5
-      expression: if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&(continents(x,z)>0.1)),1,-1)
+      expression: |
+        riftLandDistributor(x,z)
     from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}
@@ -27,20 +26,23 @@ stages:
         type: EXPRESSION
         #Lower band is colder, upper band is warmer, white noise salted based on cell value to randomize placement.
         expression: |
-          if((riftFarRiverDist(x,z)>200) && (if(riftInRangeOfSpot(x,z)>0,0,1)),
-            if(riftTemperature(x,z)>0,0.55+riftRegions(x,z)/2,
-              if(riftTemperature(x,z)<-0.5,-0.55+riftRegions(x,z)/2,0)),
-            0)
+          if(cold_rift(x,z),-0.8,
+            if(cold_pit(x,z),-0.4,
+              if(warm_pit(x,z),0.4,
+                if(warm_rift(x,z),0.8,0)
+              )
+            )
+          )
     #from: land
     range:
       min: ${customization.yml:biomeSpread.canyons.minY}
       max: 319
     from: _rift_land
     to:
-      _cold_rift: 2
-      _cold_well: 4
-      land: 25
-      _warm_well: 2
+      _cold_rift: 1
+      _cold_well: 1
+      land: 1
+      _warm_well: 1
       _warm_rift: 1
 
   - type: REPLACE_LIST

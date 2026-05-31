@@ -1,5 +1,0 @@
-biomes:
-  provider:
-    pipeline:
-      stages:
-      - '***PRELIM_CHK_HERE***'

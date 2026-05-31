@@ -12,7 +12,7 @@ locator:
   type: PATTERN
   range:
     min: -15
-    max: -14
+    max: -6
   pattern:
     # Match air on top of lava
     type: AND

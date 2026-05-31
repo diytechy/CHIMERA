@@ -11,19 +11,19 @@ palette:
 - RIVER_BANK: 63
 - << palettes/rock_layers.yml:palette
 slant:
-- threshold: 2.5
+- threshold: 0.54
   palette:
   - MOSSY_STONE: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 3
+- threshold: 0.48
   palette:
   - MOSSY_STONE_MIX: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 3.5
+- threshold: 0.44
   palette:
   - TUFF_STONE: 319
   - << palettes/rock_layers.yml:palette
-- threshold: 4
+- threshold: 0.4
   palette:
   - ICE_STONE: 319
   - << palettes/rock_layers.yml:palette
@@ -55,6 +55,7 @@ features:
   - PARROTS
   - PANDAS
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 - USE_CHILLY_CREEK_RIVER
 - BOREAL_COAST_FLAT

@@ -20,7 +20,7 @@ palette:
 - GRASS_PODZOL_MUDDY: 62
 - << meta.yml:palette-bottom
 slant:
-- threshold: 1.02
+- threshold: 0.79
   palette:
   - MOSS_TUFF: 319
   - GRASS_PODZOL_MUDDY: 62

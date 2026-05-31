@@ -1,0 +1,10 @@
+# NoiseTool CLI stub: renders the `elevation` surface-height field.
+#
+# The named `elevation` sampler is NORMALIZED (~[0, 0.6]), not raw world Y. We multiply by
+# ~320 so the "Colored 0 - 320" / "terrain" color scale reads it as world height and shows
+# blue (low) -> green (coast) -> brown/grey -> white (peaks). For the raw normalized field,
+# render `elevation(x, z)` directly with the default grayscale-normalized scale instead.
+#
+# Requires --common .artifacts/resolved_samplers.yml. See docs/CAPTURES.md.
+type: EXPRESSION
+expression: elevation(x, z) * 320

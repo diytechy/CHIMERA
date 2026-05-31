@@ -2,18 +2,25 @@ id: ICE_SPIKES_SINKHOLE
 type: FEATURE
 
 distributor:
-  type: PADDED_GRID
-  width: 6
-  padding: 2
-  salt: 7234
-
+  type: AND
+  distributors:
+    - type: PADDED_GRID
+      width: 6
+      padding: 2
+      salt: 7234
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        expression: -riftWellPlacement(x,z)
+      threshold: -0.2
+      
 locator:
   type: AND
   locators:
     - type: TOP
       range: &range
-        min: -60
-        max: -35
+        min: $meta.yml:bottom-y
+        max: $meta.yml:top-y
     - type: PATTERN
       range: *range
       pattern:

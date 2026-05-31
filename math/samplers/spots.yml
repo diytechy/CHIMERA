@@ -265,20 +265,22 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        max(elevationSparse(x, z),
-          min(min(min(min(
-            elevationSparse(x + spotRadius(x, z), z),
-            elevationSparse(x - spotRadius(x, z), z)),
+        min(elevationSparse(x, z),
           min(
-            elevationSparse(x, z + spotRadius(x, z)),
-            elevationSparse(x, z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z)))),
-          min(
-            elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
-            elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))
-        )
+            min(
+              min(
+                elevationSparse(x + spotRadius(x, z), z),
+                elevationSparse(x - spotRadius(x, z), z)),
+              min(
+                elevationSparse(x, z + spotRadius(x, z)),
+                elevationSparse(x, z - spotRadius(x, z)))),
+            min(
+              min(
+                elevationSparse(x + spotRadius(x, z), z + spotRadius(x, z)),
+                elevationSparse(x + spotRadius(x, z), z - spotRadius(x, z))),
+              min(
+                elevationSparse(x - spotRadius(x, z), z + spotRadius(x, z)),
+                elevationSparse(x - spotRadius(x, z), z - spotRadius(x, z))))))
 
   # Sinkhole edge radius — wider than the volcanic rim to preserve sinkhole wall detail.
   sinkholeEdgeRadius:
@@ -416,10 +418,16 @@ samplers:
     type: EXPRESSION
     expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,(spotBaseElevation(x,z)+0.05),1,elevationTerraced(x,z))
 
+
+  elevationAcrossOceanSpot:
+    dimensions: 2
+    type: EXPRESSION
+    expression: herp(abs(spotDistance(x, z)/spotRadius(x, z)),0.8,0,1,nonMountainElevation(x,z))
+
   SinkholeDepth:
     dimensions: 2
     type: EXPRESSION
-    expression: lerp(spotHeightPercent(x,z),0,0.1,1,0.15)
+    expression: lerp(spotHeightPercent(x,z),0,0.15,1,0.2)
 
   sinkholeMinElev:
     dimensions: 2
@@ -427,32 +435,241 @@ samplers:
     expression: spotMinElev(x,z) - SinkholeDepth(x,z)
 
   
-  special_caveSampler:
+  special_cavePresent:
+    dimensions: 3
+    type: EXPRESSION
+    # 0 when not valid puts in center of distribution range, which should prevent placement as long
+    # as extrusion is set properly.
+    variables:
+      act_dist: ${customization.yml:special_cave_biome_activation}
+    expression: |
+      (special_caves(x,y,z) < act_dist) && 
+      (special_caveElevation(x, z) > 0.0)
+    
+  special_caveInferno:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      hot_threshold: 0.3
+    expression: |
+      special_cavePresent(x,y,z) && 
+      (special_caveTemperature(x,z)>0) &&
+      (special_caveVariation(x,z)>hot_threshold)
+    
+  special_caveNonInferno:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      not_hot_threshold: -0.3
+    #Because these distribute to multiple, need to convert to another distribution range for placement (0,1).
+    expression: |
+      if((special_cavePresent(x,y,z)) &&
+      (special_caveVariation(x,z)<not_hot_threshold),
+        (not_hot_threshold - special_caveVariation(x,z))/(1+not_hot_threshold),
+        0)
+
+  special_radius:
+    dimensions: 2
+    type: EXPRESSION
+    variables: &spec_vars
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
+    expression: |
+      (cell_spot(x,z)+1)*((cave_dist*2)/cave_dia)
+    samplers:
+      cell_spot: &caveSettings
+        dimensions: 2
+        type: CELLULAR
+        frequency:  1 / ${customization.yml:cave_dist}
+        distance: Euclidean
+        jitter: 0.5
+        salt: 24
+        
+  special_radius_norm:
+    dimensions: 2
+    type: EXPRESSION
+    variables: &spec_vars
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
+    expression: |
+      max(pit_transition(x,z),special_radius(x,z))
+    samplers:
+      pit_transition:
+        dimensions: 2
+        type: EXPRESSION
+        variables:
+          cave_pit_thresh: ${customization.yml:cave_pit_thresh}
+          cave_pit_trans: ${customization.yml:cave_pit_trans}
+          #If near a pit, override the special cave radius
+          #with the distance to the pit transition so the walls
+          #of the special cave are not cut off.
+
+        expression: |
+          if(warped_pit(x,z),
+            lerp(riftWellPlacement(x,z),cave_pit_thresh-cave_pit_trans,0,cave_pit_thresh,1)
+            ,
+            0)
+            
+  special_caves_linear:
     dimensions: 3
     type: EXPRESSION
     expression: |
-      if (special_caves(x,y*2,z) < -0.79 && special_caveElevation(x, y*2, z) > 0.1, 
-        special_caveVariation(x,y*2,z),
-        -1)
-    
-  special_caves: &caveSettings
+      0
+
+  special_caves:
     dimensions: 3
-    type: CELLULAR
-    frequency: 0.005
-    jitter: 0.05
-    salt: 24
+    type: EXPRESSION
+    variables: *spec_vars
+      #Compute the radius into the special cave
+      #0 at the edge, -1 at the center, similar to cellular noise pattern, but
+      # edge at 0 to normalize.
+    expression: |
+      normalize_shell(
+        (
+          //First compute normalized radius on the x/z plane:
+          special_radius_norm(x,z)^2
+
+          //Then add in the normalized y component; cave_y_power controls curvature:
+          //higher values flatten the top/bottom cap, lower values approach a sphere.
+          +((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power)
+
+          //Then convert back to standard normalized radius
+        )^0.5-1,
+        y, cave_lower, cave_upper, cave_dia/2, cave_y_power)
+    functions:
+      # Rescale dist_into_shell inside the ellipsoid so a fixed threshold corresponds
+      # to the same WORLD-BLOCK depth in every direction. Without this, threshold 0.16
+      # gives ~12 blocks at the xz equator but only ~4 blocks at the y poles (for p=3),
+      # because ds/d(block) varies with direction.
+      #
+      # Linearization at the shell (s=0):
+      #   xz equator:    ds/d(block) = 1 / horz_radius          -> blocks-per-s = horz_radius
+      #   upper pole:    ds/d(block) = p / (2*max_y)            -> blocks-per-s = 2*max_y/p
+      #   lower pole:    ds/d(block) = p / (2*|min_y|)          -> blocks-per-s = 2*|min_y|/p
+      #
+      # We multiply s by a scale factor `f`; the threshold check |s*f|>t becomes
+      # |s|>t/f, so the wall thickness scales INVERSELY with f: new_wall = old_wall/f.
+      # To make every direction match the xz equator's (t * horz_radius) blocks, we
+      # need f at each pole equal to (pole_blocks_per_s_at_xz) / pole_blocks_per_s:
+      #   factor_upper = (2*max_y/p)   / horz_radius   -> simplifies to 2*max_y/(p*horz_radius)
+      #   factor_lower = (2*|min_y|/p) / horz_radius   -> simplifies to 2*|min_y|/(p*horz_radius)
+      # Both are < 1 for typical p=3 caves (factor_upper ~0.36, factor_lower ~0.29),
+      # so the wall is correctly THICKENED at the poles.
+      #
+      # The lerp from 1 (at y=0) to factor_pole (at y=±cave_pole) is inlined as
+      # `1 + (y/y_pole)*(factor_pole - 1)`, so this function has no user-fn deps.
+      #
+      # Caveat: linearization is only exact AT the shell. For p>=3 the boundary lands
+      # at R_y ~0.68 after rescaling, and the true ds/d(block) there is ~20% smaller
+      # than at the shell, so observed poles run ~13 blocks vs the xz 12 — close
+      # enough for blending purposes, not exact.
+      normalize_shell:
+        arguments: [dist_into_shell, y, min_y, max_y, horz_radius, y_power]
+        expression: |
+          //dist_into_shell
+          if(dist_into_shell<0,
+            dist_into_shell * if(y>0,
+              1 + (y/max_y) * (2*max_y/(horz_radius*y_power) - 1),
+              1 + (y/min_y) * (-2*min_y/(horz_radius*y_power) - 1)
+            ),
+            dist_into_shell)
 
   special_caveVariation:
-    dimensions: 3
+    dimensions: 2
     <<: *caveSettings
     return: CellValue
 
   special_caveElevation:
-    dimensions: 3
+    dimensions: 2
     <<: *caveSettings
     return: NoiseLookup
+    salt-lookup: false
     lookup:
       dimensions: 3
       type: EXPRESSION
       expression: |
-        continents(x, z)
+        aroundContinent(x, z)
+
+  special_caveTemperature:
+    dimensions: 2
+    <<: *caveSettings
+    return: NoiseLookup
+    salt-lookup: false
+    lookup:
+      dimensions: 3
+      type: EXPRESSION
+      expression: |
+        temperature(x, z)
+
+  # Weighted block-distance approximation to the special cave shell.
+  # Positive = inside the ellipsoid, 0 = at shell surface, negative = outside.
+  #
+  # SCOPE: accurate only in the narrow band near the shell surface (roughly ±10 blocks).
+  #   Use special_caves (threshold) to define the hollow interior boundary — that
+  #   produces a proper inner ellipsoid.  Use special_caveDist for:
+  #     • carver_fade: specifying fade width in intuitive block units near the shell
+  #     • lava_cave_floor: small outside-shell tolerance threshold
+  #   Deep inside the cave, dist_xz can dominate the weighted sum and produce a
+  #   "pinched at poles" shape that is geometrically wrong for hollow boundaries.
+  #
+  # Derivation:
+  #   special_caves uses: s = (R_xz^2 + R_y^p)^0.5 - 1  where p = cave_y_curve_power
+  #   where R_xz = (cell_spot+1)*(cave_dist*2/cave_dia)  [1.0 at xz-shell, y=0]
+  #         R_y  = if(y>0, y/cave_upper, y/cave_lower)   [1.0 at y-shell, xz=center]
+  #
+  #   Block distance to xz shell (signed):  dist_xz = cave_dia/2 - (cell_spot+1)*cave_dist
+  #   Block distance to y shell  (signed):  dist_y  = if(y>=0, cave_upper-y, y-cave_lower)
+  #
+  #   Weights (each axis's share of the normalized shell distance squared):
+  #     f_xz = R_xz^2 / nDS,  f_y = R_y^p / nDS
+  #   where nDS = R_xz^2 + R_y^p = (special_caves+1)^2  (holds for any p).
+  #   Axis-aligned poles are exact (one weight = 1, the other = 0).
+  #
+  # Verified axis-aligned cases (cave centred at 0,0,0; defaults cave_dia=150, cave_upper=40):
+  #   query(0,20,0)  -> f_xz=0, f_y=1 -> 0 + 1*(40-20)       = +20  (20 inside top shell)
+  #   query(0,0,100) -> f_xz=1, f_y=0 -> 1*(75-100) + 0      = -25  (25 outside xz shell)
+  special_caveDist:
+    dimensions: 3
+    type: EXPRESSION
+    variables:
+      cave_dia:     ${customization.yml:cave_dia}
+      cave_dist:    ${customization.yml:cave_dist}
+      cave_upper:   ${customization.yml:cave_upper}
+      cave_lower:   ${customization.yml:cave_lower}
+      cave_y_power: ${customization.yml:cave_y_curve_power}
+    expression: |
+      if(nDist_sq(x,y,z) > 0.000001,
+        (Rxz(x,z)^2 / nDist_sq(x,y,z))
+          * (cave_dia/2 - (cell_spot(x,z)+1)*cave_dist)
+        + ((if(y>0,y/cave_upper,y/cave_lower))^cave_y_power / nDist_sq(x,y,z))
+          * if(y>=0, cave_upper-y, y-cave_lower),
+        cave_upper)
+    samplers:
+      cell_spot: *caveSettings
+      # Normalized x/z radius: 0 at cell center, 1 at the xz shell (y=0)
+      Rxz:
+        dimensions: 2
+        type: EXPRESSION
+        expression: >
+          (cell_spot(x,z)+1)
+          *(${customization.yml:cave_dist}*2/${customization.yml:cave_dia})
+        samplers:
+          cell_spot: *caveSettings
+      # R_xz^2 + R_y^p  (== (special_caves+1)^2 for any p, cached to avoid repeating cell_spot)
+      nDist_sq:
+        dimensions: 3
+        type: EXPRESSION
+        expression: >
+          ((cell_spot(x,z)+1)
+            *(${customization.yml:cave_dist}*2/${customization.yml:cave_dia}))^2
+          +(if(y>0,
+              y/${customization.yml:cave_upper},
+              y/${customization.yml:cave_lower}))^${customization.yml:cave_y_curve_power}
+        samplers:
+          cell_spot: *caveSettings

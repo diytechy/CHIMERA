@@ -8,4 +8,5 @@ color: $biomes/colors.yml:FROZEN_OCEAN_OVERHANGS
 vanilla: minecraft:frozen_ocean
 
 tags:
+  - SPECIAL_CAVES
   - OCEAN_CAVES

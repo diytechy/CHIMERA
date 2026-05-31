@@ -16,17 +16,27 @@ variables: &variables
 terrain:
   sampler:
     type: EXPRESSION
+    dimensions: 3
+    variables: *variables
     expression: |
       max(
-        -y + base
+        -y + base + lerp(biomeInfluence(x,z),
+          0, oceanElevationBlockHeight(x,z),
+          1, sampler2d(x,z)
+        )
         + overhangs(x, y*3, z) * parabolicMap(y,
           base - scale * overhangStartPercent,
-          overhangStrength, base, 0)
+          overhangStrength, base, 0) * biomeInfluence(x,z)
       ,
         -y+ocean_level-herp(RiverOceanTransitioner(x,z),0,scale*2,0,bedDepth(x, z))
       )
-    variables: *variables
     samplers:
+      sampler2d:
+        dimensions: 2
+        type: EXPRESSION
+        variables: *variables
+        expression: |
+          scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
       overhangs:
         dimensions: 3
         type: PROBABILITY
@@ -37,8 +47,8 @@ terrain:
             type: OPEN_SIMPLEX_2
             frequency: 0.01
             salt: 4957
+
   sampler-2d:
-    type: EXPRESSION
-    expression: |
-      scale * shelf(oceanElevation(x, z), 0, shelfSize, -shelfStrength)
-    variables: *variables
+    dimensions: 2
+    type: CONSTANT
+    value: 0

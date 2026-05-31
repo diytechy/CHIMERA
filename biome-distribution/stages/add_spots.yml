@@ -12,8 +12,8 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      - sinkhole: 2
-      - live-volcano: 2
+      - sinkhole: 4
+      - live-volcano: 4
       - PRISMATIC_SPRING: 1
       - extinct-volcano: 4
     sampler:
@@ -24,7 +24,7 @@ stages:
   - type: REPLACE
     from: _ocean_spot
     to:
-      - live-volcano: 2
+      - live-volcano: 4
       - PRISMATIC_SPRING: 1
       - extinct-volcano: 4
     sampler:
@@ -38,9 +38,7 @@ stages:
       - ocean: 1
       - volcano-coast: 1
     sampler:
-      type: EXPRESSION
-      expression: nearSpot(x, z)
-      variables: $math/samplers/spots.yml:variables
+      type: CONSTANT
 
   - type: BORDER
     from: sinkhole
@@ -51,6 +49,13 @@ stages:
 
   - type: BORDER
     from: sinkhole
+    replace: ocean
+    to: sinkhole-border-ocean
+    sampler:
+      type: CONSTANT
+
+  - type: BORDER
+    from: extinct-volcano
     replace: ocean
     to: sinkhole-border-ocean
     sampler:

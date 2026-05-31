@@ -9,6 +9,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_ORANGE_DESERT_RIVER
+  - ARID_COAST_FLAT
 
 palette:
   - RED_WHITE_XERIC_MIX: $meta.yml:top-y

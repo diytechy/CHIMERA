@@ -11,7 +11,7 @@ color: $biomes/colors.yml:FROZEN_ARCHIPELAGO
 vanilla: minecraft:snowy_beach
 
 tags:
-  - LAND_CAVES
+  - OCEAN_CAVES
   - SPECIAL_CAVES
   - ICE_CAVES
   - USE_FROZEN_RIVER

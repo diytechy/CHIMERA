@@ -104,7 +104,8 @@ if "%PACK_SUCCESS%"=="0" (
     REM Remove existing zip if present
     if exist ".artifacts\%PACK_ID%.zip" del /q ".artifacts\%PACK_ID%.zip"
     echo Zipping %PACK_ID%...
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference = 'Stop'; $source = '%REPO_ROOT%'; $dest = '%REPO_ROOT%\.artifacts\%PACK_ID%.zip'; $items = Get-ChildItem -Path $source -Exclude '.*' | Where-Object { -not $_.Name.StartsWith('.') }; if ($items.Count -eq 0) { Write-Error 'No files to package'; exit 1 }; Compress-Archive -Path $items.FullName -DestinationPath $dest -Force; Write-Host ('Package created: ' + $dest)"
+    REM Pack contents allowlist — keep in sync with build.gradle.kts, pack.sh, and release-zip.yml.
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference = 'Stop'; $source = '%REPO_ROOT%'; $dest = '%REPO_ROOT%\.artifacts\%PACK_ID%.zip'; $names = @('pack.yml','meta.yml','customization.yml','substratum_meta.yml','biomes','biome-distribution','features','palettes','math','structures'); $items = $names | ForEach-Object { Join-Path $source $_ } | Where-Object { Test-Path $_ }; if ($items.Count -eq 0) { Write-Error 'No files to package'; exit 1 }; Compress-Archive -Path $items -DestinationPath $dest -Force; Write-Host ('Package created: ' + $dest)"
 
     if !ERRORLEVEL! neq 0 (
         echo [ERROR] Package creation failed!

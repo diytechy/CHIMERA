@@ -26,6 +26,7 @@ slant:
       - << meta.yml:palette-underwater
       - << meta.yml:palette-bottom
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 features:
   slabs:

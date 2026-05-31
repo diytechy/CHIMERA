@@ -15,7 +15,7 @@ terrain:
     expression: |
       cliffify(-y + base + elevationDetailedBlockHeight(x,z) + height * surfaceOffset(x,z) * biomeInfluence(x,z)
         + (biomeTilt(x - 3, z - 3) + 0.5) * 55 * biomeInfluence(x,z)
-        + wallAddition(x,y,z) * 2, -4)
+        + wallAddition(x,y,z) * 2 * biomeInfluence(x,z), -4)
     functions:
       cliffify:
         arguments: [x, border]
@@ -41,6 +41,7 @@ terrain:
           return: LocalNoiseLookup
           jitter: ${customization.yml:biomeSpread.cellJitter}
           frequency: 1 / ${customization.yml:biomeSpread.cellDistance}
+          salt-lookup: false
           lookup:
             dimensions: 2
             type: EXPRESSION

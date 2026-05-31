@@ -12,7 +12,7 @@ slant:
   palette:
   - RED_SAND: 319
   - SAND: 64
-- threshold: 3
+- threshold: 0.6
   palette:
   - BLOCK:minecraft:orange_terracotta: 319
   - BLOCK:minecraft:terracotta: 108

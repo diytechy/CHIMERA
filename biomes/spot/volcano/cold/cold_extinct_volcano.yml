@@ -8,6 +8,7 @@ extends:
 color: $biomes/colors.yml:COLD_EXTINCT_VOLCANO
 vanilla: minecraft:frozen_peaks
 tags:
+- SPECIAL_CAVES
 - LOW_CAVES
 - ICE_CAVES
 - USE_FROZEN_RIVER

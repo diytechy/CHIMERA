@@ -30,40 +30,51 @@ carving:
       megaCaveStrength: 0.3
       megaCaveSize: 0.3
 
+      # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+      # Carves a passage from the special-cave dome to the overlapping pit wall.
+      # Set to 0 to suppress; or comment out the matching line in the expression.
+      pitCaveTunnel_enabled: 0
+
     expression: |
-      -carvingThreshold
-      + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip unnecessary calculations
-        min(carvingCap,
-          max(
-            // Spaghetti Caves
+      max(
+        -carvingThreshold
+        + if(y<carvingMinHeight||y>carvingMaxHeight,0,maskSmooth(maskSmooth( // Skip unnecessary calculations
+          min(carvingCap,
             max(
-              spaghettiStrengthLarge * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),
-              spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)
-            ),
-            // Cheese caves
-            if(y>cheeseMaxHeight,0,
-              maskSmooth(
-                cheeseStrength * (simplex3(
-                  x * cheeseHorizontalFrequency,
-                  (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,
-                  z * cheeseHorizontalFrequency
-                )+1)/2
-                // Mega caves
-                +lerp(megaCaves(x, y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)
-                // Pillars
-                -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1) * pillarStrength,
-      
-                // Cheese clamp parameters
-                cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper, y
+              // Spaghetti Caves
+              max(
+                spaghettiStrengthLarge * ((-(|simplex3(x,y+0000,z)|+|simplex3(x,y+1000,z)|)/2)+1),
+                spaghettiStrengthSmall * ((-(|simplex3(x,y+2000,z)|+|simplex3(x,y+3000,z)|)/2)+1)
+              ),
+              // Cheese caves
+              if(y>cheeseMaxHeight,0,
+                maskSmooth(
+                  cheeseStrength * (simplex3(
+                    x * cheeseHorizontalFrequency,
+                    (y + simplex2(x, z) * 5) * cheeseVerticalFrequency,
+                    z * cheeseHorizontalFrequency
+                  )+1)/2
+                  // Mega caves
+                  +lerp(megaCaves(x, y, z), 1-megaCaveSize, 0, 1, megaCaveStrength)
+                  // Pillars
+                  -lerp(cavePillars(x, z),-1+pillarRadius,0,-1,1) * pillarStrength,
+        
+                  // Cheese clamp parameters
+                  cheeseMaxHeight, cheeseMaxHeight - cheeseMaxTaper, y
+                )
               )
             )
-          )
-        ),
-        // Clamp parameters
-        carvingMinHeight, carvingMinHeight + carvingMinTaper, y
-        ),
-        carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y
-      ))
+          ),
+          // Clamp parameters
+          carvingMinHeight, carvingMinHeight + carvingMinTaper, y
+          ),
+          carvingMaxHeight, carvingMaxHeight - carvingMaxTaper, y
+        )),
+        // ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+        // Carves a passage from the special-cave dome to overlapping pit walls.
+        // Comment out the following line (or set pitCaveTunnel_enabled: 0) to suppress.
+        if(pitCaveTunnel_enabled,pitCaveTunnel(x, y, z),-carvingThreshold)
+        )
     samplers:
       cavePillars:
         dimensions: 2
@@ -97,3 +108,131 @@ carving:
         sampler:
           type: OPEN_SIMPLEX_2
           frequency: 0.0075
+
+      # ── Pit-cave upper-hemisphere tunnel ──────────────────────────────────
+      # Computes the void contribution that connects a special-cave dome to the
+      # side wall of an overlapping pit (warped_pit + riftWellPlacement zone).
+      # 
+      # Passageway (2D) defines the traversal between the special cave and the rift / pit
+      # At -1: At the center of the special cave, where the carver fades out.
+      # At 0: At the edge of the special cave shell, where special radius is 0.5
+      # At 1: At the edge of the pit, where riftWellPlacement is 0.
+      # At 2: At the center of the rift, where the carver fades out.
+      #
+      # 
+      # Strength mask (2D):
+      #   Defines the strength of the tunnel, a function of the normalized transition strength
+      #   where the raw transition strength is ((riftWellPlacement + trans_bulk) * (special_radius_norm + + trans_bulk))/(1++ trans_bulk)^2
+      # where trans_bulk can be increases to allow greater tunnelling distances when the special cave
+      # and pit do not directly intersect.
+      #
+      # The noramlized transition strength would be the raw transition strength^0.3 to keep the strength generally higher, but would roll
+      # out as the passageway reaches it's fade -1 and 2.
+
+      # The base (y-min) of the tunnel is always anchored as a interpolation across the passageway:
+      # At passageway of 0 (edge of special cave) ymin nominal should be 0.
+      # At passageway of 1 (edge of pit) ymin nominal should be pit_floor, which is just the detailed block height.
+      #
+      # The y-max of the tunnel is cave_upper * normalized transition strength + y-min
+    
+      pitCaveTunnel:
+        dimensions: 3
+        type: EXPRESSION
+        variables:
+          cave_pit_thresh:  ${customization.yml:cave_pit_thresh}
+          cave_pit_trans:   ${customization.yml:cave_pit_trans}
+          cave_upper:       ${customization.yml:cave_upper}
+          # y-floor of the passage at the cave-shell end of the tunnel (passageway = 0).
+          # 0 = sea level / cave entrance height.
+          ymin_outer:   0
+          # Passage ceiling scale: ymax = cave_upper × norm_strength × mag + ymin.
+          # 0.8 → passage height ≈ 80 % of cave_upper at peak norm_strength.
+          mag:          0.8
+          # ±blocks FBM noise on both the floor (ymin) and ceiling (ymax).
+          noise_amp:    5
+          # Vertical taper width in blocks at the floor and ceiling band edges.
+          fade:         5
+          # Maximum carving contribution (> 0 = void in the carving expression).
+          str_cap:      0.7
+          # Bulk factor added to riftWellPlacement and special_radius_norm before multiplying.
+          # Allows the tunnel to extend when cave and pit are nearby but not perfectly
+          # overlapping.  0 = strict overlap only; 0.3 = moderate extension.
+          trans_bulk:   0.0
+          # special_radius_norm value at the cave XZ shell — passageway = 0 is anchored here.
+          cave_shell_r: 0.5
+        expression: |
+          // ── Early exit: no carving outside the pit overlap zone ──────────────
+          if(warped_pit(x,z) <= 0, -0.5,
+
+            // ── Strength mask with trans_bulk ──────────────────────────────────
+            // raw = (riftWellPlacement + B) × (special_radius + B) / (1 + B)²
+            //   • Positive when cave and pit are simultaneously reachable; B widens reach.
+            //   • Negative near the pit outer surface (riftWellPlacement << 0) → solid.
+            // NOTE: must use special_radius_norm (not 1-special_radius). The latter peaks at
+            //   the cave CENTRE (sr=0 → 1-sr=1) and is negative outside the shell, so the
+            //   conditional only fires INSIDE the cave — carving extra void where the cave
+            //   already exists. special_radius_norm = max(pit_transition, special_radius)
+            //   is non-negative everywhere and rises through the pit/cave transition band.
+            if((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk) <= 0,
+              -0.5,
+
+              // norm_strength = raw ^ 0.3
+              //   ^0.3 keeps the passageway broadly strong while rolling to 0 at the
+              //   raw-zero boundary (riftWellPlacement = −trans_bulk on the pit side).
+              ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
+                / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
+
+              // ── Passageway-end fades ────────────────────────────────────────
+              // Cave-centre fade (passageway = −1 → 0):
+              //   0 when special_radius_norm = 0 (cave centre), 1 when special_radius_norm ≥ cave_shell_r.
+              * min(1, special_radius_norm(x,z) / cave_shell_r)
+              // Pit-centre  fade (passageway = 1 → 2): 
+              //   1 when riftWellPlacement = 0 (pit edge), 0 when riftWellPlacement = 1 (pit centre).
+              * max(0, min(1, 1 - riftWellPlacement(x,z)))
+
+              // ── Vertical tunnel mask ────────────────────────────────────────
+              // ymin: linearly interpolated from ymin_outer (at riftWellPlacement = −cave_pit_trans,
+              //       passageway = 0) to pit_floor (at riftWellPlacement = 0, passageway = 1),
+              //       with FBM noise for organic variation.
+              // Lower ramp: 0 at y = ymin → 1 at y = ymin + fade.
+              * min(1, max(0,
+                  (y - (lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,
+                             0, elevationDetailedBlockHeight(x,z))
+                        + tunnelNoise(x,z) * noise_amp))
+                  / fade
+                ))
+
+              // ymax = cave_upper × norm_strength × mag + ymin.
+              // Upper ramp: 1 at y = ymax − fade → 0 at y = ymax.
+              * min(1, max(0,
+                  ( cave_upper
+                    * ((riftWellPlacement(x,z) + trans_bulk) * (special_radius_norm(x,z) + trans_bulk)
+                       / ((1 + trans_bulk) * (1 + trans_bulk)))^0.3
+                    * mag
+                    + lerp(riftWellPlacement(x,z), -cave_pit_trans, ymin_outer,
+                           0, elevationDetailedBlockHeight(x,z))
+                    + tunnelNoise(x,z) * noise_amp
+                    - y)
+                  / fade
+                ))
+
+              * str_cap
+            )
+          )
+        functions:
+          lerp: $math/functions/interpolation.yml:functions.lerp
+
+        samplers:
+          # 2D FBM for organic passage floor/ceiling boundary variation.
+          # Must be 2D (not 3D) so the floor/ceiling heights are consistent per
+          # vertical column — 3D noise would introduce mid-column discontinuities.
+          tunnelNoise:
+            dimensions: 2
+            type: FBM
+            octaves: 3
+            gain:       0.5
+            lacunarity: 2.0
+            sampler:
+              type: OPEN_SIMPLEX_2
+              frequency: 0.015
+              salt: 55503

@@ -3,7 +3,7 @@ abstract: true
 type: BIOME
 extends: 
  - BASE_CAVE
- - CARVING_SUBSTRATUM
+ - EQ_CARVING_LAND
 tags:
   - subsurface
 

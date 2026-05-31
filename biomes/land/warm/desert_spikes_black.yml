@@ -3,7 +3,7 @@ type: BIOME
 extends: 
 - EQ_SPIKES
 - DESERT_SPIKES
-- BLACK_DESERT_BOG
+#- LAVA_FIELDS
 - HYDRAXIA_ORES_GOLD
 color: $biomes/colors.yml:DESERT_SPIKES_GOLD
 
@@ -11,6 +11,7 @@ tags:
   - LAND_CAVES
   - SPECIAL_CAVES
   - USE_BLACK_RIVER
+  - ARID_COAST_FLAT
 
 palette:
   - BLOCK:minecraft:black_concrete_powder: $meta.yml:top-y

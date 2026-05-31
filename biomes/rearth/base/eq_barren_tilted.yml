@@ -37,6 +37,7 @@ terrain:
         type: CELLULAR
         frequency: 0.028
         return: NoiseLookup
+        salt-lookup: false
         lookup:
           dimensions: 2
           type: OPEN_SIMPLEX_2S
@@ -45,6 +46,7 @@ terrain:
         dimensions: 2
         type: CELLULAR
         frequency: 0.028
+        salt-lookup: false
         return: LocalNoiseLookup
         lookup:
           type: EXPRESSION

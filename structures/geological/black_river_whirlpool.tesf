@@ -1,0 +1,5 @@
+// Black (lava) river whirlpool: a signal-fire campfire on the river bed with a
+// magma block directly above it. The magma under water spawns a downward bubble
+// column (the "whirlpool"); the signal fire adds a rising smoke plume.
+block(0, 0, 0, "minecraft:campfire[lit=true,signal_fire=true]", true);
+block(0, 1, 0, "minecraft:magma_block", true);

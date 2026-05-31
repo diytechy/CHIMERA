@@ -3,7 +3,7 @@ type: BIOME
 vanilla: minecraft:dripstone_caves
 extends:
   - EQ_GLOBAL_RIVER
-  - BLACK_DESERT_BOG
+  - LAVA_FIELDS
   - EQ_RIVER_CARVING
 
 colors:
@@ -42,9 +42,10 @@ features:
     - PALM_TREES_SPARSE
   structures:
     - MOB_ROOMS
-    - SPARSE_FOSSILS
   processors:
   - RIVER_SOULSAND
   river-decoration:
   - COVE_GLOW_LICHEN
+  postprocessors:
+    - BLACK_RIVER_WHIRLPOOL
 

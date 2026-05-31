@@ -129,7 +129,7 @@ These biomes use `BiomeShapeSealevelElevation` in their terrain equation, which 
 |---|---|
 | SWAMP, SCULK_SWAMP, MUSKEG | EQ_SWAMP |
 | LAVENDER_FIELDS, FROSTCOATED_BOG | EQ_BOG |
-| BLACK_DESERT_BOG | EQ_BARRIER_BOG |
+| LAVA_FIELDS (formerly BLACK_DESERT_BOG) | EQ_BARRIER_BOG |
 | TROPICAL_FLOODPLAIN | EQ_MANGROVE_SWAMP |
 | MURKY_MARSHLANDS | EQ_MURKY_MARSHLANDS |
 | MARSH, FROZEN_MARSH | EQ_WARPED_WETLANDS (uses sealevel — confirmed by user edit) |
@@ -141,7 +141,7 @@ These biomes use `BiomeShapeSealevelElevation` in their terrain equation, which 
 | GLOOMY_GORGE | EQ_ERODED_VALLEY_MOUNTAINS_SEALEVEL (only placed via Distribute_Major_Regions) |
 | GALLERY_FOREST (+ RED/ORANGE) | EQ_WARPED_WETLANDS |
 
-To check: `grep -l BiomeShapeSealevelElevation biomes/` finds candidate equation files, **but strip comments first** — `EQ_HIGH_MOUNTAINS` and `EQ_TERRACED_MOUNTAINS` only mention `BiomeShapeSealevelElevation` in a `//` comment and are **not** sealevel-locked (so e.g. ENCHANTED_WOODLANDS via EQ_TERRACED_MOUNTAINS, and EQ_MULTI_TERRACED_LAND biomes, are safe on slopes). The lock only applies when the term appears **uncommented** in the surface equation (`-y + base + BiomeShapeSealevelElevation(x,z) …`). Also watch multi-inheritance: DESERT_SPIKES_BLACK lists BLACK_DESERT_BOG in `extends` but EQ_SPIKES overrides its terrain, so it is **not** locked. Audit with active-usage resolution (strip `//` and `#`), not a raw grep over `extends`.
+To check: `grep -l BiomeShapeSealevelElevation biomes/` finds candidate equation files, **but strip comments first** — `EQ_HIGH_MOUNTAINS` and `EQ_TERRACED_MOUNTAINS` only mention `BiomeShapeSealevelElevation` in a `//` comment and are **not** sealevel-locked (so e.g. ENCHANTED_WOODLANDS via EQ_TERRACED_MOUNTAINS, and EQ_MULTI_TERRACED_LAND biomes, are safe on slopes). The lock only applies when the term appears **uncommented** in the surface equation (`-y + base + BiomeShapeSealevelElevation(x,z) …`). Also watch multi-inheritance: DESERT_SPIKES_BLACK lists LAVA_FIELDS in `extends` but EQ_SPIKES overrides its terrain, so it is **not** locked. Audit with active-usage resolution (strip `//` and `#`), not a raw grep over `extends`.
 
 ## Non-sealevel biomes that *can* live in lowlands (don't restrict to flat)
 

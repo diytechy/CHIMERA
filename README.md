@@ -25,6 +25,17 @@ In order to combine these biomes, some elevation and stitching changes were used
 
 ---
 
+## Tools
+
+Recompiled companion tools for visualizing and tuning CHIMERA's generation:
+
+| Tool | Description |
+|------|-------------|
+| [NoiseTool](https://github.com/diytechy/NoiseTool) | Visualize and debug Terra noise samplers / expressions used throughout the pack |
+| [BiomeTool](https://github.com/diytechy/BiomeTool) | Render and benchmark biome distribution across the world (used to tune the land-surface biome spread) |
+
+---
+
 
 ## Installation
 

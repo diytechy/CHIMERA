@@ -3,7 +3,7 @@ type: BIOME
 extends: 
 - EQ_SPIKES
 - DESERT_SPIKES
-- BLACK_DESERT_BOG
+#- LAVA_FIELDS
 - HYDRAXIA_ORES_GOLD
 color: $biomes/colors.yml:DESERT_SPIKES_GOLD
 

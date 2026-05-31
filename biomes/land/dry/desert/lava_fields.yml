@@ -1,4 +1,4 @@
-id: BLACK_DESERT_BOG
+id: LAVA_FIELDS
 type: BIOME
 extends:
   - EQ_BARRIER_BOG

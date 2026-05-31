@@ -299,7 +299,7 @@ elevation-fuzz: 0.25
 flatness-noise-scale: 1800
 #How often flatness noise oscillates
 
-forced-sealevel-activation-threshold: 0.5
+forced-sealevel-activation-threshold: 0.75
 # Default: TODO
 # Value that controls when the flatness mask fully activates.
 # Decrease to get more flat biome distribution, will cut into mid-level biomes.
@@ -307,7 +307,7 @@ forced-sealevel-activation-threshold: 0.5
 # In general should be greater than forced-sealevel-blend
 
 # Controls how gradual the transition is between flat and mountainous biomes. Higher values result in more gradual blending, while lower values result in more sudden transitions.
-forced-sealevel-blend: 0.15
+forced-sealevel-blend: 0.2
 # Default: TODO
 
 forced-sealevel-factor: 0.85

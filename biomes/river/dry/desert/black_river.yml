@@ -10,6 +10,11 @@ colors:
   fog: 0xc0d8ff
   water: 0x444488
 
+ocean:
+  level: $meta.yml:ocean-level
+  palette: BLOCK:minecraft:water
+
+
 palette:
   - BLACK_DESERT_RIVER: $meta.yml:top-y
   - BLACKSTONE: $meta.yml:ocean-level

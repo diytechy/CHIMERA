@@ -1094,8 +1094,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1207,8 +1207,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1320,8 +1320,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1547,8 +1547,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1659,8 +1659,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1769,8 +1769,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1905,8 +1905,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -1938,8 +1938,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -2012,8 +2012,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -2279,8 +2279,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -2692,8 +2692,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -2732,8 +2732,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -2857,8 +2857,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -3106,8 +3106,8 @@ samplers:
       mountainMaskFull: 0.55
       mountainContZero: 0.0
       mountainContFull: 0.5
-      sealevel_threshold: 0.5
-      sealevel_blend: 0.15
+      sealevel_threshold: 0.75
+      sealevel_blend: 0.2
       sealevel_factor: 0.85
       globalScale: 1
       verticalLift: 180
@@ -3620,15 +3620,15 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      threshold: 0.5
-      blend: 0.15
+      threshold: 0.75
+      blend: 0.2
       flatnessFactor: 0.85
       coastStart: 0.05
       coastFull: 0.1
     expression: |
       //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0.2) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
+      if((aroundContinent(x,z) > 0.05) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
           lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
           // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
@@ -3670,7 +3670,7 @@ samplers:
     type: EXPRESSION
     expression: if(continentalDendryRivers(x,1.0,z) < noRiverMax - reportTolerance, max(continentalDendryRivers(x,1.0,z)* terrain_base_biome_shift,0),0)
     variables:
-      terrain_base_biome_shift: 0.8
+      terrain_base_biome_shift: 0.9
       noRiverMax: 1.52
       reportTolerance: 0.02
   continentalRiverDist:

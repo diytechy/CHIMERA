@@ -14,7 +14,7 @@ stages:
       - hot-steppe: &semiArid     1
       - tropical-savanna-dry: &mid          2
       - tropical-monsoon: &mildlyWet    2
-      - tropical-rainforest: &veryWet      3
+      - tropical-rainforest: &veryWet      2
     to:
       tropical-monsoon:
         - hot-desert: *desert

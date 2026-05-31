@@ -384,6 +384,39 @@ def _is_river_stage(stage: Dict) -> bool:
     return False
 
 
+# Cached result of _rivers_disabled().
+_RIVERS_DISABLED_CACHE: Optional[bool] = None
+
+
+def _rivers_disabled() -> bool:
+    """True when the pack's river DENDRY sampler is switched off (``n`` negative).
+
+    The benchmark build disables rivers via ``math/samplers/rivers.yml`` by setting
+    the river DENDRY sampler's ``n: -1`` (the river channel then produces nothing, so
+    ``riverSampler`` always selects the SELF/no-river slot and no RIVER biomes are
+    generated).  The predictor cannot evaluate the DENDRY semantics, so without this
+    check it would model the river REPLACE stages at their nominal ``[SELF:1, RIVER:1]``
+    weights (~25% of the surface as rivers) and under-count every land biome by that
+    much.  Detecting the disable lets the predictor match the rivers-disabled benchmark.
+    """
+    global _RIVERS_DISABLED_CACHE
+    if _RIVERS_DISABLED_CACHE is not None:
+        return _RIVERS_DISABLED_CACHE
+    result = False
+    try:
+        txt = Path("math/samplers/rivers.yml").read_text(encoding="utf-8")
+        # Scan each DENDRY sampler block; a negative `n` means rivers are off.
+        for m in re.finditer(r'type:\s*DENDRY(.*?)(?=\n\s*\w+:\s*\n|\Z)', txt, re.S):
+            nm = re.search(r'^\s*n:\s*(-?\d+)', m.group(1), re.M)
+            if nm and int(nm.group(1)) < 0:
+                result = True
+                break
+    except Exception:
+        result = False
+    _RIVERS_DISABLED_CACHE = result
+    return result
+
+
 def _apply_climate_value(tracker: "ClimateTracker", sampler_name: str,
                          biome: str, value: float) -> None:
     """Write a pipeline-derived climate value into the climate tracker."""
@@ -1527,6 +1560,12 @@ class StageProcessor:
             return distribution
 
         stage_type = stage_config.get('type')
+
+        # When the pack ships with rivers disabled (benchmark build), the river
+        # REPLACE stages are effectively identity (riverSampler never selects RIVER).
+        # Skip them so the predictor doesn't model ~25% phantom river coverage.
+        if _rivers_disabled() and _is_river_stage(stage_config):
+            return distribution
 
         if stage_type == 'REPLACE_LIST':
             return StageProcessor.process_replace_list(stage_config, distribution)

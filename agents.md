@@ -136,19 +136,24 @@ These biomes use `BiomeShapeSealevelElevation` in their terrain equation, which 
 | ALIEN_MARSH | EQ_CELL_MARSH (uses sealevel — confirmed by user edit) |
 | BAMBOO_BASIN | EQ_BAMBOO_BASIN |
 | CARVING_CREAKS | EQ_CARVING_CREAKS (only placed via Distribute_Major_Regions, not in climate lists) |
+| WATERY_WILDS, TUNDRA_TRACKS | EQ_LOWLAND_HILLS (`-y + base + BiomeShapeSealevelElevation`) |
+| SAKURA_STREAMS | EQ_SAKURA_STREAMS |
+| GLOOMY_GORGE | EQ_ERODED_VALLEY_MOUNTAINS_SEALEVEL (only placed via Distribute_Major_Regions) |
+| GALLERY_FOREST (+ RED/ORANGE) | EQ_WARPED_WETLANDS |
 
-To check: `grep -l BiomeShapeSealevelElevation biomes/` finds the relevant equation files.
+To check: `grep -l BiomeShapeSealevelElevation biomes/` finds candidate equation files, **but strip comments first** — `EQ_HIGH_MOUNTAINS` and `EQ_TERRACED_MOUNTAINS` only mention `BiomeShapeSealevelElevation` in a `//` comment and are **not** sealevel-locked (so e.g. ENCHANTED_WOODLANDS via EQ_TERRACED_MOUNTAINS, and EQ_MULTI_TERRACED_LAND biomes, are safe on slopes). The lock only applies when the term appears **uncommented** in the surface equation (`-y + base + BiomeShapeSealevelElevation(x,z) …`). Also watch multi-inheritance: DESERT_SPIKES_BLACK lists BLACK_DESERT_BOG in `extends` but EQ_SPIKES overrides its terrain, so it is **not** locked. Audit with active-usage resolution (strip `//` and `#`), not a raw grep over `extends`.
 
 ## Non-sealevel biomes that *can* live in lowlands (don't restrict to flat)
 
 Common ones that earned safe non-flat placements during balancing:
-- SAKURA_GROVE (EQ_MULTI_TERRACED_LAND), SAKURA_STREAMS (EQ_SAKURA_STREAMS)
+- SAKURA_GROVE (EQ_MULTI_TERRACED_LAND)
 - FOSSILIZED_FENLANDS (uses `BiomeShapeFlattenedElevation`)
 - VERDANT_VALLEYS (uses `BiomeShapeFlattenedElevation`)
 - SNOWSWEPT_MEADOWS (EQ_PLAINS)
 - ICE_SPIKES (EQ_SPIKES) — but thematically kept flat-only
 - FROSTBOUND_CHASMS (EQ_CHASMS)
-- WATERY_WILDS (EQ_LOWLAND_HILLS)
+
+> ⚠️ Correction: SAKURA_STREAMS (EQ_SAKURA_STREAMS) and WATERY_WILDS (EQ_LOWLAND_HILLS) were previously listed here as lowland-safe, but both **actively** use `BiomeShapeSealevelElevation` and are sealevel-locked → see the flat-only table above. In practice they are (correctly) only assigned in `*-flat` lists.
 
 ## Biomes with terrain equations that *demand* highlands
 

@@ -53,13 +53,15 @@ stages:
         - PERMAFROST_CLIFFS: 1
 
       tundra-flat:
-        - TUNDRA_TRACKS: 1
+        - TUNDRA_TRACKS: 2
         - FROZEN_MARSH: 1
+        - FROSTCOATED_BOG: 1
       tundra:
         - FROZEN_FUNGI: 1
         - TUNDRA: 1
+        - SNOWY_MEADOW: 1
       tundra-highlands:
-        - SNOWY_BLACKSTONE_MOUNTAINS: 1
+        - SNOWY_BLACKSTONE_MOUNTAINS: 3
         - MOUNTAIN_MIRRORS: 2
         - BARE_BOULDERFIELDS: 1
         - VERTICAL_VISTAS_FROZEN: 1
@@ -82,18 +84,18 @@ stages:
         - MONTANE_FOREST: 1
         - BARE_BOULDERFIELDS: 1
       boreal-snowy-highlands:
-        - SNOWY_MOUNTAINS: 7
-        - ALPINE_ASCENDANCY: 1
-        - BARE_BOULDERFIELDS: 1
-        - VERTICAL_VISTAS: 1
-        - FIR_HIGHLANDS: 5
-        - ENCHANTED_WOODLANDS: 1
-        - BITTER_HEIGHTS: 4
+        - SNOWY_MOUNTAINS: 3
+        - ALPINE_ASCENDANCY: 2
+        - BARE_BOULDERFIELDS: 2
+        - VERTICAL_VISTAS: 3
+        - FIR_HIGHLANDS: 4
+        - ENCHANTED_WOODLANDS: 3
+        - BITTER_HEIGHTS: 3
 
       boreal-snowy-wet-flat:
-        - FROSTCOATED_BOG: 6
-        - MUSKEG: 4
-        - SCULK_SWAMP: 2
+        - FROSTCOATED_BOG: 3
+        - MUSKEG: 3
+        - SCULK_SWAMP: 4
       boreal-snowy-wet:
         - AUTUMNAL_WOODLANDS: 4
         - BIRCH_WOODLANDS: 6
@@ -113,7 +115,7 @@ stages:
         - FROSTCOATED_BOG: 1
         - SNOWSWEPT_MEADOWS: 1
       boreal-snowy-dry:
-        - SNOWY_MEADOW: 2
+        - SNOWY_MEADOW: 1
         - SNOWY_TAIGA: 2
         - SPRUCE_WOODLANDS: 2
         - SNOWY_SPIRES: 2
@@ -180,7 +182,6 @@ stages:
         - ALPINE_ASCENDANCY: 1
 
       boreal-warm:
-        - FOSSILIZED_FENLANDS: 1
         - SEQUOIA_FOREST: 3
         - OLD_GROWTH_SEQUOIA_FOREST: 2
         - TAIGA_CLEARING: 3
@@ -204,7 +205,6 @@ stages:
         - maple-groves: 1
         - BIRCH_FOREST: 2
         - PINE_CANOPY: 1
-        - TALL_TIMBERLAND: 1
         - ROCKY_REFUGE: 1
       boreal-hot-highlands:
         - MOUNTAINS: 1
@@ -236,6 +236,8 @@ stages:
         - CHAPARRAL: 1
         - MOORLAND: 1
         - PALM_FOREST: 1
+        - XERIC_SHRUBLAND: 1
+        - DRYBRUSH: 1
       temperate-hot-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
         - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
@@ -243,13 +245,14 @@ stages:
       temperate-warm-dry-flat:
         - SUNFLOWER_PRAIRIE: 1
         - TEMPERATE_GRASSLAND: 1
-        - TALL_TIMBERLAND: 1
       temperate-warm-dry:
         - CHAPARRAL: 1
         - MOORLAND: 1
         - TEMPERATE_GRASSLAND: 1
         - DRY_FIR_FIELDS: 1
         - TALL_TIMBERLAND: 1
+        - PRAIRIE: 1
+        - DRYBRUSH: 1
       temperate-warm-dry-highlands:
         - DRY_TEMPERATE_MOUNTAINS: 1
         - DRY_TEMPERATE_WHITE_MOUNTAINS: 1
@@ -263,9 +266,7 @@ stages:
         - FLOWERING_FOREST: 1
         - BROADLEAF_FOREST: 1
         - DARK_FOREST: 1
-        - WOODED_BUTTES: 1
         - BLACK_FOREST: 1
-        - TALL_TIMBERLAND: 1
         - WHITE_WALLOWS: 3
         - SAKURA_GROVE: 1
         - FOSSILIZED_FENLANDS: 1
@@ -285,7 +286,6 @@ stages:
         - SWAMP: 2
         - SAKURA_STREAMS: 3
       temperate-warm:
-        - OAK_FOREST: 1
         - OAK_SAVANNA: 1
         - FLOWERING_FOREST: 1
         - BROADLEAF_FOREST: 1
@@ -304,7 +304,6 @@ stages:
         - ROCKY_REFUGE: 1
 
       temperate-hot-flat:
-        - MOORLAND: 1
         - PALM_FOREST: 1
         - TEMPERATE_RAINFOREST: 1
         - ROCKY_GRASSLAND: 1
@@ -319,7 +318,6 @@ stages:
         - AZALEA_FOREST: 1
         - OAK_FOREST: 1
         - OAK_SAVANNA: 1
-        - FLOWERING_FOREST: 1
         - VERDANT_VALLEYS: 1
       temperate-hot-highlands:
         - HIGHLANDS: 1
@@ -402,7 +400,7 @@ stages:
         - RED_XERIC_SHRUBLAND: 1
         - SCARLET_SANCTUARY: 1
       hot-steppe-highlands-red:
-        - RED_XERIC_MOUNTAINS: 1
+        - RED_XERIC_MOUNTAINS: 3
         - ARID_ARBORETUM: 1
 
       # Orange hot steppe
@@ -414,7 +412,7 @@ stages:
         - ORANGE_DRY_PALM_FOREST: 1
         - FIRMIHIN_FOREST: 1
       hot-steppe-highlands-orange:
-        - ORANGE_XERIC_MOUNTAINS: 1
+        - ORANGE_XERIC_MOUNTAINS: 4
         - ORANGE_DRY_PALM_FOREST: 1
         - ARID_ARBORETUM: 1
 
@@ -481,26 +479,26 @@ stages:
         - CLOUD_FOREST: 1
         - TROPICAL_RAINFOREST: 1
         - LUSH_LOOPS: 1
-        - CANOPY_CASCADES: 1
       tropical-rainforest-highlands:
         - JUNGLE: 1
         - ROCKY_JUNGLE: 1
-        - CLOUD_FOREST: 1
         - TROPICAL_RAINFOREST: 1
 
       tropical-monsoon-flat:
         - PALM_FOREST: 1
         - CANOPY_CASCADES: 1
         - BAMBOO_BASIN: 1
+        - TROPICAL_FLOODPLAIN: 1
+        - WATERY_WILDS: 1
       tropical-monsoon:
         - BAMBOO_JUNGLE: 1
-        - DRY_WOODLANDS: 1
         - JUNGLE: 1
         - ROCKY_JUNGLE: 1
         - MONSOON_FOREST: 1
         - CLOUD_FOREST: 1
         - LUSH_LOOPS: 1
         - CANOPY_CASCADES: 1
+        - FIRMIHIN_FOREST: 1
       tropical-monsoon-highlands:
         - DRY_WOODLANDS: 1
         - TROPICAL_RAINFOREST: 1
@@ -512,7 +510,6 @@ stages:
         - DRY_PALM_FOREST: 1
       tropical-savanna-dry:
         - GRASS_SAVANNA: 1
-        - SAVANNA: 1
         - DRY_WOODLANDS: 1
         - SAVANNA_OVERHANGS: 1
         - SCARLET_SANCTUARY: 1
@@ -531,8 +528,9 @@ stages:
         - WET_SAVANNA: 1
         - OVERGROWN_CLIFFS: 1
         - MONSOON_FOREST: 1
-        - GRASS_SAVANNA: 1
         - SAVANNA: 1
+        - TROPICAL_RAINFOREST: 1
+        - JUNGLE: 1
         - CLOUD_FOREST: 1
       tropical-savanna-wet-highlands:
         - SAVANNA_OVERHANGS: 1

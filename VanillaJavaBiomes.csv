@@ -90,3 +90,8 @@ Jagged Peaks,BIOME_JAGGED_PEAKS,251,land,Yes
 Meadow,BIOME_MEADOW,252,land,Yes
 Snowy Slopes,BIOME_SNOWY_SLOPES,253,land,Yes
 Stony Peaks,BIOME_STONY_PEAKS,254,land,No
+Sparse Jungle,BIOME_SPARSE_JUNGLE,168,land,Yes
+Stony Shore,BIOME_STONY_SHORE,25,land,Yes
+Windswept Forest,BIOME_WINDSWEPT_FOREST,34,land,Yes
+Windswept Savanna,BIOME_WINDSWEPT_SAVANNA,163,land,Yes
+Wooded Badlands,BIOME_WOODED_BADLANDS,38,land,Yes

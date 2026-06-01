@@ -7,7 +7,7 @@ extends:
 - CARVING_LAND
 - BASE
 color: $biomes/colors.yml:DRY_PALM_FOREST
-vanilla: minecraft:savanna
+vanilla: minecraft:windswept_savanna
 tags:
 - LAND_CAVES
 - SPECIAL_CAVES

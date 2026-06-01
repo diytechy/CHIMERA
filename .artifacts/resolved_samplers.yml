@@ -1,11 +1,11 @@
 samplers:
+  positiveWhiteNoise:
+    dimensions: 2
+    type: POSITIVE_WHITE_NOISE
   mountain_sampler:
     dimensions: 2
     type: OPEN_SIMPLEX_2
     frequency: 0.001111111111
-  positiveWhiteNoise:
-    dimensions: 2
-    type: POSITIVE_WHITE_NOISE
   BiomeShapeMesaValue:
     dimensions: 2
     type: DOMAIN_WARP

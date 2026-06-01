@@ -18,6 +18,17 @@
 # configs found in the /structures/deposits/ directory.
 
 # ---
+# Surface buffer
+# ---
+# surface-buffer
+#  : Offset for the BELOW_TOP_TERRAIN_SURFACE locator shared by the near-surface
+#    ore features (coal, copper, iron, emerald). It is the minimum depth, in
+#    blocks, an ore must sit beneath the terrain surface. Less negative lets ores
+#    sit closer to the surface; at -4 the largest deposits occasionally protrude
+#    through it.
+surface-buffer: -4
+
+# ---
 # Ore Veins
 # ---
 # The height ranges and count per chunk are defined to roughly match that of vanilla 1.18.

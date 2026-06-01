@@ -22,8 +22,8 @@ locator:
       amount: 1
       height: *range
       standard-deviation: *standard-deviation
-    - type: BELOW_TOP_TERRAIN_SURFACE  # keep ore at least 7 blocks below the terrain surface
-      offset: -7
+    - type: BELOW_TOP_TERRAIN_SURFACE  # keep ore below the surface; depth from distribution.yml:surface-buffer
+      offset: $features/geological/deposits/distribution.yml:surface-buffer
 
 structures:
   distribution:

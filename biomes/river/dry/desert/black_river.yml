@@ -47,5 +47,5 @@ features:
   river-decoration:
   - COVE_GLOW_LICHEN
   postprocessors:
-    - BLACK_RIVER_WHIRLPOOL
+  - BLACK_RIVER_WHIRLPOOL
 

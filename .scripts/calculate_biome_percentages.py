@@ -74,6 +74,8 @@ from sampler_cdf import (
     PackSamplerRegistry,
     resolve_sampler_cdf,
     compute_slot_probabilities,
+    register_sampler_point_masses,
+    leaf_overrides,
     get_sampler_dist as _get_sampler_dist,
     get_pack_registry as _get_pack_registry,
 )
@@ -135,6 +137,268 @@ def _border_fraction(from_total_prob: float) -> float:
         return 0.0
     return min(BORDER_MAX_FRACTION,
                BORDER_SCALE_FACTOR * math.sqrt(from_total_prob))
+
+# =============================================================================
+# SPATIAL-GATE COVERAGE OVERRIDES  (pack-specific, calibrated to benchmark)
+# =============================================================================
+# Several pipeline stages gate a biome on a spatial field the generic CDF
+# resolver cannot evaluate (DENDRY river networks, cellular rift zones, coast /
+# spot distance fields).  Left to the uniform fallback the resolver hands the
+# gated biome ~weight/total of its source, so it over-counts coverage by an
+# order of magnitude (rivers 29% vs 4.6% measured, sinkholes 9% vs 1%).
+#
+# For each such named sampler we register the real output distribution as a set
+# of ``(value, probability)`` point masses (see sampler_cdf.from_point_masses).
+# Terra maps a sampler value v∈[-1,1] to a slot, so the value's POSITION sets
+# WHICH slot the mass lands in and the probability sets HOW MUCH.  Place each
+# value strictly inside its intended slot (avoid exact slot boundaries).
+#
+# These fractions are calibrated against benchmark_CHIMERA.csv (a very large but
+# finite-area solve).  The river network is a 1-D channel over a 2-D area, so
+# its areal coverage is small and roughly width/spacing; the rift/coast/spot
+# gates likewise expose only a thin fraction of the land they pass over.
+
+# Only TWO sampler families genuinely cannot be derived from the expression set
+# and so keep an empirical coverage override:
+#   1. the DENDRY river network (riverSampler and the rift gates that read the
+#      river-distance field), and
+#   2. the CELLULAR spot placer (spotPlacer / spotDistance), a Voronoi-cell
+#      stamping whose areal rate is a cellular-geometry constant.
+# Everything else (mesa, island, coast, …) is now DERIVED from its actual
+# expression + variables + leaf-noise CDFs, conditioned on the stage's land/ocean
+# region (see _RegionConditioner below).  These few constants are the only
+# values that go stale if the underlying noise is retuned.
+
+# Fraction of a river-eligible cell that the DENDRY river network actually
+# covers (riverSampler returns +1) and the surrounding wetland/border band
+# (returns -0.25); riverSampler returns -1 (no river) elsewhere.  Calibrated so
+# total river-biome surface ≈ 4.6% (benchmark) vs 29% at nominal 50% weights.
+RIVER_COVERAGE_FRACTION = 0.072
+RIVER_BORDER_FRACTION   = 0.025
+
+# Rift gates read ``continentalRiverDistSparseFarGrid`` (a DENDRY river-distance
+# field) so they inherit the same non-derivable status as rivers.  Fractions:
+# land flagged into the canyon/sinkhole system, and the floor-biome fraction
+# inside an active canyon / well zone.
+RIFT_LAND_FRACTION   = 0.10
+RIFT_CANYON_FLOOR    = 0.36   # nominal SANDY_SPLITS/ICY_INCISIONS weight 9/(16+9)
+RIFT_WELL_FLOOR      = 0.30   # nominal SINKHOLE weight 1/(1+1)
+
+# Spot feature areal coverage (CELLULAR Voronoi stamping).  The pipeline source
+# weights _land_spot / _ocean_spot at 1/22 each, but the gating sampler
+# ``spotPlacer`` ignores those weights (per the preset comment) and stamps spots
+# at its own sparse cellular rate.
+SPOT_LAND_FRACTION  = 0.008
+SPOT_OCEAN_FRACTION = 0.006
+
+
+def _register_coverage_overrides() -> None:
+    """
+    Register the only non-derivable spatial-gate coverage overrides as point-mass
+    output distributions for their named pack samplers (DENDRY rivers/rifts and
+    the CELLULAR spot placer).  Called once at import.
+    """
+    f, b = RIVER_COVERAGE_FRACTION, RIVER_BORDER_FRACTION
+    # riverSampler: +1 river, -0.25 border band, -1 no-river.  Values placed
+    # inside their slots; for a [SELF:1, RIVER:1] list (boundary at v=0) RIVER
+    # gets the +1 mass (=f) and SELF gets the rest.
+    register_sampler_point_masses("riverSampler", [
+        (0.97, f), (-0.25, b), (-0.97, 1.0 - f - b),
+    ])
+
+    # riftLandDistributor: [land:1, _rift_land:1] (boundary v=0) → _rift_land
+    # gets the +v mass.
+    register_sampler_point_masses("riftLandDistributor", [
+        (0.5, RIFT_LAND_FRACTION), (-0.5, 1.0 - RIFT_LAND_FRACTION),
+    ])
+    # riftCanyon: [land:16, FLOOR:9] (boundary v = -1 + 2*16/25 = 0.28) → FLOOR
+    # (inner) is the high-v slot.
+    register_sampler_point_masses("riftCanyon", [
+        (0.7, RIFT_CANYON_FLOOR), (-0.5, 1.0 - RIFT_CANYON_FLOOR),
+    ])
+    # riftWellPlacement: [land:1, SINKHOLE:1] (boundary v=0) → SINKHOLE high-v.
+    register_sampler_point_masses("riftWellPlacement", [
+        (0.5, RIFT_WELL_FLOOR), (-0.5, 1.0 - RIFT_WELL_FLOOR),
+    ])
+
+    # spotPlacer: gates the pipeline source [_ocean_spot:1, _non_spot:20,
+    # _land_spot:1] (array size 22).  Slot order matches YAML: _ocean_spot in the
+    # low-v slot, _non_spot in the middle, _land_spot in the high-v slot.
+    register_sampler_point_masses("spotPlacer", [
+        (-0.95, SPOT_OCEAN_FRACTION),
+        (0.0,   1.0 - SPOT_OCEAN_FRACTION - SPOT_LAND_FRACTION),
+        (0.95,  SPOT_LAND_FRACTION),
+    ])
+
+
+_register_coverage_overrides()
+
+
+# =============================================================================
+# PACK VARIABLE REFERENCE RESOLUTION
+# =============================================================================
+# Stage samplers reference tunables from other pack files as ``$file.yml:key``
+# or ``${file.yml:key}`` (keys may be dotted paths), e.g. the coast gate tests
+# ``dist2Coast(x,z) < $customization.yml:continental-coast-cutoff``.  Until these
+# resolve to numbers the CDF resolver can't evaluate the comparison and falls
+# back to uniform, over-counting the gated biome.  We substitute the numeric
+# value (only numeric leaves are substituted; non-numeric refs are left as-is).
+_PACK_YAML_CACHE: Dict[str, Any] = {}
+_PACK_REF_RE = re.compile(r'\$\{?\s*([A-Za-z0-9_./-]+\.yml)\s*:\s*([A-Za-z0-9_.\-]+)\s*\}?')
+
+
+def _load_pack_yaml(fname: str) -> Any:
+    if fname not in _PACK_YAML_CACHE:
+        try:
+            with open(fname, 'r', encoding='utf-8') as f:
+                _PACK_YAML_CACHE[fname] = yaml.safe_load(f)
+        except Exception:
+            _PACK_YAML_CACHE[fname] = {}
+    return _PACK_YAML_CACHE[fname]
+
+
+def _lookup_pack_ref(fname: str, keypath: str) -> Optional[float]:
+    data = _load_pack_yaml(fname)
+    for key in keypath.split('.'):
+        if isinstance(data, dict) and key in data:
+            data = data[key]
+        else:
+            return None
+    return float(data) if isinstance(data, (int, float)) and not isinstance(data, bool) else None
+
+
+def _resolve_pack_refs(obj: Any) -> Any:
+    """Recursively substitute numeric ``$file.yml:key`` references in a config tree."""
+    if isinstance(obj, dict):
+        return {k: _resolve_pack_refs(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_resolve_pack_refs(v) for v in obj]
+    if isinstance(obj, str):
+        m = _PACK_REF_RE.fullmatch(obj.strip())
+        if m:
+            val = _lookup_pack_ref(m.group(1), m.group(2))
+            if val is not None:
+                return val
+            return obj
+        # Inline reference inside a larger expression — substitute in place.
+        def _repl(mm: "re.Match") -> str:
+            val = _lookup_pack_ref(mm.group(1), mm.group(2))
+            return f'({val})' if val is not None else mm.group(0)
+        return _PACK_REF_RE.sub(_repl, obj)
+    return obj
+
+
+# =============================================================================
+# REGION-CONDITIONAL GATE RESOLUTION (spatial-correlation model)
+# =============================================================================
+# A gate such as ``if(mesaPresent(x,z)>0,1,-1)`` or the coast band runs only on
+# the LAND (or OCEAN) region, but its gating field is the continental noise that
+# *defines* that region.  Evaluated over the whole map the marginal coverage is
+# far too high (island 8% vs ~0.4%); conditioned on land it is correct.
+#
+# We restrict each continental-family leaf to its land/ocean portion (the top
+# ``land_fraction`` quantile is land, the rest ocean — land_fraction itself is
+# derived from the continentalDistribution split) and resolve the gate with those
+# leaves overridden.  Whether a stage's sampler actually depends on the
+# continental field is auto-detected (resolve with vs. without the override),
+# so nothing is hard-coded about which samplers are continental.
+_CONTINENTAL_LEAVES = [
+    "continents", "continental_sampler", "continental_landmass",
+    "continentsWithSpots",
+]
+
+_REGION_STATE: Dict[str, Any] = {"init": False, "Land": None, "Ocean": None}
+_CONT_DEP_CACHE: Dict[int, bool] = {}
+_REGION_SLOT_MEMO: Dict[Tuple[int, Tuple[int, ...], str], List[float]] = {}
+
+
+def _ensure_region_overrides() -> None:
+    """Build the land/ocean-conditional continental leaf CDFs once."""
+    if _REGION_STATE["init"]:
+        return
+    _REGION_STATE["init"] = True
+    reg = _get_pack_registry()
+    cont = reg.get_config("continentalDistribution")
+    try:
+        land_frac = _compute_slot_probabilities(cont, [1, 1])[1] if cont else 0.5
+    except Exception:
+        land_frac = 0.5
+    land_ov: Dict[str, NumericalCDF] = {}
+    ocean_ov: Dict[str, NumericalCDF] = {}
+    for nm in _CONTINENTAL_LEAVES:
+        c = reg.get_cdf(nm)
+        if c is None:
+            continue
+        q = c.quantile(1.0 - land_frac)   # land = top land_frac quantile
+        land_ov[nm] = c.condition_range(q, NumericalCDF.HI)
+        ocean_ov[nm] = c.condition_range(NumericalCDF.LO, q)
+    _REGION_STATE["Land"] = land_ov or None
+    _REGION_STATE["Ocean"] = ocean_ov or None
+
+
+def _region_of(distribution: "BiomeDistribution", biome: str) -> Optional[str]:
+    """Return 'Land' / 'Ocean' / None for a from-biome (origin first, then source sets)."""
+    origin = distribution.get_origin(biome)
+    if origin in ("Land", "Ocean"):
+        return origin
+    low = biome.lower()
+    if low in LAND_SOURCE_BIOMES:
+        return "Land"
+    if low in OCEAN_SOURCE_BIOMES:
+        return "Ocean"
+    return None
+
+
+def _mean(cdf: NumericalCDF) -> float:
+    return sum((cdf.cdf[i + 1] - cdf.cdf[i]) * cdf._val(i) for i in range(cdf.BINS))
+
+
+def _is_continental_dependent(sampler_config: Any) -> bool:
+    """Auto-detect whether a sampler's resolved distribution shifts under the
+    land-region continental override (i.e. it gates on the continental field)."""
+    if not isinstance(sampler_config, dict) or not sampler_config:
+        return False
+    sid = id(sampler_config)
+    if sid in _CONT_DEP_CACHE:
+        return _CONT_DEP_CACHE[sid]
+    _ensure_region_overrides()
+    ov = _REGION_STATE["Land"]
+    dep = False
+    if ov:
+        try:
+            sd, reg = _get_sampler_dist(), _get_pack_registry()
+            base = resolve_sampler_cdf(sampler_config, sd, reg)
+            with leaf_overrides(ov):
+                test = resolve_sampler_cdf(sampler_config, sd, reg)
+            dep = abs(_mean(base) - _mean(test)) > 1e-4
+        except Exception:
+            dep = False
+    _CONT_DEP_CACHE[sid] = dep
+    return dep
+
+
+def _region_slot_probs(sampler_config: Any, weights: List[int],
+                       region: Optional[str]) -> List[float]:
+    """Slot probabilities for a weighted list, conditioned on the from-biome's
+    land/ocean region when the gating sampler is continental-dependent."""
+    if region in ("Land", "Ocean") and _is_continental_dependent(sampler_config):
+        ov = _region_overrides_for(region)
+        if ov:
+            key = (id(sampler_config), tuple(weights), region)
+            cached = _REGION_SLOT_MEMO.get(key)
+            if cached is not None:
+                return cached
+            with leaf_overrides(ov):
+                p = _compute_slot_probabilities(sampler_config, weights)
+            _REGION_SLOT_MEMO[key] = p
+            return p
+    return _compute_slot_probabilities(sampler_config, weights)
+
+
+def _region_overrides_for(region: str) -> Optional[Dict[str, NumericalCDF]]:
+    _ensure_region_overrides()
+    return _REGION_STATE.get(region)
+
 
 # =============================================================================
 # CLIMATE DATA PRESET  (edit if the main climate-stages preset changes)
@@ -1249,6 +1513,9 @@ class StageProcessor:
         # Process each biome in current distribution
         for from_biome, from_prob in list(distribution.probabilities.items()):
             matched = False
+            # Region of this from-biome — gates whose sampler reads the
+            # continental field are resolved conditioned on it (land vs ocean).
+            region = _region_of(distribution, from_biome)
 
             # Check if there's a specific transformation for this biome
             for to_key, to_list in to_section.items():
@@ -1259,8 +1526,8 @@ class StageProcessor:
                         add_with_origin(to_list, from_biome, from_prob)
                     elif isinstance(to_list, list):
                         to_items = StageProcessor.parse_weighted_list_ordered(to_list)
-                        to_probs = _compute_slot_probabilities(
-                            sampler_config, [w for _, w in to_items])
+                        to_probs = _region_slot_probs(
+                            sampler_config, [w for _, w in to_items], region)
                         # Aggregate by biome
                         biome_dist: Dict[str, float] = {}
                         for (tb, _), p in zip(to_items, to_probs):
@@ -1279,7 +1546,15 @@ class StageProcessor:
             # If no specific match, check default-from
             if not matched and default_from and BiomeReader.matches_biome_or_tag(default_from, from_biome):
                 matched = True
-                for tb, p in default_biome_dist.items():
+                if region in ("Land", "Ocean") and _is_continental_dependent(sampler_config):
+                    probs = _region_slot_probs(
+                        sampler_config, [w for _, w in default_items], region)
+                    region_default_dist: Dict[str, float] = {}
+                    for (tb, _), p in zip(default_items, probs):
+                        region_default_dist[tb] = region_default_dist.get(tb, 0.0) + p
+                else:
+                    region_default_dist = default_biome_dist
+                for tb, p in region_default_dist.items():
                     if p > 0:
                         add_with_origin(tb, from_biome, from_prob * p,
                                         default_band_values.get(tb))
@@ -1344,6 +1619,9 @@ class StageProcessor:
             from_cat = new_dist.categories.get(matched_biome, DistributionCategory.SURFACE)
             is_river = _is_river_stage(stage)
             out_cat = DistributionCategory.RIVER if is_river else from_cat
+            # Region of the replaced biome — continental gates (mesa/island/…) are
+            # resolved conditioned on it so coverage reflects the land/ocean subset.
+            region = _region_of(distribution, matched_biome)
 
             if isinstance(to_spec, str):
                 actual = matched_biome if to_spec == 'SELF' else to_spec
@@ -1353,8 +1631,8 @@ class StageProcessor:
                     _propagate_climate(new_dist.climate, matched_biome, actual)
             elif isinstance(to_spec, list):
                 to_items = StageProcessor.parse_weighted_list_ordered(to_spec)
-                to_probs = _compute_slot_probabilities(
-                    sampler_config, [w for _, w in to_items])
+                to_probs = _region_slot_probs(
+                    sampler_config, [w for _, w in to_items], region)
                 biome_dist: Dict[str, float] = {}
                 for (tb, _), p in zip(to_items, to_probs):
                     biome_dist[tb] = biome_dist.get(tb, 0.0) + p
@@ -1368,8 +1646,8 @@ class StageProcessor:
                 # Dict format — treat like an ordered list
                 to_items_d = [(k, v) for k, v in to_spec.items()
                               if isinstance(v, (int, float))]
-                to_probs_d = _compute_slot_probabilities(
-                    sampler_config, [int(w) for _, w in to_items_d])
+                to_probs_d = _region_slot_probs(
+                    sampler_config, [int(w) for _, w in to_items_d], region)
                 biome_dist_d: Dict[str, float] = {}
                 for (tb, _), p in zip(to_items_d, to_probs_d):
                     biome_dist_d[tb] = biome_dist_d.get(tb, 0.0) + p
@@ -2616,11 +2894,22 @@ class PresetAnalyzer:
                 print(f"  Unexpected biomes format: {type(biomes)}", file=sys.stderr)
                 return dist
 
-            # Parse source biomes and weights
-            total_weight = sum(biomes.values())
+            # Parse source biomes and weights.  The source SAMPLER assigns each
+            # biome its slot of [-1,1]; for a plain uniform sampler this reduces
+            # to weight/total, but a spatial placer (e.g. spotPlacer, registered
+            # in NAMED_SAMPLER_POINT_MASSES) stamps the rare _land_spot/_ocean_spot
+            # slots at a far lower rate than their nominal weight.  Honour it.
+            biome_items = [(b, int(w)) for b, w in biomes.items()
+                           if isinstance(w, (int, float))]
+            total_weight = sum(w for _, w in biome_items)
             if total_weight > 0:
-                for biome, weight in biomes.items():
-                    prob = weight / total_weight
+                sampler_config = source.get('sampler') if isinstance(source, dict) else None
+                if sampler_config:
+                    probs = _compute_slot_probabilities(
+                        _resolve_pack_refs(sampler_config), [w for _, w in biome_items])
+                else:
+                    probs = [w / total_weight for _, w in biome_items]
+                for (biome, _), prob in zip(biome_items, probs):
                     dist.set(biome, prob)
 
                     # Set origin based on source biome type
@@ -2693,7 +2982,10 @@ class PresetAnalyzer:
         for i, stage in enumerate(stages):
             validator.validate_stage(stage, str(stage_path), i)
 
-        return stages
+        # Resolve cross-file pack variable references (e.g. coast cutoff) so the
+        # sampler CDF resolver can evaluate threshold comparisons instead of
+        # falling back to uniform.
+        return _resolve_pack_refs(stages)
 
     def get_extrusion_refs(self) -> List[Tuple[str, Path]]:
         """Extract list of extrusion file references from preset"""

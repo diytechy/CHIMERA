@@ -229,6 +229,46 @@ class NumericalCDF:
             return 1.0
         return self.cdf[i] * (1.0 - t) + self.cdf[i + 1] * t
 
+    def quantile(self, p: float) -> float:
+        """Smallest v with cdf(v) >= p (inverse CDF).  p clamped to [0,1]."""
+        p = max(0.0, min(1.0, p))
+        if p <= 0.0:
+            return self.LO
+        if p >= 1.0:
+            return self.HI
+        for i in range(self.BINS):
+            if self.cdf[i + 1] >= p:
+                c0, c1 = self.cdf[i], self.cdf[i + 1]
+                if c1 <= c0:
+                    return self._val(i)
+                t = (p - c0) / (c1 - c0)
+                return self._val(i) + t * self._step()
+        return self.HI
+
+    def condition_range(self, lo: float, hi: float) -> "NumericalCDF":
+        """
+        Distribution of X conditioned on lo <= X < hi:
+            F'(v) = (F(v) - F(lo)) / (F(hi) - F(lo))  on [lo, hi].
+        Used to restrict a continental field to its land (or ocean) portion so a
+        gate that only runs ``from: land`` sees the correct conditional coverage.
+        """
+        f_lo = self.eval_cdf(lo)
+        f_hi = self.eval_cdf(hi)
+        denom = f_hi - f_lo
+        step = self._step()
+        new_cdf: List[float] = []
+        for i in range(self.BINS + 1):
+            v = self.LO + i * step
+            if v <= lo:
+                new_cdf.append(0.0)
+            elif v >= hi:
+                new_cdf.append(1.0)
+            elif denom > 0:
+                new_cdf.append(max(0.0, min(1.0, (self.eval_cdf(v) - f_lo) / denom)))
+            else:
+                new_cdf.append(0.0 if v < hi else 1.0)
+        return NumericalCDF(new_cdf)
+
     def conditional_mean(self, v_lo: float, v_hi: float) -> float:
         """E[V | v_lo <= V < v_hi]."""
         if v_hi <= v_lo:
@@ -345,6 +385,30 @@ class NumericalCDF:
             else:
                 cdf_values.append(1.0)
         return cls(cdf_values)
+
+    @classmethod
+    def from_point_masses(cls, points: List[Tuple[float, float]]) -> "NumericalCDF":
+        """
+        Discrete distribution from ``(value, probability)`` point masses.
+
+        Builds a right-continuous step CDF where ``cdf(v) = Σ p_i for value_i <= v``.
+        Probabilities are normalised to sum to 1.  Used to encode the real output
+        distribution of a spatial gate sampler (e.g. ``riverSampler`` returns its
+        river-trigger value on only a small fraction of cells) that the generic
+        resolver would otherwise treat as uniform.  Place values strictly inside
+        their target slot ranges (avoid exact slot boundaries) so the slot integral
+        attributes each mass unambiguously.
+        """
+        total = sum(max(0.0, p) for _, p in points)
+        if total <= 0:
+            return cls.uniform()
+        pts = sorted((v, max(0.0, p) / total) for v, p in points)
+        step = cls._step()
+        cdf: List[float] = []
+        for i in range(cls.BINS + 1):
+            v = cls.LO + i * step
+            cdf.append(sum(p for val, p in pts if val <= v))
+        return cls(cdf)
 
     @classmethod
     def mixture(cls, cdfs: List["NumericalCDF"],
@@ -494,6 +558,67 @@ class NumericalCDF:
 # PackSamplerRegistry — loads resolved pack samplers
 # =============================================================================
 
+# =============================================================================
+# Named-sampler coverage overrides
+# =============================================================================
+# Some pack samplers gate a biome on a spatial field whose true output
+# distribution the generic resolver cannot derive: DENDRY river networks,
+# cellular rift/spot zone fields, coast/island distance fields.  Left to the
+# uniform fallback, the resolver assigns ~weight/total of each gated biome's
+# source to the special biome — vastly over-counting coverage (e.g. rivers
+# predicted 29% vs 4.6% measured, MESA_MONUMENTS 4.7% vs 0.8%).
+#
+# Each entry maps a sampler NAME to a list of ``(value, probability)`` point
+# masses approximating that sampler's real output distribution.  When a stage
+# sampler resolves to one of these names, the point-mass CDF is used instead of
+# the derived/uniform one, so the slot integral reflects true coverage.
+#
+# These are PACK-SPECIFIC and calibrated against benchmark_CHIMERA.csv.  The map
+# is populated by calculate_biome_percentages.py at import; keep it empty here so
+# sampler_cdf stays pack-agnostic.
+NAMED_SAMPLER_POINT_MASSES: Dict[str, List[Tuple[float, float]]] = {}
+
+
+def register_sampler_point_masses(name: str, points: List[Tuple[float, float]]) -> None:
+    """Register a coverage override for a named pack sampler (see NAMED_SAMPLER_POINT_MASSES)."""
+    NAMED_SAMPLER_POINT_MASSES[name] = points
+
+
+# =============================================================================
+# Region-conditional leaf overrides (spatial-correlation modelling)
+# =============================================================================
+# A pipeline gate such as ``if(mesaMask(x,z)>1/8, …)`` or the coast band runs
+# only on the LAND (or OCEAN) region, yet its gating field is the continental
+# family that *defines* that region — so the marginal distribution over the whole
+# map massively over-counts coverage (mesa 44%, island 8%).  To model the
+# correlation, while resolving a gate we temporarily replace the continental
+# leaf samplers by their region-conditional CDFs (continents restricted to its
+# land/ocean portion).  ``_LEAF_OVERRIDES`` maps sampler-name → CDF; when set,
+# ``_lookup_sampler_cdf`` returns the override and ``PackSamplerRegistry.get_cdf``
+# bypasses its cache so the override propagates through the dependency tree.
+_LEAF_OVERRIDES: Dict[str, "NumericalCDF"] = {}
+
+
+class leaf_overrides:
+    """Context manager: temporarily resolve the given leaf sampler names to the
+    supplied CDFs (e.g. region-conditional continental fields)."""
+
+    def __init__(self, overrides: Dict[str, "NumericalCDF"]):
+        self._overrides = overrides or {}
+        self._saved: Dict[str, "NumericalCDF"] = {}
+
+    def __enter__(self):
+        global _LEAF_OVERRIDES
+        self._saved = _LEAF_OVERRIDES
+        _LEAF_OVERRIDES = self._overrides
+        return self
+
+    def __exit__(self, *exc):
+        global _LEAF_OVERRIDES
+        _LEAF_OVERRIDES = self._saved
+        return False
+
+
 class PackSamplerRegistry:
     """Loads .artifacts/resolved_samplers.yml and resolves CDFs by name."""
 
@@ -539,13 +664,27 @@ class PackSamplerRegistry:
         return self._configs.get(name)
 
     def get_cdf(self, name: str) -> Optional[NumericalCDF]:
-        if name in self._cdf_cache:
+        # When region-conditional leaf overrides are active we must NOT use or
+        # populate the global cache — the same sampler resolves differently per
+        # region, and dependents must re-resolve so the override propagates.
+        conditioning = bool(_LEAF_OVERRIDES)
+        if name in _LEAF_OVERRIDES:
+            return _LEAF_OVERRIDES[name]
+        if not conditioning and name in self._cdf_cache:
             return self._cdf_cache[name]
+        # Coverage override takes precedence over derived resolution.
+        override = NAMED_SAMPLER_POINT_MASSES.get(name)
+        if override is not None:
+            cdf = NumericalCDF.from_point_masses(override)
+            if not conditioning:
+                self._cdf_cache[name] = cdf
+            return cdf
         cfg = self._configs.get(name)
         if cfg is None:
             return None
         cdf = resolve_sampler_cdf(cfg, get_sampler_dist(), self)
-        self._cdf_cache[name] = cdf
+        if not conditioning:
+            self._cdf_cache[name] = cdf
         return cdf
 
 
@@ -629,6 +768,9 @@ def _lookup_sampler_cdf(name: str,
                        pack_reg: Optional[PackSamplerRegistry],
                        _depth: int) -> Optional[NumericalCDF]:
     """Look up a sampler by name in local samplers or pack registry."""
+    # Region-conditional override wins over any local/pack definition.
+    if name in _LEAF_OVERRIDES:
+        return _LEAF_OVERRIDES[name]
     if isinstance(local_samplers, dict) and name in local_samplers:
         cfg = local_samplers[name]
         if isinstance(cfg, dict):
@@ -1016,6 +1158,207 @@ def _resolve_branch_cdf(branch: str,
     return None
 
 
+def _strip_outer_parens(s: str) -> str:
+    """Remove redundant matched outer parentheses wrapping the whole expression."""
+    s = s.strip()
+    while s.startswith('(') and s.endswith(')'):
+        depth = 0
+        ok = True
+        for i, ch in enumerate(s):
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+                if depth == 0 and i != len(s) - 1:
+                    ok = False
+                    break
+        if ok:
+            s = s[1:-1].strip()
+        else:
+            break
+    return s
+
+
+def _split_additive(s: str) -> Optional[List[Tuple[str, str]]]:
+    """
+    Split a top-level additive expression into [(sign, term), ...] where sign is
+    '+' or '-'.  Returns None if there is no top-level +/- (so the caller can try
+    multiplicative).  Respects parens and does not split unary signs, exponent
+    signs (1e-5), or a leading sign.
+    """
+    terms: List[Tuple[str, str]] = []
+    depth = 0
+    last = 0
+    sign = '+'
+    found = False
+    for i, ch in enumerate(s):
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+        elif depth == 0 and ch in '+-' and i > 0:
+            prev = s[i - 1]
+            if prev in '+-*/(eE,' or s[:i].strip() == '':
+                continue  # unary / exponent / operator-adjacent
+            terms.append((sign, s[last:i].strip()))
+            sign = ch
+            last = i + 1
+            found = True
+    if not found:
+        return None
+    terms.append((sign, s[last:].strip()))
+    return terms
+
+
+def _split_multiplicative(s: str) -> Optional[List[Tuple[str, str]]]:
+    """Split a top-level multiplicative expression into [(op, factor), ...]."""
+    factors: List[Tuple[str, str]] = []
+    depth = 0
+    last = 0
+    op = '*'
+    found = False
+    for i, ch in enumerate(s):
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+        elif depth == 0 and ch in '*/':
+            factors.append((op, s[last:i].strip()))
+            op = ch
+            last = i + 1
+            found = True
+    if not found:
+        return None
+    factors.append((op, s[last:].strip()))
+    return factors
+
+
+def _eval_value_cdf(expr: str,
+                    local_samplers: Dict,
+                    variables: Dict[str, Any],
+                    sd: SamplerDistribution,
+                    pack_reg: Optional[PackSamplerRegistry],
+                    _depth: int
+                    ) -> Optional[Tuple[Optional["NumericalCDF"], Optional[float]]]:
+    """
+    Recursive-descent evaluator for a scalar sampler expression, returning a
+    ``(cdf, scalar)`` pair with exactly one entry set, or ``None`` if it cannot be
+    resolved.  Handles constants/variables, bare sampler calls, parenthesised
+    sub-expressions, ``+ - * /`` (with scalar/CDF mixing), ``min``/``max``/``abs``,
+    and nested ``if(...)`` — so compound gate fields like
+    ``max(min((mesaMaskRaw(x,z)-t)/k, continents(x,z)), 0)`` resolve down to their
+    leaf samplers (and therefore honour region-conditional leaf overrides).
+    """
+    if _depth > MAX_DEPTH:
+        return None
+    s = _strip_outer_parens(expr)
+    if not s:
+        return None
+
+    # Pure constant / variable arithmetic.
+    val = _eval_constant_expr(s, variables)
+    if val is not None:
+        return (None, val)
+
+    # Additive split (lowest precedence).
+    add_terms = _split_additive(s)
+    if add_terms is not None:
+        acc_cdf: Optional[NumericalCDF] = None
+        acc_scalar = 0.0
+        for sign, term in add_terms:
+            sub = _eval_value_cdf(term, local_samplers, variables, sd, pack_reg, _depth + 1)
+            if sub is None:
+                return None
+            cdf, sc = sub
+            if cdf is None:
+                acc_scalar += sc if sign == '+' else -sc
+            else:
+                signed = cdf if sign == '+' else cdf.scale(-1.0)
+                acc_cdf = signed if acc_cdf is None else acc_cdf.add(signed)
+        if acc_cdf is None:
+            return (None, acc_scalar)
+        if acc_scalar != 0.0:
+            acc_cdf = acc_cdf.shift(acc_scalar)
+        return (acc_cdf, None)
+
+    # Multiplicative split.
+    mul_factors = _split_multiplicative(s)
+    if mul_factors is not None:
+        acc_cdf = None
+        acc_scalar = 1.0
+        for op, factor in mul_factors:
+            sub = _eval_value_cdf(factor, local_samplers, variables, sd, pack_reg, _depth + 1)
+            if sub is None:
+                return None
+            cdf, sc = sub
+            if cdf is None:
+                if op == '*':
+                    acc_scalar *= sc
+                else:
+                    if sc == 0:
+                        return None
+                    acc_scalar /= sc
+            else:
+                if op == '/':
+                    return None  # dividing by a distribution — unsupported
+                if acc_cdf is None:
+                    acc_cdf = cdf
+                else:
+                    return None  # product of two distributions — unsupported here
+        if acc_cdf is None:
+            return (None, acc_scalar)
+        return (acc_cdf.scale(acc_scalar), None)
+
+    # min(a, b) / max(a, b)
+    for fname in ('min', 'max'):
+        m = re.match(rf'^{fname}\s*\(', s)
+        if m and _try_func_call(s) == fname:
+            inner = s[s.index('(') + 1:s.rindex(')')]
+            args = _split_top_level(inner, ',')
+            if len(args) == 2:
+                a = _eval_value_cdf(args[0], local_samplers, variables, sd, pack_reg, _depth + 1)
+                b = _eval_value_cdf(args[1], local_samplers, variables, sd, pack_reg, _depth + 1)
+                if a is None or b is None:
+                    return None
+                (a_cdf, a_sc), (b_cdf, b_sc) = a, b
+                if a_cdf is not None and b_cdf is not None:
+                    return (a_cdf.max_with(b_cdf) if fname == 'max'
+                            else a_cdf.min_with(b_cdf), None)
+                # one side scalar → clamp
+                cdf = a_cdf if a_cdf is not None else b_cdf
+                k = b_sc if a_cdf is not None else a_sc
+                if cdf is not None and k is not None:
+                    if fname == 'max':
+                        return (cdf.clamp_dist(k, NumericalCDF.HI), None)
+                    return (cdf.clamp_dist(NumericalCDF.LO, k), None)
+                if a_sc is not None and b_sc is not None:
+                    return (None, max(a_sc, b_sc) if fname == 'max' else min(a_sc, b_sc))
+            return None
+
+    # abs(a)
+    if _try_func_call(s) == 'abs':
+        inner = s[s.index('(') + 1:s.rindex(')')]
+        sub = _eval_value_cdf(inner, local_samplers, variables, sd, pack_reg, _depth + 1)
+        if sub and sub[0] is not None:
+            return (sub[0].abs_dist(), None)
+        return None
+
+    # Nested if(...)
+    if re.match(r'^if\s*\(', s) and _try_func_call(s) == 'if':
+        cdf = _resolve_binary_if_cdf(s, local_samplers, variables, sd, pack_reg, _depth)
+        if cdf is not None:
+            return (cdf, None)
+        return None
+
+    # Bare sampler call name(args...).
+    fname = _try_func_call(s)
+    if fname:
+        cdf = _lookup_sampler_cdf(fname, local_samplers, sd, pack_reg, _depth)
+        if cdf is not None:
+            return (cdf, None)
+    return None
+
+
 def _resolve_binary_if_cdf(expr: str,
                           local_samplers: Dict,
                           variables: Dict[str, Any],
@@ -1120,6 +1463,13 @@ def _resolve_expression_cdf(sampler: Dict,
     if cdf is not None:
         _explain('if', expr, cdf)
         return cdf
+
+    # General recursive evaluator (nested min/max/abs/arithmetic over sampler
+    # calls) — resolves compound gate fields down to their leaf samplers.
+    val = _eval_value_cdf(expr, local_samplers, variables, sd, pack_reg, _depth)
+    if val is not None and val[0] is not None:
+        _explain('value', expr, val[0])
+        return val[0]
 
     # Generic nested-if fallback — assume 50/50 split between two outputs ∈ {-1, 1}
     if re.search(r'\bif\b', expr) and \

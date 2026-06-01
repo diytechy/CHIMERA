@@ -8,3 +8,6 @@
 .gradle
 build
 *.DS_Store
+
+# Transient build log written by AuditAndPackage.bat (resolve_samplers.py diagnostics)
+.artifacts/resolve_samplers.log

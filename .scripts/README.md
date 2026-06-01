@@ -11,18 +11,17 @@ This directory contains build, validation, and utility scripts for the Terra con
 ```
 
 This will:
-1. Create the package zip → `.artifacts/ORIGEN.zip`
-2. Generate biome distribution table → `.artifacts/BiomeTable.csv`
-3. Audit configurations → `.artifacts/SuggestedImprovements.md` (or `SuggestedImprovements.md` in repo root if audits are run manually)
+1. Create the package zip → `.artifacts/CHIMERA.zip`
+2. Resolve samplers → `.artifacts/resolved_samplers.yml`, then generate the biome distribution table → `.artifacts/BiomeTable.csv`
 
 ## Main Scripts
 
 | Script | Status | Purpose |
 |--------|--------|---------|
 | **AuditAndPackage.bat** | ✅ ACTIVE | Main build orchestrator (Windows) |
-| **calculate_biome_percentages.py** | ✅ ACTIVE | Generate BiomeTable.csv with distribution percentages |
 | **pack.sh** | ✅ ACTIVE | Create package zip (bash) |
-| **check-biomes.sh** | ✅ ACTIVE | YAML validation and linting (bash) |
+| **resolve_samplers.py** | ✅ ACTIVE | Resolve `math/` samplers into `.artifacts/resolved_samplers.yml` |
+| **calculate_biome_percentages.py** | ✅ ACTIVE | Generate BiomeTable.csv with distribution percentages |
 
 ## Obsolete Scripts
 
@@ -43,8 +42,8 @@ This will:
 - **Python 3.x** (required)
 - PyYAML library: `pip install pyyaml`
 
-### For YAML Validation (optional)
-- WSL with Python and PyYAML
+### For Package Creation via bash (optional)
+- WSL or Linux with `zip` — `AuditAndPackage.bat` uses `pack.sh` through WSL when available, otherwise it falls back to PowerShell's `Compress-Archive`
 
 ## Documentation
 
@@ -67,9 +66,9 @@ This will:
 ```
 .scripts/
 ├── AuditAndPackage.bat          # Main entry point (Windows)
+├── resolve_samplers.py          # Sampler resolver (Python)
 ├── calculate_biome_percentages.py  # BiomeTable generator (Python)
 ├── pack.sh                       # Package creator (bash)
-├── check-biomes.sh              # YAML validator (bash)
 │
 ├── generate-biome-table.sh      # OBSOLETE - Use Python version
 ├── calculate-biome-percentages.sh  # OBSOLETE - Use Python version

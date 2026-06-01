@@ -7,8 +7,7 @@ REM Main build script for Terra configuration package
 REM
 REM This script:
 REM   1. Creates the package zip (name from pack.yml id:)
-REM   2. Generates BiomeTable.csv with biome distribution percentages
-REM   3. Audits biome configs and generates SuggestedImprovements.md
+REM   2. Resolves samplers and generates BiomeTable.csv with biome distribution percentages
 REM ============================================================================
 
 echo.
@@ -56,7 +55,7 @@ if "%PYTHON_CMD%"=="" (
 echo.
 
 REM ============================================================================
-REM Check WSL availability (optional, for check-biomes.sh)
+REM Check WSL availability (optional, used to create the package via pack.sh)
 REM ============================================================================
 set "WSL_AVAILABLE=0"
 set "WSL_PATH="
@@ -77,7 +76,7 @@ echo.
 REM ============================================================================
 REM Step 1: Create package (try WSL first, fallback to PowerShell)
 REM ============================================================================
-echo [Step 1/3] Creating package (%PACK_ID%.zip)...
+echo [Step 1/2] Creating package (%PACK_ID%.zip)...
 echo --------------------------------------------
 
 REM Create artifacts directory
@@ -118,10 +117,19 @@ echo.
 REM ============================================================================
 REM Step 2: Generate BiomeTable.csv (using Python script)
 REM ============================================================================
-echo [Step 2/3] Generating BiomeTable.csv...
+echo [Step 2/2] Resolving samplers and generating BiomeTable.csv...
 echo --------------------------------------------
 
 if "%PYTHON_AVAILABLE%"=="1" (
+    echo Resolving samplers to .artifacts\resolved_samplers.yml...
+    REM resolve_samplers.py writes its output then exits non-zero if it found any
+    REM unresolved-reference diagnostics (normal for samplers resolved via
+    REM NoiseTool globalSamplers). The file is still regenerated, so this is a
+    REM warning, not a build failure. Diagnostics go to a log to keep output clean.
+    %PYTHON_CMD% .scripts\resolve_samplers.py 2>".artifacts\resolve_samplers.log"
+    if !ERRORLEVEL! neq 0 (
+        echo [WARNING] Sampler resolution reported diagnostics ^(see .artifacts\resolve_samplers.log^); resolved_samplers.yml was still regenerated.
+    )
     %PYTHON_CMD% .scripts\calculate_biome_percentages.py
     if !ERRORLEVEL! neq 0 (
         echo [ERROR] BiomeTable.csv generation failed!
@@ -135,29 +143,6 @@ if "%PYTHON_AVAILABLE%"=="1" (
 )
 echo.
 
-REM ============================================================================
-REM Step 3: Audit biome configs (using bash script via WSL)
-REM ============================================================================
-echo [Step 3/3] Auditing biomes and generating SuggestedImprovements.md...
-echo --------------------------------------------
-
-if "%WSL_AVAILABLE%"=="1" (
-    wsl bash -c "cd '%WSL_PATH%' && bash .scripts/check-biomes.sh"
-    if !ERRORLEVEL! neq 0 (
-        echo [WARNING] Biome audit completed with warnings.
-    ) else (
-        echo [OK] Biome audit completed.
-    )
-) else (
-    echo [WARNING] WSL is not available. Biome audit skipped.
-    echo.
-    echo To enable YAML validation and linting, install WSL:
-    echo   wsl --install
-    echo.
-    echo See: https://docs.microsoft.com/en-us/windows/wsl/install
-)
-echo.
-
 :success
 echo ============================================
 echo   Build completed successfully!
@@ -165,12 +150,8 @@ echo ============================================
 echo.
 echo Outputs:
 if exist ".artifacts\%PACK_ID%.zip" echo   - .artifacts\%PACK_ID%.zip
+if exist ".artifacts\resolved_samplers.yml" echo   - .artifacts\resolved_samplers.yml
 if exist ".artifacts\BiomeTable.csv" echo   - .artifacts\BiomeTable.csv
-if exist ".artifacts\SuggestedImprovements.md" (
-    echo   - .artifacts\SuggestedImprovements.md
-) else (
-    if exist "SuggestedImprovements.md" echo   - SuggestedImprovements.md
-)
 echo.
 
 exit /b 0

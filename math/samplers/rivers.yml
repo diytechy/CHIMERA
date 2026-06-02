@@ -130,7 +130,7 @@ samplers:
   riverPrecipitation:
     dimensions: 2
     type: EXPRESSION
-    expression: min(BiomeShapeLandmassPrecipitation(x, z), farPrecipitation(x, z))
+    expression: min(BiomeShapeLandmassPrecipitation(x, z), precipitation(x, z))
 
   RiverBranchingProbability:
     dimensions: 2
@@ -142,9 +142,9 @@ samplers:
     expression: |
       if(((continents(x, z)>coastStart)&&
       (mesaFootDist(x,z)<0)&&
-      (riverPrecipitation(x, z)>0.15)&&
+      (riverPrecipitation(x, z)>-0.3)&&
       (aroundContinent(x,z)>0)),
-      (((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)
+      (((riverPrecipitation(x, z)+0.3)/1.1)^0.7),0)
 
   RiverOverhangMask:
     dimensions: 2

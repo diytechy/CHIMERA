@@ -17,7 +17,7 @@ stages:
       - temperate-hot: &temperateHot   2
       - tropical-savanna-wet: &tropicalCold   2
       - tropical-monsoon: &tropicalWarm   2
-      - tropical-rainforest: &tropicalHot    2
+      - tropical-rainforest: &tropicalHot    3
     to:
       island:
         - polar-island: *iceCap

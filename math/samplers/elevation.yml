@@ -478,7 +478,7 @@ samplers:
     expression: |
       min(
         min(
-          herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
+          herp(RiverOverhangMask(x,z), 0.0, continentalRiverElev(x,z), 0.10, elevationDetailedPreErosion(x,z)),
           herp(flatness(x, z), 0, elevationDetailedPreErosion(x,z), sealevel_factor, 0)
         ),
       elevationDetailedPreErosion(x,z))

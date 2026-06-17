@@ -11,6 +11,7 @@ distributor:
     samplers:
       distanceToVolcanicRim: $math/samplers/spots.yml:samplers.distanceToVolcanicRim
       rarity:
+        dimensions: 2
         type: POSITIVE_WHITE_NOISE
         salt: 55122
   threshold: 0.92

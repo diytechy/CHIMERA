@@ -14,6 +14,7 @@ distributor:
     samplers:
       sulfurSpringPresent: $math/samplers/sulfur.yml:samplers.sulfurSpringPresent
       rarity:
+        dimensions: 2
         type: POSITIVE_WHITE_NOISE
         salt: 88123
   threshold: 0.997

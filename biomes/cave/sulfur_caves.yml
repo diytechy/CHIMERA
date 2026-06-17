@@ -1,0 +1,34 @@
+id: SULFUR_CAVES
+type: BIOME
+extends:
+  - CAVE
+color: $biomes/colors.yml:SULFUR_CAVES
+
+vanilla: minecraft:sulfur_caves
+
+colors:
+  fog: 0xbfa72a
+  water: 0xb6b34a
+  water-fog: 0x8f8a2c
+  sky: 0xd8cf6a
+  grass: 0x9c8b22
+  foliage: 0x9c8b22
+
+climate:
+  precipitation: false
+  temperature: 1.5
+  downfall: 0.0
+
+palette:
+  - SULFUR_CAVES: $meta.yml:top-y
+  - SULFUR_CAVES_DEEPSLATE: $meta.yml:deepslate-top
+  - << meta.yml:palette-bedrock
+
+tags:
+  - SPECIAL_CAVES
+  - USE_RIVER_TEMPERATE_MARSH
+
+features:
+  landforms:
+    - SULFUR_CAVES_FLOOR_SULFUR_SPIKES
+    - SULFUR_CAVES_CEILING_SULFUR_SPIKES

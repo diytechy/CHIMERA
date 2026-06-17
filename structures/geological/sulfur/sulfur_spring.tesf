@@ -1,0 +1,34 @@
+// Surface sulfur spring: a shallow bowl of sulfur-tinted water sitting flush with
+// the ground, floored with sulfur and ringed by potent_sulfur in the WET state
+// (the geyser-capable variant). Placed by SULFUR_SPRING above sulfur-cave clusters.
+//
+// Origin convention (SURFACE locator): (0,0,0) is the air block; the ground's top
+// solid block is at y = -1.
+num radius = 3;
+num maxDepth = 3;
+
+// Require reasonably flat solid ground under the footprint, else skip this site so
+// springs don't hang off cliffs or float over voids.
+if (check(radius, -1, 0) != "LAND" || check(-radius, -1, 0) != "LAND" ||
+    check(0, -1, radius) != "LAND" || check(0, -1, -radius) != "LAND") fail;
+
+for (num dx = -radius - 1; dx <= radius + 1; dx = dx + 1) {
+    for (num dz = -radius - 1; dz <= radius + 1; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius) {
+            // Bowl: deepest at the centre, tapering to the rim.
+            num depth = round(maxDepth * (1 - d / radius));
+            block(dx, -2 - depth, dz, "minecraft:sulfur", true);
+            for (num y = -1 - depth; y <= -1; y = y + 1) {
+                block(dx, y, dz, "minecraft:water", true);
+            }
+        } else if (d <= radius + 1) {
+            // Rim ring: mostly potent sulfur (wet), with occasional raw sulfur.
+            if (randomInt(4) == 0) {
+                block(dx, -1, dz, "minecraft:sulfur", true);
+            } else {
+                block(dx, -1, dz, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
+            }
+        }
+    }
+}

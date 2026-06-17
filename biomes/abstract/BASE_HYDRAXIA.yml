@@ -4,6 +4,7 @@ abstract: true
 extends:
   - DEPOSITS_GENERIC
   - ORES_GENERIC
+  - SULFUR_SPRING_SURFACE
 
 slant-depth: 15
 

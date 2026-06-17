@@ -107,6 +107,23 @@ extrusions:
       - FROZEN_CAVERNS: 1
       - STANDARD_CAVES: 13
       
+  # Localized sulfur regions: inside a sulfur region (sulfurCavePresent>0) all warm
+  # caves become SULFUR_CAVES, forming coherent clusters that the surface sulfur
+  # springs sit above. Warm caves outside regions fall through to the fan-out below,
+  # which still scatters a low background weight of SULFUR_CAVES (slightly-elevated).
+  - type: REPLACE
+    from: WARM_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: -sulfurCavePresent(x, z)
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
+    to:
+      - SULFUR_CAVES: 1
+      - SELF: 1
+
   - type: REPLACE
     from: WARM_CAVES
     sampler:
@@ -120,6 +137,7 @@ extrusions:
       - MAGMA_CAVERNS: 2
       - BASALT_CAVERNS: 2
       - MOLTEN_PASSAGES: 2
+      - SULFUR_CAVES: 1
       - STANDARD_CAVES: 16
 
   - type: REPLACE

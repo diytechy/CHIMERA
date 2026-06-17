@@ -1,7 +1,8 @@
 id: MOLTEN_PASSAGES
 type: BIOME
 extends: [ CAVE ]
-vanilla: minecraft:dripstone_caves
+# remapped from dripstone_caves for sulfur-cube spawns (strong-remap plan)
+vanilla: minecraft:sulfur_caves
 color: $biomes/substratum_cave_colors.yml:MOLTEN_PASSAGES
 
 palette:

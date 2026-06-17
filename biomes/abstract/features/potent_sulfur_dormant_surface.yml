@@ -1,0 +1,10 @@
+id: POTENT_SULFUR_DORMANT_SURFACE
+type: BIOME
+abstract: true
+
+# Feature mixin added to EQ_EXTINCT_VOLCANO so every extinct-volcano variant gets
+# dormant potent-sulfur vents on its cone. Placement self-restricts to the cone/rim
+# via the POTENT_SULFUR_DORMANT_VENT feature's distanceToVolcanicRim gate.
+features:
+  landforms:
+    - POTENT_SULFUR_DORMANT_VENT

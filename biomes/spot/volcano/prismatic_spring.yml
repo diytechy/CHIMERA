@@ -26,6 +26,7 @@ features:
   postprocessors:
     - PRISMATIC_SPRING_MAGMA
     - PRISMATIC_SPRING_SMOKE
+    - POTENT_SULFUR_SPRING_VENT
   global-preprocessors:
     - LAVA_FLOOR
     - UNDERGROUND_LAVA_COLUMNS

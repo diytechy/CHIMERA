@@ -41,5 +41,6 @@ features:
   landforms:
     - MOLTEN_ROCKS
     - TUFF_BOULDERS
+    - POTENT_SULFUR_FUMAROLE
   postprocessors:
     - VOLCANO_SMOKE

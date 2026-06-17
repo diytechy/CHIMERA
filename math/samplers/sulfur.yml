@@ -1,0 +1,47 @@
+# Localization samplers for sulfur caves and their surface sulfur springs.
+# A single low-frequency cellular field defines sparse "sulfur regions"; both the
+# underground cave-biome placement (add_cave_biomes.yml) and the surface spring
+# feature read from it, so springs always sit above sulfur-cave clusters.
+samplers:
+
+  # 0..1 per-cell value. Cells are ~660 blocks across (frequency 0.0015), so each
+  # selected region is a coherent blob rather than per-column noise. Domain-warped
+  # so region edges are organic instead of straight cell walls.
+  sulfurRegionValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.004
+    sampler:
+      type: PROBABILITY
+      sampler:
+        type: CELLULAR
+        frequency: 0.0015
+        salt: 7731
+        return: CellValue
+
+  # Cave gate: true (>0) inside a sulfur region. ~10% of cells qualify (CellValue
+  # threshold 0.90), restricted further to warm caves at the call site, giving an
+  # estimated ~2% of the cave distribution ("slightly-elevated") on top of the
+  # remapped volcanic caves.
+  # NOTE: the static BiomeTable predictor (calculate_biome_percentages.py) CANNOT
+  # see this spatial gate -- it scores the localized REPLACE in add_cave_biomes.yml
+  # as a flat 50/50 and over-reports SULFUR_CAVES (~6.9%). Verify the real number
+  # with the in-world BiomeTool benchmark, and tune this threshold there.
+  sulfurCavePresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(sulfurRegionValue(x, z) > 0.90, 1, -1)
+    samplers:
+      sulfurRegionValue: $math/samplers/sulfur.yml:samplers.sulfurRegionValue
+
+  # Spring gate: true only in the dense cores of a region (CellValue > 0.96) so
+  # surface springs are far rarer than the caves beneath them.
+  sulfurSpringPresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(sulfurRegionValue(x, z) > 0.96, 1, -1)
+    samplers:
+      sulfurRegionValue: $math/samplers/sulfur.yml:samplers.sulfurRegionValue

@@ -1,0 +1,28 @@
+id: SULFUR_CAVES_FLOOR_SULFUR_SPIKES
+type: FEATURE
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 1031
+  threshold: 0.07
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:bottom-y} + 16
+    max: $meta.yml:top-y
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH
+        block: minecraft:sulfur
+        offset: -1
+      - type: MATCH_AIR
+        offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: small_floor_sulfur_spike

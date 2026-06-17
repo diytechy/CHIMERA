@@ -213,6 +213,7 @@ samplers:
     - math/samplers/biomes_large.yml:samplers
     - math/samplers/rifts.yml:samplers
     - math/samplers/special_cave_carving.yml:samplers
+    - math/samplers/sulfur.yml:samplers
 
 slant:
   calculation-method: DotProduct

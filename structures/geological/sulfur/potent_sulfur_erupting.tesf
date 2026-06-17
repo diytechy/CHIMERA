@@ -1,0 +1,18 @@
+// Active fumarole for erupted volcanoes: a small vent of potent sulfur in its most
+// active states. The centre is CONTINUOUS (a permanently venting geyser), ringed by
+// ERUPTING blocks and raw sulfur crust. Origin (0,0,0) is air; ground top is at -1.
+num radius = 2;
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            if (dx == 0 && dz == 0) {
+                block(dx, -1, dz, "minecraft:potent_sulfur[potent_sulfur_state=continuous]", true);
+            } else if (randomInt(2) == 0) {
+                block(dx, -1, dz, "minecraft:potent_sulfur[potent_sulfur_state=erupting]", true);
+            } else {
+                block(dx, -1, dz, "minecraft:sulfur", true);
+            }
+        }
+    }
+}

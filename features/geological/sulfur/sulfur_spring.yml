@@ -1,0 +1,41 @@
+id: SULFUR_SPRING
+type: FEATURE
+
+# Surface sulfur springs. Placement is the product of two gates:
+#   1. sulfurSpringPresent(x,z) > 0  -> only inside the dense cores of a sulfur
+#      region, i.e. directly above a SULFUR_CAVES cluster (same field that drives
+#      the underground cave placement in add_cave_biomes.yml).
+#   2. a sparse white-noise mask                 -> only a handful of springs per core.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: if(sulfurSpringPresent(x, z) > 0, rarity(x, z), -1)
+    samplers:
+      sulfurSpringPresent: $math/samplers/sulfur.yml:samplers.sulfurSpringPresent
+      rarity:
+        type: POSITIVE_WHITE_NOISE
+        salt: 88123
+  threshold: 0.997
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 200
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: sulfur_spring

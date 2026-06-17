@@ -1,7 +1,8 @@
 id: BASALT_CAVERNS
 type: BIOME
 extends: [ BASE_HYDRAXIA_CAVERN ]
-vanilla: minecraft:basalt_deltas
+# remapped from basalt_deltas for sulfur-cube spawns (strong-remap plan)
+vanilla: minecraft:sulfur_caves
 
 palette:
   - BASALT_CAVERNS: 319

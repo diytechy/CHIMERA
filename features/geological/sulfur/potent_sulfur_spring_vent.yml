@@ -1,0 +1,38 @@
+id: POTENT_SULFUR_SPRING_VENT
+type: FEATURE
+
+# Wet vents for volcanic / prismatic springs. Concentrated in the spring basin
+# (distanceToVolcanicRim < 0.15, i.e. the crater interior) where water collects.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: if(distanceToVolcanicRim(x, z) < 0.15, rarity(x, z), -1)
+    samplers:
+      distanceToVolcanicRim: $math/samplers/spots.yml:samplers.distanceToVolcanicRim
+      rarity:
+        type: POSITIVE_WHITE_NOISE
+        salt: 55123
+  threshold: 0.9
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: potent_sulfur_wet

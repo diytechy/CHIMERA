@@ -29,6 +29,8 @@ tags:
   - USE_RIVER_TEMPERATE_MARSH
 
 features:
+  preprocessors:
+    - SULFUR_LAKES
   landforms:
     - SULFUR_CAVES_FLOOR_SULFUR_SPIKES
     - SULFUR_CAVES_CEILING_SULFUR_SPIKES

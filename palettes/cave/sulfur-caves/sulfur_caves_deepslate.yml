@@ -1,15 +1,18 @@
 id: SULFUR_CAVES_DEEPSLATE
 type: PALETTE
 
+# Deep band of the sulfur caves: still sulfur-dominant with cinnabar veining, blended
+# into deepslate so the lower walls read a touch darker than the upper sulfur strata.
 layers:
   - materials:
-      - minecraft:sulfur: 2
-      - minecraft:tuff: 2
-      - minecraft:deepslate: 3
+      - minecraft:sulfur: 6
+      - minecraft:cinnabar: 2
+      - minecraft:deepslate: 2
     layers: 2
   - materials:
-      - minecraft:sulfur: 1
-      - minecraft:deepslate: 4
+      - minecraft:sulfur: 5
+      - minecraft:cinnabar: 1
+      - minecraft:deepslate: 3
     layers: 1
 
 sampler:

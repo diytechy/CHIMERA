@@ -1,0 +1,47 @@
+// Underground sulfur lake: an enclosed water basin lined with sulfur (and cinnabar
+// veins), rimmed at the waterline with potent_sulfur in its WET state. Modeled on
+// underground_water_lake.tesf but larger, flatter, and sulfur-lined. Carves only
+// where surrounded by rock so the lake stays a sealed pocket inside the sulfur caves.
+num randPrecision = 100;
+num radius = 6 + randomInt(randPrecision) / randPrecision * 3;   // 6-9 (larger than plain water lakes)
+num warp = 4;
+num warpFreq = 4;
+num squish = 1.3 + randomInt(randPrecision) / randPrecision;     // > 1 = wider than tall
+num radiusSquared = pow(radius, 2);
+num innerSquared = radiusSquared - 18;
+
+if (!structure(radius, -radius / squish, 0, "is_rock", "NONE") ||
+    !structure(-radius, -radius / squish, 0, "is_rock", "NONE") ||
+    !structure(0, -radius / squish, radius, "is_rock", "NONE") ||
+    !structure(0, -radius / squish, -radius, "is_rock", "NONE")
+) fail;
+
+for (num x = -radius - warp; x < radius + warp; x = x + 1) {
+    for (num y = (-radius - warp) / squish; y < (radius + warp) / squish; y = y + 1) {
+        for (num z = -radius - warp; z < radius + warp; z = z + 1) {
+            num warpX = warp * sampler("simplex3", warpFreq * (x + originX()), warpFreq * (y + originY() + 1000), warpFreq * (z + originZ()));
+            num warpY = warp * sampler("simplex3", warpFreq * (x + originX()), warpFreq * (y + originY() + 2000), warpFreq * (z + originZ()));
+            num warpZ = warp * sampler("simplex3", warpFreq * (x + originX()), warpFreq * (y + originY() + 3000), warpFreq * (z + originZ()));
+            num d2 = pow(x + warpX, 2) + pow((y + warpY) * squish, 2) + pow(z + warpZ, 2);
+
+            // Sulfur (and occasional cinnabar) basin shell, lower hemisphere only.
+            if (d2 < radiusSquared && y < 0) {
+                str shell = "minecraft:sulfur";
+                if (randomInt(5) == 0) shell = "minecraft:cinnabar";
+                if (getBlock(x, y, z) != "minecraft:air") block(x, y, z, shell, true);
+            }
+            // Water fill.
+            if (d2 < innerSquared && y < 0) {
+                block(x, y, z, "minecraft:water", true, true);
+            }
+            // Air pocket above the lake.
+            if (d2 < innerSquared && y >= 0) {
+                block(x, y, z, "minecraft:air", true);
+            }
+            // Waterline rim: WET potent sulfur where the shell meets the surface.
+            if (d2 < radiusSquared && d2 >= innerSquared && y == 0) {
+                if (randomInt(2) == 0) block(x, y, z, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
+            }
+        }
+    }
+}

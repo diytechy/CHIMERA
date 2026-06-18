@@ -1,0 +1,39 @@
+id: VOLCANO_SLOPE_BOULDERS
+type: FEATURE
+
+# Scattered tuff boulders / talus across the cone slope (distanceToVolcanicRim
+# 0.15 .. 0.6), reusing the tuff_boulder structure. Sparse.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    expression: if(distanceToVolcanicRim(x, z) > 0.15 && distanceToVolcanicRim(x, z) < 0.6, rarity(x, z), -1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 72024
+  threshold: 0.9
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+      pattern:
+        type: MATCH
+        block: minecraft:air
+        offset: 0
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SOLID
+        offset: -1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: tuff_boulder

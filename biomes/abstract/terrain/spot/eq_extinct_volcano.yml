@@ -2,7 +2,7 @@ id: EQ_EXTINCT_VOLCANO
 type: BIOME
 abstract: true
 extends:
-  - POTENT_SULFUR_DORMANT_SURFACE
+  - VOLCANO_SLOPE_FEATURES
 
 vars: &variables
   base: $customization.yml:terrain-base-y-level

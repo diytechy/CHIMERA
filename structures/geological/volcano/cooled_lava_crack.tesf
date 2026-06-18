@@ -1,0 +1,16 @@
+// Cooled lava crack: a short basalt/blackstone seam across a volcano slope, as if a
+// lava channel froze in place. Origin (0,0,0) is air; ground recolored at -1.
+num len = 2 + round(randomInt(100) / 100 * 4);   // 2-6 long
+num ang = randomInt(360) * 0.0174533;            // random heading in radians
+
+for (num i = 0; i <= len; i = i + 1) {
+    num dx = round(cos(ang) * i);
+    num dz = round(sin(ang) * i);
+    if (getBlock(dx, -1, dz) != "minecraft:air") {
+        if (randomInt(2) == 0) {
+            block(dx, -1, dz, "minecraft:basalt", true);
+        } else {
+            block(dx, -1, dz, "minecraft:blackstone", true);
+        }
+    }
+}

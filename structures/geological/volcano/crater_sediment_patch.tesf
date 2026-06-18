@@ -1,0 +1,16 @@
+// Sediment bed on a crater/crater-lake floor: clay, gravel, mud, sand. Origin (0,0,0)
+// is air; ground recolored at -1.
+num radius = 1 + randomInt(100) / 100 * 2;   // 1-3
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        if (sqrt(pow(dx, 2) + pow(dz, 2)) <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            num r = randomInt(6);
+            str b = "minecraft:clay";
+            if (r == 0) b = "minecraft:gravel";
+            if (r == 1) b = "minecraft:mud";
+            if (r == 2) b = "minecraft:sand";
+            block(dx, -1, dz, b, true);
+        }
+    }
+}

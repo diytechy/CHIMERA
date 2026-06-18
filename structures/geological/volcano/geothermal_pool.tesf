@@ -1,0 +1,22 @@
+// Small geothermal pool: a shallow water bowl rimmed with mineral crust. Used as a
+// satellite pool on prismatic-spring aprons and crater floors. Origin (0,0,0) is the
+// air block; ground top is at y = -1. Pre-26.2 blocks only.
+num radius = 2 + randomInt(100) / 100 * 2;   // 2-4
+
+if (check(round(radius), -1, 0) != "LAND" || check(-round(radius), -1, 0) != "LAND" ||
+    check(0, -1, round(radius)) != "LAND" || check(0, -1, -round(radius)) != "LAND") fail;
+
+for (num dx = -radius - 1; dx <= radius + 1; dx = dx + 1) {
+    for (num dz = -radius - 1; dz <= radius + 1; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius) {
+            num depth = round((radius - d) / radius * 2);
+            block(dx, -2 - depth, dz, "minecraft:terracotta", true);
+            for (num y = -1 - depth; y <= -1; y = y + 1) {
+                block(dx, y, dz, "minecraft:water", true, true);
+            }
+        } else if (d <= radius + 1) {
+            if (randomInt(2) == 0) block(dx, -1, dz, "minecraft:orange_terracotta", true);
+        }
+    }
+}

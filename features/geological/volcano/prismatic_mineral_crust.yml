@@ -1,0 +1,40 @@
+id: PRISMATIC_MINERAL_CRUST
+type: FEATURE
+
+# Sinter / mineral staining across the apron (distanceToPrismaticRim 0.0 .. 0.55):
+# splotches of terracotta/concrete tones that extend the central color bands outward
+# onto the dry ground.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    expression: if(distanceToPrismaticRim(x, z) > 0.0 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), -1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 71011
+  threshold: 0.55
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: mineral_crust_patch

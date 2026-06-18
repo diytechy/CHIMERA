@@ -1,0 +1,15 @@
+// Obsidian / basalt sheet near a crater rim, where lava once chilled. Origin (0,0,0)
+// is air; ground recolored at -1.
+num radius = 1 + randomInt(100) / 100;   // 1-2
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        if (sqrt(pow(dx, 2) + pow(dz, 2)) <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            if (randomInt(3) == 0) {
+                block(dx, -1, dz, "minecraft:basalt", true);
+            } else {
+                block(dx, -1, dz, "minecraft:obsidian", true);
+            }
+        }
+    }
+}

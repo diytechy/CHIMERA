@@ -23,10 +23,17 @@ palette:
 features:
   preprocessors:
     # - VOLCANO_WATER
+  landforms:
+    - PRISMATIC_SINTER_RIM
+    - PRISMATIC_MINERAL_CRUST
+    - PRISMATIC_SATELLITE_POOLS
+  flora:
+    - PRISMATIC_DEAD_BUSHES
   postprocessors:
     - PRISMATIC_SPRING_MAGMA
     - PRISMATIC_SPRING_SMOKE
     - POTENT_SULFUR_SPRING_VENT
+    - PRISMATIC_STEAM_VENTS
   global-preprocessors:
     - LAVA_FLOOR
     - UNDERGROUND_LAVA_COLUMNS

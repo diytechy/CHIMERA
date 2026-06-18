@@ -1,0 +1,35 @@
+id: SULFUR_TERRACES
+type: BIOME
+extends:
+  - EQ_TRAVERTINE_TERRACES
+  - ENVIRONMENT_LAND_TEMPERATE_OCEANIC
+  - CARVING_OCEAN
+  - BASE
+color: $biomes/colors.yml:SULFUR_TERRACES
+
+# A sulfur analogue of TRAVERTINE_TERRACES: the same terraced sinter-pool terrain, but
+# the white calcite is swapped for sulfur and the pools are sulfurous yellow-green.
+# NOT placed in any distribution yet — to add it, drop SULFUR_TERRACES at a low weight
+# into a land spot/unique stage (e.g. alongside TRAVERTINE_TERRACES) in biome-distribution.
+colors:
+  water: 0xaab84a
+  water-fog: 0x8a9a2c
+  fog: 0xc7bf6a
+
+vanilla: minecraft:river
+
+tags:
+  - USE_RIVER
+  - LAND_CAVES
+  - SPECIAL_CAVES
+
+palette:
+  - BLOCK:minecraft:sulfur: $meta.yml:top-y
+  - << meta.yml:palette-underwater
+  - << meta.yml:palette-bottom
+
+features:
+  preprocessors:
+    - SULFUR_TERRACE_WATER
+  postprocessors:
+    - SULFUR_TERRACE_WATERFALLS

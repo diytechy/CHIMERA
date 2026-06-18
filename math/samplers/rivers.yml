@@ -199,6 +199,7 @@ samplers:
       #value: 0
       type: EXPRESSION
       expression: RiverBranchingProbability(round(x/4)*4,round(z/4)*4)
+    curvature: 2
     default-riverwidth: 30
     default-borderwidth: 75
     

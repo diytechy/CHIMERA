@@ -8,13 +8,14 @@ distributor:
   sampler:
     type: EXPRESSION
     dimensions: 2
-    expression: if(distanceToPrismaticRim(x, z) > -0.05 && distanceToPrismaticRim(x, z) < 0.12, rarity(x, z), -1)
+    # place where value < threshold; out-of-band sentinel 1 never places.
+    expression: if(distanceToPrismaticRim(x, z) > -0.05 && distanceToPrismaticRim(x, z) < 0.12, rarity(x, z), 1)
     samplers:
       rarity:
         dimensions: 2
         type: POSITIVE_WHITE_NOISE
         salt: 71014
-  threshold: 0.45
+  threshold: 0.4
 
 locator:
   type: AND

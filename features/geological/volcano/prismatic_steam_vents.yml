@@ -9,13 +9,15 @@ distributor:
   sampler:
     type: EXPRESSION
     dimensions: 2
-    expression: if(distanceToPrismaticRim(x, z) > 0.0 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), -1)
+    # SAMPLER distributor places where value < threshold: in-band -> rarity (places
+    # the threshold-fraction of columns); out-of-band -> 1 (never < threshold).
+    expression: if(distanceToPrismaticRim(x, z) > 0.0 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), 1)
     samplers:
       rarity:
         dimensions: 2
         type: POSITIVE_WHITE_NOISE
         salt: 71010
-  threshold: 0.9
+  threshold: 0.06
 
 locator:
   type: AND

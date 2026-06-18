@@ -1,14 +1,15 @@
 id: SULFUR_LAKES
 type: FEATURE
 
-# Underground sulfur lakes scattered through the sulfur caves. Placed on a padded
-# grid (denser than the global UNDERGROUND_WATER_LAKES) wherever there is solid rock
-# to enclose the basin; the sulfur_lake structure self-validates that it is fully
-# surrounded by rock before carving.
+# Underground sulfur pools/lakes scattered densely through the sulfur caves — a
+# defining feature of the biome, so the grid is tight (~36-block spacing, far denser
+# than the global UNDERGROUND_WATER_LAKES at ~120). The sulfur_lake structure
+# self-validates that it is surrounded by rock before carving, so the effective rate
+# is somewhat lower than the grid where caves have already hollowed the rock out.
 distributor:
   type: PADDED_GRID
   width: 28
-  padding: 52
+  padding: 8
   salt: 9187
 
 locator:

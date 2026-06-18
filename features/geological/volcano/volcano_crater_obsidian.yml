@@ -7,13 +7,13 @@ distributor:
   sampler:
     type: EXPRESSION
     dimensions: 2
-    expression: if(distanceToVolcanicRim(x, z) > -0.1 && distanceToVolcanicRim(x, z) < 0.1, rarity(x, z), -1)
+    expression: if(distanceToVolcanicRim(x, z) > -0.1 && distanceToVolcanicRim(x, z) < 0.1, rarity(x, z), 1)
     samplers:
       rarity:
         dimensions: 2
         type: POSITIVE_WHITE_NOISE
         salt: 72022
-  threshold: 0.7
+  threshold: 0.2
 
 locator:
   type: AND

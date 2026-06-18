@@ -45,7 +45,7 @@ terrain:
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
             /*outsideHeight*/ 0,
             /*edge*/          prismaticEdgeRadius(x, z),
-            /*radius*/        spotRadius(x, z),
+            /*radius*/        prismaticRadius(x, z),
             /*centerDepth*/   prismaticCenterDepth(x, z),
             /*volcanoHeight*/ lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4) * (1 - spotEdgeRadiusPercent(x, z)),
                                 0, prismaticMinHeight,

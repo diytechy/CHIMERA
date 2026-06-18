@@ -484,6 +484,10 @@ spot-radius-min: 50
 spot-radius-max: 150
 # Default: 150
 
+# Prismatic springs are scaled down relative to other spots (volcanoes, sinkholes)
+# so the colorful pool is roughly half the footprint. 1.0 = same size as other spots.
+prismatic-radius-scale: 0.5
+
 large-spot-spawn-radius-offset: 2000
 # Roughly how far large spots will generate away from spawn
 # Default: 2000

@@ -8,7 +8,8 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(distanceToVolcanicRim(x, z) < 0.4, rarity(x, z), -1)
+    # SAMPLER places where value < threshold: in-band -> rarity; out-of-band -> 1 (never).
+    expression: if(distanceToVolcanicRim(x, z) < 0.4, rarity(x, z), 1)
     samplers:
       distanceToVolcanicRim: $math/samplers/spots.yml:samplers.distanceToVolcanicRim
       rarity:

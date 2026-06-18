@@ -1,11 +1,25 @@
 samplers:
+  sulfurRegionValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.004
+    sampler:
+      type: PROBABILITY
+      sampler:
+        type: CELLULAR
+        frequency: 0.0015
+        salt: 7731.0
+        return: CellValue
+  positiveWhiteNoise:
+    dimensions: 2
+    type: POSITIVE_WHITE_NOISE
   mountain_sampler:
     dimensions: 2
     type: OPEN_SIMPLEX_2
     frequency: 0.001111111111
-  positiveWhiteNoise:
-    dimensions: 2
-    type: POSITIVE_WHITE_NOISE
   BiomeShapeMesaValue:
     dimensions: 2
     type: DOMAIN_WARP
@@ -2742,7 +2756,7 @@ samplers:
     expression: |
       min(
         min(
-          herp(RiverOverhangMask(x,z), 0.15, continentalRiverElev(x,z), 0.25, elevationDetailedPreErosion(x,z)),
+          herp(RiverOverhangMask(x,z), 0.0, continentalRiverElev(x,z), 0.10, elevationDetailedPreErosion(x,z)),
           herp(flatness(x, z), 0, elevationDetailedPreErosion(x,z), sealevel_factor, 0)
         ),
       elevationDetailedPreErosion(x,z))
@@ -3600,7 +3614,7 @@ samplers:
   riverPrecipitation:
     dimensions: 2
     type: EXPRESSION
-    expression: min(BiomeShapeLandmassPrecipitation(x, z), farPrecipitation(x, z))
+    expression: min(BiomeShapeLandmassPrecipitation(x, z), precipitation(x, z))
   RiverBranchingProbability:
     dimensions: 2
     type: EXPRESSION
@@ -3609,9 +3623,9 @@ samplers:
     expression: |
       if(((continents(x, z)>coastStart)&&
       (mesaFootDist(x,z)<0)&&
-      (riverPrecipitation(x, z)>0.15)&&
+      (riverPrecipitation(x, z)>-0.3)&&
       (aroundContinent(x,z)>0)),
-      (((riverPrecipitation(x, z)+0.3)/1.1)^0.6),0)
+      (((riverPrecipitation(x, z)+0.3)/1.1)^0.7),0)
   RiverOverhangMask:
     dimensions: 2
     type: PERLIN
@@ -3657,6 +3671,7 @@ samplers:
       dimensions: 2
       type: EXPRESSION
       expression: RiverBranchingProbability(round(x/4)*4,round(z/4)*4)
+    curvature: 2
     default-riverwidth: 30
     default-borderwidth: 75
     cachepixels: *PerspectiveMultiplier
@@ -5292,6 +5307,16 @@ samplers:
                   type: OPEN_SIMPLEX_2
                   frequency: 0.015
                   salt: 55503.0
+  sulfurCavePresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(sulfurRegionValue(x, z) > 0.90, 1, -1)
+    samplers: {}
+  sulfurSpringPresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: if(sulfurRegionValue(x, z) > 0.96, 1, -1)
+    samplers: {}
   rawTemperature:
     dimensions: 2
     type: EXPRESSION

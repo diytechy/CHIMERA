@@ -81,3 +81,33 @@ Flat (Generates naturally from continental?)
 Mountian (A and B type)
 Mesa
 Sand Dunes
+
+Latest fixes needed:
+- Covered in sulfer now, but it should have just been a few sulfer blocks underground with the pillar smoke.
+
+
+Sulfer caves incorrect:
+- Missing cinnibar
+
+
+Next:
+
+First, fix latest issues introduced around various spot biomes: 
+
+3 changes to make:
+
+1. Almost all of the new features around spots appear to be inverting the distribution and locating sampler distribution.  Rim features are everywhere but the rim of volcanos.  Vegitation is substantial when I would expect it to be sparse.  Is there an invalid memory somewhere interpretting distribution of features incorrectly?
+
+2. Sulfer caves need much higher generation rate of sulfer pools, those pools should be similar size and occurance rates as paper.
+
+3. Make prismatic springs much smaller?   Right now they are probably 2x bigger than they should be, but this means the spot size of prsimatic spheres needs to be smaller than other spots, investigate methods to perform this.
+
+
+Revert sister biome for mesas next to mesa-monuments or refactor, they are way too variable in height, obscuring the mesa shape.
+
+
+Maybe special small surface sulfer biome?  Based on taverstine terraces?
+
+Should we care about sulfer pools above sulfer caves?  They are inconsequential.
+
+A lot of cleanup needed on surface biomes (Volcanos / Extinct Volcanos, probably need to be reverted)

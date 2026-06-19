@@ -34,7 +34,72 @@ _innerWarpSmall: &innerWarpSmall
     type: OPEN_SIMPLEX_2
     frequency: 0.0001
 
+BaseBiomeCellSmallCave: &BaseBiomeCellSmallCave
+  dimensions: 2
+  type: CELLULAR
+  frequency: 1 / ${customization.yml:biomeSpread.cellDistanceSmall}
+  jitter: 0.6
+  distance: Hybrid
+
+_CaveSmallShape: &CaveSmallShape
+  <<: *BaseBiomeCellSmallCave
+  salt: 101
+
+_outerWarpSmallCave: &outerWarpSmallCave
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 20
+  warp:
+    type: SIMPLEX
+    frequency: 0.02
+
+_midWarpSmallCave: &midWarpSmallCave
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 60
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.003
+
+_innerWarpSmallCave: &innerWarpSmallCave
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 300
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.0001
+
 samplers:
+  BiomeShapeSmallCaveValue:
+    <<: *outerWarpSmallCave
+    sampler:
+      <<: *midWarpSmallCave
+      sampler:
+        <<: *innerWarpSmallCave
+        sampler:
+          <<: *CaveSmallShape
+          return: CellValue
+          
+  BiomeShapeSmallCaveSpecialValue:
+    <<: *outerWarpSmall
+    sampler:
+      <<: *midWarpSmall
+      sampler:
+        <<: *innerWarpSmall
+        sampler:
+          <<: *oceanShape
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            variables:
+              threshold: 0.088
+            expression: |
+              smallCaveRegionValue(x,z) < threshold && smallCaveRegionValue(x,z) > -threshold,
+                if(smallCaveRegionValue(x,z) > 0, 1, 0.25),
+                -1)
+          salt-lookup: false
+
   BiomeShapeOceanValue:
     <<: *outerWarpSmall
     sampler:

@@ -16,6 +16,9 @@ particles:
 colors:
   water: 0x23b4d3
 
+tags:
+  - PRISMATIC_SPRING
+
 palette:
   - PRISMATIC_MICROBIAL_MAT: $meta.yml:top-y
   - << meta.yml:palette-bottom

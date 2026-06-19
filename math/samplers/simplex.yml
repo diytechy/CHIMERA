@@ -33,6 +33,16 @@ samplers:
     salt: 54321
   WhiteNoiseRandomizer:
     dimensions: 2
+    type: WHITE_NOISE
+    frequency: 1000
+    salt: 5675401
+  WhiteNoiseRandomizer2:
+    dimensions: 2
+    type: WHITE_NOISE
+    frequency: 1000
+    salt: 5675401424
+  PositiveWhiteNoiseRandomizer:
+    dimensions: 2
     type: POSITIVE_WHITE_NOISE
     frequency: 1000
     salt: 5675401

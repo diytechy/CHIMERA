@@ -693,3 +693,26 @@ samplers:
               y/${customization.yml:cave_lower}))^${customization.yml:cave_y_curve_power}
         samplers:
           cell_spot: *caveSettings
+          
+  # 0..1 per-cell value. Cells are ~660 blocks across (frequency 0.0015), so each
+  # selected region is a coherent blob rather than per-column noise. Domain-warped
+  # so region edges are organic instead of straight cell walls.
+  smallCaveRegionValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 60
+    warp:
+      type: OPEN_SIMPLEX_2
+      frequency: 0.004
+    sampler:
+      type: PROBABILITY
+      sampler:
+        type: CELLULAR
+        frequency: 0.0015
+        salt: 7731
+        return: CellValue
+  
+  sulfurSpringPresent:
+    dimensions: 2
+    type: EXPRESSION
+    expression: BiomeShapeSmallCaveSpecialValue(x, z) = 1

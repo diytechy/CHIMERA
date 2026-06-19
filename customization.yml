@@ -2,7 +2,9 @@ biomeSpread:
   # Basic size of biomes - the spacing in blocks between two adjacent biome
   # cell centers. Used as the period (1 / cellDistance) of the cellular noise
   # that places most standard biomes. Increase to make biomes bigger.
-  cellDistance: 320
+  cellDistance: 280
+
+  cellDistanceSmall: 160
 
   # Spacing in blocks between "well" cells - the small cellular features that
   # drive rift wells (rifts.yml) and canyon wells (eq_canyon). Smaller = tighter

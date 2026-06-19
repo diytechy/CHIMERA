@@ -5,6 +5,7 @@ extends:
 - CARVING_OCEAN
 - JUNGLE
 - BASE
+- VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:TROPICAL_EXTINCT_VOLCANO
 vanilla: minecraft:jungle
 tags:

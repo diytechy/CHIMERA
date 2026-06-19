@@ -5,6 +5,7 @@ extends:
   - CARVING_OCEAN
   - BOREAL_MESA
   - BASE
+  - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:BOREAL_EXTINCT_VOLCANO
 
 vanilla: minecraft:taiga

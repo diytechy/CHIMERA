@@ -5,6 +5,7 @@ extends:
   - CARVING_OCEAN
   - ROCKY_DESERT
   - BASE
+  - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:DESERT_EXTINCT_VOLCANO
 
 vanilla: minecraft:desert

@@ -5,6 +5,7 @@ extends:
 - CARVING_OCEAN
 - SNOWY_MOUNTAINS
 - BASE
+- VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:COLD_EXTINCT_VOLCANO
 vanilla: minecraft:frozen_peaks
 tags:

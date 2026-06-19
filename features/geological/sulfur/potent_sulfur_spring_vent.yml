@@ -14,8 +14,8 @@ distributor:
       rarity:
         dimensions: 2
         type: POSITIVE_WHITE_NOISE
-        salt: 55123
-  threshold: 0.08
+        salt: 5512341
+  threshold: 0.02
 
 locator:
   type: AND
@@ -30,11 +30,12 @@ locator:
         type: AND
         patterns:
           - type: MATCH_SOLID
-            offset: -1
-          - type: MATCH_AIR
-            offset: 0
+            offset: 1
+          - type: BLOCK
+            block: minecraft:water
+            offset: 2
 
 structures:
-  distribution:
-    type: CONSTANT
-  structures: potent_sulfur_wet
+  - BLOCK:minecraft:magma_block: 1
+  - BLOCK:minecraft:potent_sulfur[potent_sulfur_state=wet]: 1
+  #structures: BLOCK:minecraft:magma_block

@@ -13,11 +13,12 @@ abstract: true
 # `landforms`, and Terra's extends merge lets a later parent override an earlier one
 # per stage. No host biome uses `processors`, so putting the geology here guarantees it
 # survives on all 5 extinct volcanoes and their crater lakes.
-features:
-  processors:
-    - POTENT_SULFUR_DORMANT_VENT
-    - VOLCANO_CRATER_SEDIMENT
-    - VOLCANO_CRATER_OBSIDIAN
-    - VOLCANO_ASH_PATCHES
-    - VOLCANO_COOLED_CRACKS
-    - VOLCANO_SLOPE_BOULDERS
+
+#features:
+#  processors:
+#    - POTENT_SULFUR_DORMANT_VENT
+#    - VOLCANO_CRATER_SEDIMENT
+#    - VOLCANO_CRATER_OBSIDIAN
+#    - VOLCANO_ASH_PATCHES
+#    - VOLCANO_COOLED_CRACKS
+#    - VOLCANO_SLOPE_BOULDERS

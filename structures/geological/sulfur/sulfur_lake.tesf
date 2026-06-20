@@ -6,12 +6,17 @@
 // walls/floor), so the pool stays contained even where the floor is thin — no rock
 // envelope is required, which is what made the old enclosed-lake version so rare.
 num randPrecision = 100;
-num radius = 6 + randomInt(randPrecision) / randPrecision * 3;   // 6-9
-num warp = 4;
+// Wide size spread, smaller on average: radius 2.5-8.5 (mean ~5.5) vs the old 6-9.
+num radius = 2.5 + randomInt(randPrecision) / randPrecision * 6;
+num warp = 3;
 num warpFreq = 4;
-num squish = 1.3 + randomInt(randPrecision) / randPrecision;     // > 1 = wider than deep
+// Higher squish = flatter basin. 2.2-3.4 (mean ~2.8) roughly halves the previous
+// depth (depth ~ radius/squish) so pools are shallow dishes, not deep wells.
+num squish = 2.2 + randomInt(randPrecision) / randPrecision * 1.2;
 num radiusSquared = pow(radius, 2);
-num innerSquared = radiusSquared - 18;
+// Wall thickness scales with the pool (~1.3 blocks) instead of a fixed -18 offset,
+// which used to leave pools below radius ~4.3 with no water at all.
+num innerSquared = pow(radius - 1.3, 2);
 
 for (num x = -radius - warp; x < radius + warp; x = x + 1) {
     for (num y = (-radius - warp) / squish; y < (radius + warp) / squish; y = y + 1) {
@@ -21,11 +26,14 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
             num warpZ = warp * sampler("simplex3", warpFreq * (x + originX()), warpFreq * (y + originY() + 3000), warpFreq * (z + originZ()));
             num d2 = pow(x + warpX, 2) + pow((y + warpY) * squish, 2) + pow(z + warpZ, 2);
 
-            // Sulfur (and occasional cinnabar) basin shell, lower hemisphere — always
-            // written so the basin holds water on thin floors.
+            // Basin shell, lower hemisphere — always written so the basin holds water
+            // on thin floors. Mostly sulfur, with cinnabar veins and ~1/16 WET potent
+            // sulfur lining the submerged bottom. Potent is rolled last so it lands at a
+            // true 1-in-16.
             if (d2 < radiusSquared && y < 0) {
                 str shell = "minecraft:sulfur";
                 if (randomInt(5) == 0) shell = "minecraft:cinnabar";
+                if (randomInt(16) == 0) shell = "minecraft:potent_sulfur[potent_sulfur_state=wet]";
                 block(x, y, z, shell, true);
             }
             // Water fill.
@@ -41,5 +49,43 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
                 if (randomInt(2) == 0) block(x, y, z, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
             }
         }
+    }
+}
+
+// Seal pass: the squished basin can leave sub-block gaps under/beside the water where
+// it would otherwise leak. Any air directly below or horizontally adjacent to a water
+// block is backfilled with sulfur. The surface above the water (y+1) is left open so
+// the pool stays visible from the cave.
+for (num x = -radius - warp; x < radius + warp; x = x + 1) {
+    for (num y = (-radius - warp) / squish; y < (radius + warp) / squish; y = y + 1) {
+        for (num z = -radius - warp; z < radius + warp; z = z + 1) {
+            if (getBlock(x, y, z) == "minecraft:water") {
+                if (getBlock(x, y - 1, z) == "minecraft:air") block(x, y - 1, z, "minecraft:sulfur", true);
+                if (getBlock(x + 1, y, z) == "minecraft:air") block(x + 1, y, z, "minecraft:sulfur", true);
+                if (getBlock(x - 1, y, z) == "minecraft:air") block(x - 1, y, z, "minecraft:sulfur", true);
+                if (getBlock(x, y, z + 1) == "minecraft:air") block(x, y, z + 1, "minecraft:sulfur", true);
+                if (getBlock(x, y, z - 1) == "minecraft:air") block(x, y, z - 1, "minecraft:sulfur", true);
+            }
+        }
+    }
+}
+
+// Occasional sulfur-spike stalagmite rising out of the pool and poking above the
+// surface (only in larger pools). Lower (submerged) segments are waterlogged.
+if (radius > 4 && randomInt(4) == 0) {
+    num sx = randomInt(3) - 1;
+    num sz = randomInt(3) - 1;
+    num innerRadius = radius - 1.3;
+    num dOff2 = pow(sx, 2) + pow(sz, 2);
+    num spikeBottom = -round(sqrt(innerSquared - dOff2) / squish);
+    num spikeTop = 1 + randomInt(2);
+    for (num sy = spikeBottom; sy <= spikeTop; sy = sy + 1) {
+        str thick = "middle";
+        if (sy == spikeTop) thick = "tip";
+        else if (sy == spikeTop - 1) thick = "frustum";
+        else if (sy == spikeBottom) thick = "base";
+        str wl = "false";
+        if (sy < 0) wl = "true";
+        block(sx, sy, sz, "minecraft:sulfur_spike[vertical_direction=up, thickness=" + thick + ", waterlogged=" + wl + "]", true);
     }
 }

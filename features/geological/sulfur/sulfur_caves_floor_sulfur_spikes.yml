@@ -6,7 +6,7 @@ distributor:
   sampler:
     type: POSITIVE_WHITE_NOISE
     salt: 1031
-  threshold: 0.07
+  threshold: 0.12
 
 locator:
   type: PATTERN
@@ -16,8 +16,10 @@ locator:
   pattern:
     type: AND
     patterns:
-      - type: MATCH
-        block: minecraft:sulfur
+      - type: MATCH_SET
+        blocks:
+          - minecraft:sulfur
+          - minecraft:cinnabar
         offset: -1
       - type: MATCH_AIR
         offset: 0

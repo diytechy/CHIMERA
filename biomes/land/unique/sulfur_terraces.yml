@@ -33,3 +33,4 @@ features:
     - SULFUR_TERRACE_WATER
   postprocessors:
     - SULFUR_TERRACE_WATERFALLS
+    - SULFUR_TERRACE_POTENT

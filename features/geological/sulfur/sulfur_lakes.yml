@@ -1,37 +1,36 @@
 id: SULFUR_LAKES
 type: FEATURE
 
-# Sulfur pools on the cave floors of the sulfur caves — a defining, frequent feature.
-# Previously these were rock-ENCLOSED lakes whose structure failed unless fully
-# surrounded by solid rock (scarce in a carved cave biome) and whose locator made a
-# single random-Y attempt over the whole column. Reworked to target cave floors
-# (solid below, open air above) with many attempts per column; the sulfur_pool
-# structure builds its own sulfur basin so it no longer needs a rock envelope.
+# Mirrors vanilla sulfur_pool's PLACEMENT STRATEGY, which is what was missing:
+# vanilla does count:256 random-XZ attempts PER CHUNK (in_square), spreading pools
+# across the whole chunk and validating each against a cave floor.
+#
+# Our old PADDED_GRID (width 7/padding 5) only triggered at ~2 XZ columns per chunk,
+# then RANDOM amount:40 stacked pools VERTICALLY in those same columns — so raising the
+# amount never spread them out, it just stacked more in 2 spots.
+#
+# Now: a per-column noise trigger (SAMPLER) fires in many columns spread across the
+# chunk, and a floor PATTERN drops a pool at the cave floor(s) in each. `threshold` is
+# the density lever (higher = more columns = more pools).
 distributor:
-  type: PADDED_GRID
-  width: 7
-  padding: 5
-  salt: 9187
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 9187
+  threshold: 0.05
 
 locator:
-  type: AND
-  locators:
-    - type: RANDOM
-      amount: 40                      # several attempts per cell -> reliably finds floors
-      height: &range
-        min: ${meta.yml:cave-bottom}
-        max: ${meta.yml:ocean-level} + 40
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: AND
-        patterns:
-          - type: MATCH_SOLID
-            offset: 0                 # cave-floor top block (carved into)
-          - type: MATCH_AIR
-            offset: 1                 # open cave above -> the pool is visible
-          - type: MATCH_SOLID
-            offset: -4                # enough rock beneath to hold the basin
+  type: PATTERN
+  range:
+    min: ${meta.yml:cave-bottom}
+    max: ${meta.yml:cave-top}
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: 0       # cave-floor top block (carved into)
+      - type: MATCH_AIR
+        offset: 1       # open cave above -> the pool is visible
 
 structures:
   distribution:

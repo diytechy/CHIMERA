@@ -1,0 +1,22 @@
+// Sulfur spring formation: a larger banded mound (tuff base -> sulfur -> cinnabar) with
+// an active potent-sulfur core, the .tesf analogue of vanilla's sulfur_spring NBT
+// templates. Rarer than plain growths. Origin (0,0,0) is air; floor solid is at y = -1.
+num radius = 3 + randomInt(100) / 100 * 2;   // 3-5
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius) {
+            num h = round((radius - d) / radius * 3);   // mound height 0-3
+            for (num y = -1; y <= h; y = y + 1) {
+                str b = "minecraft:sulfur";
+                if (y == -1 && randomInt(2) == 0) b = "minecraft:tuff";
+                else if (randomInt(4) == 0) b = "minecraft:cinnabar";
+                block(dx, y, dz, b, true);
+            }
+        }
+    }
+}
+// Active geyser core.
+block(0, 0, 0, "minecraft:potent_sulfur[potent_sulfur_state=continuous]", true);
+block(0, 1, 0, "minecraft:potent_sulfur[potent_sulfur_state=erupting]", true);

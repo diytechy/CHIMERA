@@ -6,18 +6,19 @@ color: $biomes/colors.yml:SULFUR_CAVES
 
 vanilla: minecraft:sulfur_caves
 
+# Exact vanilla minecraft:sulfur_caves values (extracted from the 26.2 server jar).
 colors:
-  fog: 0xbfa72a
-  water: 0xb6b34a
-  water-fog: 0x8f8a2c
-  sky: 0xd8cf6a
-  grass: 0x9c8b22
-  foliage: 0x9c8b22
+  fog: 0x8cb831
+  water: 0x34bf89
+  water-fog: 0x17543c
+  sky: 0x78a7ff
+  grass: 0xaba64f
+  foliage: 0xaba64f
 
 climate:
-  precipitation: false
-  temperature: 1.5
-  downfall: 0.0
+  precipitation: true
+  temperature: 0.8
+  downfall: 0.4
 
 palette:
   - SULFUR_CAVES: $meta.yml:top-y
@@ -27,8 +28,12 @@ palette:
 tags:
   - SPECIAL_CAVES
 
+# Feature ORDER mirrors vanilla: sulfur is placed FIRST (preprocessors), then spikes
+# grow ON that sulfur (landforms, which runs after preprocessors).
 features:
   preprocessors:
+    - SULFUR_GROWTHS
+    - SULFUR_SPRING_FORMATIONS
     - SULFUR_LAKES
   landforms:
     - SULFUR_CAVES_FLOOR_SULFUR_SPIKES

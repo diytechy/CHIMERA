@@ -33,7 +33,7 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
             if (d2 < radiusSquared && y < 0) {
                 str shell = "minecraft:sulfur";
                 if (randomInt(5) == 0) shell = "minecraft:cinnabar";
-                if (randomInt(16) == 0) shell = "minecraft:potent_sulfur[potent_sulfur_state=wet]";
+                if (randomInt(64) == 0) shell = "minecraft:potent_sulfur[potent_sulfur_state=wet]";
                 block(x, y, z, shell, true);
             }
             // Water fill.
@@ -44,9 +44,10 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
             if (d2 < innerSquared && y >= 0) {
                 block(x, y, z, "minecraft:air", true);
             }
-            // Waterline rim: WET potent sulfur where the shell meets the surface.
+            // Waterline rim: occasional WET potent sulfur where the shell meets the
+            // surface. Kept sparse (1/8) to limit geyser particle load for performance.
             if (d2 < radiusSquared && d2 >= innerSquared && y == 0) {
-                if (randomInt(2) == 0) block(x, y, z, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
+                if (randomInt(8) == 0) block(x, y, z, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
             }
         }
     }

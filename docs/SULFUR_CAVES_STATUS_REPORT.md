@@ -62,7 +62,7 @@ The spot/sulfur radial features were **inverted**: Terra's `SAMPLER` distributor
 
 **Extraction method (repeatable):** `Z:\MC_SERV_BACKUP_20260516\MINECRAFT_SERVER_TMP_4BACKUP\cache\mojang_26.2.jar` is a bundler → nested `META-INF/versions/26.2/server-26.2.jar` → `data/minecraft/worldgen/`. (The Paper *source* at C:\Projects\Paper has no worldgen JSON, only noise_settings patches.)
 
-**KEY FINDING — vanilla sulfur caves are STONE caves; sulfur is feature-driven, not a wall palette.** `biome/sulfur_caves.json` has all-vanilla ores (no sulfur/cinnabar ore). Sulfur comes from:
+**WALL MATERIAL (corrected 2026-06-18):** walls ARE high cinnabar+sulfur, set by a **surface rule** in `noise_settings/overworld.json` (`biome_is: sulfur_caves` + `sulfur_cave_gradient` 3D noise): cinnabar band `-0.4..-0.1`, sulfur band `0..0.4`, cinnabar band `0.4..+inf`, stone in the gaps → **~40% cinnabar / ~35% sulfur / ~25% stone**. (My first pass wrongly said "stone caves" — I'd only checked features/ores, not surface_rules.) No sulfur/cinnabar ORE exists. ON TOP of the mineral walls, sulfur is also feature-driven:
 
 | Feature | Count/chunk | Detail |
 |---|---|---|

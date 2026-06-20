@@ -1,21 +1,15 @@
 id: SULFUR_CAVES
 type: PALETTE
 
-# Sulfur caves are a heavily mineralized biome: sulfur is the dominant matrix with
-# strong cinnabar (red mercury-sulfide) veining and minor calcite/tuff accents.
-# Both sulfur and cinnabar are decorative biome blocks in Paper 26.2 (no ores), so
-# the high concentration comes from the palette, not from ore placement.
+# Vanilla sulfur caves replace the walls with a noise-banded mix of cinnabar + sulfur
+# via a surface rule (sulfur_cave_gradient noise: cinnabar in two bands, sulfur in one,
+# stone in the gaps). Approximated here as ~cinnabar 45% / sulfur 36% / stone 18%, in
+# domain-warped cellular blobs.
 layers:
   - materials:
-      - minecraft:sulfur: 7
-      - minecraft:cinnabar: 2
-      - minecraft:calcite: 1
-    layers: 2
-  - materials:
-      - minecraft:sulfur: 6
-      - minecraft:cinnabar: 2
-      - minecraft:tuff: 1
-      - minecraft:calcite: 1
+      - minecraft:cinnabar: 5
+      - minecraft:sulfur: 4
+      - minecraft:stone: 2
     layers: 1
 
 sampler:

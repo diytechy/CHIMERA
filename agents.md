@@ -24,6 +24,7 @@ then holds the deep, hard-won operational knowledge ("gotchas") those docs link 
 | Terrain blocks | [`palettes/README.md`](palettes/README.md) | palette layers, material selection, slant palettes |
 | Structures | [`structures/README.md`](structures/README.md) | TerraScript `.tesf` / Sponge `.schem` |
 | Sampler visualisation | [`docs/CAPTURES.md`](docs/CAPTURES.md) + `C:\Projects\NoiseTool\README.md` | NoiseTool headless CLI, screenshot commands |
+| **Porting a vanilla biome** | **[`port-vanilla-biome` skill](.claude/skills/port-vanilla-biome/SKILL.md)** + [`docs/VANILLA_TO_TERRA_MAP.md`](docs/VANILLA_TO_TERRA_MAP.md) | mirroring a new MC/Paper biome: `extract_vanilla_biome.py`, surface-rule→palette, count→SAMPLER. **Use this skill** when asked to port/mirror/add a vanilla biome. |
 
 The canonical **branch-vs-base legend** (🟢 base Polydev Terra / 🔶 diytechy fork or bundled
 addon) is defined in [`math/README.md`](math/README.md#branch-vs-base-legend) and used across

@@ -11,3 +11,6 @@ build
 
 # Transient build log written by AuditAndPackage.bat (resolve_samplers.py diagnostics)
 .artifacts/resolve_samplers.log
+
+# Extracted vanilla worldgen data (regenerable via .scripts/extract_vanilla_biome.py; Mojang-licensed)
+.artifacts/vanilla-extract/

@@ -10,7 +10,11 @@ distributor:
   sampler:
     type: POSITIVE_WHITE_NOISE
     salt: 4419
-  threshold: 0.015625 # 1/64, matching the (performance-reduced) sulfur_lake.tesf basin lining
+  # 1/640: cut ~10x from the old 1/64 to slash particle load (the terraces had far too
+  # many wet-potent particle emitters). This leaves only a faint ambient sprinkle of
+  # bubbling potent across the submerged floors; the concentrated activity now comes from
+  # the sparse SULFUR_TERRACE_GEYSER vents instead, mirroring the sulfur-cave distribution.
+  threshold: 0.0015625
 
 locator:
   type: PATTERN

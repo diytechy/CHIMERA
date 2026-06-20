@@ -1,0 +1,42 @@
+id: SULFUR_TERRACE_GEYSER
+type: FEATURE
+
+# Sparse periodic geysers in the submerged sulfur-terrace pools: a magma block under a
+# WET potent-sulfur vent under the pool water (the geothermal_geyser structure) — the
+# same recipe used by the sulfur-cave lakes and the prismatic springs. A PADDED_GRID
+# (spacing) ANDed with a white-noise mask keeps them sparse and irregular. Runs in
+# postprocessors, after SULFUR_TERRACE_WATER has filled the basins.
+distributor:
+  type: AND
+  distributors:
+    - type: PADDED_GRID
+      width: 12
+      padding: 10
+      salt: 4421
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        dimensions: 2
+        salt: 4422
+      threshold: 0.5
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level}
+    max: $meta.yml:top-y
+  # Submerged terrace floor: a sulfur block with water directly above it.
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH
+        block: minecraft:sulfur
+        offset: 0
+      - type: MATCH
+        block: minecraft:water
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: geothermal_geyser

@@ -31,6 +31,13 @@ palette:
 features:
   preprocessors:
     - SULFUR_TERRACE_WATER
+  # Barren, Yellowstone-style dressing: dead snags and bushes over the mineral ground.
+  # Overrides the host environment's trees/flora on purpose so the terraces stay parched.
+  trees:
+    - SULFUR_TERRACE_DEAD_TREES
+  flora:
+    - SULFUR_TERRACE_DEAD_BUSHES
   postprocessors:
     - SULFUR_TERRACE_WATERFALLS
     - SULFUR_TERRACE_POTENT
+    - SULFUR_TERRACE_GEYSER

@@ -486,9 +486,10 @@ spot-radius-min: 50
 spot-radius-max: 150
 # Default: 150
 
-# Prismatic springs are scaled down relative to other spots (volcanoes, sinkholes)
-# so the colorful pool is roughly half the footprint. 1.0 = same size as other spots.
-prismatic-radius-scale: 0.5
+# Prismatic radius relative to other spots (volcanoes, sinkholes). 1.0 = same size.
+# Reverted to 1.0: the 0.5 down-scale shrank the colorful microbial mat too much and
+# concentrated the water/magma features over what little mat remained.
+prismatic-radius-scale: 1.0
 
 large-spot-spawn-radius-offset: 2000
 # Roughly how far large spots will generate away from spawn

@@ -1,0 +1,45 @@
+// Volcanic talus boulder: a warped blob of tuff/basalt/blackstone, sunk 2-3 blocks into
+// the ground so it reads as embedded rock rather than a ball perched on the surface.
+// Based on tuff_boulder, but with a darker volcanic block mix to suit the LAVA_CRACKS
+// terrain and a deeper, randomized yTranslate.
+num randPrecision = 100;
+num radius = 3 + randomInt(randPrecision) / randPrecision * 2;
+num warp = 5;
+num warpFreq = 2;
+num squish = 1 + randomInt(randPrecision) / randPrecision;
+num radiusSquared = pow(radius, 2);
+// Sink 2-3 blocks below the surface (the old tuff_boulder used a fixed -2).
+num yTranslate = -2 - randomInt(2);
+
+if (check(radius, -radius / squish, 0) != "LAND" ||
+    check(-radius, -radius / squish, 0) != "LAND" ||
+    check(0, -radius / squish, radius) != "LAND" ||
+    check(0, -radius / squish, -radius) != "LAND"
+) fail;
+
+for (num x = -radius - warp; x < radius + warp; x = x + 1) {
+    for (num y = (-radius - warp) / squish; y < (radius + warp) / squish; y = y + 1) {
+        for (num z = -radius - warp; z < radius + warp; z = z + 1) {
+            num warpX = warp * sampler("simplex3",
+                warpFreq * (x + originX()),
+                warpFreq * (y + originY() + 1000),
+                warpFreq * (z + originZ()));
+            num warpY = warp * sampler("simplex3",
+                warpFreq * (x + originX()),
+                warpFreq * (y + originY() + 2000),
+                warpFreq * (z + originZ()));
+            num warpZ = warp * sampler("simplex3",
+                warpFreq * (x + originX()),
+                warpFreq * (y + originY() + 3000),
+                warpFreq * (z + originZ()));
+            str setBlock = "minecraft:tuff";
+            num rb = randomInt(5);
+            if (rb == 0) setBlock = "minecraft:basalt";
+            else if (rb == 1) setBlock = "minecraft:blackstone";
+            else if (rb == 2) setBlock = "minecraft:smooth_basalt";
+            if (pow(x + warpX, 2) + pow((y + warpY) * squish, 2) + pow(z + warpZ, 2) < radiusSquared) {
+                block(x, y + yTranslate, z, setBlock);
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+// Dry-ground steam vent: a lit signal campfire (the signal_fire blockstate forces a
+// tall smoke column) on the exposed apron, with a magma block beneath for the
+// geothermal glow and open air above so the smoke can rise. Origin (0,0,0) is the air
+// block on the surface; ground top is at -1.
+//
+// The whole point of this structure is that the campfire is NOT in or next to water:
+// a campfire adjacent to water is extinguished and emits no smoke, which is why the
+// old in-pool smoke features produced nothing. We still guard the waterline edge here
+// and bail if a neighbour is water/lava or there is no open air above.
+if (getBlock(0, 1, 0) != "minecraft:air") fail;
+if (getBlock(1, 0, 0) == "minecraft:water" || getBlock(-1, 0, 0) == "minecraft:water" ||
+    getBlock(0, 0, 1) == "minecraft:water" || getBlock(0, 0, -1) == "minecraft:water" ||
+    getBlock(1, 0, 0) == "minecraft:lava"  || getBlock(-1, 0, 0) == "minecraft:lava"  ||
+    getBlock(0, 0, 1) == "minecraft:lava"  || getBlock(0, 0, -1) == "minecraft:lava") fail;
+
+block(0, -1, 0, "minecraft:magma_block", true);
+block(0, 0, 0, "minecraft:campfire[lit=true,signal_fire=true]", true);

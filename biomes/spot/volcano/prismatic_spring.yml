@@ -32,11 +32,16 @@ features:
   #  - PRISMATIC_SATELLITE_POOLS
   flora:
     - PRISMATIC_DEAD_BUSHES
+  trees:
+    - PRISMATIC_DEAD_TREES
   postprocessors:
+    # PRISMATIC_SPRING_MAGMA = ambient magma glow on the pool floor;
+    # POTENT_SULFUR_SPRING_VENT = sparse submerged geysers (magma+wet potent sulfur);
+    # PRISMATIC_SPRING_SMOKE = dry-apron signal-campfire smoke columns (the in-pool
+    # version emitted nothing — campfires extinguish next to water).
     - PRISMATIC_SPRING_MAGMA
     - PRISMATIC_SPRING_SMOKE
     - POTENT_SULFUR_SPRING_VENT
-    # - SULFURIC_STEAM_VENTS
   global-preprocessors:
     - LAVA_FLOOR
     - UNDERGROUND_LAVA_COLUMNS

@@ -37,10 +37,15 @@ layers:
 
 sampler:
   type: EXPRESSION
+  # parabolicMap(t, bt,b, at,a): vibrant colors (output 1) plateau for
+  # spotDistance <= prismaticRadius*prismaticEdgeRadius (the pool floor and its rim),
+  # fading to the gray mineral crust (noise-1) out at the full prismaticRadius. The
+  # plateau factor was widened 0.8 -> 1.0 so the vibrant microbial band reaches the
+  # waterline and rings the pool above water instead of staying buried in the center.
   expression: |
-    parabolicMap(spotDistance(x, z)*1.5,
+    parabolicMap(spotDistance(x, z),
       prismaticRadius(x, z), noise(x, z) - 1,
-      prismaticRadius(x, z) * prismaticEdgeRadius(x, z) * 0.8, 1
+      prismaticRadius(x, z) * prismaticEdgeRadius(x, z) * 1.0, 1
     )
   samplers:
     noise:

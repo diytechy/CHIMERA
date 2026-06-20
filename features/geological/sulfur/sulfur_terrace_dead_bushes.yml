@@ -1,0 +1,34 @@
+id: SULFUR_TERRACE_DEAD_BUSHES
+type: FEATURE
+
+# Scattered dead bushes on the dry sulfur-terrace ledges, filling between the dead snags
+# for the parched geothermal look. Sparse via a white-noise mask.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    dimensions: 2
+    salt: 4424
+  threshold: 0.03
+
+locator:
+  type: AND
+  locators:
+    - type: TOP
+      range: &range
+        min: ${meta.yml:ocean-level} + 2
+        max: $meta.yml:top-y
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:dead_bush

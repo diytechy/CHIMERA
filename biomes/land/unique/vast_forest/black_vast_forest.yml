@@ -1,0 +1,17 @@
+id: BLACK_VAST_FOREST
+type: BIOME
+# Dark "black" band of the vast-forest color shift. Extends PALE_GARDEN so it keeps the
+# eerie vast-forest identity (terraced terrain, pale-moss ground, resin roots, creaking,
+# infested ambience) but swaps the pale canopy for a dark-oak one and darkens the tint.
+extends:
+- PALE_GARDEN
+color: $biomes/colors.yml:BLACK_VAST_FOREST
+colors:
+  grass: 0x4f5d3a
+  foliage: 0x2e3a24
+features:
+  trees:
+  - SPARSE_LARGE_MUSHROOMS
+  - DENSE_DARK_FOREST_TREES
+  - DENSE_FALLEN_DARK_OAK_TREES
+  - PALE_OAK_BUSHES

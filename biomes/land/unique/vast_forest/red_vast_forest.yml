@@ -1,0 +1,15 @@
+id: RED_VAST_FOREST
+type: BIOME
+# Red band of the vast-forest color shift. Extends PALE_GARDEN (keeps the vast-forest
+# identity) but uses red-tinted maple canopy. Foliage tint reused from RED_MAPLE_GROVE.
+extends:
+- PALE_GARDEN
+color: $biomes/colors.yml:RED_VAST_FOREST
+colors:
+  grass: 0x9bb084
+  foliage: 0xff3700
+features:
+  trees:
+  - MAPLE_GROVE_TREES
+  - DENSE_FALLEN_PALE_OAK_TREES
+  - PALE_OAK_BUSHES

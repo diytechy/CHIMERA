@@ -15,7 +15,7 @@ distributor:
     type: EXPRESSION
     dimensions: 2
     # place where value < threshold; out-of-band sentinel 1 never places. Sparse.
-    expression: if(distanceToPrismaticRim(x, z) > 0.02 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), 1)
+    expression: if(distanceToPrismaticRim(x, z) > 0.05 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), 1)
     samplers:
       rarity:
         dimensions: 2

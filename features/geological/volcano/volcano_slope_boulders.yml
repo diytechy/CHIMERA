@@ -24,15 +24,18 @@ locator:
       range: &range
         min: ${meta.yml:ocean-level}
         max: 250
-      pattern:
-        type: MATCH
-        block: minecraft:air
-        offset: 0
     - type: PATTERN
       range: *range
+      # SURFACE ignores a `pattern:` child, so the air-at-placement guard must live here
+      # in the PATTERN locator (AND of air@0 + solid@-1) — matching volcano_cooled_cracks
+      # and potent_sulfur_dormant_vent. The old shape dropped the air@0 check.
       pattern:
-        type: MATCH_SOLID
-        offset: -1
+        type: AND
+        patterns:
+          - type: MATCH_AIR
+            offset: 0
+          - type: MATCH_SOLID
+            offset: -1
 
 structures:
   distribution:

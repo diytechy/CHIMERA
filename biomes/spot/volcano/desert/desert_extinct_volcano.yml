@@ -14,3 +14,11 @@ tags:
   - SPECIAL_CAVES
   - LOW_CAVES
   - USE_DESERT_RIVER
+
+# Arid scrub: dead snags (which root fine on sand) plus a few acacia, so the desert cone
+# reads as a scrubby badland rather than empty. Overrides the ROCKY_DESERT trees; host
+# flora (cactus/dead bushes/dry grass) still inherits.
+features:
+  trees:
+    - DEAD_TREES_MODERATE
+    - SPARSE_ACACIA_TREES

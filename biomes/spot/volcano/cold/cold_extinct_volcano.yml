@@ -16,3 +16,9 @@ tags:
 features:
   preprocessors:
   - ICE_COASTLINE
+  # Modest cold conifers + dead snags so the frozen cone isn't completely bare, while
+  # staying sparse to suit the snowy peaks. Overrides the SNOWY_MOUNTAINS tree set.
+  trees:
+  - SPRUCE_TREES
+  - SPARSE_SPRUCE_TREES
+  - DEAD_TREES_SPARSE

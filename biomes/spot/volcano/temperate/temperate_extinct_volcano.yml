@@ -14,3 +14,13 @@ tags:
   - SPECIAL_CAVES
   - LOW_CAVES
   - USE_RIVER
+
+# Denser, climate-appropriate trees so the cone and its surroundings aren't barren.
+# Overrides the sparse WOODED_BUTTES tree set on purpose; host flora/landforms still
+# inherit. A few dead snags read as the stressed, geothermal slope.
+features:
+  trees:
+    - DENSE_OAK_TREE_PATCHES
+    - MIXED_TREES
+    - SPARSE_FALLEN_OAK_TREES
+    - DEAD_TREES_MODERATE

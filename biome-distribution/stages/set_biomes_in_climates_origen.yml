@@ -678,32 +678,12 @@ stages:
         - TROPICAL_MESA: 1
 
   # =========================================================================
-  # Largeland (vast forest) biomes (cellular)
+  # Largeland (vast forest) biomes
   # =========================================================================
-  - type: REPLACE_LIST
-    # Vast forests now shift through the SAME white/orange/red/black color regions as the
-    # deserts: this uses the same BiomeShapeLandmassColor sampler and the same 3/2/2/4
-    # black:red:orange:white weights/order as climate/color.yml, so the world's color
-    # bands line up (a "red" vast-forest region coincides with a "red" desert region).
-    # White stays the pale-garden forest (PALE_GARDEN); the other bands are dedicated
-    # *_VAST_FOREST variants that extend PALE_GARDEN (same eerie vast-forest identity, just a
-    # recolored canopy) so the family stays cohesive. Edit the three non-white picks to taste.
-    sampler:
-      type: EXPRESSION
-      expression: BiomeShapeLandmassColor(x, z)
-    default-from: polar-vast-forest
-    default-to:
-      # Polar vast forests stay pale (snow-dominant); they don't color-shift.
-      - POLAR_PALE_GARDEN: 1
-    to:
-      boreal-vast-forest: &vast-forest-colors
-        - BLACK_VAST_FOREST: 3   # black
-        - RED_VAST_FOREST: 2     # red
-        - ORANGE_VAST_FOREST: 2  # orange
-        - PALE_GARDEN: 4         # white (the pale-garden vast forest itself)
-      temperate-vast-forest: *vast-forest-colors
-      tropical-vast-forest: *vast-forest-colors
-      #Note: arid-pale-garden is set in precipitation, and distributed as a part of colors.
+  # Vast-forest color distribution lives in the common color stage (climate/color.yml),
+  # alongside the deserts and arid pale gardens: the {polar,boreal,temperate,tropical}-
+  # vast-forest tokens are mapped there to PALE_GARDEN / POLAR_PALE_GARDEN / the *_VAST_FOREST
+  # color variants via the shared BiomeShapeLandmassColor sampler. Nothing to resolve here.
   # =========================================================================
   # Spot biomes (cellular)
   # =========================================================================

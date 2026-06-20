@@ -131,3 +131,7 @@ Sulfur terraces at 346,107295
 
 
 1. 
+
+So far:
+
+Fix prismatic spring smoke, and fix that there is no potent sulfer

@@ -63,6 +63,20 @@ process (and its hard-won gotchas) isn't re-derived each time.
   vanilla data) and [docs/VANILLA_TO_TERRA_MAP.md](docs/VANILLA_TO_TERRA_MAP.md) (the
   vanilla→Terra translation table). Worked example: [docs/SULFUR_CAVES_STATUS_REPORT.md](docs/SULFUR_CAVES_STATUS_REPORT.md).
 
+### Authoring biomes & features
+
+For original (non-vanilla-mirror) content there are two companion agent skills that capture
+the Terra wiring and the gotchas that have repeatedly cost iteration here:
+
+- **[`create-biome`](.claude/skills/create-biome/SKILL.md)** — build a new biome: terrain
+  (`EQ_*` abstracts), palette, colors, climate, tags, features, and distribution placement.
+- **[`create-feature`](.claude/skills/create-feature/SKILL.md)** — place things in the world:
+  the distributor/locator/structure model, *SAMPLER places where value `< threshold`*,
+  *PADDED_GRID clusters*, and the inverted-distribution sentinel rule.
+
+Trigger them by asking an agent to *add a biome / add or tune a feature*, or invoke
+`/create-biome` or `/create-feature` explicitly.
+
 ---
 
 

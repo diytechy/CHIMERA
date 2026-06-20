@@ -27,7 +27,7 @@ extrusions:
       type: EXPRESSION
       variables: *variables
       #If beneath the spot, set to sulfur caves.
-      expression: if(y<(base+scale * spotBaseElevation(x, z)),-1,1)
+      expression: if(y<(base+scale * spotBaseElevation(x, z)-16),-1,1)
     to:
       - SULFUR_CAVES: 1
       - SELF: 1

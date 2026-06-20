@@ -95,7 +95,7 @@ samplers:
             variables:
               threshold: 0.088
             expression: |
-              smallCaveRegionValue(x,z) < threshold && smallCaveRegionValue(x,z) > -threshold,
+              if(smallCaveRegionValue(x,z) < threshold && smallCaveRegionValue(x,z) > -threshold,
                 if(smallCaveRegionValue(x,z) > 0, 1, 0.25),
                 -1)
           salt-lookup: false

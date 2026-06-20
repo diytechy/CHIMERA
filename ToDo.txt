@@ -111,3 +111,23 @@ Maybe special small surface sulfer biome?  Based on taverstine terraces?
 Should we care about sulfer pools above sulfer caves?  They are inconsequential.
 
 A lot of cleanup needed on surface biomes (Volcanos / Extinct Volcanos, probably need to be reverted)
+
+Sulfer Cave fixes:
+	- Still need much higher prevelance of sulfer lakes
+	
+Prismatic Sprint cleanup:
+	- Increase chance?
+	- Microbal map should be bigger
+	- Place dead trees
+	- Fix missing smoke (Just put under magma?)
+	- Fix missing eruptions (Locator defect?)
+	- Place sulfer / cinnibar mix below instead of stone
+
+Mesa cleanup
+
+Spot features / trees 
+
+Other pillar features
+
+Ideally more carving to caves from surface
+

@@ -31,11 +31,13 @@ locator:
         patterns:
           - type: MATCH_SOLID
             offset: 1
-          - type: BLOCK
+          - type: MATCH
             block: minecraft:water
             offset: 2
 
 structures:
-  - BLOCK:minecraft:magma_block: 1
-  - BLOCK:minecraft:potent_sulfur[potent_sulfur_state=wet]: 1
-  #structures: BLOCK:minecraft:magma_block
+  distribution:
+    type: CONSTANT
+  structures:
+    - BLOCK:minecraft:magma_block: 1
+    - BLOCK:minecraft:potent_sulfur[potent_sulfur_state=wet]: 1

@@ -33,7 +33,7 @@ locator:
         patterns:
           - type: MATCH_SOLID
             offset: 1
-          - type: BLOCK
+          - type: MATCH
             block: minecraft:water
             offset: 2
 

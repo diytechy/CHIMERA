@@ -214,6 +214,7 @@ samplers:
   volcanoActivity:
     <<: *smallCellular
     return: NoiseLookup
+    #salt-lookup: false
     lookup:
       type: WHITE_NOISE
       salt: 4128

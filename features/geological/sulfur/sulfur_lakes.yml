@@ -9,15 +9,15 @@ type: FEATURE
 # structure builds its own sulfur basin so it no longer needs a rock envelope.
 distributor:
   type: PADDED_GRID
-  width: 24
-  padding: 10
+  width: 7
+  padding: 5
   salt: 9187
 
 locator:
   type: AND
   locators:
     - type: RANDOM
-      amount: 6                       # several attempts per cell -> reliably finds floors
+      amount: 40                      # several attempts per cell -> reliably finds floors
       height: &range
         min: ${meta.yml:cave-bottom}
         max: ${meta.yml:ocean-level} + 40

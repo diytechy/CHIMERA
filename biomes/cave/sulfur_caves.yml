@@ -26,7 +26,6 @@ palette:
 
 tags:
   - SPECIAL_CAVES
-  - USE_RIVER_TEMPERATE_MARSH
 
 features:
   preprocessors:

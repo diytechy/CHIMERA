@@ -117,11 +117,6 @@ Sulfer Cave fixes:
 	
 Prismatic Sprint cleanup:
 	- Increase chance?
-	- Microbal map should be bigger
-	- Place dead trees
-	- Fix missing smoke (Just put under magma?)
-	- Fix missing eruptions (Locator defect?)
-	- Place sulfer / cinnibar mix below instead of stone
 
 Mesa cleanup
 
@@ -131,3 +126,8 @@ Other pillar features
 
 Ideally more carving to caves from surface
 
+Sulfur terraces at 346,107295
+2500,100 <- Small prismatic spring
+
+
+1. 

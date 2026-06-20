@@ -1,0 +1,30 @@
+id: PALE_MESA
+type: BIOME
+extends:
+- EQ_MESA
+- CARVING_OCEAN
+- BASE
+color: $biomes/colors.yml:PALE_MESA
+tags:
+- USE_RIVER
+- TEMPERATE_COAST_FLAT
+- LAND_CAVES
+- SPECIAL_CAVES
+vanilla: minecraft:badlands
+palette:
+- PALE_MESA_STRATA: $meta.yml:top-y
+- << meta.yml:palette-underwater
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.5
+  palette:
+  - BLOCK:minecraft:light_gray_terracotta: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+- threshold: 0.4
+  palette:
+  - BLOCK:minecraft:calcite: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+features:
+  flora:
+  - DEAD_BUSHES
+  - DRY_GRASS

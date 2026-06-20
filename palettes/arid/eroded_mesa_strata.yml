@@ -1,0 +1,24 @@
+id: ERODED_MESA_STRATA
+type: PALETTE
+
+# Weathered red-badland banding: red sand and rusty red/brown terracotta with exposed
+# stone, a rougher and redder look than the painted variant.
+layers:
+  - materials:
+      - minecraft:red_sand: 3
+      - minecraft:red_terracotta: 2
+      - minecraft:terracotta: 2
+      - minecraft:brown_terracotta: 2
+      - minecraft:orange_terracotta: 1
+      - minecraft:stone: 1
+    layers: 1
+
+sampler:
+  dimensions: 3
+  type: EXPRESSION
+  expression: noise(x, y*10, z)
+  samplers:
+    noise:
+      dimensions: 3
+      type: OPEN_SIMPLEX_2
+      frequency: 0.01

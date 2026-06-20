@@ -1,0 +1,24 @@
+id: PALE_MESA_STRATA
+type: PALETTE
+
+# Bleached pale banding: white/light-gray terracotta with calcite, smooth sandstone and
+# diorite for a chalky, sun-faded mesa that contrasts the warm painted/eroded variants.
+layers:
+  - materials:
+      - minecraft:white_terracotta: 3
+      - minecraft:light_gray_terracotta: 2
+      - minecraft:calcite: 2
+      - minecraft:smooth_sandstone: 2
+      - minecraft:terracotta: 1
+      - minecraft:diorite: 1
+    layers: 1
+
+sampler:
+  dimensions: 3
+  type: EXPRESSION
+  expression: noise(x, y*10, z)
+  samplers:
+    noise:
+      dimensions: 3
+      type: OPEN_SIMPLEX_2
+      frequency: 0.01

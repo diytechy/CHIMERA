@@ -1,0 +1,31 @@
+id: ERODED_MESA
+type: BIOME
+extends:
+- EQ_MESA
+- CARVING_OCEAN
+- BASE
+color: $biomes/colors.yml:ERODED_MESA
+tags:
+- USE_DESERT_RIVER
+- ARID_COAST_FLAT
+- LAND_CAVES
+- SPECIAL_CAVES
+vanilla: minecraft:badlands
+palette:
+- ERODED_MESA_STRATA: $meta.yml:top-y
+- << meta.yml:palette-underwater
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.5
+  palette:
+  - BLOCK:minecraft:red_terracotta: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+- threshold: 0.4
+  palette:
+  - BLOCK:minecraft:stone: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+features:
+  flora:
+  - CACTUS_SPARSE
+  - DEAD_BUSHES
+  - DRY_GRASS

@@ -1,0 +1,26 @@
+id: PAINTED_MESA_STRATA
+type: PALETTE
+
+# Vivid "painted desert" banding: saturated orange/red/yellow/white terracotta strata.
+# Uses the same y*10 banded 3D sampler as TERRACOTTA_STRATA so the colors read as thin
+# horizontal layers rather than a mottle.
+layers:
+  - materials:
+      - minecraft:orange_terracotta: 3
+      - minecraft:red_terracotta: 2
+      - minecraft:yellow_terracotta: 2
+      - minecraft:white_terracotta: 2
+      - minecraft:terracotta: 2
+      - minecraft:brown_terracotta: 1
+      - minecraft:light_gray_terracotta: 1
+    layers: 1
+
+sampler:
+  dimensions: 3
+  type: EXPRESSION
+  expression: noise(x, y*10, z)
+  samplers:
+    noise:
+      dimensions: 3
+      type: OPEN_SIMPLEX_2
+      frequency: 0.01

@@ -9,19 +9,20 @@ type: FEATURE
 # on the submerged floor (cyan_terracotta under water), where a campfire is extinguished
 # and emits NO smoke. Placing the source on the exposed apron instead is what makes the
 # smoke actually appear. Sparse via a white-noise mask gated to the apron band.
+
 distributor:
-  type: SAMPLER
-  sampler:
-    type: EXPRESSION
-    dimensions: 2
-    # place where value < threshold; out-of-band sentinel 1 never places. Sparse.
-    expression: if(distanceToPrismaticRim(x, z) > 0.05 && distanceToPrismaticRim(x, z) < 0.55, rarity(x, z), 1)
-    samplers:
-      rarity:
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
         dimensions: 2
-        type: POSITIVE_WHITE_NOISE
-        salt: 71011
-  threshold: 0.03
+        expression: distanceToPrismaticRim(x, z)
+      threshold: 0.00
+    - type: PADDED_GRID
+      width: 4
+      padding: 2
+      salt: 27377
 
 locator:
   type: AND
@@ -35,10 +36,11 @@ locator:
       pattern:
         type: AND
         patterns:
-          - type: MATCH_AIR
-            offset: 0
           - type: MATCH_SOLID
             offset: -1
+          - type: MATCH
+            block: minecraft:water
+            offset: 0
 
 structures:
   distribution:

@@ -685,9 +685,9 @@ stages:
     # deserts: this uses the same BiomeShapeLandmassColor sampler and the same 3/2/2/4
     # black:red:orange:white weights/order as climate/color.yml, so the world's color
     # bands line up (a "red" vast-forest region coincides with a "red" desert region).
-    # White stays the pale-garden forest (PALE_GARDEN); the other bands are dedicated
-    # *_VAST_FOREST variants that extend PALE_GARDEN (same eerie vast-forest identity, just a
-    # recolored canopy) so the family stays cohesive. Edit the three non-white picks to taste.
+    # White stays the pale-garden forest; the other bands reuse existing climate-appropriate
+    # colored forests (shuffled onto the shared expression rather than new biomes). Edit the
+    # three non-white picks here to taste.
     sampler:
       type: EXPRESSION
       expression: BiomeShapeLandmassColor(x, z)
@@ -697,10 +697,10 @@ stages:
       - POLAR_PALE_GARDEN: 1
     to:
       boreal-vast-forest: &vast-forest-colors
-        - BLACK_VAST_FOREST: 3   # black
-        - RED_VAST_FOREST: 2     # red
-        - ORANGE_VAST_FOREST: 2  # orange
-        - PALE_GARDEN: 4         # white (the pale-garden vast forest itself)
+        - DARK_FOREST: 3        # black
+        - RED_MAPLE_GROVE: 2    # red
+        - MAPLE_GROVE: 2        # orange
+        - PALE_GARDEN: 4        # white
       temperate-vast-forest: *vast-forest-colors
       tropical-vast-forest: *vast-forest-colors
       #Note: arid-pale-garden is set in precipitation, and distributed as a part of colors.

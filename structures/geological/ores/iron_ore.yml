@@ -14,4 +14,4 @@ material-overrides:
   minecraft:packed_mud: minecraft:deepslate_iron_ore
   minecraft:basalt: minecraft:deepslate_iron_ore
 
-size: 9
+size: 14  # ~+50% blocks/vein vs the old 9 (fewer-but-larger veins; pairs with a lower iron count)

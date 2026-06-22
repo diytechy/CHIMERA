@@ -8,7 +8,7 @@ extends:
   - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:TEMPERATE_EXTINCT_VOLCANO
 
-vanilla: minecraft:plains
+vanilla: minecraft:meadow
 
 tags:
   - SPECIAL_CAVES

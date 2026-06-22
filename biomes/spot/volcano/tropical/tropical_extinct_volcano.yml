@@ -7,7 +7,7 @@ extends:
 - BASE
 - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:TROPICAL_EXTINCT_VOLCANO
-vanilla: minecraft:jungle
+vanilla: minecraft:bamboo_jungle
 tags:
 - SPECIAL_CAVES
 - LOW_CAVES

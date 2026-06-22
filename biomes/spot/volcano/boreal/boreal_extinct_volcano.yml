@@ -8,7 +8,7 @@ extends:
   - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:BOREAL_EXTINCT_VOLCANO
 
-vanilla: minecraft:taiga
+vanilla: minecraft:grove
 
 tags:
   - SPECIAL_CAVES

@@ -8,7 +8,7 @@ extends:
   - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:DESERT_EXTINCT_VOLCANO
 
-vanilla: minecraft:desert
+vanilla: minecraft:windswept_savanna
 
 tags:
   - SPECIAL_CAVES

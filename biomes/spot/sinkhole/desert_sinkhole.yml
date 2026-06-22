@@ -7,7 +7,7 @@ extends:
   - BASE
 color: $biomes/colors.yml:DESERT_SINKHOLE
 
-vanilla: minecraft:desert
+vanilla: minecraft:warm_ocean
 
 tags:
   - SPECIAL_CAVES

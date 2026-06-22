@@ -33,8 +33,9 @@ features:
   flora:
     - PRISMATIC_DEAD_BUSHES
   postprocessors:
-    - PRISMATIC_SPRING_SMOKE
+    #- PRISMATIC_SPRING_SMOKE
     - PRISMATIC_SPRING_VENT
+    - PRISMATIC_SPRING_MAGMA
     # - SULFURIC_STEAM_VENTS
   global-preprocessors:
     - LAVA_FLOOR

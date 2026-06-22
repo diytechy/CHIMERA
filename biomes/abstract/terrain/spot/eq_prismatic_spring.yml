@@ -21,7 +21,7 @@ ocean:
     # Uses spotFluidPercent — fully decoupled from spotSizePercent and spotHeightPercent.
     expression: |
       if(distanceToPrismaticRim(x, z) < 0,
-        base + scale * (spotBaseElevation(x, z) + (spotFluidPercent(x, z) - 1) * prismaticCenterDepth(x, z)),
+        base + scale * (spotBaseElevation(x, z) + (spotFluidPercent(x, z)/2 - 0.5) * prismaticCenterDepth(x, z)),
         olevel)
 
 terrain:

@@ -134,4 +134,7 @@ Sulfur terraces at 346,107295
 
 So far:
 
-Fix prismatic spring smoke, and fix that there is no potent sulfer
+Prismatic springs - still no smoke / magma?
+Prismatic spring - Allows dead bushes anywhere there is not water.  Not seeing any dead trees like there are on sulfur terraces.
+Prismatic spring - Need to be slightly larger, requires spot adjustment.
+Prismatic spring - Water level should be higher, maybe the % fill level should be 50% t0 100% to the rim?

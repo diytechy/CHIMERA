@@ -11,25 +11,25 @@ type: FEATURE
 # smoke actually appear. Sparse via a white-noise mask gated to the apron band.
 
 distributor:
-  type: AND
-  distributors:
-    - type: SAMPLER
-      sampler:
-        type: EXPRESSION
-        dimensions: 2
-        expression: distanceToPrismaticRim(x, z)
-      threshold: 0.00
-    - type: PADDED_GRID
-      width: 4
-      padding: 2
-      salt: 27377
-
+  type: PADDED_GRID
+  width: 4
+  padding: 3
+  salt: 27377
+  #distributors:
+    #- type: SAMPLER
+    #  sampler:
+    #    dimensions: 2
+    #    #type: CONSTANT
+    #    #value: 1.0
+    #    type: EXPRESSION
+    #    expression: distanceToPrismaticRim(x, z)
+    #  threshold: 0.00
 locator:
   type: AND
   locators:
     - type: SURFACE
       range: &range
-        min: ${meta.yml:ocean-level}
+        min: 50
         max: 250
     - type: PATTERN
       range: *range
@@ -37,10 +37,10 @@ locator:
         type: AND
         patterns:
           - type: MATCH_SOLID
-            offset: -1
+            offset: 0
           - type: MATCH
             block: minecraft:water
-            offset: 0
+            offset: 1
 
 structures:
   distribution:

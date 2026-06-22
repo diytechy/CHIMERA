@@ -17,20 +17,41 @@ distributor:
   sampler:
     type: POSITIVE_WHITE_NOISE
     salt: 9187
-  threshold: 0.05
+  threshold: 0.03
 
 locator:
-  type: PATTERN
-  range:
-    min: ${meta.yml:cave-bottom}
-    max: ${meta.yml:cave-top}
-  pattern:
-    type: AND
-    patterns:
-      - type: MATCH_SOLID
-        offset: 0       # cave-floor top block (carved into)
-      - type: MATCH_AIR
-        offset: 1       # open cave above -> the pool is visible
+  # The distributor (above) gates which COLUMNS fire, but the floor PATTERN below
+  # returns EVERY cave floor in the column's full vertical span — so a single firing
+  # column stacks a pool at each of the (often several) cave floors it passes through.
+  # The SAMPLER_3D below is a per-position (3D) white-noise gate ANDed onto the floor
+  # match: it passes only positions where the noise clears the threshold, so most of
+  # those stacked floors are rejected before a (heavy) sulfur_lake structure is spawned.
+  # This both cuts structure calls and stops pools stacking vertically in one XZ column.
+  # `value` is the vertical-density lever: noise is [0,1], a floor passes where
+  # noise + value > 0, i.e. ~(1 + value) of floors survive (-0.5 -> ~50%, -0.7 -> ~30%).
+  type: AND
+  locators:
+    - type: PATTERN
+      range: &range
+        min: ${meta.yml:cave-bottom}
+        max: ${meta.yml:cave-top}
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: 0       # cave-floor top block (carved into)
+          - type: MATCH_AIR
+            offset: 1       # open cave above -> the pool is visible
+    - type: SAMPLER_3D
+      range: *range
+      sampler:
+        type: ADD
+        left:
+          type: POSITIVE_WHITE_NOISE
+          salt: 9188
+        right:
+          type: CONSTANT
+          value: -0.5
 
 structures:
   distribution:

@@ -185,8 +185,8 @@ extrusions:
       - ACACIA_CAVERNS: 3
       - AUTUMNAL_CAVERNS: 2
       - BIRCH_CAVERNS: 2
-      - LUSH_CAVES: 1
-      - CORAL_COVES: 1
+      - LUSH_CAVES: 2
+      #- CORAL_COVES: 1
       - DARK_OAK_CAVERNS: 2
       - ENCHANTED_CAVERNS: 2
       - JUNGLE_CAVERNS: 2

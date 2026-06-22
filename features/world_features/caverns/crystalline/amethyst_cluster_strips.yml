@@ -5,38 +5,41 @@ distributor:
   type: "YES"
 
 locator:
-  type: OR
+  # Place a cluster on an AIR cell that has budding amethyst above, below, or
+  # horizontally adjacent. The air check comes first so the (cheap) MATCH_AIR
+  # rejects the majority-solid cells before the (expensive) ADJACENT_PATTERN
+  # neighbour scan runs, and so clusters are never buried inside solid rock
+  # (matches vanilla GeodeFeature, which only grows clusters into air/water).
+  # Range is trimmed to the cave band since budding amethyst only exists there.
+  type: AND
   locators:
     - type: PATTERN
       range: &range
-        min: -55
-        max: 319
+        min: ${meta.yml:cave-bottom}
+        max: ${meta.yml:cave-top}
       pattern:
-        type: AND
-        patterns:
-          - type: MATCH
+        type: MATCH_AIR
+        offset: 0
+    - type: OR
+      locators:
+        - type: PATTERN
+          range: *range
+          pattern:
+            type: MATCH
             block: minecraft:budding_amethyst
             offset: -1
-          - type: MATCH_AIR
-            offset: 0
-    - type: PATTERN
-      range: &range
-        min: -55
-        max: 319
-      pattern:
-        type: AND
-        patterns:
-          - type: MATCH
+        - type: PATTERN
+          range: *range
+          pattern:
+            type: MATCH
             block: minecraft:budding_amethyst
             offset: 1
-          - type: MATCH_AIR
+        - type: ADJACENT_PATTERN
+          range: *range
+          pattern:
+            type: MATCH
+            block: minecraft:budding_amethyst
             offset: 0
-    - type: ADJACENT_PATTERN
-      range: *range
-      pattern:
-        type: MATCH
-        block: minecraft:budding_amethyst
-        offset: 0
 
 structures:
   distribution:

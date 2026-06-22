@@ -4,7 +4,6 @@ abstract: true
 extends:
 - DEPOSITS_DEFAULT
 - ORES_DEFAULT
-- EQ_CARVING_LAND
 # - EQ_SINKHOLE_CAVE_CONNECT
 
 vars: &variables

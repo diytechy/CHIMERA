@@ -2,7 +2,9 @@ id: SINKHOLE_JUNGLE
 type: BIOME
 vanilla: minecraft:jungle
 color: $biomes/colors.yml:OVERGROWN_CLIFFS
-extends: [ SINKHOLE_BASE]
+extends: 
+  - SINKHOLE_BASE
+  - EQ_CARVING_LAND
 
 colors:
   grass: 0x3abf13

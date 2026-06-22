@@ -138,3 +138,20 @@ Prismatic springs - still no smoke / magma?
 Prismatic spring - Allows dead bushes anywhere there is not water.  Not seeing any dead trees like there are on sulfur terraces.
 Prismatic spring - Need to be slightly larger, requires spot adjustment.
 Prismatic spring - Water level should be higher, maybe the % fill level should be 50% t0 100% to the rim?
+
+
+Add dead trees to prismatic spring
+Check active volcano
+
+
+Remaining:
+
+Recheck prismatic spring
+Check extinct volcano after cleaning potent springs
+Check sinkholes after fixing water and adding addition features - maybe just some bamboo trees?
+	- Make sinkholes an make them team with fish and other content?
+	- Dessert sinkhole placement might be incorrect?  Is 
+Verify frozen sinkholes after bringing to colder region, and no more carving.
+
+
+sINKHOL

@@ -229,40 +229,50 @@ samplers:
 
   # Independent per-spot height variation — decoupled from spotSizePercent.
   # volcanoHeight and centerDepth blend 60% size + 40% height for shape variety.
+  #
+  # These four "percent" knobs MUST share the spot's salt-3 cellular partition so they
+  # are constant across the whole spot. Overriding the cellular `salt` re-jitters the
+  # cell centres and puts the value on a DIFFERENT Voronoi grid than spotDistance/
+  # spotRadius/distanceToSinkholeRim — its cell edges then cut across a spot, making the
+  # value jump mid-spot (e.g. a step in the sinkhole water surface). So we keep
+  # `<<: *smallCellular` unchanged (salt 3) and decouple the value via a uniquely-salted
+  # POSITIVE_WHITE_NOISE lookup evaluated at the cell centre, exactly like
+  # spotEdgeRadiusPercent and spotFluidLevel. Both forms yield an independent [0,1]
+  # per-spot random; only this form stays aligned to the spot.
   spotHeightPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      <<: *smallCellular
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 2847
-      return: CellValue
 
   # Independent per-spot fluid fill fraction — fully decoupled from size and height.
   spotFluidPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      <<: *smallCellular
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 9173
-      return: CellValue
 
   # Per-spot sinkhole depth fraction, independent of size (drives lerp 0.2→0.4 of scale).
   sinkholeDepthPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      <<: *smallCellular
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 6541
-      return: CellValue
 
   # Per-spot sinkhole fluid fill fraction in [0,1], independent of depth and size.
   sinkholeFluidPercent:
-    dimensions: 2
-    type: PROBABILITY
-    sampler:
-      <<: *smallCellular
+    <<: *smallCellular
+    return: NoiseLookup
+    lookup:
+      dimensions: 2
+      type: POSITIVE_WHITE_NOISE
       salt: 3178
-      return: CellValue
 
   # Minimum of elevationSparse sampled at 8 cardinal+diagonal points at spotRadius from
   # the cell center. Evaluated once per spot via NoiseLookup, giving a constant per-spot

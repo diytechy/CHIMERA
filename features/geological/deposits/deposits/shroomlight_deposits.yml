@@ -12,7 +12,12 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(temperature(x,z)>-0.4, positiveWhiteNoise(x, z), 1)
+    # Gate to warm-ish climate, but use rawTemperature (base climate noise) rather than
+    # temperature(): the latter subtracts an altitude-lapse term that pulls in the heavy
+    # elevation sampler stack, evaluated per column in every biome carrying this deposit.
+    # The lapse correction is meaningless for an underground deposit (range 10-55), so
+    # rawTemperature is both far cheaper and a better fit here.
+    expression: if(rawTemperature(x,z)>-0.4, positiveWhiteNoise(x, z), 1)
   threshold: *densityThreshold
 
 locator:

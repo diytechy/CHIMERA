@@ -32,6 +32,8 @@ features:
   #  - PRISMATIC_SATELLITE_POOLS
   flora:
     - PRISMATIC_DEAD_BUSHES
+  trees:
+    - SULFUR_TERRACE_DEAD_TREES
   postprocessors:
     #- PRISMATIC_SPRING_SMOKE
     - PRISMATIC_SPRING_VENT

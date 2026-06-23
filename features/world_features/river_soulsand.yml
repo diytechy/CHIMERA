@@ -35,6 +35,7 @@ structures:
     type: CONSTANT
   #NOTE: The plugin "BubblesOnChunkGen" is needed to convert blue concrete to soulsand
   #This method is used to ensure the tick update occurs and actually produces a bubble column.
-  structures: BLOCK:minecraft:blue_concrete
+  structures: river_soulsand
+  #structures: BLOCK:minecraft:blue_concrete
 
   

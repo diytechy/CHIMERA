@@ -12,3 +12,12 @@ tags:
 - TROPICAL_COAST_FLAT
 - LAND_CAVES
 vanilla: minecraft:jungle
+
+# Rocky granite outcrops break up the jungle canopy on the mesa, and buried fossils add
+# cave interest. Re-declares landforms so JUNGLE's mossy boulders survive alongside granite.
+features:
+  landforms:
+  - SMALL_MOSSY_BOULDER_PATCHES
+  - GRANITE_BOULDERS
+  structures:
+  - SPARSE_FOSSILS

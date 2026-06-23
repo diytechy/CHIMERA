@@ -1,0 +1,46 @@
+id: CAVE_CLIMB_VINES
+type: FEATURE
+
+# Large clustered batches of climbable wall vines, for vertical traversal in caves.
+# Places the same wall-attached, climbable minecraft:vine as WALL_VINES (hanging_vine
+# hangs 3-13 blocks), but a cellular region gate concentrates them into big contiguous
+# curtains a player can climb, instead of WALL_VINES' even sprinkle.
+#
+# Distributor = white-noise (in-patch density) AND cellular (which regions become curtains).
+# SAMPLER places where value < threshold, so larger threshold = denser. Tune in-world.
+distributor:
+  type: AND
+  distributors:
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        salt: 47782
+      threshold: 0.55
+    - type: SAMPLER
+      sampler:
+        type: CELLULAR
+        return: CellValue
+        frequency: 0.018
+        salt: 47783
+      threshold: -0.45
+
+locator:
+  type: AND
+  locators:
+    - type: PATTERN
+      range: &range
+        min: ${meta.yml:bottom-y} + 2
+        max: ${meta.yml:ocean-level} + 8
+      pattern:
+        type: MATCH_AIR
+        offset: 0
+    - type: ADJACENT_PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SOLID
+        offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: hanging_vine

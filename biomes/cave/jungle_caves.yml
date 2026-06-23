@@ -24,3 +24,7 @@ features:
     - LARGE_UNDERGROUND_BEE_NESTS
   postprocessors:
     - HONEY_DRIPS
+  # Vertical-traversal aids: extra climbable curtains + wet-cave wall springs to ride down.
+  processors:
+    - CAVE_CLIMB_VINES
+    - CAVE_WALL_SPRING

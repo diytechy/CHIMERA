@@ -9,3 +9,11 @@ palette:
   - GRANITE_MINES: 319
   - GRANITE_MINES_DEEPSLATE: $substratum_meta.yml:strata.deepslate.top
   - << substratum_meta.yml:palette-bedrock
+
+# Vertical-traversal aids: clustered climbable vine curtains (up) and sparse wall springs
+# that flow down (descend). 'processors' stage is unused by the cave hosts, so this adds
+# without clobbering inherited BASE_CAVE stages.
+features:
+  processors:
+    - CAVE_CLIMB_VINES
+    - CAVE_WALL_SPRING

@@ -39,3 +39,7 @@ features:
   flora:
     - DRIPSTONE_CAVES_CEILING_POINTED_DRIPSTONE
     - DRIPSTONE_CAVES_FLOOR_POINTED_DRIPSTONE
+  # Vertical-traversal aids: wall springs fit the wet dripstone theme; vine curtains to climb.
+  processors:
+    - CAVE_CLIMB_VINES
+    - CAVE_WALL_SPRING

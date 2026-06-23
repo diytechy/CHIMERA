@@ -1,0 +1,43 @@
+id: CAVE_WALL_SPRING
+type: FEATURE
+
+# Sparse "spring" water sources embedded in cave walls that flow downward (physics on),
+# creating trickles/waterfalls a player can ride down for vertical descent. This is the
+# Terra analog of vanilla's spring_water feature (which doesn't run under Terra).
+#
+# Locator picks an air block that (a) touches a solid wall and (b) has air directly below,
+# so the placed source spills down the shaft rather than pooling. physics_water.tesf places
+# a single source with the physics flag set so it actually flows. Kept VERY sparse to avoid
+# flooding/lag; density MUST be confirmed in a running world.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 51994
+  threshold: 0.0035
+
+locator:
+  type: AND
+  locators:
+    - type: PATTERN
+      range: &range
+        min: ${meta.yml:bottom-y} + 6
+        max: ${meta.yml:ocean-level} - 2
+      pattern:
+        type: MATCH_AIR
+        offset: 0
+    - type: ADJACENT_PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SOLID
+        offset: 0
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: MATCH_AIR
+        offset: -1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: physics_water

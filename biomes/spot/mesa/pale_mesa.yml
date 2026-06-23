@@ -24,7 +24,15 @@ slant:
   palette:
   - BLOCK:minecraft:calcite: $meta.yml:top-y
   - << meta.yml:palette-bottom
+# Bleached white-terracotta/calcite surface: no dirt or sand, so use hardpan-rooting
+# dead vegetation. Ghostly dead snags and scrub, calcite boulders that echo the chalky
+# palette, and buried (bone-white) fossils give the pale mesa a quiet, sun-faded identity.
 features:
   flora:
-  - DEAD_BUSHES
-  - DRY_GRASS
+  - DEAD_BUSHES_HARDPAN
+  trees:
+  - DEAD_TREES_HARDPAN
+  landforms:
+  - SMALL_CALCITE_BOULDER_PATCHES
+  structures:
+  - SPARSE_FOSSILS

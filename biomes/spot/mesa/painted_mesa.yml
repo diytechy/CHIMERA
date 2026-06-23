@@ -24,8 +24,15 @@ slant:
   palette:
   - TERRACOTTA_STRATA: $meta.yml:top-y
   - << meta.yml:palette-bottom
+# Pure-terracotta surface: standard cactus/dry-grass/dead-bush features can't root here,
+# so use hardpan-rooting dead vegetation plus surface-agnostic detail. Sun-bleached dead
+# trees and scrub dot the vivid painted banding; boulders and buried fossils add interest.
 features:
   flora:
-  - CACTUS_SPARSE
-  - DEAD_BUSHES
-  - DRY_GRASS
+  - DEAD_BUSHES_HARDPAN
+  trees:
+  - DEAD_TREES_HARDPAN
+  landforms:
+  - BOULDERS
+  structures:
+  - SPARSE_FOSSILS

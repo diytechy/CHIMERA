@@ -1,0 +1,38 @@
+id: DEAD_TREES_HARDPAN
+type: FEATURE
+
+# Sparse dead trees that root directly in arid hardpan (bare terracotta / red sand), so
+# the banded terracotta mesas read as weathered badlands rather than empty plateaus.
+# Same dead-tree structure as DEAD_TREES_SPARSE; only the plantable surface set differs.
+distributor:
+  type: PADDED_GRID
+  width: 26
+  padding: 3
+  salt: 7184
+
+locator:
+  type: AND
+  locators:
+    - type: TOP
+      range: &range
+        min: ${meta.yml:ocean-level} + 3
+        max: $meta.yml:top-y
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SET
+        blocks: $features/vegetation/meta.yml:hardpan-plantable-blocks
+        offset: -1
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SET
+        blocks:
+          - minecraft:snow
+          - minecraft:air
+        offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: dead_tree_procedural

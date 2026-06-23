@@ -24,8 +24,18 @@ slant:
   palette:
   - BLOCK:minecraft:stone: $meta.yml:top-y
   - << meta.yml:palette-bottom
+# Red-sand cells let the standard arid flora root; the terracotta/stone cells get
+# hardpan dead trees. Hardy dragon's blood trees cling to the red sand for a distinctive
+# silhouette, with eroded boulders and exposed fossils reinforcing the weathered look.
 features:
   flora:
   - CACTUS_SPARSE
   - DEAD_BUSHES
   - DRY_GRASS
+  trees:
+  - DRAGON_BLOOD_TREES
+  - DEAD_TREES_HARDPAN
+  landforms:
+  - BOULDERS
+  structures:
+  - SPARSE_FOSSILS

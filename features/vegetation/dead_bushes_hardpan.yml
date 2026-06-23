@@ -1,0 +1,32 @@
+id: DEAD_BUSHES_HARDPAN
+type: FEATURE
+
+# Dead bushes scattered across arid hardpan (bare terracotta / red sand) where the
+# standard DEAD_BUSHES feature (dirt/sand only) can't root. Gives the banded terracotta
+# mesas low ground scrub without blending dirt into their palettes.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 6481
+  threshold: 0.012
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:sinkhole-ocean-level} + 1
+        max: $meta.yml:top-y
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: MATCH_SET
+        blocks: $features/vegetation/meta.yml:hardpan-plantable-blocks
+        offset: -1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures:
+    - BLOCK:minecraft:dead_bush: 1

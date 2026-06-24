@@ -155,3 +155,23 @@ Verify frozen sinkholes after bringing to colder region, and no more carving.
 
 
 sINKHOL
+
+
+Create a "well" that can transport players up and down, built by multiple layers.  Fully encompassed by 2x2 source water blocks in the center?
+
+Placed on every non-spot surface biome, including oceans.
+
+Would have the following layers "L*" ==>
+
+L1 - Roof... determined by biome?  <= Place this as a part of the yml file structure.
+	- Mossy cobblestone - Tropical
+	- Quertz
+*Everything below L2 can be common, and could be defined by a tesf file?
+L2 - Bars with corner block, maybe inverted stairs + candle on each on signifying which is raise / lower?
+L3 - Bars
+L4 - Bars
+L5 - Bars with landing platform
+L6 and below - 
+4 source water blocks.
+waxed copper chain surround around each, not including corners.
+have a defined level height, default of 8 blocks.

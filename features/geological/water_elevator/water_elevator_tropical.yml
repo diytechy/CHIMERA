@@ -1,0 +1,45 @@
+id: WATER_ELEVATOR_TROPICAL
+type: FEATURE
+
+# TROPICAL water-elevator variant (mossy-cobblestone roof). The warm temperature band is
+# split by precipitation: this places only off-spot, where temperature is high AND
+# precipitation is wet. See WATER_ELEVATOR_FROZEN for the full rationale.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: if(spotDistance(x, z) < spotRadius(x, z) + 16, 1, if(temperature(x, z) >= 0.55 && precipitation(x, z) >= 0.0, wellGrid(x, z), 1))
+    samplers:
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      temperature: $math/samplers/temperature.yml:samplers.temperature
+      precipitation: $math/samplers/precipitation.yml:samplers.precipitation
+      wellGrid:
+        dimensions: 2
+        type: CELLULAR
+        return: Distance
+        frequency: 1 / 1500
+        salt: 90210
+  threshold: 0.04
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: water_elevator_tropical

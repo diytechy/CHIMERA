@@ -1,0 +1,9 @@
+// Water Elevator -- FROZEN roof variant (L1 = quartz). Places the climate roof cap at
+// +4, then invokes the common shaft at the same origin.
+str roof = "minecraft:quartz_block";
+for (num rx = 0; rx <= 3; rx = rx + 1) {
+    for (num rz = 0; rz <= 3; rz = rz + 1) {
+        block(rx, 4, rz, roof, true);
+    }
+}
+structure(0, 0, 0, "water_elevator_core", "NONE");

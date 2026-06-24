@@ -13,3 +13,15 @@ carving:
         - biomes/abstract/carving/carving_sampler_template.yml:variables
       # Variable Overrides:
       carvingMaxMode: 1 # Use land heightmap
+
+# World water elevators. Wired here because CARVING_LAND covers non-spot LAND surface
+# biomes only (no spots, oceans, or caves). Each variant self-gates by climate, so only
+# the temperature-appropriate roof places at any location. 'processors' is unused by BASE,
+# so this won't clobber inherited stages (biomes that define their own 'processors' would).
+features:
+  processors:
+    - WATER_ELEVATOR_FROZEN
+    - WATER_ELEVATOR_BOREAL
+    - WATER_ELEVATOR_TEMPERATE
+    - WATER_ELEVATOR_TROPICAL
+    - WATER_ELEVATOR_DESERT

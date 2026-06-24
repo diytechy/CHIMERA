@@ -1,8 +1,49 @@
-// Water Elevator -- BOREAL roof variant (L1 = stone bricks). Roof cap at +4, then shaft.
-str roof = "minecraft:stone_bricks";
+// Water Elevator -- BOREAL roof variant (L1 = stone bricks). Roof cap at +5, then shaft.
+str pad = "minecraft:stone_bricks";
+str stair = "minecraft:stone_brick_stairs";
+num roofheight = 5;
+// Roof created using stairs to give a "capped" / slanted look.
 for (num rx = 0; rx <= 3; rx = rx + 1) {
     for (num rz = 0; rz <= 3; rz = rz + 1) {
-        block(rx, 4, rz, roof, true);
+        // Place oriented stairs on the perimeter, keep center as solid cap
+        if (rx == 0 && rz == 0) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=outer_left,facing=south]", true);
+        } else if (rx == 3 && rz == 0) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=outer_right,facing=south]", true);
+        } else if (rx == 0 && rz == 3) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=outer_right,facing=north]", true);
+        } else if (rx == 3 && rz == 3) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=outer_left,facing=north]", true);
+        } else if (rx == 0) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=straight,facing=east]", true);
+        } else if (rx == 3) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=straight,facing=west]", true);
+        } else if (rz == 0) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=straight,facing=south]", true);
+        } else if (rz == 3) {
+            block(rx, roofheight, rz, "minecraft:stone_brick_stairs[half=bottom,shape=straight,facing=north]", true);
+        } else {
+            // center plateau under the cap
+            block(rx, roofheight, rz, pad, true);
+        }
     }
 }
-structure(0, 0, 0, "water_elevator_core", "NONE");
+
+//Set reusable entrance, which also sets torches above.
+structure(0, 0, 0, "water_elevator_entrance", "NONE");
+
+// Landing - same as roof blocks, perimeter.
+for (num ly = 0; ly >= -2; ly = ly - 1) {
+    for (num rx = 0; rx <= 3; rx = rx + 1) {
+        for (num rz = 0; rz <= 3; rz = rz + 1) {
+            if ((rx == 1 || rx == 2) && (rz == 1 || rz == 2)) {
+                block(rx, ly, rz, "minecraft:water", true);
+            } else {
+                block(rx, ly, rz, pad, true);
+            }
+        }
+    }
+}
+
+//Set core elevator running down
+structure(0, -2, 0, "water_elevator_core", "NONE");

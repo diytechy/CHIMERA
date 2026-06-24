@@ -41,15 +41,13 @@ for (num d = 1; d <= maxDepth; d = d + 1) {
         //block(0, wy, 0, post, true); block(3, wy, 0, post, true);
         //block(0, wy, 3, post, true); block(3, wy, 3, post, true);
 
-        str cage = barA;
-        if (useChain) cage = barB;
+
         setWaterlog(true);
-        block(1, wy, 0, cage, true); block(2, wy, 0, cage, true);
-        block(0, wy, 1, cage, true); block(0, wy, 2, cage, true);
-        block(3, wy, 1, cage, true); block(3, wy, 2, cage, true);
-        block(1, wy, 3, cage, true); block(2, wy, 3, cage, true);
+        block(1, wy, 0, barA, true); block(2, wy, 0, barB, true);
+        block(0, wy, 1, barA, true); block(0, wy, 2, barB, true);
+        block(3, wy, 1, barA, true); block(3, wy, 2, barB, true);
+        block(1, wy, 3, barA, true); block(2, wy, 3, barB, true);
         setWaterlog(false);
-        useChain = !useChain;
 
         block(1, wy, 1, "minecraft:air", true); block(1, wy, 2, "minecraft:air", true);
         block(2, wy, 1, "minecraft:air", true); block(2, wy, 2, "minecraft:air", true);

@@ -18,7 +18,7 @@
 str post = "minecraft:air";
 str barA = "minecraft:waxed_copper_bars";
 str barB = "minecraft:waxed_copper_bars";
-int eheight = 3
+num eheight = 3;
 
 //At top level, attach lamps
     block(1, eheight, 1, "minecraft:lantern", true); block(1, eheight, 2, "minecraft:lantern", true);

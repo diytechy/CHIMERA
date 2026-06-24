@@ -1,27 +1,25 @@
 // Water Elevator -- DESERT roof variant (L1 = smooth sandstone). Roof cap at +4, then shaft.
 str pad = "minecraft:smooth_sandstone";
 str stair = "minecraft:sandstone_stairs";
+num roofheight = 5;
 // Roof created using stairs to give a "capped" / slanted look.
 for (num rx = 0; rx <= 3; rx = rx + 1) {
     for (num rz = 0; rz <= 3; rz = rz + 1) {
         // Place oriented stairs on the perimeter, keep center as solid cap
         if (rx == 0) {
-            block(rx, 4, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=north]", true);
+            block(rx, roofheight, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=north]", true);
         } else if (rx == 3) {
-            block(rx, 4, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=south]", true);
+            block(rx, roofheight, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=south]", true);
         } else if (rz == 0) {
-            block(rx, 4, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=west]", true);
+            block(rx, roofheight, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=west]", true);
         } else if (rz == 3) {
-            block(rx, 4, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=east]", true);
+            block(rx, roofheight, rz, "minecraft:sandstone_stairs[half=bottom,shape=straight,facing=east]", true);
         } else {
             // center plateau under the cap
-            block(rx, 4, rz, pad, true);
+            block(rx, roofheight, rz, pad, true);
         }
     }
 }
-// Right below roof place 4 blocks in center for torches to attach to (a part of entrance)
-block(1, 3, 1, pad, true); block(1, 3, 2, pad, true);
-block(2, 3, 1, pad, true); block(2, 3, 2, pad, true);
 
 //Set reusable entrance, which also sets torches above.
 structure(0, 0, 0, "water_elevator_entrance", "NONE");

@@ -18,11 +18,7 @@
 str post = "minecraft:air";
 str barA = "minecraft:waxed_copper_bars";
 str barB = "minecraft:waxed_copper_bars";
-num eheight = 3;
-
-//At top level, attach lamps
-    block(1, eheight, 1, "minecraft:lantern", true); block(1, eheight, 2, "minecraft:lantern", true);
-    block(2, eheight, 1, "minecraft:soul_lantern", true); block(2, eheight, 2, "minecraft:soul_lantern", true);
+num eheight = 4;
 
 // ---- UPPER FRAME: L4(+1), L3(+2), L2(+3) -------------------------------------
 for (num uy = 1; uy <= eheight; uy = uy + 1) {
@@ -37,6 +33,14 @@ for (num uy = 1; uy <= eheight; uy = uy + 1) {
     block(1, uy, 3, barA, true); block(2, uy, 3, barB, true);
     setWaterlog(false);
 
-    block(1, uy, 1, "minecraft:air", true); block(1, uy, 2, "minecraft:air", true);
-    block(2, uy, 1, "minecraft:air", true); block(2, uy, 2, "minecraft:air", true);
+    if(uy==eheight){
+    //At top level, attach lamps
+        block(1, eheight, 1, "minecraft:lantern", true); block(1, eheight, 2, "minecraft:lantern", true);
+        block(2, eheight, 1, "minecraft:soul_lantern", true); block(2, eheight, 2, "minecraft:soul_lantern", true);
+    }
+    else{
+        block(1, uy, 1, "minecraft:air", true); block(1, uy, 2, "minecraft:air", true);
+        block(2, uy, 1, "minecraft:air", true); block(2, uy, 2, "minecraft:air", true);
+    }
 }
+

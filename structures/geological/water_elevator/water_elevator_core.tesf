@@ -49,25 +49,22 @@ for (num d = 1; d <= maxDepth; d = d + 1) {
         block(1, wy, 3, barA, true); block(2, wy, 3, barB, true);
         setWaterlog(false);
 
-        block(1, wy, 1, "minecraft:air", true); block(1, wy, 2, "minecraft:air", true);
-        block(2, wy, 1, "minecraft:air", true); block(2, wy, 2, "minecraft:air", true);
+        block(1, wy, 1, "minecraft:water", true); block(1, wy, 2, "minecraft:water", true);
+        block(2, wy, 1, "minecraft:water", true); block(2, wy, 2, "minecraft:water", true);
         lastWy = wy;
 
         // indicator layer every (threeVar+1)th: candle on trapdoor at each corner,
         // redstone torches mark the DOWN half (x=1 side), soul torches the UP half (x=2).
         sinceMarker = sinceMarker + 1;
         if (sinceMarker > threeVar) {
-            block(0, wy, 0, "minecraft:oak_trapdoor[half=top,open=false]", true);
-            block(3, wy, 0, "minecraft:oak_trapdoor[half=top,open=false]", true);
-            block(0, wy, 3, "minecraft:oak_trapdoor[half=top,open=false]", true);
-            block(3, wy, 3, "minecraft:oak_trapdoor[half=top,open=false]", true);
-            block(0, wy + 1, 0, "minecraft:candle[candles=1]", false);
-            block(3, wy + 1, 0, "minecraft:candle[candles=1]", false);
-            block(0, wy + 1, 3, "minecraft:candle[candles=1]", false);
-            block(3, wy + 1, 3, "minecraft:candle[candles=1]", false);
-            // direction markers on the cage faces
-            block(1, wy, 0, "minecraft:redstone_torch", false);   // DOWN half (x=1)
-            block(2, wy, 0, "minecraft:soul_torch", false);       // UP half (x=2)
+            block(0, wy, 0, "minecraft:waxed_copper_trapdoor[half=top,open=false]", true);
+            block(3, wy, 0, "minecraft:waxed_copper_trapdoor[half=top,open=false]", true);
+            block(0, wy, 3, "minecraft:waxed_copper_trapdoor[half=top,open=false]", true);
+            block(3, wy, 3, "minecraft:waxed_copper_trapdoor[half=top,open=false]", true);
+            block(0, wy + 1, 0, "minecraft:redstone_torch", false);
+            block(3, wy + 1, 0, "minecraft:soul_torch", false);
+            block(0, wy + 1, 3, "minecraft:redstone_torch", false);
+            block(3, wy + 1, 3, "minecraft:soul_torch", false);
             sinceMarker = 0;
         }
     }

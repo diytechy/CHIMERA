@@ -483,7 +483,7 @@ spot-spread: 1500
 # Spacing in blocks between world water elevators (waterElevatorGrid in spots.yml). One
 # elevator is placed per water-elevator-distance square cell. Independent of spot-spread so
 # elevator density can be tuned separately. Default: 1500
-water-elevator-distance: 1500
+water-elevator-distance: 1000
 
 spot-radius-min: 50
 # Default: 50

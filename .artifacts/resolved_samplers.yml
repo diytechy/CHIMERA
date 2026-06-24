@@ -1,18 +1,4 @@
 samplers:
-  sulfurRegionValue:
-    dimensions: 2
-    type: DOMAIN_WARP
-    amplitude: 60
-    warp:
-      type: OPEN_SIMPLEX_2
-      frequency: 0.004
-    sampler:
-      type: PROBABILITY
-      sampler:
-        type: CELLULAR
-        frequency: 0.0015
-        salt: 7731.0
-        return: CellValue
   positiveWhiteNoise:
     dimensions: 2
     type: POSITIVE_WHITE_NOISE
@@ -166,7 +152,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.7
           distance: Hybrid
           salt: 101.0
@@ -242,6 +228,74 @@ samplers:
             type: EXPRESSION
             expression: precipitation(x,z)
           salt-lookup: false
+  BiomeShapeSmallCaveValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.00625
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: CellValue
+  BiomeShapeSmallCaveSpecialValue:
+    dimensions: 2
+    type: DOMAIN_WARP
+    amplitude: 20
+    warp:
+      type: SIMPLEX
+      frequency: 0.02
+    sampler:
+      dimensions: 2
+      type: DOMAIN_WARP
+      amplitude: 60
+      warp:
+        type: OPEN_SIMPLEX_2
+        frequency: 0.003
+      sampler:
+        dimensions: 2
+        type: DOMAIN_WARP
+        amplitude: 300
+        warp:
+          type: OPEN_SIMPLEX_2
+          frequency: 0.0001
+        sampler:
+          dimensions: 2
+          type: CELLULAR
+          frequency: 0.003571428571
+          jitter: 0.6
+          distance: Hybrid
+          salt: 101.0
+          return: NoiseLookup
+          lookup:
+            dimensions: 2
+            type: EXPRESSION
+            variables:
+              threshold: 0.088
+            expression: |
+              if(smallCaveRegionValue(x,z) < threshold && smallCaveRegionValue(x,z) > -threshold,
+                if(smallCaveRegionValue(x,z) > 0, 1, 0.25),
+                -1)
+          salt-lookup: false
   BiomeShapeOceanValue:
     dimensions: 2
     type: DOMAIN_WARP
@@ -266,7 +320,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -295,7 +349,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -329,7 +383,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -363,7 +417,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -397,7 +451,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -405,7 +459,11 @@ samplers:
   BiomeShapeLandmassValue2:
     dimensions: 2
     type: EXPRESSION
-    expression: whiteNoiseExp(BiomeShapeLandmassValue(x,z)*1000,0)
+    expression: WhiteNoiseRandomizer(BiomeShapeLandmassValue(x,z)*1000,0)
+  BiomeShapeLandmassValue3:
+    dimensions: 2
+    type: EXPRESSION
+    expression: WhiteNoiseRandomizer2(BiomeShapeLandmassValue(x,z)*1000,0)
   BiomeShapeLandmassColor:
     dimensions: 2
     type: DOMAIN_WARP
@@ -430,7 +488,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -465,7 +523,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -499,7 +557,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Euclidean
           salt: 101.0
@@ -528,7 +586,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -562,7 +620,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -602,7 +660,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -654,7 +712,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -662,7 +720,7 @@ samplers:
           lookup:
             dimensions: 2
             variables:
-              offset: 128
+              offset: 112
             type: EXPRESSION
             salt-lookup: false
             expression: |
@@ -700,7 +758,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -708,7 +766,7 @@ samplers:
           salt-lookup: false
           lookup:
             variables:
-              offset: 128
+              offset: 112
             type: EXPRESSION
             salt-lookup: false
             expression: |
@@ -728,7 +786,7 @@ samplers:
                   )
                 )
               )
-  BiomeShapeLandmassContinents:
+  BiomeShapeLandmassSmallCaveValue:
     dimensions: 2
     type: DOMAIN_WARP
     amplitude: 20
@@ -752,7 +810,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -760,7 +818,7 @@ samplers:
           lookup:
             dimensions: 2
             type: EXPRESSION
-            expression: continents(x,z)
+            expression: BiomeShapeSmallCaveSpecialValue(x,z)
           salt-lookup: false
   BiomeShapeLandmassTemperature:
     dimensions: 2
@@ -786,7 +844,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -820,7 +878,7 @@ samplers:
         sampler:
           dimensions: 2
           type: CELLULAR
-          frequency: 0.003125
+          frequency: 0.003571428571
           jitter: 0.6
           distance: Hybrid
           salt: 101.0
@@ -1035,7 +1093,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      rVal: 16
+      rVal: 8
     expression: |-
       min(continental_landmass_sparse(x, z),
         min(min(min(min(
@@ -2898,7 +2956,7 @@ samplers:
     variables:
       distAtFullNormDist: 50
       riverNominalBoundary: 50
-      cellHalfDist: 160
+      cellHalfDist: 140
       mesaBlocksPerUnit: 1000
       coastBlocksPerUnit: 240
       riverBiomeActivationThreshold: '0.15'
@@ -3387,7 +3445,7 @@ samplers:
     dimensions: 2
     type: EXPRESSION
     variables:
-      riverDistThreshold: 160
+      riverDistThreshold: 140
     expression: |
       if(((continentalRiverDistSparseFarGrid(x, z)>riverDistThreshold)&&
       (continents(x,z)>0.1)),1,-1)
@@ -3511,7 +3569,7 @@ samplers:
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)<-0.3) &&
+      (riftTemperature(x,z)<-0.4) &&
       (riftRegions(x,z)<pit_threshold)
   warm_pit:
     type: EXPRESSION
@@ -3534,7 +3592,7 @@ samplers:
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)<-0.3)
+      (riftTemperature(x,z)<-0.4)
   warm_rift:
     type: EXPRESSION
     dimensions: 2
@@ -3642,7 +3700,7 @@ samplers:
     expression: |
       //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0.05) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
+      if((aroundContinent(x,z) > 0.02) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
           lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
           // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
@@ -5008,6 +5066,16 @@ samplers:
     salt: 54321.0
   WhiteNoiseRandomizer:
     dimensions: 2
+    type: WHITE_NOISE
+    frequency: 1000
+    salt: 5675401.0
+  WhiteNoiseRandomizer2:
+    dimensions: 2
+    type: WHITE_NOISE
+    frequency: 1000
+    salt: 5675401424.0
+  PositiveWhiteNoiseRandomizer:
+    dimensions: 2
     type: POSITIVE_WHITE_NOISE
     frequency: 1000
     salt: 5675401.0
@@ -5307,16 +5375,6 @@ samplers:
                   type: OPEN_SIMPLEX_2
                   frequency: 0.015
                   salt: 55503.0
-  sulfurCavePresent:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(sulfurRegionValue(x, z) > 0.90, 1, -1)
-    samplers: {}
-  sulfurSpringPresent:
-    dimensions: 2
-    type: EXPRESSION
-    expression: if(sulfurRegionValue(x, z) > 0.96, 1, -1)
-    samplers: {}
   rawTemperature:
     dimensions: 2
     type: EXPRESSION

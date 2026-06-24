@@ -157,21 +157,29 @@ Verify frozen sinkholes after bringing to colder region, and no more carving.
 sINKHOL
 
 
-Create a "well" that can transport players up and down, built by multiple layers.  Fully encompassed by 2x2 source water blocks in the center?
+Create a "well" that can transport players up and down easily which can be found in the world, built by multiple layers.  Fully encompassed by 2x2 source water blocks in the center.
 
 Placed on every non-spot surface biome, including oceans.
 
+Should be placed using a cellular distribution similar to spots, likely similar distance between wells as well.
+
+Label should perhaps be "WaterElevator" to clarify precisely what this is.
+
 Would have the following layers "L*" ==>
 
-L1 - Roof... determined by biome?  <= Place this as a part of the yml file structure.
+L1 - Roof... determined by biome?  <= Place this as a part of the yml file structure.  Should be about 5 climates matching sinkholes.
 	- Mossy cobblestone - Tropical
-	- Quertz
+	- Quertz - frozen
+	- Other climates?
 *Everything below L2 can be common, and could be defined by a tesf file?
 L2 - Bars with corner block, maybe inverted stairs + candle on each on signifying which is raise / lower?
+	Note "Bars" here is just alternating waxed copper bar and then waxed copper chain.  Purposefully alternated so that the bars stay open.
 L3 - Bars
 L4 - Bars
-L5 - Bars with landing platform
-L6 and below - 
-4 source water blocks.
-waxed copper chain surround around each, not including corners.
-have a defined level height, default of 8 blocks.
+L5 - Bars with landing platform (This part would on average align with the land, probably a surface placement)
+L6 and below - Keep copying the same vertical pattern:
+	3 y-layers of water and bars (where "3" is a variable that can be set?)
+	1 y-layer with same water and bars, but outside corners have 4 candles  sitting on trapdoors beneath them.
+		redstone torches for the half of the water elevator going down.
+		soulsand torches for the half of the water elevator going up
+Once y=5 is reached or lava is reached at any point along the level, stop creating the water, and set magma on one half to force one side of the elevator to pull the user down, and the other side to soulsand to push the user up.

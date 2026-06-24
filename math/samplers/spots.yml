@@ -114,10 +114,10 @@ samplers:
     expression: |
       if(spotDistance(x, z) < spotRadius(x, z) * 0.5, 1,
         if(continentalRiverDistSparseFarGrid(x, z) > 0, waterElevatorGrid(x, z), 1))
-    samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
-      waterElevatorGrid: $math/samplers/spots.yml:samplers.waterElevatorGrid
+    #samplers:
+    #  spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+    #  spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+    #  waterElevatorGrid: $math/samplers/spots.yml:samplers.waterElevatorGrid
 
   spotAngle:
     <<: *smallCellular

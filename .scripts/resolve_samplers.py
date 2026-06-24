@@ -28,7 +28,7 @@ Output format:
       ...
 """
 from ensure_module import ensure_modules
-ensure_modules(["yaml", "re"])
+ensure_modules(["yaml"])  # re is stdlib; no bootstrap needed
 
 
 # =============================================================================
@@ -64,6 +64,36 @@ def _represent_multiline_str(dumper, data):
     return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
 yaml.add_representer(str, _represent_multiline_str)
+
+
+# =============================================================================
+# Duplicate-anchor-tolerant YAML loader
+# =============================================================================
+
+from yaml.events import AliasEvent
+
+
+class DuplicateAnchorSafeLoader(yaml.SafeLoader):
+    """SafeLoader that tolerates duplicate YAML anchors (last definition wins).
+
+    Terra is parsed by SnakeYAML (Java), which lets an anchor be (re)defined more than
+    once -- later aliases resolve to the most recent definition. PyYAML's SafeLoader
+    instead raises ComposerError on the second definition, which aborts the WHOLE file.
+    In this tool that surfaced as a silently dropped file (load_yaml_file caught the error
+    and returned None), so every sampler in e.g. spots.yml vanished from the output. This
+    loader restores SnakeYAML's last-wins behaviour.
+    """
+
+    def compose_node(self, parent, index):
+        # Only intervene on an anchor *definition* (not an alias use): forget any earlier
+        # node registered under this anchor so the base composer won't raise; it then
+        # registers the new (last) node. Alias events are left untouched so they still
+        # resolve to whatever anchor is currently registered.
+        if not self.check_event(AliasEvent):
+            event = self.peek_event()
+            if event is not None and event.anchor is not None:
+                self.anchors.pop(event.anchor, None)
+        return super().compose_node(parent, index)
 
 
 # =============================================================================
@@ -273,8 +303,10 @@ class SamplerResolver:
 
         try:
             with open(full_path, 'r', encoding='utf-8') as f:
-                # Use safe_load which resolves anchors/aliases automatically
-                data = yaml.safe_load(f)
+                # DuplicateAnchorSafeLoader resolves anchors/aliases and, unlike safe_load,
+                # tolerates duplicate anchors (last wins) the way Terra's SnakeYAML does --
+                # otherwise one duplicate anchor would drop every sampler in the file.
+                data = yaml.load(f, Loader=DuplicateAnchorSafeLoader)
                 self.file_cache[cache_key] = data
                 return data
         except yaml.YAMLError as e:
@@ -518,43 +550,27 @@ class SamplerResolver:
         else:
             return value
 
-    def process_sampler_file(self, file_path: Path) -> Dict[str, Any]:
-        """
-        Process a single sampler file and extract all samplers.
-        Returns dict of sampler_name -> resolved_sampler_config.
+    def _process_section(self, file_path: Path, section: str) -> Dict[str, Any]:
+        """Load a file and deep-resolve every entry under the given top-level section.
+
+        Shared by samplers ('samplers') and functions ('functions'), which previously had
+        two identical copies of this. Returns {name: resolved_config}.
         """
         data = self.load_yaml_file(file_path)
         if data is None:
             return {}
+        entries = data.get(section)
+        if not isinstance(entries, dict):
+            return {}
+        return {name: self.deep_resolve(config) for name, config in entries.items()}
 
-        samplers = {}
-
-        # Extract samplers section
-        if 'samplers' in data and isinstance(data['samplers'], dict):
-            for name, config in data['samplers'].items():
-                # Skip YAML anchors that start with & (they're just markers)
-                resolved = self.deep_resolve(config)
-                samplers[name] = resolved
-
-        return samplers
+    def process_sampler_file(self, file_path: Path) -> Dict[str, Any]:
+        """Process a single sampler file -> {sampler_name: resolved_config}."""
+        return self._process_section(file_path, 'samplers')
 
     def process_functions_file(self, file_path: Path) -> Dict[str, Any]:
-        """
-        Process a functions file and extract all function definitions.
-        """
-        data = self.load_yaml_file(file_path)
-        if data is None:
-            return {}
-
-        functions = {}
-
-        # Extract functions section
-        if 'functions' in data and isinstance(data['functions'], dict):
-            for name, config in data['functions'].items():
-                resolved = self.deep_resolve(config)
-                functions[name] = resolved
-
-        return functions
+        """Process a single functions file -> {function_name: resolved_config}."""
+        return self._process_section(file_path, 'functions')
 
     def collect_all_samplers(self, sampler_dir: Path = Path("math/samplers"), exclude: List[str] = None) -> Dict[str, Any]:
         """
@@ -626,55 +642,49 @@ def _content_hash(config: Any) -> str:
     return json.dumps(config, sort_keys=True, default=str)
 
 
+def _iter_sampler_nodes(config: Any):
+    """Depth-first iterator over every dict node in a sampler-config tree.
+
+    Replaces the hand-rolled recursive walk(...) that several functions used to each
+    duplicate. Because every dict node is yielded, a caller that inspects each node's own
+    'samplers'/'sampler' entries covers exactly the same nodes the old recursion did.
+    """
+    if isinstance(config, dict):
+        yield config
+        for value in config.values():
+            yield from _iter_sampler_nodes(value)
+    elif isinstance(config, list):
+        for item in config:
+            yield from _iter_sampler_nodes(item)
+
+
 def _identify_shared_samplers(all_samplers: Dict[str, Any]) -> Set[str]:
     """
     Identify top-level samplers whose resolved content appears as nested
     sub-samplers inside other sampler trees. These will become anchors.
     """
     # Build hash -> name lookup for all top-level samplers
-    hash_to_name: Dict[str, str] = {}
-    for name, config in all_samplers.items():
-        h = _content_hash(config)
-        hash_to_name[h] = name
+    hash_to_name: Dict[str, str] = {_content_hash(c): n for n, c in all_samplers.items()}
 
     shared: Set[str] = set()
 
-    def walk(config: Any, owner_name: str):
-        if not isinstance(config, dict):
-            if isinstance(config, list):
-                for item in config:
-                    walk(item, owner_name)
-            return
-
-        # Check 'samplers' (plural) - named sub-samplers
-        sub_samplers = config.get('samplers')
-        if isinstance(sub_samplers, dict):
-            for key, value in sub_samplers.items():
-                if isinstance(value, dict):
-                    h = _content_hash(value)
-                    matched_name = hash_to_name.get(h)
-                    if matched_name and matched_name != owner_name:
-                        if value == all_samplers[matched_name]:
+    for owner_name, config in all_samplers.items():
+        for node in _iter_sampler_nodes(config):
+            # 'samplers' (plural): named sub-samplers (a self-reference is not "shared")
+            sub_samplers = node.get('samplers')
+            if isinstance(sub_samplers, dict):
+                for value in sub_samplers.values():
+                    if isinstance(value, dict):
+                        matched_name = hash_to_name.get(_content_hash(value))
+                        if matched_name and matched_name != owner_name \
+                                and value == all_samplers[matched_name]:
                             shared.add(matched_name)
-                    walk(value, owner_name)
-
-        # Check 'sampler' (singular) - wrapper types like CACHE, FBM
-        sampler_val = config.get('sampler')
-        if isinstance(sampler_val, dict):
-            h = _content_hash(sampler_val)
-            matched_name = hash_to_name.get(h)
-            if matched_name:
-                if sampler_val == all_samplers[matched_name]:
+            # 'sampler' (singular): wrapper types like CACHE, FBM (self-reference allowed)
+            sampler_val = node.get('sampler')
+            if isinstance(sampler_val, dict):
+                matched_name = hash_to_name.get(_content_hash(sampler_val))
+                if matched_name and sampler_val == all_samplers[matched_name]:
                     shared.add(matched_name)
-            walk(sampler_val, owner_name)
-
-        # Recurse into other dict values
-        for key, value in config.items():
-            if key not in ('samplers', 'sampler'):
-                walk(value, owner_name)
-
-    for name, config in all_samplers.items():
-        walk(config, name)
 
     return shared
 
@@ -693,37 +703,25 @@ def _build_dependency_order(all_samplers: Dict[str, Any], shared: Set[str]) -> L
 
     deps: Dict[str, Set[str]] = {name: set() for name in shared}
 
-    def walk(config: Any, owner: str):
-        if not isinstance(config, dict):
-            if isinstance(config, list):
-                for item in config:
-                    walk(item, owner)
-            return
+    def _matched_dep(value: Any, owner: str) -> Optional[str]:
+        if not isinstance(value, dict):
+            return None
+        dep_name = hash_to_name.get(_content_hash(value))
+        if dep_name and dep_name != owner and value == all_samplers[dep_name]:
+            return dep_name
+        return None
 
-        sub_samplers = config.get('samplers')
-        if isinstance(sub_samplers, dict):
-            for key, value in sub_samplers.items():
-                if isinstance(value, dict):
-                    h = _content_hash(value)
-                    dep_name = hash_to_name.get(h)
-                    if dep_name and dep_name != owner and value == all_samplers[dep_name]:
+    for owner in shared:
+        for node in _iter_sampler_nodes(all_samplers[owner]):
+            sub_samplers = node.get('samplers')
+            if isinstance(sub_samplers, dict):
+                for value in sub_samplers.values():
+                    dep_name = _matched_dep(value, owner)
+                    if dep_name:
                         deps[owner].add(dep_name)
-                    walk(value, owner)
-
-        sampler_val = config.get('sampler')
-        if isinstance(sampler_val, dict):
-            h = _content_hash(sampler_val)
-            dep_name = hash_to_name.get(h)
-            if dep_name and dep_name != owner and sampler_val == all_samplers[dep_name]:
+            dep_name = _matched_dep(node.get('sampler'), owner)
+            if dep_name:
                 deps[owner].add(dep_name)
-            walk(sampler_val, owner)
-
-        for key, value in config.items():
-            if key not in ('samplers', 'sampler'):
-                walk(value, owner)
-
-    for name in shared:
-        walk(all_samplers[name], name)
 
     # Topological sort
     result: List[str] = []
@@ -772,57 +770,29 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
     """
     config = copy.deepcopy(config)
 
-    def _find_bare_sampler_refs(expression: str, sampler_name: str) -> bool:
-        """Check if sampler_name appears as a bare name (without parenthesized
-        coordinate args) in the expression."""
-        # Match the name NOT followed by '(' (with optional whitespace)
+    def _has_bare_ref(expression: str, sampler_name: str) -> bool:
+        """True if sampler_name appears as a bare name (no parenthesized coord args)."""
         pattern = r'(?<![a-zA-Z_0-9])' + re.escape(sampler_name) + r'(?!\s*\()(?![a-zA-Z_0-9])'
         return bool(re.search(pattern, expression))
 
-    def walk(node: Any, context_name: str):
-        if not isinstance(node, dict):
-            if isinstance(node, list):
-                for item in node:
-                    walk(item, context_name)
-            return
-
-        expression = str(node.get('expression', '')) if 'expression' in node else ''
-
-        # Remove matching entries from 'samplers' (plural)
+    # Deleting matched keys from a node's 'samplers' dict only mutates that child dict, not
+    # the node's own key set, so it is safe to do while iterating _iter_sampler_nodes; the
+    # iterator then descends into the surviving (non-removed) sub-samplers, as before. Only
+    # 'samplers' (plural) entries are removed -- 'sampler' (singular) wrappers are kept inline.
+    for node in _iter_sampler_nodes(config):
         sub_samplers = node.get('samplers')
-        if isinstance(sub_samplers, dict):
-            keys_to_remove = []
-            for key in sub_samplers:
-                if key in all_sampler_names and key != owner_name:
-                    # Validate: expression must use name(coords), not bare name
-                    if expression and _find_bare_sampler_refs(expression, key):
-                        if errors is not None:
-                            errors.add(
-                                f"Sampler '{context_name}': references '{key}' "
-                                f"without coordinate arguments (e.g. {key}(x, z)). "
-                                f"Pack-level samplers must be called with coordinates."
-                            )
-                    keys_to_remove.append(key)
-                elif isinstance(sub_samplers[key], dict):
-                    walk(sub_samplers[key], context_name)
-            for key in keys_to_remove:
-                del sub_samplers[key]
+        if not isinstance(sub_samplers, dict):
+            continue
+        expression = str(node.get('expression', ''))
+        for key in [k for k in sub_samplers if k in all_sampler_names and k != owner_name]:
+            if expression and _has_bare_ref(expression, key) and errors is not None:
+                errors.add(
+                    f"Sampler '{owner_name}': references '{key}' without coordinate "
+                    f"arguments (e.g. {key}(x, z)). Pack-level samplers must be called "
+                    f"with coordinates."
+                )
+            del sub_samplers[key]
 
-        # Keep 'sampler' (singular) as full inline copy — recurse into it
-        sampler_val = node.get('sampler')
-        if isinstance(sampler_val, dict):
-            walk(sampler_val, context_name)
-
-        # Recurse into other dict values
-        for key, value in node.items():
-            if key not in ('samplers', 'sampler'):
-                if isinstance(value, dict):
-                    walk(value, context_name)
-                elif isinstance(value, list):
-                    for item in value:
-                        walk(item, context_name)
-
-    walk(config, owner_name)
     return config
 
 
@@ -857,24 +827,19 @@ def validate_expression_samplers(
     all_sampler_names: Set[str] = set(all_samplers.keys())
     all_function_names: Set[str] = set(all_functions.keys())
 
-    def walk(node: Any, owner_name: str) -> None:
-        if isinstance(node, list):
-            for item in node:
-                walk(item, owner_name)
-            return
-        if not isinstance(node, dict):
-            return
+    for owner_name, config in all_samplers.items():
+        for node in _iter_sampler_nodes(config):
+            if node.get('type') != 'EXPRESSION' or 'expression' not in node:
+                continue
 
-        if node.get('type') == 'EXPRESSION' and 'expression' in node:
             expression = str(node['expression'])
-            local_samplers = node.get('samplers') or {}
-            if not isinstance(local_samplers, dict):
-                local_samplers = {}
-            local_names: Set[str] = set(local_samplers.keys())
-
+            local_samplers = node.get('samplers')
+            local_names: Set[str] = (
+                set(local_samplers.keys()) if isinstance(local_samplers, dict) else set()
+            )
             called = _extract_function_calls(expression)
 
-            # Error: pack-level sampler called but not in local samplers:
+            # Error: pack-level sampler called but not declared in local samplers:
             for identifier in called:
                 if identifier in all_function_names:
                     continue  # user-defined function — not a sampler
@@ -891,13 +856,6 @@ def validate_expression_samplers(
                         f"Sampler '{owner_name}': local sampler '{local_name}' is declared "
                         f"but not used in expression"
                     )
-
-        # Recurse into all nested values
-        for value in node.values():
-            walk(value, owner_name)
-
-    for name, config in all_samplers.items():
-        walk(config, name)
 
 
 def inject_dendry_defaults(all_samplers: Dict[str, Any]) -> int:

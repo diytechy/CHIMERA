@@ -21,38 +21,7 @@ num threeVar = 3;     // # of plain water+bar layers between indicator layers
 
 str post = "minecraft:waxed_cut_copper";
 str barA = "minecraft:waxed_copper_bars";
-str barB = "minecraft:waxed_copper_chain";
-
-bool useChain = false;   // toggles each Y to alternate bars/chains
-
-// ---- UPPER FRAME: L4(+1), L3(+2), L2(+3) -------------------------------------
-for (num uy = 1; uy <= 3; uy = uy + 1) {
-    block(0, uy, 0, post, true); block(3, uy, 0, post, true);
-    block(0, uy, 3, post, true); block(3, uy, 3, post, true);
-
-    str cage = barA;
-    if (useChain) cage = barB;
-    setWaterlog(true);
-    block(1, uy, 0, cage, true); block(2, uy, 0, cage, true);
-    block(0, uy, 1, cage, true); block(0, uy, 2, cage, true);
-    block(3, uy, 1, cage, true); block(3, uy, 2, cage, true);
-    block(1, uy, 3, cage, true); block(2, uy, 3, cage, true);
-    setWaterlog(false);
-    useChain = !useChain;
-
-    block(1, uy, 1, "minecraft:water", true); block(1, uy, 2, "minecraft:water", true);
-    block(2, uy, 1, "minecraft:water", true); block(2, uy, 2, "minecraft:water", true);
-}
-
-// ---- L5 LANDING (y=0): solid ring to stand on, with the 2x2 water + one doorway ---
-block(0, 0, 0, post, true); block(3, 0, 0, post, true);
-block(0, 0, 3, post, true); block(3, 0, 3, post, true);
-block(2, 0, 0, post, true);                                  // (1,0,0) left open = doorway
-block(0, 0, 1, post, true); block(0, 0, 2, post, true);
-block(3, 0, 1, post, true); block(3, 0, 2, post, true);
-block(1, 0, 3, post, true); block(2, 0, 3, post, true);
-block(1, 0, 1, "minecraft:water", true); block(1, 0, 2, "minecraft:water", true);
-block(2, 0, 1, "minecraft:water", true); block(2, 0, 2, "minecraft:water", true);
+str barB = "minecraft:waxed_copper_bars";
 
 // ---- DOWN SHAFT: L6.. until y<=floorY or lava -------------------------------
 num maxDepth = originY() - floorY;
@@ -69,8 +38,8 @@ for (num d = 1; d <= maxDepth; d = d + 1) {
         }
     }
     if (!stop) {
-        block(0, wy, 0, post, true); block(3, wy, 0, post, true);
-        block(0, wy, 3, post, true); block(3, wy, 3, post, true);
+        //block(0, wy, 0, post, true); block(3, wy, 0, post, true);
+        //block(0, wy, 3, post, true); block(3, wy, 3, post, true);
 
         str cage = barA;
         if (useChain) cage = barB;
@@ -82,8 +51,8 @@ for (num d = 1; d <= maxDepth; d = d + 1) {
         setWaterlog(false);
         useChain = !useChain;
 
-        block(1, wy, 1, "minecraft:water", true); block(1, wy, 2, "minecraft:water", true);
-        block(2, wy, 1, "minecraft:water", true); block(2, wy, 2, "minecraft:water", true);
+        block(1, wy, 1, "minecraft:air", true); block(1, wy, 2, "minecraft:air", true);
+        block(2, wy, 1, "minecraft:air", true); block(2, wy, 2, "minecraft:air", true);
         lastWy = wy;
 
         // indicator layer every (threeVar+1)th: candle on trapdoor at each corner,

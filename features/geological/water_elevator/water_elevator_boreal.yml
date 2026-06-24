@@ -1,42 +1,19 @@
 id: WATER_ELEVATOR_BOREAL
 type: FEATURE
+extends: WATER_ELEVATOR_SURFACE_LOCATOR
 
 # BOREAL water-elevator variant (stone-brick roof). See WATER_ELEVATOR_FROZEN for the full
-# rationale. Places only off-spot and where temperature is in the boreal band. Shares the
-# wellGrid salt with the other variants so each cell yields exactly one climate-matched well.
+# rationale. Shares the waterElevatorPlacement sampler with the other variants and gates on
+# the boreal temperature band, so each grid cell yields exactly one climate-matched well.
 distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(spotDistance(x, z) < spotRadius(x, z) + 16, 1, if(temperature(x, z) >= -0.5 && temperature(x, z) < 0.0, wellGrid(x, z), 1))
+    expression: if(temperature(x, z) >= -0.5 && temperature(x, z) < 0.0, waterElevatorPlacement(x, z), 1)
     samplers:
-      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
-      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
       temperature: $math/samplers/temperature.yml:samplers.temperature
-      wellGrid:
-        dimensions: 2
-        type: CELLULAR
-        return: Distance
-        frequency: 1 / 1500
-        salt: 90210
-  threshold: 0.04
-
-locator:
-  type: AND
-  locators:
-    - type: SURFACE
-      range: &range
-        min: ${meta.yml:ocean-level}
-        max: 250
-    - type: PATTERN
-      range: *range
-      pattern:
-        type: AND
-        patterns:
-          - type: MATCH_SOLID
-            offset: -1
-          - type: MATCH_AIR
-            offset: 0
+      waterElevatorPlacement: $math/samplers/spots.yml:samplers.waterElevatorPlacement
+  threshold: 0
 
 structures:
   distribution:

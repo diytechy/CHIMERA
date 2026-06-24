@@ -79,6 +79,46 @@ samplers:
     functions: $math/functions/interpolation.yml:functions
     variables: *variables
 
+  waterElevatorGrid: # Deterministic ONE-column-per-cell grid for water elevators. The world is
+            # tiled into D x D cells (D = water-elevator-distance); each cell hosts EXACTLY ONE
+            # chosen column, given by a per-cell jittered offset (white noise keyed on the cell
+            # index, so it is constant within the cell). This GUARANTEES a single placement per
+            # cell -- no threshold tuning, no clusters or gaps, and independent of D. Returns -1
+            # at the chosen column, 1 elsewhere. Jitter is kept to the central half of the cell
+            # ([0.25D, 0.75D)) so adjacent cells' wells stay at least ~0.5D apart.
+    dimensions: 2
+    type: EXPRESSION
+    variables:
+      D: ${customization.yml:water-elevator-distance}
+    expression: |
+      if(abs((x - floor(x / D) * D) - floor((0.25 + jitterX(floor(x / D), floor(z / D)) * 0.5) * D)) < 0.5 &&
+         abs((z - floor(z / D) * D) - floor((0.25 + jitterZ(floor(x / D), floor(z / D)) * 0.5) * D)) < 0.5,
+        -1, 1)
+    samplers:
+      jitterX:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 90210
+      jitterZ:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 90211
+
+  waterElevatorPlacement: # Master gate for water elevators. Returns -1 (PLACE), else 1 (skip).
+                 # Placeable means: (a) outside the inner half of any spot -- a well may sit on a
+                 # spot's outskirts but never its centre (e.g. not down a volcano throat) -- (b)
+                 # clear of rivers, and (c) the cell's single chosen column (waterElevatorGrid).
+                 # The features just AND their climate band and use a fixed threshold of 0.
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      if(spotDistance(x, z) < spotRadius(x, z) * 0.5, 1,
+        if(continentalRiverDistSparseFarGrid(x, z) > 0, waterElevatorGrid(x, z), 1))
+    samplers:
+      spotDistance: $math/samplers/spots.yml:samplers.spotDistance
+      spotRadius: $math/samplers/spots.yml:samplers.spotRadius
+      waterElevatorGrid: $math/samplers/spots.yml:samplers.waterElevatorGrid
+
   spotAngle:
     <<: *smallCellular
     return: Angle

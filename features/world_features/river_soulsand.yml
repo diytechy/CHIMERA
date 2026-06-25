@@ -44,7 +44,12 @@ structures:
   distribution:
     type: EXPRESSION
     expression: |
-      if(abs(floor(x) + floor(z)) % 2 > 0.5, -1, 1)
+      if((noise(x,z)<0.001)&&(noise(x,z)>-0.001), 1, -1)
+    samplers:
+      noise:
+        dimensions: 2
+        type: WHITE_NOISE
+        salt: 1234
   structures:
     - river_soulsand: 1
     - dedication_chest: 1

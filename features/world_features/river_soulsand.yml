@@ -33,9 +33,10 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  #NOTE: The plugin "BubblesOnChunkGen" is needed to convert blue concrete to soulsand
-  #This method is used to ensure the tick update occurs and actually produces a bubble column.
+  #NOTE: river_soulsand places soul sand (with a bedrock signature below) directly.
+  #Soul sand under water produces the bubble column on the first tick update.
+  #The "BubblesOnChunkGen" addon then freezes that column's water so the river does
+  #not expand, restores griefed soul sand, and (rarely) fills the dedication chest.
   structures: river_soulsand
-  #structures: BLOCK:minecraft:blue_concrete
 
   

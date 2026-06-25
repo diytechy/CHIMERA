@@ -1,0 +1,13 @@
+// Dedication chest, placed beside a river soul-sand column (see river_soulsand.tesf).
+// Origin (0,0,0) is the chest position. Only place where there is open water so the
+// chest is not buried in the bank. The chest is filled by the Terra loot table
+// "bubbles-chunk-gen:dedication" (emeralds + diamonds); the BubblesOnChunkGen addon
+// also injects a written book via Terra's LootPopulateEvent (the structure id must
+// contain "dedication" for the addon to recognise it).
+str here = getBlock(0, 0, 0);
+if (here != "minecraft:water") {
+    fail;
+}
+
+block(0, 0, 0, "minecraft:chest[waterlogged=true]", true);
+loot(0, 0, 0, "bubbles-chunk-gen:dedication");

@@ -1,7 +1,16 @@
-// Dry-ground steam vent: a lit signal campfire (the signal_fire blockstate forces a
-// tall smoke column) on the exposed apron, with a magma block beneath for the
-// geothermal glow and open air above so the smoke can rise. Origin (0,0,0) is the air
-// block on the surface; ground top is at -1.
+// River bubble-column seed. Placed by the RIVER_SOULSAND feature at river-bottom
+// blocks that have water above them. Origin (0,0,0) is the river-bottom block.
 //
+// Soul sand under water produces an upward bubble column on the first tick update.
+// A bedrock block one below acts as a persistent signature the BubblesOnChunkGen
+// addon uses to find the column on chunk load (to freeze its water flow so the
+// river does not expand, and to restore the soul sand if a player removes it).
 block(0, -1, 0, "minecraft:bedrock", true);
 block(0, 0, 0, "minecraft:soul_sand", true);
+
+// Rarely, drop the dedication chest beside the column. The dedication_chest
+// structure only places where the offset block is open water, so most rolls in a
+// solid bank are no-ops. Tune the 1-in-N rarity to taste.
+if (randomInt(1000) == 0) {
+    structure(1, 0, 0, "dedication_chest", "NONE");
+}

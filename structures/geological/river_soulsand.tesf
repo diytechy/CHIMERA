@@ -7,10 +7,3 @@
 // river does not expand, and to restore the soul sand if a player removes it).
 block(0, -1, 0, "minecraft:bedrock", true);
 block(0, 0, 0, "minecraft:soul_sand", true);
-
-// Rarely, drop the dedication chest beside the column. The dedication_chest
-// structure only places where the offset block is open water, so most rolls in a
-// solid bank are no-ops. Tune the 1-in-N rarity to taste.
-if (randomInt(1000) == 0) {
-    structure(1, 0, 0, "dedication_chest", "NONE");
-}

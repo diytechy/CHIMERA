@@ -31,12 +31,22 @@ locator:
         offset: 1
 
 structures:
-  distribution:
-    type: CONSTANT
   #NOTE: river_soulsand places soul sand (with a bedrock signature below) directly.
   #Soul sand under water produces the bubble column on the first tick update.
   #The "BubblesOnChunkGen" addon then freezes that column's water so the river does
   #not expand, restores griefed soul sand, and (rarely) fills the dedication chest.
-  structures: river_soulsand
+  #
+  #The structure selector is a checkerboard: the selector value picks an entry from
+  #the weighted list below (value < 0 -> index 0, value > 0 -> index 1). Soul-sand
+  #columns land on odd cells (x+z odd), and the dedication chest only on even cells,
+  #so a chest can never overwrite a column. The chest structure additionally fails
+  #the vast majority of the time, so most even cells are left untouched.
+  distribution:
+    type: EXPRESSION
+    expression: |
+      if(abs(floor(x) + floor(z)) % 2 > 0.5, -1, 1)
+  structures:
+    - river_soulsand: 1
+    - dedication_chest: 1
 
   

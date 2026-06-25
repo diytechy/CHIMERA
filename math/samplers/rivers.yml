@@ -280,10 +280,22 @@ samplers:
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
-    #Simplified to just set soulsand at elevation change, trying to accommodate flow will not work because
-    #some rivers will generate out infinitely.
+    #Soulsand/chest eligible band: river-bed elevation steps. Widened from the bare
+    #continentalRiverBlockElevShift (distance-1 neighbours) to also flag distance-2
+    #neighbours, so after the checkerboard split (soul sand on odd cells, dedication
+    #chest on even cells) there is still a reasonable column density.
+    #TODO(tune): confirm this band width in-game. The "1 water level higher" idea
+    #(flagging cells one elevation above the step too) is not yet captured here.
     expression: |
-      continentalRiverBlockElevShift(x,z)
+      max(
+        continentalRiverBlockElevShift(x, z),
+        max(
+          max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x + 2, z),
+              continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x - 2, z)),
+          max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z + 2),
+              continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z - 2))
+        )
+      )
     #if(continentalRiverDist(x,z)<0.0 && 
     #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
     #if((floor(x) % 2) = (floor(z) % 2),1,0),

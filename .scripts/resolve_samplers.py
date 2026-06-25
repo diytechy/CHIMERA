@@ -796,8 +796,30 @@ def _remove_global_sampler_refs(config: Any, all_sampler_names: Set[str],
     return config
 
 
+# Built-in functions provided by Terra's expression engine. An identifier called in an
+# expression that is neither a sampler (pack-level or local), a function (global or local),
+# nor one of these built-ins is treated as genuinely undefined.
+EXPRESSION_BUILTINS: Set[str] = {
+    'if',
+    'abs', 'sign', 'signum',
+    'floor', 'ceil', 'ceiling', 'round', 'trunc', 'rint',
+    'min', 'max', 'mod', 'fma', 'hypot',
+    'pow', 'sqrt', 'cbrt', 'exp', 'expm1', 'log', 'log10', 'log1p', 'ln',
+    'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2',
+    'sinh', 'cosh', 'tanh', 'toRadians', 'toDegrees',
+}
+
+
 def _extract_function_calls(expression: str) -> Set[str]:
-    """Extract all identifiers used as function calls in an expression string."""
+    """Extract all identifiers used as function calls in an expression string.
+
+    Comments are stripped first (/* block */, // line, and # line) so that words inside
+    explanatory comments in multi-line expressions are not mistaken for function calls
+    (e.g. a comment mentioning "bank (0)" must not register a call to 'bank').
+    """
+    expression = re.sub(r'/\*.*?\*/', ' ', expression, flags=re.DOTALL)
+    expression = re.sub(r'//[^\n]*', ' ', expression)
+    expression = re.sub(r'#[^\n]*', ' ', expression)
     pattern = r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\('
     return set(re.findall(pattern, expression))
 
@@ -809,20 +831,19 @@ def validate_expression_samplers(
     warnings: Set[str],
 ) -> None:
     """
-    Walk every sampler config tree and validate EXPRESSION-type nodes:
+    Walk every sampler config tree and validate EXPRESSION-type nodes.
 
-    Error:   a pack-level sampler name is called in the expression but is not
-             declared in the node's local 'samplers:' section (Terra will fail
-             to find it if loading order doesn't guarantee it's in globalSamplers
-             at parse time).
+    For each node, the identifiers that may legitimately be called are: pack-level samplers
+    (resolved at runtime via globalSamplers, regardless of local declaration), global
+    functions, the node's OWN local 'samplers:'/'functions:' entries, and the expression
+    built-ins (if, floor, min, …).
 
-    Warning: a local 'samplers:' entry is declared but never called in the
-             expression (dead declaration).
+    Error:   an identifier is called that is none of the above -- a genuinely undefined name
+             (typically a typo). Calling a known pack-level sampler bare (without a local
+             'samplers:' declaration) is NOT an error -- it is the normal globalSamplers
+             pattern used throughout the pack.
 
-    Identifiers that are user-defined functions (present in all_functions) are
-    skipped so they don't produce false positives.  Identifiers that are neither
-    in all_samplers nor all_functions are assumed to be built-ins (if, sin,
-    abs, …) and are also silently ignored.
+    Warning: a local 'samplers:' entry is declared but never called (dead declaration).
     """
     all_sampler_names: Set[str] = set(all_samplers.keys())
     all_function_names: Set[str] = set(all_functions.keys())
@@ -834,23 +855,30 @@ def validate_expression_samplers(
 
             expression = str(node['expression'])
             local_samplers = node.get('samplers')
-            local_names: Set[str] = (
+            local_functions = node.get('functions')
+            local_sampler_names: Set[str] = (
                 set(local_samplers.keys()) if isinstance(local_samplers, dict) else set()
+            )
+            local_function_names: Set[str] = (
+                set(local_functions.keys()) if isinstance(local_functions, dict) else set()
             )
             called = _extract_function_calls(expression)
 
-            # Error: pack-level sampler called but not declared in local samplers:
+            in_scope = (
+                all_sampler_names | all_function_names
+                | local_sampler_names | local_function_names | EXPRESSION_BUILTINS
+            )
+
+            # Error: a called identifier resolves to nothing known (likely a typo).
             for identifier in called:
-                if identifier in all_function_names:
-                    continue  # user-defined function — not a sampler
-                if identifier in all_sampler_names and identifier not in local_names:
+                if identifier not in in_scope:
                     errors.add(
-                        f"Sampler '{owner_name}': expression calls '{identifier}(...)' "
-                        f"but '{identifier}' is not declared in local samplers:"
+                        f"Sampler '{owner_name}': expression calls '{identifier}(...)' which is "
+                        f"not a known sampler, function, or built-in"
                     )
 
-            # Warning: local samplers: entry never called in expression
-            for local_name in local_names:
+            # Warning: a local samplers: entry is declared but never called.
+            for local_name in local_sampler_names:
                 if local_name not in called:
                     warnings.add(
                         f"Sampler '{owner_name}': local sampler '{local_name}' is declared "

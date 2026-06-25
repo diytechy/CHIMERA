@@ -28,6 +28,17 @@ features:
     - SEAGRASS
     - SEA_PICKLES
     #- RIVER_SOULSAND
+  structures:
+    - MOB_ROOMS
+    # World water elevators. Each variant self-gates via waterElevatorPlacement (off
+    # spot-centres + off rivers) plus its own temperature/precipitation band, so wiring all
+    # five here on BASE (all surface biomes; caves use BASE_CAVE) yields one climate-matched
+    # well per cell. Biomes that override the 'structures' stage won't inherit these.
+    - WATER_ELEVATOR_FROZEN
+    - WATER_ELEVATOR_BOREAL
+    - WATER_ELEVATOR_TEMPERATE
+    - WATER_ELEVATOR_TROPICAL
+    - WATER_ELEVATOR_DESERT
     
 colors:
   grass: 0xcfffe4

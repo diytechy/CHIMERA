@@ -5,7 +5,7 @@ variables: &variables
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
-  soulSandPlaceDist: &soulSandPlaceDist 8
+  soulSandPlaceDist: &soulSandPlaceDist 5
   riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
 
   erosionMaxDistance: 0.3
@@ -287,24 +287,28 @@ samplers:
     #TODO(tune): confirm this band width in-game. The "1 water level higher" idea
     #(flagging cells one elevation above the step too) is not yet captured here.
     expression: |
-      max(
-        continentalRiverBlockElevShift(x, z),
-        max(
-          max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x + 2, z),
-              continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x - 2, z)),
-          max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z + 2),
-              continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z - 2))
-        )
-      )
+      //max(
+      //  continentalRiverBlockElevShift(x, z),
+      //  max(
+      //    max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x + 2, z),
+      //        continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x - 2, z)),
+      //    max(continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z + 2),
+      //        continentalRiverBlockElevChange(x, z) != continentalRiverBlockElevChange(x, z - 2))
+      //  )
+      //)
+      (continentalRiverDist(x,z)<0.0 && 
+      continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z))
     #if(continentalRiverDist(x,z)<0.0 && 
-    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
+    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z),
     #if((floor(x) % 2) = (floor(z) % 2),1,0),
     #0)
     samplers:
-      soulSandPlaceDist:
+      soulSandPlaceDistSmpl:
         dimensions: 2
-        type: EXPRESSION
-        expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        type: CONSTANT
+        value: *soulSandPlaceDist
+        #type: EXPRESSION
+        #expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
         variables:
           soulSandPlaceDist: *soulSandPlaceDist
 

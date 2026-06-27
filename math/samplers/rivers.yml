@@ -303,8 +303,9 @@ samplers:
     #TODO(tune): confirm this band width in-game. The "1 water level higher" idea
     #(flagging cells one elevation above the step too) is not yet captured here.
     expression: |
-      continentalRiverBlockElevShift(x, z) ||
-      RiverStepDownLocations(x,z)
+      continentalRiverBlockElevShift(x, z) 
+      //continentalRiverBlockElevShift(x, z) ||
+      //RiverStepDownLocations(x,z)
     #if(continentalRiverDist(x,z)<0.0 && 
     #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z),
     #if((floor(x) % 2) = (floor(z) % 2),1,0),

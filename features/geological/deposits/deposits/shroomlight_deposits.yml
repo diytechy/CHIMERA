@@ -18,6 +18,8 @@ distributor:
     # The lapse correction is meaningless for an underground deposit (range 10-55), so
     # rawTemperature is both far cheaper and a better fit here.
     expression: if(rawTemperature(x,z)>-0.4, positiveWhiteNoise(x, z), 1)
+    samplers:
+
   threshold: *densityThreshold
 
 locator:
@@ -32,11 +34,7 @@ locator:
   - type: PATTERN
     range: *range
     pattern:
-      type: MATCH_SET
-      blocks:
-        - minecraft:stone
-        - minecraft:deepslate
-        - minecraft:tuff
+      type: MATCH_SOLID
       offset: 0
 
 structures:

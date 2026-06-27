@@ -132,6 +132,7 @@ extrusions:
       - BASALT_CAVERNS: 2
       - MOLTEN_PASSAGES: 2
       - SULFUR_CAVES: 1
+      - FUNGAL_CAVERNS: 1
       - STANDARD_CAVES: 16
   
   
@@ -179,7 +180,6 @@ extrusions:
       - DRIPSTONE_CAVERNS: 3
       - SCULK_CAVERNS: 1
       - LUSH_CAVERNS: 5 #lush caverns: 2                            24
-      - FUNGAL_CAVERNS: 3
       - LAVENDER_CAVERNS: 4
       - SPRUCE_CAVERNS: 3 #underground woodlands placeholder: 7     84
       - ACACIA_CAVERNS: 3

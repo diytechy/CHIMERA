@@ -28,12 +28,8 @@ features:
   structures:
     - MOB_ROOMS
     - MOB_ROOMS
-    # World water elevators. Each variant self-gates via waterElevatorPlacement (off
-    # spot-centres + off rivers) plus its own temperature/precipitation band, so wiring all
-    # five here on BASE (all surface biomes; caves use BASE_CAVE) yields one climate-matched
-    # well per cell. Biomes that override the 'structures' stage won't inherit these.
-    - WATER_ELEVATOR_FROZEN
-    - WATER_ELEVATOR_BOREAL
-    - WATER_ELEVATOR_TEMPERATE
-    - WATER_ELEVATOR_TROPICAL
-    - WATER_ELEVATOR_DESERT
+    # World water elevators. The single WATER_ELEVATOR feature picks one column per grid cell
+    # (PADDED_GRID) and self-selects the climate-matched roof (or skips on spot-centres/rivers)
+    # in its structure distribution, so wiring it once here on BASE (all surface biomes; caves
+    # use BASE_CAVE) yields one well per cell. Biomes that override 'structures' won't inherit it.
+    - WATER_ELEVATOR

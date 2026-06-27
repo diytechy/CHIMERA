@@ -1,0 +1,79 @@
+id: WATER_ELEVATOR
+type: FEATURE
+
+# Single, central world "water elevator" feature. Replaces the five per-climate variants
+# (FROZEN/BOREAL/TEMPERATE/TROPICAL/DESERT), which each re-ran the same climate + spot + river
+# calculations in their distributor and differed only in which roof structure they placed.
+#
+# WHERE (distributor): a PADDED_GRID picks ONE candidate column per grid cell -- cheaper than
+# the old waterElevatorGrid expression (no per-column cellular/white-noise math) and inherently
+# single-instance-per-cell. width = 60% and padding = 20% of water-elevator-distance (750), so
+# the grid pitch is width+padding = 80% of the distance.
+#
+# WHAT (structures.distribution): a single EXPRESSION sampler now does all the gating that used
+# to live in the five distributors. Its value selects an entry from the weighted list below via
+# normalizeIndex (value in [-1,1] -> index = floor((value+1)/2 * N), N = 6). The band centres
+# (2i-5)/6 are used so each constant lands squarely in its bin:
+#   empty (-0.83) | frozen (-0.5) | boreal (-0.17) | temperate (0.17) | desert (0.5) | tropical (0.83)
+# The spot-centre / river exclusion (formerly in waterElevatorPlacement) selects empty_structure
+# so those cells place nothing; otherwise the temperature/precipitation band picks the roof.
+
+distributor:
+  type: PADDED_GRID
+  width: 450    # 60% of ${customization.yml:water-elevator-distance} (750)
+  padding: 150  # 20% of ${customization.yml:water-elevator-distance} (750)
+  salt: 31415
+
+# Shared locator: find the SINGLE topmost surface column. TOP scans top-down and returns the
+# highest match, so the well anchors at -- and rises to -- the top surface, whether that surface
+# is land (air above solid) or a water body (air above water).
+locator:
+  type: AND
+  locators:
+    - type: TOP
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_AIR
+            offset: 0
+          - type: OR
+            patterns:
+              - type: MATCH_SOLID
+                offset: -1
+              - type: MATCH_SET
+                blocks:
+                  - minecraft:water
+                offset: -1
+
+structures:
+  # Structure selector. spotDistance/spotRadius/continentalRiverDist/temperature/precipitation
+  # are pack-global samplers (pack.yml), used bare like RIVER_SOULSAND uses RiverSoulsandLocations.
+  distribution:
+    type: EXPRESSION
+    variables:
+      vEmpty: -0.8333
+      vFrozen: -0.5
+      vBoreal: -0.1667
+      vTemperate: 0.1667
+      vDesert: 0.5
+      vTropical: 0.8333
+    expression: |
+      if((spotDistance(x, z) < spotRadius(x, z) * 0.5) || (continentalRiverDist(x, z) <= 0),
+        vEmpty,
+        if(temperature(x, z) < -0.5, vFrozen,
+          if(temperature(x, z) < 0.0, vBoreal,
+            if(temperature(x, z) < 0.55, vTemperate,
+              if(precipitation(x, z) < 0.0, vDesert, vTropical)))))
+
+  structures:
+    - empty_structure: 1            # index 0  (skip: spot centre or river)
+    - water_elevator_frozen: 1      # index 1  (temperature < -0.5)
+    - water_elevator_boreal: 1      # index 2  (-0.5 <= temperature < 0.0)
+    - water_elevator_temperate: 1   # index 3  (0.0 <= temperature < 0.55)
+    - water_elevator_desert: 1      # index 4  (temperature >= 0.55, precipitation < 0.0)
+    - water_elevator_tropical: 1    # index 5  (temperature >= 0.55, precipitation >= 0.0)

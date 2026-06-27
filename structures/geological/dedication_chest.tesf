@@ -7,14 +7,6 @@
 // 1-in-N). Filled by the bubbles-chunk-gen:dedication loot table (emeralds +
 // diamonds); the BubblesOnChunkGen addon adds a written book via Terra's
 // LootPopulateEvent (the structure id must contain "dedication").
-if (randomInt(2000) != 0) {
-    fail;
-}
-
-str here = getBlock(0, 0, 0);
-if (here == "minecraft:soul_sand") {
-    fail;
-}
 
 block(0, 0, 0, "minecraft:chest[waterlogged=true]", true);
 loot(0, 0, 0, "bubbles-chunk-gen:dedication");

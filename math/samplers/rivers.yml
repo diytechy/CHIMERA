@@ -5,7 +5,7 @@ variables: &variables
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
-  soulSandPlaceDist: &soulSandPlaceDist 1
+  soulSandPlaceDist: &soulSandPlaceDist 2
   riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
 
   erosionMaxDistance: 0.3

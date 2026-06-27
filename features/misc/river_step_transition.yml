@@ -2,26 +2,38 @@ id: RIVER_STEP_TRANSITION
 type: FEATURE
 
 distributor:
-  type: sampler
+  type: SAMPLER
   sampler:
     type: EXPRESSION
     expression: if(RiverStepDownLocations(x,z),-1,1)
 
 locator:
-  type: PATTERN
-  range:
-    min: ${meta.yml:ocean-level} -25
-    max: ${customization.yml:terrain-height} * 0.5 + ${customization.yml:terrain-base-y-level} 
-  pattern:
-    type: AND
-    patterns:
-      - type: MATCH_SOLID
-        offset: 0
-      - type: MATCH
-        block: minecraft:water
-        offset: 1
-
+  type: AND
+  locators:
+  #Must be above the water surface.
+    - type: SAMPLER_3D
+      height: &range
+        min: ${meta.yml:ocean-level}-1
+        max: ${customization.yml:terrain-height} * ${customization.yml:terrain-base-biome-shift} + ${meta.yml:ocean-level}
+      sampler:
+        type: EXPRESSION
+        expression: |
+          //1
+          y - worldRiverElev(x,z)
+      #threshold: 0
+    - type: SAMPLER_3D
+      height: *range
+      sampler:
+        type: EXPRESSION
+        expression: |
+          //1
+          max(
+            max(worldRiverElev(x+1,z),worldRiverElev(x-1,z)),
+            max(worldRiverElev(x,z+1),worldRiverElev(x,z-1))
+          ) + 1 - y
+      #threshold: 0
+        
 structures:
   distribution:
     type: CONSTANT
-  structures: mob_room
+  structures: river_transition_slab

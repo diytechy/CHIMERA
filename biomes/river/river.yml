@@ -38,6 +38,7 @@ tags:
 features:
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   flora:
   - SUGAR_CANE
   - OAK_BUSHES

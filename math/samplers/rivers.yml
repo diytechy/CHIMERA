@@ -5,7 +5,7 @@ variables: &variables
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
-  soulSandPlaceDist: &soulSandPlaceDist 8
+  soulSandPlaceDist: &soulSandPlaceDist 1
   riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
 
   erosionMaxDistance: 0.3
@@ -277,6 +277,22 @@ samplers:
       riverBedVariation: *riverBedVariation
     expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 2
 
+  RiverStepDownLocations:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (continentalRiverDist(x,z)<0.0 &&
+        continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z))
+    samplers:
+      soulSandPlaceDistSmpl:
+        dimensions: 2
+        type: CONSTANT
+        value: *soulSandPlaceDist
+        #type: EXPRESSION
+        #expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        variables:
+          soulSandPlaceDist: *soulSandPlaceDist
+
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
@@ -288,23 +304,11 @@ samplers:
     #(flagging cells one elevation above the step too) is not yet captured here.
     expression: |
       continentalRiverBlockElevShift(x, z) ||
-      (continentalRiverDist(x,z)<0.0 &&
-      continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z))
-      //(continentalRiverDist(x,z)<0.0 &&
-      //continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z))
+      RiverStepDownLocations(x,z)
     #if(continentalRiverDist(x,z)<0.0 && 
     #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z),
     #if((floor(x) % 2) = (floor(z) % 2),1,0),
     #0)
-    samplers:
-      soulSandPlaceDistSmpl:
-        dimensions: 2
-        type: CONSTANT
-        value: *soulSandPlaceDist
-        #type: EXPRESSION
-        #expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
-        variables:
-          soulSandPlaceDist: *soulSandPlaceDist
 
 
   continentalRiverBlockElevChange:

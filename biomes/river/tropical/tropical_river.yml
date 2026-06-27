@@ -44,3 +44,4 @@ features:
   - COVE_GLOW_LICHEN
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION

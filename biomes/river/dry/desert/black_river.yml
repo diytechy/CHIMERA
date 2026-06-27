@@ -44,6 +44,7 @@ features:
     - MOB_ROOMS
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   river-decoration:
   - COVE_GLOW_LICHEN
   postprocessors:

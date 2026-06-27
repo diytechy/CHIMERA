@@ -20,5 +20,6 @@ features:
   - SPARSE_FALLEN_PALM_TREES
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   river-decoration:
   - COVE_GLOW_LICHEN

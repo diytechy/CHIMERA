@@ -1,0 +1,27 @@
+id: RIVER_STEP_TRANSITION
+type: FEATURE
+
+distributor:
+  type: sampler
+  sampler:
+    type: EXPRESSION
+    expression: if(RiverStepDownLocations(x,z),-1,1)
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level} -25
+    max: ${customization.yml:terrain-height} * 0.5 + ${customization.yml:terrain-base-y-level} 
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: 0
+      - type: MATCH
+        block: minecraft:water
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: mob_room

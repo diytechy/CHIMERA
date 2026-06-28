@@ -1,0 +1,40 @@
+id: PRISMATIC_SINTER_RIM
+type: FEATURE
+
+# Pale sinter terracing right at the waterline (distanceToPrismaticRim -0.05 .. 0.12),
+# the mineral band between the colored pool and the dry apron.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    # place where value < threshold; out-of-band sentinel 1 never places.
+    expression: if(distanceToPrismaticRim(x, z) > -0.05 && distanceToPrismaticRim(x, z) < 0.12, rarity(x, z), 1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 71014
+  threshold: 0.4
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: sinter_crust_patch

@@ -23,6 +23,7 @@ features:
   processors:
   - SNOW_FOREST_LAYERS
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   preprocessors:
   - POWDER_SNOW_DEPOSITS
   - ICE_COASTLINE

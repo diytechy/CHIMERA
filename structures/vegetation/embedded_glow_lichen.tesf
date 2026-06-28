@@ -1,0 +1,51 @@
+// embedded_glow_lichen is invoked with (0,0,0) ON a solid rock block (LIGHT_EMITTING_DEPOSITS
+// locates a MATCH_SOLID column). Glow lichen buried inside solid rock is invisible, so instead
+// coat every face of that rock that is exposed to air or water: for each neighbour cell that is
+// air/water, place a glow_lichen in THAT cell with the single face attaching back to the central
+// rock block. Fully-embedded rock (no air/water neighbour) places nothing.
+//
+// Glow lichen is waterloggable; when the exposed cell is water we waterlog it so the water is
+// preserved and the lichen glows submerged (otherwise it would punch an air pocket in the water).
+// We do NOT re-verify the neighbours are rock -- placement is driven purely by the exposed cell.
+
+// above (0,1,0): rock is below the lichen cell -> down face
+str b = getBlock(0, 1, 0);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(0, 1, 0, "minecraft:glow_lichen[down=true]", true);
+}
+
+// below (0,-1,0): rock is above -> up face
+b = getBlock(0, -1, 0);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(0, -1, 0, "minecraft:glow_lichen[up=true]", true);
+}
+
+// north (0,0,-1): rock is to the south -> south face
+b = getBlock(0, 0, -1);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(0, 0, -1, "minecraft:glow_lichen[south=true]", true);
+}
+
+// south (0,0,1): rock is to the north -> north face
+b = getBlock(0, 0, 1);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(0, 0, 1, "minecraft:glow_lichen[north=true]", true);
+}
+
+// east (1,0,0): rock is to the west -> west face
+b = getBlock(1, 0, 0);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(1, 0, 0, "minecraft:glow_lichen[west=true]", true);
+}
+
+// west (-1,0,0): rock is to the east -> east face
+b = getBlock(-1, 0, 0);
+if (b == "minecraft:air" || b == "minecraft:water") {
+    if (b == "minecraft:water") setWaterlog(true); else setWaterlog(false);
+    block(-1, 0, 0, "minecraft:glow_lichen[east=true]", true);
+}

@@ -1,0 +1,107 @@
+// ============================================================================
+// WATER ELEVATOR -- common shaft (climate-agnostic). The per-climate wrapper places
+// the L1 roof at +4 and then invokes this at the same origin.
+//
+// Origin = L5 landing, ~surface level. Footprint is 4x4 (local X,Z in 0..3):
+//   corners (0,0)(3,0)(0,3)(3,3) = solid copper posts
+//   center 2x2 (1,1)(1,2)(2,1)(2,2) = water core (two bubble columns)
+//   edges = waterlogged copper bars / chains (alternated per Y so they read "open")
+//
+// Up/down split (by X): x=1 columns = DOWN side (magma at base), x=2 = UP side
+// (soul sand at base). Builds UP L4..L2 (+1..+3), the L5 landing (0), then DOWN
+// (L6..) until world y <= floorY or lava is hit in the core; then caps with the
+// magma/soul_sand drivers under the lowest water.
+//
+// NOTE: untested in-world yet -- bubble-column behaviour, the candle/trapdoor
+// ornamentation, and copper block-state ids must be confirmed in a running world.
+// ============================================================================
+
+num floorY   = -59;     // stop building water at/below this world Y
+num threeVar = 5;     // # of plain water+bar layers between indicator layers
+
+str post = "minecraft:waxed_cut_copper";
+str barA = "minecraft:waxed_copper_bars";
+str barB = "minecraft:waxed_copper_bars";
+
+// ---- DOWN SHAFT: L6.. until y<=floorY or lava -------------------------------
+num maxDepth = originY() - floorY;
+bool stop = false;
+num lastWy = 0;
+num sinceMarker = 0;
+
+for (num d = 1; d <= maxDepth; d = d + 1) {
+    num wy = -d;
+    if (!stop) {
+        if (getBlock(1, wy, 1) == "minecraft:lava" || getBlock(2, wy, 1) == "minecraft:lava" ||
+            getBlock(1, wy, 2) == "minecraft:lava" || getBlock(2, wy, 2) == "minecraft:lava") {
+            stop = true;
+        }
+    }
+    if (!stop) {
+        //block(0, wy, 0, post, true); block(3, wy, 0, post, true);
+        //block(0, wy, 3, post, true); block(3, wy, 3, post, true);
+
+
+        lastWy = wy;
+
+        // indicator layer every (threeVar+1)th: candle on trapdoor at each corner,
+        // redstone torches mark the DOWN half (x=1 side), soul torches the UP half (x=2).
+        sinceMarker = sinceMarker + 1;
+        if (sinceMarker > threeVar) {
+            block(0, wy, 0, post, true);
+            block(3, wy, 0, post, true);
+            block(0, wy, 3, post, true);
+            block(3, wy, 3, post, true);
+            block(1, wy, 0, post, true);
+            block(2, wy, 0, post, true);
+            block(1, wy, 3, post, true);
+            block(2, wy, 3, post, true);
+            block(0, wy, 1, post, true);
+            block(0, wy, 2, post, true);
+            block(3, wy, 1, post, true);
+            block(3, wy, 2, post, true);
+            block(0, wy + 1, 0, "minecraft:redstone_torch", true);
+            block(3, wy + 1, 0, "minecraft:soul_torch", true);
+            block(0, wy + 1, 3, "minecraft:redstone_torch", true);
+            block(3, wy + 1, 3, "minecraft:soul_torch", true);
+            sinceMarker = 0;
+        }
+        else{
+            setWaterlog(true);
+            block(1, wy, 0, barA, true); block(2, wy, 0, barB, true);
+            block(0, wy, 1, barA, true); block(0, wy, 2, barB, true);
+            block(3, wy, 1, barA, true); block(3, wy, 2, barB, true);
+            block(1, wy, 3, barA, true); block(2, wy, 3, barB, true);
+            setWaterlog(false);
+        }
+        block(1, wy, 1, "minecraft:water", true); block(1, wy, 2, "minecraft:water", true);
+        block(2, wy, 1, "minecraft:water", true); block(2, wy, 2, "minecraft:water", true);
+    }
+}
+
+// ---- BOTTOM CAP: drivers under the lowest water layer ------------------------
+// x=1 columns -> magma_block (pull DOWN); x=2 columns -> soul_sand (push UP).
+num capY = lastWy - 1;
+block(1, capY, 1, "minecraft:magma_block", true); block(1, capY, 2, "minecraft:magma_block", true);
+block(2, capY, 1, "minecraft:soul_sand", true);   block(2, capY, 2, "minecraft:soul_sand", true);
+// keep the water directly above the drivers as flowing-aware sources so the bubble
+// columns initialise on first tick
+block(1, lastWy, 1, "minecraft:water", true, true); block(1, lastWy, 2, "minecraft:water", true, true);
+block(2, lastWy, 1, "minecraft:water", true, true); block(2, lastWy, 2, "minecraft:water", true, true);
+
+block(0, capY, 0, post, true);
+block(3, capY, 0, post, true);
+block(0, capY, 3, post, true);
+block(3, capY, 3, post, true);
+block(1, capY, 0, post, true);
+block(2, capY, 0, post, true);
+block(1, capY, 3, post, true);
+block(2, capY, 3, post, true);
+block(0, capY, 1, post, true);
+block(0, capY, 2, post, true);
+block(3, capY, 1, post, true);
+block(3, capY, 2, post, true);
+block(1, capY-1, 1, post, true);
+block(1, capY-1, 2, post, true);
+block(2, capY-1, 1, post, true);
+block(2, capY-1, 2, post, true);

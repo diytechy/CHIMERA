@@ -35,6 +35,7 @@ features:
   - ICE_COASTLINE
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   postprocessors:
   - TREE_SNOW
   - BLEND_SNOW

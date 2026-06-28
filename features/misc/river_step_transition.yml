@@ -1,0 +1,59 @@
+id: RIVER_STEP_TRANSITION
+type: FEATURE
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    expression: if(RiverStepDownLocations(x,z),-1,1)
+
+locator:
+  type: AND
+  locators:
+  #Must be above the water surface.
+    - type: SAMPLER_3D
+      height: &range
+        min: ${meta.yml:ocean-level}-1
+        max: ${customization.yml:terrain-height} * ${customization.yml:terrain-base-biome-shift} + ${meta.yml:ocean-level}
+      sampler:
+        type: EXPRESSION
+        expression: |
+          //1
+          y - worldRiverElev(x,z)
+      #threshold: 0
+    - type: SAMPLER_3D
+      height: *range
+      sampler:
+        type: EXPRESSION
+        expression: |
+          //1
+          max(
+            max(
+              max(
+                max(worldRiverElev(x+1,z),worldRiverElev(x-1,z)),
+                max(worldRiverElev(x,z+1),worldRiverElev(x,z-1))
+              ),
+              max(
+                max(worldRiverElev(x+2,z),worldRiverElev(x-2,z)),
+                max(worldRiverElev(x,z+2),worldRiverElev(x,z-2))
+              )
+            ),
+            max(
+              max(
+                max(worldRiverElev(x+1,z+1),worldRiverElev(x-1,z+1)),
+                max(worldRiverElev(x+1,z-1),worldRiverElev(x-1,z-1))
+              ),
+              0
+              //max(
+              //  max(worldRiverElev(x+2,z),worldRiverElev(x-2,z)),
+              //  max(worldRiverElev(x,z+2),worldRiverElev(x,z-2))
+              //)
+            )
+          )
+          + 1 - y
+      #threshold: 0
+        
+structures:
+  distribution:
+    type: CONSTANT
+  structures: river_transition_slab

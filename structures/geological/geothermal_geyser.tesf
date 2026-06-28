@@ -1,0 +1,7 @@
+// Geothermal geyser rooted on a submerged pool floor: a magma block at the base for
+// heat/glow with a WET potent-sulfur vent directly above it (the bubbling geyser
+// source), left capped by the pool's own water. Origin (0,0,0) is the solid floor
+// block; the caller's locator guarantees water at +1 and +2, so the potent sulfur
+// stays submerged (magma under potent sulfur under water).
+block(0, -1, 0, "minecraft:magma_block", true);
+block(0, 0, 0, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);

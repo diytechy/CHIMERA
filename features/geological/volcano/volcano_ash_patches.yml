@@ -1,0 +1,38 @@
+id: VOLCANO_ASH_PATCHES
+type: FEATURE
+
+# Ash/tuff staining over the cone slope (distanceToVolcanicRim 0.1 .. 0.6).
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    expression: if(distanceToVolcanicRim(x, z) > 0.1 && distanceToVolcanicRim(x, z) < 0.6, rarity(x, z), 1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 72020
+  threshold: 0.3
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: ash_patch

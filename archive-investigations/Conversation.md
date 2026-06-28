@@ -1498,3 +1498,10 @@ Can you do a deep review of this pack (whose main / starting definition is pack.
 7A. Update Terra to take both terrain function and blending definition from extruded biome ate center location.
 
 R
+
+
+Other dimensions of expression:
+Civilization
+Weirdness
+Age (Only relates to civilization?)
+

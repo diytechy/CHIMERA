@@ -16,6 +16,9 @@ particles:
 colors:
   water: 0x23b4d3
 
+tags:
+  - PRISMATIC_SPRING
+
 palette:
   - PRISMATIC_MICROBIAL_MAT: $meta.yml:top-y
   - << meta.yml:palette-bottom
@@ -23,9 +26,19 @@ palette:
 features:
   preprocessors:
     # - VOLCANO_WATER
+  #landforms:
+  #  - PRISMATIC_SINTER_RIM
+  #  - PRISMATIC_MINERAL_CRUST
+  #  - PRISMATIC_SATELLITE_POOLS
+  flora:
+    - PRISMATIC_DEAD_BUSHES
+  trees:
+    - SULFUR_TERRACE_DEAD_TREES
   postprocessors:
+    #- PRISMATIC_SPRING_SMOKE
+    - PRISMATIC_SPRING_VENT
     - PRISMATIC_SPRING_MAGMA
-    - PRISMATIC_SPRING_SMOKE
+    # - SULFURIC_STEAM_VENTS
   global-preprocessors:
     - LAVA_FLOOR
     - UNDERGROUND_LAVA_COLUMNS

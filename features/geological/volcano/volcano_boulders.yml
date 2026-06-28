@@ -1,0 +1,35 @@
+id: VOLCANO_BOULDERS
+type: FEATURE
+
+# Tuff/basalt talus scattered across the erupted-volcano surface, sunk 2-3 blocks into
+# the ground (volcano_boulder). Replaces the old TUFF_BOULDERS reference, which keyed off
+# a black_concrete_powder marker the LAVA_CRACKS palette never produces, so no boulders
+# ever generated on live volcanoes. This uses a plain SURFACE locator on the volcanic
+# ground instead, spaced out by a PADDED_GRID.
+distributor:
+  type: PADDED_GRID
+  width: 8
+  padding: 4
+  salt: 72025
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_AIR
+            offset: 0
+          - type: MATCH_SOLID
+            offset: -1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: volcano_boulder

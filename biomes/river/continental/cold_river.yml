@@ -42,6 +42,7 @@ features:
   - GRASS
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   landforms:
   - RIVER_BOULDERS
   river-decoration:

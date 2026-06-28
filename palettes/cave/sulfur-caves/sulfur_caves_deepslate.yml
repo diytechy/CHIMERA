@@ -1,0 +1,23 @@
+id: SULFUR_CAVES_DEEPSLATE
+type: PALETTE
+
+# Deep band: same cinnabar+sulfur surface-rule mix, with deepslate filling the gaps
+# instead of stone.
+layers:
+  - materials:
+      - minecraft:cinnabar: 5
+      - minecraft:sulfur: 4
+      - minecraft:deepslate: 2
+    layers: 1
+
+sampler:
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 4
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.1
+  sampler:
+    type: CELLULAR
+    return: CellValue
+    frequency: 0.08

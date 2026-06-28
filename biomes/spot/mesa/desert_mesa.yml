@@ -13,3 +13,9 @@ tags:
   - LAND_CAVES
 
 vanilla: minecraft:desert
+
+# Sparse dragon's blood trees give the white rocky-desert mesa a distinctive arid
+# silhouette it otherwise lacks. Flora/boulders/wells/fossils still inherit from ROCKY_DESERT.
+features:
+  trees:
+  - DRAGON_BLOOD_TREES

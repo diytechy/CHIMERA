@@ -10,6 +10,8 @@ replace:
   - minecraft:mossy_cobblestone
   - minecraft:cobblestone
   - minecraft:calcite
+  - minecraft:sulfur
+  - minecraft:cinnabar
   - minecraft:white_concrete
   - minecraft:white_concrete_powder
   - minecraft:red_concrete

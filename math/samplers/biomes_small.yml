@@ -46,7 +46,12 @@ samplers:
   BiomeShapeLandmassValue2:
     dimensions: 2
     type: EXPRESSION
-    expression: whiteNoiseExp(BiomeShapeLandmassValue(x,z)*1000,0)
+    expression: WhiteNoiseRandomizer(BiomeShapeLandmassValue(x,z)*1000,0)
+
+  BiomeShapeLandmassValue3:
+    dimensions: 2
+    type: EXPRESSION
+    expression: WhiteNoiseRandomizer2(BiomeShapeLandmassValue(x,z)*1000,0)
 
   BiomeShapeLandmassColor:
     <<: *outerWarpSmall
@@ -225,7 +230,7 @@ samplers:
                 )
               )
 
-  BiomeShapeLandmassContinents:
+  BiomeShapeLandmassSmallCaveValue:
     <<: *outerWarpSmall
     sampler:
       <<: *midWarpSmall
@@ -237,7 +242,7 @@ samplers:
           lookup:
             dimensions: 2
             type: EXPRESSION
-            expression: continents(x,z)
+            expression: BiomeShapeSmallCaveSpecialValue(x,z)
           salt-lookup: false
 
   BiomeShapeLandmassTemperature:

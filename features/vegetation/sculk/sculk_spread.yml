@@ -1,0 +1,54 @@
+id: SCULK_SPREAD
+type: FEATURE
+
+# Vanilla-style alternative to SCULK_BLOBS. Instead of filling a volumetric sphere and
+# scanning a wide vein halo (cubic in radius), this walks a bounded random path along
+# cave floors from the seed block — like vanilla's SculkSpreader charge spread — laying
+# sculk and occasional climbing veins. Cost is linear in the step budget (~100-250
+# placements) rather than the ~thousands of vein-cell probes the blob does.
+#
+# Same distributor/locator/salt as SCULK_BLOBS so it seeds at the SAME spots, making it a
+# fair A/B swap: enable one, disable the other, in deep_dark / deep_dark_grove.
+distributor:
+  type: PADDED_GRID
+  width: 8
+  padding: 13
+  salt: 4678
+
+locator:
+  type: AND
+  locators:
+    - type: PATTERN
+      range: &range
+        min: ${meta.yml:bottom-y} + 10
+        max: ${meta.yml:bottom-y} + 45
+      pattern:
+        type: MATCH_SOLID
+        offset: 0
+    - type: OR
+      locators:
+        - type: AND
+          locators:
+            - type: PATTERN
+              range: *range
+              pattern:
+                type: MATCH
+                block: minecraft:air
+                offset: 1
+            - type: PATTERN
+              range: *range
+              pattern:
+                type: MATCH
+                block: minecraft:air
+                offset: 3
+            - type: PATTERN
+              range: *range
+              pattern:
+                type: MATCH
+                block: minecraft:air
+                offset: 5
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: sculk_spread

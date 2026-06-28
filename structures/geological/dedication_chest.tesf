@@ -1,0 +1,12 @@
+// Dedication chest. Selected by the RIVER_SOULSAND feature on the "even"
+// checkerboard cells of the river-bottom band (soul sand takes the "odd" cells),
+// so it can never sit where a column is. Origin (0,0,0) is the first solid block
+// below the water; it is replaced with a waterlogged chest.
+//
+// Fail the vast majority of the time so the chest is a rare easter egg (tune the
+// 1-in-N). Filled by the bubbles-chunk-gen:dedication loot table (emeralds +
+// diamonds); the BubblesOnChunkGen addon adds a written book via Terra's
+// LootPopulateEvent (the structure id must contain "dedication").
+
+block(0, 0, 0, "minecraft:chest[waterlogged=true]", true);
+loot(0, 0, 0, "bubbles-chunk-gen:dedication");

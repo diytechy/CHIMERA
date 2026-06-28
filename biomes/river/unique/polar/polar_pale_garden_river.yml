@@ -24,6 +24,7 @@ features:
   - PALE_OAK_BUSHES
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION
   - SNOW_FOREST_LAYERS
   preprocessors:
   - POWDER_SNOW_DEPOSITS

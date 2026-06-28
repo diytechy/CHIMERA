@@ -1,0 +1,46 @@
+// ============================================================================
+// WATER ELEVATOR -- common shaft (climate-agnostic). The per-climate wrapper places
+// the L1 roof at +4 and then invokes this at the same origin.
+//
+// Origin = L5 landing, ~surface level. Footprint is 4x4 (local X,Z in 0..3):
+//   corners (0,0)(3,0)(0,3)(3,3) = solid copper posts
+//   center 2x2 (1,1)(1,2)(2,1)(2,2) = water core (two bubble columns)
+//   edges = waterlogged copper bars / chains (alternated per Y so they read "open")
+//
+// Up/down split (by X): x=1 columns = DOWN side (magma at base), x=2 = UP side
+// (soul sand at base). Builds UP L4..L2 (+1..+3), the L5 landing (0), then DOWN
+// (L6..) until world y <= floorY or lava is hit in the core; then caps with the
+// magma/soul_sand drivers under the lowest water.
+//
+// NOTE: untested in-world yet -- bubble-column behaviour, the candle/trapdoor
+// ornamentation, and copper block-state ids must be confirmed in a running world.
+// ============================================================================
+str post = "minecraft:air";
+str barA = "minecraft:waxed_copper_bars";
+str barB = "minecraft:waxed_copper_bars";
+num eheight = 4;
+
+// ---- UPPER FRAME: L4(+1), L3(+2), L2(+3) -------------------------------------
+for (num uy = 1; uy <= eheight; uy = uy + 1) {
+    block(0, uy, 0, post, true); block(3, uy, 0, post, true);
+    block(0, uy, 3, post, true); block(3, uy, 3, post, true);
+
+    str cage = barA;
+    setWaterlog(true);
+    block(1, uy, 0, barA, true); block(2, uy, 0, barB, true);
+    block(0, uy, 1, barA, true); block(0, uy, 2, barB, true);
+    block(3, uy, 1, barA, true); block(3, uy, 2, barB, true);
+    block(1, uy, 3, barA, true); block(2, uy, 3, barB, true);
+    setWaterlog(false);
+
+    if(uy==eheight){
+    //At top level, attach lamps
+        block(1, eheight, 1, "minecraft:lantern", true); block(1, eheight, 2, "minecraft:lantern", true);
+        block(2, eheight, 1, "minecraft:soul_lantern", true); block(2, eheight, 2, "minecraft:soul_lantern", true);
+    }
+    else{
+        block(1, uy, 1, "minecraft:air", true); block(1, uy, 2, "minecraft:air", true);
+        block(2, uy, 1, "minecraft:air", true); block(2, uy, 2, "minecraft:air", true);
+    }
+}
+

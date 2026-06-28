@@ -156,7 +156,7 @@ samplers:
       (riftContinents(x,z)>0)&&
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
-      (riftTemperature(x,z)<-0.3) &&
+      (riftTemperature(x,z)<-0.4) &&
       (riftRegions(x,z)<pit_threshold)
 
   warm_pit:
@@ -183,7 +183,7 @@ samplers:
       (riftFarRiverDist(x,z)>200) &&
       (riftInRangeOfSpot(x,z)<0) &&
       (riftRegions(x,z)>rift_threshold) &&
-      (riftTemperature(x,z)<-0.3)
+      (riftTemperature(x,z)<-0.4)
 
   warm_rift:
     type: EXPRESSION

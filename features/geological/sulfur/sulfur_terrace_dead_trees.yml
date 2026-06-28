@@ -1,0 +1,34 @@
+id: SULFUR_TERRACE_DEAD_TREES
+type: FEATURE
+
+# Yellowstone-style ghost forest on the dry sulfur-terrace ledges (not in the pools):
+# sparse, small dead snags standing over the mineral ground. Wide PADDED_GRID keeps them
+# scattered. Matches any solid floor (the terrace tops are sulfur, which is not in the
+# usual dry-plantable set, so this uses MATCH_SOLID rather than a plantable-block set).
+distributor:
+  type: PADDED_GRID
+  width: 26
+  padding: 4
+  salt: 4423
+
+locator:
+  type: AND
+  locators:
+    - type: TOP
+      range: &range
+        min: ${meta.yml:ocean-level} - 2
+        max: $meta.yml:top-y
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: dead_tree_procedural

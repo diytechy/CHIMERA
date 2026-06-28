@@ -1,0 +1,18 @@
+// Wet vent for volcanic / prismatic springs: potent sulfur in the WET state around
+// a small waterlogged centre, mixed with raw sulfur. Origin (0,0,0) is air; ground
+// top is at -1.
+num radius = 2;
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            if (dx == 0 && dz == 0) {
+                block(dx, -1, dz, "minecraft:water", true);
+            } else if (randomInt(3) == 0) {
+                block(dx, -1, dz, "minecraft:sulfur", true);
+            } else {
+                block(dx, -1, dz, "minecraft:potent_sulfur[potent_sulfur_state=wet]", true);
+            }
+        }
+    }
+}

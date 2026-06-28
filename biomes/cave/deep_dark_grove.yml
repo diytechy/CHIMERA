@@ -36,6 +36,9 @@ features:
     - SCULK_TENDRIL
   trees:
     - SCULK_BLOBS
+    # Vanilla-style cheaper alternative (surface random-walk). To A/B compare, comment
+    # out SCULK_BLOBS above and enable SCULK_SPREAD below — they seed at the same spots.
+    #- SCULK_SPREAD
   flora:
     - SCULK_FLORA
     - LARGE_CEILING_VINES_UNDERGROUND

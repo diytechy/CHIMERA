@@ -5,11 +5,22 @@ extends:
   - CARVING_OCEAN
   - BOREAL_MESA
   - BASE
+  - VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:BOREAL_EXTINCT_VOLCANO
 
-vanilla: minecraft:taiga
+vanilla: minecraft:grove
 
 tags:
   - SPECIAL_CAVES
   - LOW_CAVES
   - USE_COLD_RIVER
+
+# Denser boreal conifers so the cone and its surroundings aren't barren. Overrides the
+# sparse BOREAL_MESA tree set; host flora still inherits. Dead snags for the stressed
+# geothermal slope.
+features:
+  trees:
+    - SPRUCE_TREES_DENSE
+    - PINE_TREES
+    - SPARSE_FALLEN_SPRUCE_TREES
+    - DEAD_TREES_MODERATE

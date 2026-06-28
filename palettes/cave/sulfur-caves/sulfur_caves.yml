@@ -1,0 +1,25 @@
+id: SULFUR_CAVES
+type: PALETTE
+
+# Vanilla sulfur caves replace the walls with a noise-banded mix of cinnabar + sulfur
+# via a surface rule (sulfur_cave_gradient noise: cinnabar in two bands, sulfur in one,
+# stone in the gaps). Approximated here as ~cinnabar 45% / sulfur 36% / stone 18%, in
+# domain-warped cellular blobs.
+layers:
+  - materials:
+      - minecraft:cinnabar: 5
+      - minecraft:sulfur: 4
+      - minecraft:stone: 2
+    layers: 1
+
+sampler:
+  dimensions: 2
+  type: DOMAIN_WARP
+  amplitude: 4
+  warp:
+    type: OPEN_SIMPLEX_2
+    frequency: 0.1
+  sampler:
+    type: CELLULAR
+    return: CellValue
+    frequency: 0.08

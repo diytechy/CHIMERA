@@ -13,3 +13,11 @@ tags:
 - POLAR_COAST_FLAT
 - LAND_CAVES
 vanilla: minecraft:snowy_plains
+
+# The frozen mesa is otherwise just snow: ice boulders break through the drifts and buried
+# fossils add cave interest. Snow/ice processing still inherits from SNOWY_MOUNTAINS.
+features:
+  landforms:
+  - ICE_BOULDERS
+  structures:
+  - SPARSE_FOSSILS

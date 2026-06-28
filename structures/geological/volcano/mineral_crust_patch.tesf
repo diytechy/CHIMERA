@@ -1,0 +1,17 @@
+// Mineral-crust splotch: recolors the ground surface to sinter / sulfurous mineral
+// tones around hot springs. Origin (0,0,0) is air; the ground block recolored is at
+// y = -1. Pre-26.2 blocks only (reads as sulfur staining without the new blocks).
+num radius = 1 + randomInt(100) / 100 * 2;   // 1-3
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        if (sqrt(pow(dx, 2) + pow(dz, 2)) <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            num r = randomInt(6);
+            str b = "minecraft:orange_terracotta";
+            if (r == 0) b = "minecraft:yellow_concrete";
+            if (r == 1) b = "minecraft:white_terracotta";
+            if (r == 2) b = "minecraft:light_gray_terracotta";
+            block(dx, -1, dz, b, true);
+        }
+    }
+}

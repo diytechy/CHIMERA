@@ -1,0 +1,29 @@
+id: SULFUR_SPRING_FORMATIONS
+type: FEATURE
+
+# Larger sulfur spring formations with an active potent-sulfur core. Rare. Preprocessor
+# stage (placed before spikes).
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 4473
+  threshold: 0.004
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:bottom-y} + 8
+    max: ${meta.yml:cave-top}
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: -1
+      - type: MATCH_AIR
+        offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: sulfur_spring_formation

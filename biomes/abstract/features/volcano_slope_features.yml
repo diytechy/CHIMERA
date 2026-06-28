@@ -1,0 +1,26 @@
+id: VOLCANO_SLOPE_FEATURES
+type: BIOME
+abstract: true
+
+# Shared dressing for extinct volcanoes AND crater lakes (attached once to
+# EQ_EXTINCT_VOLCANO). All entries self-restrict to a radial band of the cone via
+# their distanceToVolcanicRim gate, so they are safe to apply to every variant.
+# Includes the dormant sulfur vent (previously POTENT_SULFUR_DORMANT_SURFACE) so a
+# single mixin owns the stage.
+#
+# Uses the `processors` stage rather than `landforms` ON PURPOSE: several host biomes
+# the extinct volcanoes extend (WOODED_BUTTES, ROCKY_DESERT, JUNGLE) define their own
+# `landforms`, and Terra's extends merge lets a later parent override an earlier one
+# per stage. No host biome uses `processors`, so putting the geology here guarantees it
+# survives on all 5 extinct volcanoes and their crater lakes.
+
+features:
+  processors:
+    #- POTENT_SULFUR_DORMANT_VENT
+    - VOLCANO_CRATER_SEDIMENT
+    - VOLCANO_CRATER_OBSIDIAN
+    - VOLCANO_COOLED_CRACKS
+    - VOLCANO_SLOPE_BOULDERS
+    # VOLCANO_ASH_PATCHES left disabled to match ERUPTED_VOLCANO, where it was also
+    # commented out; re-enable once its appearance is confirmed.
+    # - VOLCANO_ASH_PATCHES

@@ -665,10 +665,13 @@ stages:
       temperate-mesa:
         - TEMPERATE_MESA: 1
         - MESA_MONUMENTS: 1
-        - BADLANDS_BALCONIES: 1
+        - PALE_MESA: 1
+        - PAINTED_MESA: 1
       desert-mesa:
         - DESERT_MESA: 1
         - MESA_MONUMENTS: 1
+        - PAINTED_MESA: 1
+        - ERODED_MESA: 1
       cold-desert-mesa:
         - COLD_DESERT_MESA: 1
       tropical-mesa:

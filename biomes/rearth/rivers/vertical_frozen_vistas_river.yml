@@ -18,3 +18,4 @@ features:
     - COVE_FROZEN_LIGHT
   processors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION

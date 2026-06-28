@@ -21,6 +21,20 @@ stages:
     to:
       SELF: 2
       island: 1
+#Create rare surface sulfur regions
+  - type: REPLACE
+    from: land
+    sampler:
+      dimensions: 2
+      type: EXPRESSION
+      expression: |
+        if(BiomeShapeLandmassSmallCaveValue(x, z)=1, 
+          BiomeShapeLandmassValue2(x, z), -1)
+    #Note, keep order / distribution the same below so that coasts are aligned with their major regions.
+    to:
+      SELF: 16
+      SULFUR_TERRACES: 1
+
 #Create cold plain distributions
   - type: REPLACE
     from: land
@@ -96,10 +110,10 @@ stages:
       dimensions: 2
       type: EXPRESSION
       expression: |
-        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0.5 && BiomeShapeLandmassContinents(x, z) < 0.05,
+        if(BiomeShapeLandmassTemperature(x, z) > 0.4 && BiomeShapeLandmassPrecipitation(x, z) < 0,
           BiomeShapeLandmassValue(x, z), -1)
     to:
-      SELF: 2
+      SELF: 20
       CARVING_CREAKS: 1
 #
   #

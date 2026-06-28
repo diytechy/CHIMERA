@@ -1,0 +1,37 @@
+id: SULFUR_TERRACE_POTENT
+type: FEATURE
+
+# Sprinkles WET potent sulfur into the submerged sulfur terrace floors at ~1/16, matching
+# the rate the sulfur-cave lakes use on their submerged basin lining. Runs after
+# SULFUR_TERRACE_WATER (a preprocessor) so the pools already exist; placed where a sulfur
+# block has water directly above it (a submerged terrace floor).
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 4419
+  # 1/640: cut ~10x from the old 1/64 to slash particle load (the terraces had far too
+  # many wet-potent particle emitters). This leaves only a faint ambient sprinkle of
+  # bubbling potent across the submerged floors; the concentrated activity now comes from
+  # the sparse SULFUR_TERRACE_GEYSER vents instead, mirroring the sulfur-cave distribution.
+  threshold: 0.0015625
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:ocean-level}
+    max: $meta.yml:top-y
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH
+        block: minecraft:sulfur
+        offset: 0
+      - type: MATCH
+        block: minecraft:water
+        offset: 1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:potent_sulfur[potent_sulfur_state=wet]

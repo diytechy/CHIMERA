@@ -4,6 +4,7 @@ abstract: true
 extends:
   - DEPOSITS_DEFAULT
   - ORES_DEFAULT
+  - SULFUR_SPRING_SURFACE
 
 slant-depth: 15
 
@@ -26,3 +27,12 @@ features:
     - SPARSE_SEAGRASS
   structures:
     - MOB_ROOMS
+    - MOB_ROOMS
+    # World water elevators. The single WATER_ELEVATOR feature picks one column per grid cell
+    # (PADDED_GRID) and self-selects the climate-matched roof (or skips on spot-centres/rivers)
+    # in its structure distribution, so wiring it once here on BASE (all surface biomes; caves
+    # use BASE_CAVE) yields one well per cell. Biomes that override 'structures' won't inherit it.
+    - WATER_ELEVATOR
+    # World abandoned camps (26.3 reconstruction). Same single-feature pattern: PADDED_GRID at
+    # the vanilla camp spacing self-selects a climate-matched camp and skips ocean/spot/river.
+    - ABANDONED_CAMP

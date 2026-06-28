@@ -2,7 +2,9 @@ biomeSpread:
   # Basic size of biomes - the spacing in blocks between two adjacent biome
   # cell centers. Used as the period (1 / cellDistance) of the cellular noise
   # that places most standard biomes. Increase to make biomes bigger.
-  cellDistance: 320
+  cellDistance: 280
+
+  cellDistanceSmall: 160
 
   # Spacing in blocks between "well" cells - the small cellular features that
   # drive rift wells (rifts.yml) and canyon wells (eq_canyon). Smaller = tighter
@@ -478,11 +480,21 @@ spot-spread: 1500
 # Roughly how many blocks apart each spot biome will be
 # Default: 2220
 
+# Spacing in blocks between world water elevators (waterElevatorGrid in spots.yml). One
+# elevator is placed per water-elevator-distance square cell. Independent of spot-spread so
+# elevator density can be tuned separately. Default: 1500
+water-elevator-distance: 750
+
 spot-radius-min: 50
 # Default: 50
 
 spot-radius-max: 150
 # Default: 150
+
+# Prismatic radius relative to other spots (volcanoes, sinkholes). 1.0 = same size.
+# Reverted to 1.0: the 0.5 down-scale shrank the colorful microbial mat too much and
+# concentrated the water/magma features over what little mat remained.
+prismatic-radius-scale: 1.0
 
 large-spot-spawn-radius-offset: 2000
 # Roughly how far large spots will generate away from spawn

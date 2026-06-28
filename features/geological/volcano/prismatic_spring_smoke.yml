@@ -1,36 +1,48 @@
 id: PRISMATIC_SPRING_SMOKE
 type: FEATURE
 
-distributor:
-  type: AND
-  distributors:
-    - type: SAMPLER
-      sampler:
-        dimensions: 2
-        type: EXPRESSION
-        expression: distanceToPrismaticRim(x, z)-spotFluidPercent(x, z)
-    - type: PADDED_GRID
-      width: 6
-      padding: 4
-      salt: 27377
+# Steam/smoke rising off the DRY apron ring around the spring (distanceToPrismaticRim
+# 0.02 .. 0.55, i.e. just outside the waterline). A signal campfire on dry ground emits
+# a tall smoke column via the geothermal_steam_vent structure.
+#
+# Why this replaced the old in-pool emitter: the previous version located the campfire
+# on the submerged floor (cyan_terracotta under water), where a campfire is extinguished
+# and emits NO smoke. Placing the source on the exposed apron instead is what makes the
+# smoke actually appear. Sparse via a white-noise mask gated to the apron band.
 
+distributor:
+  type: PADDED_GRID
+  width: 4
+  padding: 3
+  salt: 27377
+  #distributors:
+    #- type: SAMPLER
+    #  sampler:
+    #    dimensions: 2
+    #    #type: CONSTANT
+    #    #value: 1.0
+    #    type: EXPRESSION
+    #    expression: distanceToPrismaticRim(x, z)
+    #  threshold: 0.00
 locator:
   type: AND
   locators:
+    - type: SURFACE
+      range: &range
+        min: 50
+        max: 250
     - type: PATTERN
-      range:
-        min: $meta.yml:bottom-y
-        max: $meta.yml:top-y
+      range: *range
       pattern:
         type: AND
         patterns:
-          - type: MATCH
-            block: minecraft:cyan_terracotta
-            offset: 1
           - type: MATCH_SOLID
             offset: 0
+          - type: MATCH
+            block: minecraft:water
+            offset: 1
 
 structures:
   distribution:
     type: CONSTANT
-  structures: magma_smoke
+  structures: geothermal_steam_vent

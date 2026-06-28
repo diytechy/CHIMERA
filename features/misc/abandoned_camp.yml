@@ -1,0 +1,57 @@
+id: ABANDONED_CAMP
+type: FEATURE
+
+# World "Abandoned Camp" -- a reconstruction of the 26.3 vanilla structure (a tent + camp
+# jigsaw with a loot chest and barrel). Like WATER_ELEVATOR, a single feature places every
+# climate variant: the PADDED_GRID picks one candidate column per grid cell and the structure
+# distribution self-selects the climate-matched camp (or skips on ocean/spot/river).
+#
+# WHERE (distributor): PADDED_GRID at the vanilla camp spacing. Vanilla uses random_spread
+# spacing 34 chunks (544 blocks) with 8-chunk (128 block) separation; here width+padding = 544
+# (cell pitch) and padding = 128 (guaranteed gap), so camps stay ~as far apart as in 26.3.
+distributor:
+  type: PADDED_GRID
+  width: 416    # 544 cell pitch - 128 separation
+  padding: 128  # >= vanilla 8-chunk separation
+  salt: 91231127  # vanilla abandoned_camp structure-set salt
+
+# Surface locator (like DESERT_WELLS): origin (0,0,0) is the surface air column; the camp's
+# ground layer lands at y=-1. The .tesf additionally check()s its footprint corners for solid
+# LAND and fails on water/cliffs, so camps never sit half on water.
+locator:
+  type: TOP
+  range:
+    min: ${meta.yml:ocean-level} + 1
+    max: $meta.yml:top-y
+
+structures:
+  # Structure selector. aroundContinent/spotDistance/spotRadius/continentalRiverDist/temperature/
+  # precipitation are pack-global samplers (pack.yml), used bare like RIVER_SOULSAND. The value
+  # selects an entry below via normalizeIndex (floor((v+1)/2 * N), N = 6); the band centres
+  # (2i-5)/6 land each constant squarely in its bin:
+  #   empty (-0.83) | frozen (-0.5) | boreal (-0.17) | temperate (0.17) | savanna (0.5) | jungle (0.83)
+  # Ocean / spot-centre / river -> empty_structure (skip); otherwise the climate band picks a camp.
+  distribution:
+    type: EXPRESSION
+    variables:
+      vEmpty: -0.8333
+      vFrozen: -0.5
+      vBoreal: -0.1667
+      vTemperate: 0.1667
+      vSavanna: 0.5
+      vJungle: 0.8333
+    expression: |
+      if((aroundContinent(x, z) <= 0) || (spotDistance(x, z) < spotRadius(x, z) * 0.5) || (continentalRiverDist(x, z) <= 0),
+        vEmpty,
+        if(temperature(x, z) < -0.5, vFrozen,
+          if(temperature(x, z) < 0.0, vBoreal,
+            if(temperature(x, z) < 0.55, vTemperate,
+              if(precipitation(x, z) < 0.0, vSavanna, vJungle)))))
+
+  structures:
+    - empty_structure: 1            # index 0  (skip: ocean / spot centre / river)
+    - abandoned_camp_frozen: 1      # index 1  (temperature < -0.5)        -- snowy_taiga
+    - abandoned_camp_boreal: 1      # index 2  (-0.5 <= temperature < 0.0) -- taiga
+    - abandoned_camp_temperate: 1   # index 3  (0.0 <= temperature < 0.55) -- forest
+    - abandoned_camp_savanna: 1     # index 4  (temperature >= 0.55, precipitation < 0.0)  -- savanna
+    - abandoned_camp_jungle: 1      # index 5  (temperature >= 0.55, precipitation >= 0.0) -- sparse_jungle

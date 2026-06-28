@@ -1,0 +1,20 @@
+// Sulfur growth: a small sulfur mound (with cinnabar) rising from the cave floor,
+// approximating vanilla's rooted_sulfur_spring. Placed in preprocessors so spikes can
+// later grow ON this sulfur. Origin (0,0,0) is air; floor solid is at y = -1.
+num radius = 1 + randomInt(100) / 100 * 2;   // 1-3
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius) {
+            num h = round((radius - d) / radius * 2);   // mound height 0-2
+            for (num y = -1; y <= h; y = y + 1) {
+                str b = "minecraft:sulfur";
+                if (randomInt(5) == 0) b = "minecraft:cinnabar";
+                block(dx, y, dz, b, true);
+            }
+        }
+    }
+}
+// Occasional dormant potent-sulfur core at the base.
+if (randomInt(3) == 0) block(0, -1, 0, "minecraft:potent_sulfur[potent_sulfur_state=dormant]", true);

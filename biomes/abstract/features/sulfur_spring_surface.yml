@@ -1,0 +1,10 @@
+id: SULFUR_SPRING_SURFACE
+type: BIOME
+abstract: true
+
+# Feature mixin added to BASE_HYDRAXIA so every surface land biome can host a sulfur
+# spring. Actual placement self-restricts to sulfur-region cores (and flat solid
+# ground) via the SULFUR_SPRING feature's gates, so this is safe to apply globally.
+features:
+  structures:
+    - SULFUR_SPRING

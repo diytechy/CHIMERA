@@ -1,0 +1,16 @@
+// Sinter crust splotch: pale mineral terracing (calcite / white tones) deposited at
+// a hot spring's waterline. Origin (0,0,0) is air; ground recolored at y = -1.
+num radius = 1 + randomInt(100) / 100 * 2;   // 1-3
+
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        if (sqrt(pow(dx, 2) + pow(dz, 2)) <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            num r = randomInt(5);
+            str b = "minecraft:calcite";
+            if (r == 0) b = "minecraft:light_gray_terracotta";
+            if (r == 1) b = "minecraft:white_terracotta";
+            if (r == 2) b = "minecraft:smooth_quartz";
+            block(dx, -1, dz, b, true);
+        }
+    }
+}

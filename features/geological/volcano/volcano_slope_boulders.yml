@@ -1,0 +1,43 @@
+id: VOLCANO_SLOPE_BOULDERS
+type: FEATURE
+
+# Scattered tuff/basalt boulders / talus across the cone slope (distanceToVolcanicRim
+# 0.15 .. 0.6). Uses volcano_boulder (dark volcanic block mix, sunk 2-3 blocks into the
+# ground) so the talus reads as embedded rock rather than perched. Sparse.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    expression: if(distanceToVolcanicRim(x, z) > 0.15 && distanceToVolcanicRim(x, z) < 0.6, rarity(x, z), 1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 72024
+  threshold: 0.03
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      # SURFACE ignores a `pattern:` child, so the air-at-placement guard must live here
+      # in the PATTERN locator (AND of air@0 + solid@-1) — matching volcano_cooled_cracks
+      # and potent_sulfur_dormant_vent. The old shape dropped the air@0 check.
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_AIR
+            offset: 0
+          - type: MATCH_SOLID
+            offset: -1
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: volcano_boulder

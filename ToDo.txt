@@ -81,3 +81,105 @@ Flat (Generates naturally from continental?)
 Mountian (A and B type)
 Mesa
 Sand Dunes
+
+Latest fixes needed:
+- Covered in sulfer now, but it should have just been a few sulfer blocks underground with the pillar smoke.
+
+
+Sulfer caves incorrect:
+- Missing cinnibar
+
+
+Next:
+
+First, fix latest issues introduced around various spot biomes: 
+
+3 changes to make:
+
+1. Almost all of the new features around spots appear to be inverting the distribution and locating sampler distribution.  Rim features are everywhere but the rim of volcanos.  Vegitation is substantial when I would expect it to be sparse.  Is there an invalid memory somewhere interpretting distribution of features incorrectly?
+
+2. Sulfer caves need much higher generation rate of sulfer pools, those pools should be similar size and occurance rates as paper.
+
+3. Make prismatic springs much smaller?   Right now they are probably 2x bigger than they should be, but this means the spot size of prsimatic spheres needs to be smaller than other spots, investigate methods to perform this.
+
+
+Revert sister biome for mesas next to mesa-monuments or refactor, they are way too variable in height, obscuring the mesa shape.
+
+
+Maybe special small surface sulfer biome?  Based on taverstine terraces?
+
+Should we care about sulfer pools above sulfer caves?  They are inconsequential.
+
+A lot of cleanup needed on surface biomes (Volcanos / Extinct Volcanos, probably need to be reverted)
+
+Sulfer Cave fixes:
+	- Still need much higher prevelance of sulfer lakes
+	
+Prismatic Sprint cleanup:
+	- Increase chance?
+
+Mesa cleanup
+
+Spot features / trees 
+
+Other pillar features
+
+Ideally more carving to caves from surface
+
+Sulfur terraces at 346,107295
+2500,100 <- Small prismatic spring
+
+
+1. 
+
+So far:
+
+Prismatic springs - still no smoke / magma?
+Prismatic spring - Allows dead bushes anywhere there is not water.  Not seeing any dead trees like there are on sulfur terraces.
+Prismatic spring - Need to be slightly larger, requires spot adjustment.
+Prismatic spring - Water level should be higher, maybe the % fill level should be 50% t0 100% to the rim?
+
+
+Add dead trees to prismatic spring
+Check active volcano
+
+
+Remaining:
+
+Recheck prismatic spring
+Check extinct volcano after cleaning potent springs
+Check sinkholes after fixing water and adding addition features - maybe just some bamboo trees?
+	- Make sinkholes an make them team with fish and other content?
+	- Dessert sinkhole placement might be incorrect?  Is 
+Verify frozen sinkholes after bringing to colder region, and no more carving.
+
+
+sINKHOL
+
+
+Create a "well" that can transport players up and down easily which can be found in the world, built by multiple layers.  Fully encompassed by 2x2 source water blocks in the center.
+
+Placed on every non-spot surface biome, including oceans.
+
+Should be placed using a cellular distribution similar to spots, likely similar distance between wells as well.
+
+Label should perhaps be "WaterElevator" to clarify precisely what this is.
+
+Would have the following layers "L*" ==>
+
+L1 - Roof... determined by biome?  <= Place this as a part of the yml file structure.  Should be about 5 climates matching sinkholes.
+	- Mossy cobblestone - Tropical
+	- Quertz - frozen
+	- Other climates?
+*Everything below L2 can be common, and could be defined by a tesf file?
+L2 - Bars with corner block, maybe inverted stairs + candle on each on signifying which is raise / lower?
+	Note "Bars" here is just alternating waxed copper bar and then waxed copper chain.  Purposefully alternated so that the bars stay open.
+L3 - Bars
+L4 - Bars
+L5 - Bars with landing platform (This part would on average align with the land, probably a surface placement)
+L6 and below - Keep copying the same vertical pattern:
+	3 y-layers of water and bars (where "3" is a variable that can be set?)
+	1 y-layer with same water and bars, but outside corners have 4 candles  sitting on trapdoors beneath them.
+		redstone torches for the half of the water elevator going down.
+		soulsand torches for the half of the water elevator going up
+Once y=5 is reached or lava is reached at any point along the level, stop creating the water, and set magma on one half to force one side of the elevator to pull the user down, and the other side to soulsand to push the user up.

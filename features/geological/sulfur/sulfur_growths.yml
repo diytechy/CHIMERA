@@ -1,0 +1,30 @@
+id: SULFUR_GROWTHS
+type: FEATURE
+
+# Sulfur mounds rising from cave floors (vanilla rooted_sulfur_spring analogue). Now
+# supplementary to the mineral walls — adds 3D sulfur formations rather than being the
+# main sulfur source, so kept sparse like vanilla's 1-2/chunk rooted springs.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: POSITIVE_WHITE_NOISE
+    salt: 4471
+  threshold: 0.012
+
+locator:
+  type: PATTERN
+  range:
+    min: ${meta.yml:bottom-y} + 8
+    max: ${meta.yml:cave-top}
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: -1
+      - type: MATCH_AIR
+        offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: sulfur_growth

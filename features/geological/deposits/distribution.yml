@@ -171,6 +171,17 @@ andesite:
     min: 0
     max: 319
 
+# Decorative sulfur blobs scattered rarely worldwide (no vanilla sulfur ore exists;
+# this is a CHIMERA embellishment). 0.5/chunk = the rarest deposit, ~4x rarer than
+# the stone-variant deposits above. Ores can carve through it (minecraft:sulfur is in
+# ABSTRACT_ORE.replace).
+sulfur:
+  averageCountPerChunk: 0.5
+  salt: 9181
+  range:
+    min: 0
+    max: 319
+
 dirt:
   averageCountPerChunk: 2
   salt: 2139
@@ -255,9 +266,9 @@ infested-pale:
     min: 55
     max: 62
 
-shroomlight:
-  averageCountPerChunk: 20
+light_emitter:
+  averageCountPerChunk: 80
   salt: 6712
   range:
-    min: 10
+    min: -30
     max: 55

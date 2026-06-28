@@ -21,7 +21,7 @@ ocean:
     # Uses spotFluidPercent — fully decoupled from spotSizePercent and spotHeightPercent.
     expression: |
       if(distanceToPrismaticRim(x, z) < 0,
-        base + scale * (spotBaseElevation(x, z) + (spotFluidPercent(x, z) - 1) * prismaticCenterDepth(x, z)),
+        base + scale * (spotBaseElevation(x, z) + (spotFluidPercent(x, z)/2 - 0.5) * prismaticCenterDepth(x, z)),
         olevel)
 
 terrain:
@@ -45,7 +45,7 @@ terrain:
             /*erosion*/       (volcanoErosion(x, z)+1)/2,
             /*outsideHeight*/ 0,
             /*edge*/          prismaticEdgeRadius(x, z),
-            /*radius*/        spotRadius(x, z),
+            /*radius*/        prismaticRadius(x, z),
             /*centerDepth*/   prismaticCenterDepth(x, z),
             /*volcanoHeight*/ lerp((spotSizePercent(x, z) * 0.6 + spotHeightPercent(x, z) * 0.4) * (1 - spotEdgeRadiusPercent(x, z)),
                                 0, prismaticMinHeight,

@@ -13,6 +13,61 @@ tags:
   - USE_BLACK_RIVER
   - ARID_COAST_FLAT
 
+# Endermen are the signature mob of the eerie black spikes: heavily weighted so they
+# loom over the field, while the rest of the desert monster roster still spawns.
+spawning:
+  spawns:
+    - group: MONSTER
+      entries:
+        - type:
+            id: minecraft:enderman
+          group-size:
+            min: 2
+            max: 4
+          weight: 120
+        - type:
+            id: minecraft:husk
+          group-size:
+            min: 4
+            max: 4
+          weight: 80
+        - type:
+            id: minecraft:spider
+          group-size:
+            min: 4
+            max: 4
+          weight: 100
+        - type:
+            id: minecraft:skeleton
+          group-size:
+            min: 4
+            max: 4
+          weight: 100
+        - type:
+            id: minecraft:creeper
+          group-size:
+            min: 4
+            max: 4
+          weight: 100
+        - type:
+            id: minecraft:slime
+          group-size:
+            min: 4
+            max: 4
+          weight: 100
+        - type:
+            id: minecraft:witch
+          group-size:
+            min: 1
+            max: 1
+          weight: 5
+        - type:
+            id: minecraft:zombie_villager
+          group-size:
+            min: 1
+            max: 1
+          weight: 1
+
 palette:
   - BLOCK:minecraft:black_concrete_powder: $meta.yml:top-y
   - BLOCK:minecraft:blackstone: $meta.yml:top-y

@@ -1,0 +1,16 @@
+// Dormant fumarole crust for extinct volcanoes: potent sulfur left in the DORMANT
+// state (a geyser that has gone quiet), mixed with raw sulfur. Origin (0,0,0) is
+// air; ground top is at -1.
+num radius = 2;
+for (num dx = -radius; dx <= radius; dx = dx + 1) {
+    for (num dz = -radius; dz <= radius; dz = dz + 1) {
+        num d = sqrt(pow(dx, 2) + pow(dz, 2));
+        if (d <= radius && getBlock(dx, -1, dz) != "minecraft:air") {
+            if (randomInt(2) == 0) {
+                block(dx, -1, dz, "minecraft:potent_sulfur[potent_sulfur_state=dormant]", true);
+            } else {
+                block(dx, -1, dz, "minecraft:sulfur", true);
+            }
+        }
+    }
+}

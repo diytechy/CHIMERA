@@ -1,0 +1,39 @@
+id: VOLCANO_CRATER_SEDIMENT
+type: FEATURE
+
+# Sediment bed across the crater floor (distanceToVolcanicRim < -0.05): clay/gravel/
+# mud, also forming the bed under crater lakes.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    expression: if(distanceToVolcanicRim(x, z) < -0.05, rarity(x, z), 1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 72023
+  threshold: 0.35
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: ${meta.yml:ocean-level}
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: crater_sediment_patch

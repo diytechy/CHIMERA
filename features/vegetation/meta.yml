@@ -31,6 +31,19 @@ dry-plantable-blocks:
   - minecraft:coarse_dirt
   - minecraft:rooted_dirt
 
+# Cracked arid "hardpan": bare terracotta strata and red sand. Lets hardy dead
+# vegetation root on mesa surfaces that have no dirt/grass (e.g. PAINTED/PALE/ERODED
+# mesas) without having to blend dirt into their banded palettes.
+hardpan-plantable-blocks:
+  - minecraft:terracotta
+  - minecraft:white_terracotta
+  - minecraft:orange_terracotta
+  - minecraft:yellow_terracotta
+  - minecraft:red_terracotta
+  - minecraft:brown_terracotta
+  - minecraft:light_gray_terracotta
+  - minecraft:red_sand
+
 dragons-blood-tree-plantable-blocks:
   - minecraft:sand
   - minecraft:gravel

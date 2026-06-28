@@ -12,10 +12,8 @@ stages:
   - type: REPLACE
     from: _land_spot
     to:
-      - sinkhole: 4
-      - live-volcano: 4
-      - PRISMATIC_SPRING: 1
-      - extinct-volcano: 4
+      - PRISMATIC_SPRING: 2
+      - SELF: 11
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1
@@ -24,12 +22,31 @@ stages:
   - type: REPLACE
     from: _ocean_spot
     to:
-      - live-volcano: 4
-      - PRISMATIC_SPRING: 1
-      - extinct-volcano: 4
+      - PRISMATIC_SPRING: 2
+      - SELF: 11
     sampler:
       type: EXPRESSION
       expression: spotSizePercent(x, z)*2-1
+
+  - type: REPLACE
+    from: _land_spot
+    to:
+      - sinkhole: 4
+      - live-volcano: 3
+      - extinct-volcano: 4
+    sampler:
+      type: EXPRESSION
+      expression: volcanoActivity(x, z)
+      
+  #ocean spot
+  - type: REPLACE
+    from: _ocean_spot
+    to:
+      - live-volcano: 3
+      - extinct-volcano: 4
+    sampler:
+      type: EXPRESSION
+      expression: volcanoActivity(x, z)
 
   - type: BORDER
     from: live-volcano

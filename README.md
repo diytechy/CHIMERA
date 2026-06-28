@@ -47,6 +47,35 @@ Repository scripts for packaging the config and analyzing/tuning its generation.
 | [.scripts/analyze_land_spread.py](.scripts/analyze_land_spread.py) | Classify biomes and report land-surface spread, excluding oceans, coasts, and special biomes |
 | [tools/slant_convert.py](tools/slant_convert.py) | Convert legacy Derivative slant thresholds to the DotProduct method (`2.0 / threshold`) |
 | [.scripts/biome_colorizer.py](.scripts/biome_colorizer.py) | Generate `biomes/colors.generated.yml` from `BiomeTable.csv` using a Munsell-like H/C/V color mapping |
+| [.scripts/extract_vanilla_biome.py](.scripts/extract_vanilla_biome.py) | Extract a vanilla biome's complete worldgen def (biome JSON, features, **surface rules**, noises) from the bundled Mojang server jar — the input for porting it into the pack |
+
+### Porting a vanilla biome into CHIMERA
+
+When Minecraft/Paper adds a biome that should be mirrored here, use the
+**`port-vanilla-biome`** agent skill ([.claude/skills/port-vanilla-biome/SKILL.md](.claude/skills/port-vanilla-biome/SKILL.md)).
+It guides the full port — extract → translate → build configs → validate — and exists so the
+process (and its hard-won gotchas) isn't re-derived each time.
+
+- **Trigger it** by asking an agent (Claude Code) to *port / mirror / add a vanilla biome*
+  (e.g. "port the new `pale_garden` biome into CHIMERA"); the skill auto-activates on that
+  intent, or invoke it explicitly with `/port-vanilla-biome`.
+- It drives [.scripts/extract_vanilla_biome.py](.scripts/extract_vanilla_biome.py) (pulls the
+  vanilla data) and [docs/VANILLA_TO_TERRA_MAP.md](docs/VANILLA_TO_TERRA_MAP.md) (the
+  vanilla→Terra translation table). Worked example: [docs/SULFUR_CAVES_STATUS_REPORT.md](docs/SULFUR_CAVES_STATUS_REPORT.md).
+
+### Authoring biomes & features
+
+For original (non-vanilla-mirror) content there are two companion agent skills that capture
+the Terra wiring and the gotchas that have repeatedly cost iteration here:
+
+- **[`create-biome`](.claude/skills/create-biome/SKILL.md)** — build a new biome: terrain
+  (`EQ_*` abstracts), palette, colors, climate, tags, features, and distribution placement.
+- **[`create-feature`](.claude/skills/create-feature/SKILL.md)** — place things in the world:
+  the distributor/locator/structure model, *SAMPLER places where value `< threshold`*,
+  *PADDED_GRID clusters*, and the inverted-distribution sentinel rule.
+
+Trigger them by asking an agent to *add a biome / add or tune a feature*, or invoke
+`/create-biome` or `/create-feature` explicitly.
 
 ---
 

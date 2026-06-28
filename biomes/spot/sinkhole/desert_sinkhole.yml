@@ -7,7 +7,7 @@ extends:
   - BASE
 color: $biomes/colors.yml:DESERT_SINKHOLE
 
-vanilla: minecraft:desert
+vanilla: minecraft:warm_ocean
 
 tags:
   - SPECIAL_CAVES
@@ -18,3 +18,7 @@ ocean:
   palette: BLOCK:minecraft:water
   level: $meta.yml:sinkhole-ocean-level
   sampler: $biomes/abstract/terrain/spot/eq_spot_sinkhole.yml:ocean.sampler
+
+features:
+  trees:
+    - DESERT_SINKHOLE_PALM_TREES

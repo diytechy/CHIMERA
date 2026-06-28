@@ -39,3 +39,8 @@ features:
   trees:
   - SPARSE_TEMPERATE_TREE_PATCHES
   - SPARSE_FALLEN_OAK_TREES
+  - DEAD_TREES_SPARSE
+  landforms:
+  - BOULDERS
+  structures:
+  - SPARSE_FOSSILS

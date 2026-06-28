@@ -44,3 +44,4 @@ features:
   - COVE_FROZEN_LIGHT
   postprocessors:
   - RIVER_SOULSAND
+  - RIVER_STEP_TRANSITION

@@ -1,0 +1,47 @@
+id: POTENT_SULFUR_SPRING_VENT
+type: FEATURE
+
+# Sparse periodic geysers on the submerged spring floor: a magma block under a WET
+# potent-sulfur vent under the pool water (the geothermal_geyser structure).
+#
+# The locator already self-restricts to the pool (it requires water directly above a
+# solid floor), so the old distanceToVolcanicRim basin gate is gone. Sparseness comes
+# from a PADDED_GRID (one candidate per ~18-block cell) ANDed with a white-noise mask
+# (keeps ~half), giving irregularly spaced "periodic" geysers rather than a dense field.
+distributor:
+  type: AND
+  distributors:
+    - type: PADDED_GRID
+      width: 10
+      padding: 8
+      salt: 5512341
+    - type: SAMPLER
+      sampler:
+        type: POSITIVE_WHITE_NOISE
+        dimensions: 2
+        salt: 5512342
+      threshold: 0.5
+
+locator:
+  type: PATTERN
+  range:
+    min: $meta.yml:bottom-y
+    max: $meta.yml:top-y
+  # Submerged pool floor: solid block with at least two water blocks above it, so the
+  # wet potent sulfur the geyser places at +1 stays underwater.
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: 0
+      - type: MATCH
+        block: minecraft:water
+        offset: 1
+      - type: MATCH
+        block: minecraft:water
+        offset: 2
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: geothermal_geyser

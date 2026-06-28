@@ -5,9 +5,18 @@ extends:
 - CARVING_OCEAN
 - JUNGLE
 - BASE
+- VOLCANO_SLOPE_FEATURES
 color: $biomes/colors.yml:TROPICAL_EXTINCT_VOLCANO
-vanilla: minecraft:jungle
+vanilla: minecraft:bamboo_jungle
 tags:
 - SPECIAL_CAVES
 - LOW_CAVES
 - USE_TROPICAL_RIVER
+
+# Lush jungle canopy so the cone and its surroundings aren't barren. Overrides the host
+# JUNGLE tree set (kept dense) and adds fallen logs; host flora still inherits.
+features:
+  trees:
+    - JUNGLE_TREES
+    - DENSE_JUNGLE_BUSHES
+    - DENSE_FALLEN_JUNGLE_TREES

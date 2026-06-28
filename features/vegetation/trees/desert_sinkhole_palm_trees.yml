@@ -1,0 +1,47 @@
+id: DESERT_SINKHOLE_PALM_TREES
+type: FEATURE
+
+# Palms ringing the pool of a desert sinkhole, hugging the waterline.
+#
+# Mirrors PRISMATIC_SPRING_VENT's distributor shape: a SAMPLER gate on the spot rim
+# distance (distanceToSinkholeRim, the sinkhole analogue of distanceToPrismaticRim)
+# ANDed with a PADDED_GRID for sparse, spaced placement. The rim gate keeps palms in
+# the sinkhole basin/apron and off the surrounding flat desert; the locator pins them
+# to the narrow band of dry land just above the sinkhole water surface, so they only
+# appear at the edge of the water.
+distributor:
+  type: AND
+  distributors:
+    # Inside the bowl + rim + inner apron: distanceToSinkholeRim is < 0 inside the
+    # bowl, 0 at the rim, and ramps to 1 at the biome border. Threshold 0.5 keeps the
+    # basin and the inner half of the apron, excluding the open desert beyond.
+    - type: SAMPLER
+      sampler:
+        type: EXPRESSION
+        dimensions: 2
+        expression: distanceToSinkholeRim(x, z)
+      threshold: 0.5
+    - type: PADDED_GRID
+      width: 9
+      padding: 6
+      salt: 48217663
+
+locator:
+  type: PATTERN
+  range:
+    min: 60
+    max: 250
+  # Submerged pool floor: solid block with at least two water blocks above it, so the
+  # wet potent sulfur the geyser places at +1 stays underwater.
+  pattern:
+    type: AND
+    patterns:
+      - type: MATCH_SOLID
+        offset: 0
+      - type: MATCH_AIR
+        offset: 1
+
+structures:
+  distribution:
+    type: WHITE_NOISE
+  structures: palm_tree_procedural

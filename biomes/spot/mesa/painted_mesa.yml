@@ -1,0 +1,38 @@
+id: PAINTED_MESA
+type: BIOME
+extends:
+- EQ_MESA
+- CARVING_OCEAN
+- BASE
+color: $biomes/colors.yml:PAINTED_MESA
+tags:
+- USE_DESERT_RIVER
+- ARID_COAST_FLAT
+- LAND_CAVES
+- SPECIAL_CAVES
+vanilla: minecraft:badlands
+palette:
+- PAINTED_MESA_STRATA: $meta.yml:top-y
+- << meta.yml:palette-underwater
+- << meta.yml:palette-bottom
+slant:
+- threshold: 0.5
+  palette:
+  - BLOCK:minecraft:terracotta: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+- threshold: 0.4
+  palette:
+  - TERRACOTTA_STRATA: $meta.yml:top-y
+  - << meta.yml:palette-bottom
+# Pure-terracotta surface: standard cactus/dry-grass/dead-bush features can't root here,
+# so use hardpan-rooting dead vegetation plus surface-agnostic detail. Sun-bleached dead
+# trees and scrub dot the vivid painted banding; boulders and buried fossils add interest.
+features:
+  flora:
+  - DEAD_BUSHES_HARDPAN
+  trees:
+  - DEAD_TREES_HARDPAN
+  landforms:
+  - BOULDERS
+  structures:
+  - SPARSE_FOSSILS

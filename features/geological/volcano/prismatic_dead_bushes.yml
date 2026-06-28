@@ -1,0 +1,40 @@
+id: PRISMATIC_DEAD_BUSHES
+type: FEATURE
+
+# Heat-killed vegetation on the apron (distanceToPrismaticRim 0.10 .. 0.60): sparse
+# dead bushes on the mineral-stained ground, thinning out toward the living biome.
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    dimensions: 2
+    # place where value < threshold; out-of-band sentinel 1 never places. Sparse.
+    expression: if(distanceToPrismaticRim(x, z) < 0.60, rarity(x, z), 1)
+    samplers:
+      rarity:
+        dimensions: 2
+        type: POSITIVE_WHITE_NOISE
+        salt: 71013
+  threshold: 0.0355
+
+locator:
+  type: AND
+  locators:
+    - type: SURFACE
+      range: &range
+        min: 60
+        max: 250
+    - type: PATTERN
+      range: *range
+      pattern:
+        type: AND
+        patterns:
+          - type: MATCH_SOLID
+            offset: -1
+          - type: MATCH_AIR
+            offset: 0
+
+structures:
+  distribution:
+    type: CONSTANT
+  structures: BLOCK:minecraft:dead_bush

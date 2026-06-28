@@ -1,0 +1,9 @@
+// River bubble-column seed. Placed by the RIVER_SOULSAND feature at river-bottom
+// blocks that have water above them. Origin (0,0,0) is the river-bottom block.
+//
+// Soul sand under water produces an upward bubble column on the first tick update.
+// A bedrock block one below acts as a persistent signature the BubblesOnChunkGen
+// addon uses to find the column on chunk load (to freeze its water flow so the
+// river does not expand, and to restore the soul sand if a player removes it).
+block(0, -1, 0, "minecraft:bedrock", true);
+block(0, 0, 0, "minecraft:soul_sand", true);

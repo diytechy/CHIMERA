@@ -2,17 +2,15 @@ id: PRISMATIC_SPRING_MAGMA
 type: FEATURE
 
 distributor:
-  type: AND
-  distributors:
-    - type: SAMPLER
-      sampler:
-        dimensions: 2
-        type: EXPRESSION
-        expression: distanceToPrismaticRim(x, z)-spotFluidPercent(x, z)
-    - type: PADDED_GRID
-      width: 6
-      padding: 4
-      salt: 27377
+  type: PADDED_GRID
+  width: 6
+  padding: 4
+  salt: 27377
+  #distributors:
+  #  - type: SAMPLER
+  #    sampler:
+  #      dimensions: 2
+  #      type: CONSTANT
 
 
 locator:
@@ -25,8 +23,8 @@ locator:
       pattern:
         type: AND
         patterns:
-          - type: MATCH
-            block: minecraft:cyan_terracotta
+          - type: MATCH_SOLID
+            #block: minecraft:cyan_terracotta
             offset: 0
           - type: MATCH
             block: minecraft:water
@@ -35,4 +33,4 @@ locator:
 structures:
   distribution:
     type: CONSTANT
-  structures: BLOCK:minecraft:magma_block
+  structures: geothermal_steam_vent

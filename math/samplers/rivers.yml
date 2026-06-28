@@ -5,7 +5,7 @@ variables: &variables
   riverFrequency: 1 / 40 / ${customization.yml:river-spread-scale} / ${customization.yml:global-scale}
   riverMinWidth: ${customization.yml:river-min-width} * ${customization.yml:global-scale} # Determines the minimum width of rivers within riverThreshold.
   riverMaxWidth: ${customization.yml:river-max-width} * ${customization.yml:global-scale} # Determines the maximum width of rivers within riverThreshold.
-  soulSandPlaceDist: &soulSandPlaceDist 8
+  soulSandPlaceDist: &soulSandPlaceDist 2
   riverBiomeActivationThreshold: ${customization.yml:river-biome-activation-threshold}
 
   erosionMaxDistance: 0.3
@@ -166,7 +166,7 @@ samplers:
     expression: |
       //0.2
       //If on a continent confidently, and not in a flat area, and not on island, ramp up to normal elevation.
-      if((aroundContinent(x,z) > 0.05) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
+      if((aroundContinent(x,z) > 0.02) && (BiomeShapeLandmassFlatness(x, z) < flatnessFactor) && (islandMask(x,z)<0) && (flatness(x,z)<flatnessFactor),
         min(
           lerp(continents(x,z), coastStart, 0, coastFull, elevationTerraced(x,z)),
           // rawFlatness high = flat → 0 river elevation; low = not flat → full elevationTerraced.
@@ -199,6 +199,7 @@ samplers:
       #value: 0
       type: EXPRESSION
       expression: RiverBranchingProbability(round(x/4)*4,round(z/4)*4)
+    curvature: 2
     default-riverwidth: 30
     default-borderwidth: 75
     
@@ -276,24 +277,39 @@ samplers:
       riverBedVariation: *riverBedVariation
     expression: (riverBedDepth + depthVariation(x, z) * riverBedVariation) * 0.7^continentalRiverLevel(x,z) + 2
 
+  RiverStepDownLocations:
+    dimensions: 2
+    type: EXPRESSION
+    expression: |
+      (continentalRiverDist(x,z)<0.0 &&
+        continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z))
+    samplers:
+      soulSandPlaceDistSmpl:
+        dimensions: 2
+        type: CONSTANT
+        value: *soulSandPlaceDist
+        #type: EXPRESSION
+        #expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
+        variables:
+          soulSandPlaceDist: *soulSandPlaceDist
+
   RiverSoulsandLocations:
     dimensions: 2
     type: EXPRESSION
-    #Simplified to just set soulsand at elevation change, trying to accommodate flow will not work because
-    #some rivers will generate out infinitely.
+    #Soulsand/chest eligible band: river-bed elevation steps. Widened from the bare
+    #continentalRiverBlockElevShift (distance-1 neighbours) to also flag distance-2
+    #neighbours, so after the checkerboard split (soul sand on odd cells, dedication
+    #chest on even cells) there is still a reasonable column density.
+    #TODO(tune): confirm this band width in-game. The "1 water level higher" idea
+    #(flagging cells one elevation above the step too) is not yet captured here.
     expression: |
-      continentalRiverBlockElevShift(x,z)
+      continentalRiverBlockElevShift(x, z) 
+      //continentalRiverBlockElevShift(x, z) ||
+      //RiverStepDownLocations(x,z)
     #if(continentalRiverDist(x,z)<0.0 && 
-    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDist(x,z),
+    #continentalRiverBlockDist2Uplift(x,z) < soulSandPlaceDistSmpl(x,z),
     #if((floor(x) % 2) = (floor(z) % 2),1,0),
     #0)
-    samplers:
-      soulSandPlaceDist:
-        dimensions: 2
-        type: EXPRESSION
-        expression: (soulSandPlaceDist/2)*(-continentalRiverDist(x,z))+(soulSandPlaceDist/2)
-        variables:
-          soulSandPlaceDist: *soulSandPlaceDist
 
 
   continentalRiverBlockElevChange:
@@ -343,10 +359,19 @@ samplers:
     type: EXPRESSION
     expression: |
       max(
-        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+1,z),
-          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-1,z)),
-        max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+1),
-          continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
+        max(
+          max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+1,z),
+            continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-1,z)),
+          max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+1),
+            continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-1))
+        ),
+        0
+        //max(
+        //  max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x+2,z),
+        //    continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x-2,z)),
+        //  max(continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z+2),
+        //    continentalRiverBlockElevChange(x,z) != continentalRiverBlockElevChange(x,z-2))
+        //)
       )
 
   #This forces a lookup right on the biome pipeline grid, since precision is not imperative and

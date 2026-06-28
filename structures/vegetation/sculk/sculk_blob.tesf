@@ -58,7 +58,11 @@ for (num x = -radius - warp; x < radius + warp; x = x + 1) {
     }
 }
 
-radius = radius + 10;
+// Vein halo: veins fringe the sculk patch and climb nearby surfaces — they should hug
+// the blob, not form a wide volumetric shell. +3 (was +10) keeps the surface fringe
+// while collapsing this loop's cell count ~cubically (radius ~9 vs ~16 -> ~80% fewer
+// cells), which is the dominant cost of this feature. Closer to vanilla's surface veins.
+radius = radius + 3;
 radiusSquared = pow(radius, 2);
 outerBound2 = pow(radius + warpMargin, 2);
 innerBound2 = pow(radius - warpMargin, 2);
@@ -68,16 +72,29 @@ for (num ox = -radius - warp; ox < radius + warp; ox = ox + 1) {
         for (num oz = -radius - warp; oz < radius + warp; oz = oz + 1) {
             num d2 = pow(ox, 2) + pow(oy * squish, 2) + pow(oz, 2);
             if (d2 < outerBound2) {
-                if (d2 < innerBound2) {
-                    // Guaranteed inside regardless of warp — skip all three sampler calls
-                    structure(ox, oy, oz, "valid_sculk_vein", "NONE");
-                } else {
-                    // Shell region — compute warp to resolve the exact boundary
-                    num warpX = warp * sampler("simplex3", origWX + warpFreq * ox, origWY0 + warpFreq * oy, origWZ + warpFreq * oz);
-                    num warpY = warp * sampler("simplex3", origWX + warpFreq * ox, origWY1 + warpFreq * oy, origWZ + warpFreq * oz);
-                    num warpZ = warp * sampler("simplex3", origWX + warpFreq * ox, origWY2 + warpFreq * oy, origWZ + warpFreq * oz);
-                    if (pow(ox + warpX, 2) + pow((oy + warpY) * squish, 2) + pow(oz + warpZ, 2) < radiusSquared) {
+                // Veins can only exist on a surface, so a cell fully buried in solid
+                // rock (no air neighbour) can never host a visible vein. Reject those
+                // here — 6 getBlocks — before the costly valid_sculk_vein call, which
+                // itself does a 3x3x3 (up to 27) getBlock scan per cell.
+                bool nearAir = false;
+                if (getBlock(ox, oy + 1, oz) == "minecraft:air" ||
+                    getBlock(ox, oy - 1, oz) == "minecraft:air" ||
+                    getBlock(ox + 1, oy, oz) == "minecraft:air" ||
+                    getBlock(ox - 1, oy, oz) == "minecraft:air" ||
+                    getBlock(ox, oy, oz + 1) == "minecraft:air" ||
+                    getBlock(ox, oy, oz - 1) == "minecraft:air") nearAir = true;
+                if (nearAir) {
+                    if (d2 < innerBound2) {
+                        // Guaranteed inside regardless of warp — skip all three sampler calls
                         structure(ox, oy, oz, "valid_sculk_vein", "NONE");
+                    } else {
+                        // Shell region — compute warp to resolve the exact boundary
+                        num warpX = warp * sampler("simplex3", origWX + warpFreq * ox, origWY0 + warpFreq * oy, origWZ + warpFreq * oz);
+                        num warpY = warp * sampler("simplex3", origWX + warpFreq * ox, origWY1 + warpFreq * oy, origWZ + warpFreq * oz);
+                        num warpZ = warp * sampler("simplex3", origWX + warpFreq * ox, origWY2 + warpFreq * oy, origWZ + warpFreq * oz);
+                        if (pow(ox + warpX, 2) + pow((oy + warpY) * squish, 2) + pow(oz + warpZ, 2) < radiusSquared) {
+                            structure(ox, oy, oz, "valid_sculk_vein", "NONE");
+                        }
                     }
                 }
             }

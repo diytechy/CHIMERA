@@ -8,7 +8,14 @@ distributor:
   type: SAMPLER
   sampler:
     type: EXPRESSION
-    expression: if(RiverSoulsandLocations(x,z),-1,1)
+    expression: |
+      if(
+        RiverSoulsandLocations(x,z)||
+        RiverSoulsandLocations(x+1,z)||
+        RiverSoulsandLocations(x-1,z)||
+        RiverSoulsandLocations(x,z+1)||
+        RiverSoulsandLocations(x,z+1),
+        -1,1)
 
 #Method:
   #Block is solid AND
@@ -20,7 +27,7 @@ locator:
   type: PATTERN
   range:
     min: ${meta.yml:ocean-level} -25
-    max: ${customization.yml:terrain-height} * 0.5 + ${customization.yml:terrain-base-y-level} 
+    max: ${customization.yml:terrain-height} * ${customization.yml:terrain-base-biome-shift} + ${meta.yml:ocean-level}
   pattern:
     type: AND
     patterns:
@@ -31,10 +38,33 @@ locator:
         offset: 1
 
 structures:
+  #NOTE: river_soulsand places soul sand (with a bedrock signature below) directly.
+  #Soul sand under water produces the bubble column on the first tick update.
+  #The "BubblesOnChunkGen" addon then freezes that column's water so the river does
+  #not expand, restores griefed soul sand, and (rarely) fills the dedication chest.
+  #
+  #The structure selector is a checkerboard: the selector value picks an entry from
+  #the weighted list below (value < 0 -> index 0, value > 0 -> index 1). Soul-sand
+  #columns land on odd cells (x+z odd), and the dedication chest only on even cells,
+  #so a chest can never overwrite a column. The chest structure additionally fails
+  #the vast majority of the time, so most even cells are left untouched.
   distribution:
-    type: CONSTANT
-  #NOTE: The plugin "BubblesOnChunkGen" is needed to convert blue concrete to soulsand
-  #This method is used to ensure the tick update occurs and actually produces a bubble column.
-  structures: BLOCK:minecraft:blue_concrete
+    type: EXPRESSION
+    expression: |
+      if(RiverSoulsandLocations(x,z),-1,
+        if((noise(x,z)<0.003)&&(noise(x,z)>-0.003), 1, 0))
+      
+    #expression: |
+    #  if(abs(floor(x) + floor(z)) % 2 > 0.5, -1, 1)
+    samplers:
+      noise:
+        dimensions: 2
+        type: WHITE_NOISE
+        salt: 1234
+
+  structures:
+    - river_soulsand: 1
+    - empty_structure: 1
+    - dedication_chest: 1
 
   

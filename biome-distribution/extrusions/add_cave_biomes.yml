@@ -19,7 +19,22 @@ extrusions:
       - SELF: 1
     range:
       min: ${meta.yml:bottom-y}+1
-      max: ${meta.yml:ocean-level}
+      max: ${meta.yml:cave-top}
+
+  - type: REPLACE
+    from: PRISMATIC_SPRING
+    sampler:
+      type: EXPRESSION
+      variables: *variables
+      #If beneath the spot, set to sulfur caves.
+      expression: if(y<(base+scale * spotBaseElevation(x, z)-16),-1,1)
+    to:
+      - SULFUR_CAVES: 1
+      - SELF: 1
+    range:
+      min: ${meta.yml:bottom-y}+1
+      max: ${meta.yml:cave-top}
+      
       
     # Replace from low land spots (rifts / sinkholes)
   - type: REPLACE
@@ -61,34 +76,29 @@ extrusions:
       - COLD_CAVES: 1
       - STANDARD_CAVES: 1
       - WARM_CAVES: 1
-
-
-  #- type: REPLACE_MAX_Y_SAMPLER
-  #  min-y: $meta.yml:cave-bottom
-  #  max-y-sampler:
-  #    type: EXPRESSION
-  #    dimensions: 2
-  #    variables: &variables
-  #      base: $customization.yml:terrain-ocean-base-y-level
-  #      scale: $customization.yml:terrain-ocean-depth
-  #      max_lower_limit: ${meta.yml:cave-bottom} + 1
-  #    expression: |
-  #      max(max_lower_limit,base + oceanElevation(x, z)*scale-20)
-  #  sampler:
-  #    type: EXPRESSION
-  #    variables: *variables
-  #    #If above the distribution threshold, set it to an actual biome, else keep current self.
-  #    #Actual distribution weight must match selected threshold.
-  #    #Default case is >0, which puts half of the samples below 0.
-  #    expression: BiomeShapeOceanTemperature(x,z)
-  #  # Below the weight of SELF must match the weight of all other caves + 1.
-  #  # This way caves start at a distributor values >0, aligning with
-  #  # the distribution function above.
-  #  from: OCEAN_CAVES
-  #  to:
-  #    - COLD_CAVES: 1
-  #    - STANDARD_CAVES: 1
-  #    - WARM_CAVES: 1
+      
+  - type: REPLACE
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
+    sampler:
+      type: EXPRESSION
+      variables: 
+       base: $customization.yml:terrain-ocean-base-y-level
+       scale: $customization.yml:terrain-ocean-depth
+       max_lower_limit: ${meta.yml:cave-bottom} + 1
+      expression: |
+        if(y>max(max_lower_limit,base+oceanElevation(x, z)*scale-20),-1,
+        (BiomeShapeOceanTemperature(x,z)+1)/2)
+    # Below the weight of SELF must match the weight of all other caves + 1.
+    # This way caves start at a distributor values >0, aligning with
+    # the distribution function above.
+    from: OCEAN_CAVES
+    to:
+      - SELF: 3
+      - COLD_CAVES: 1
+      - STANDARD_CAVES: 1
+      - WARM_CAVES: 1
 
       
   - type: REPLACE
@@ -107,6 +117,7 @@ extrusions:
       - FROZEN_CAVERNS: 1
       - STANDARD_CAVES: 13
       
+
   - type: REPLACE
     from: WARM_CAVES
     sampler:
@@ -120,7 +131,27 @@ extrusions:
       - MAGMA_CAVERNS: 2
       - BASALT_CAVERNS: 2
       - MOLTEN_PASSAGES: 2
+      - SULFUR_CAVES: 1
+      - FUNGAL_CAVERNS: 1
       - STANDARD_CAVES: 16
+  
+  
+  # Within standard caves, perform smaller cave distribution before larger sections.
+  - type: REPLACE
+    from: STANDARD_CAVES
+    sampler:
+      type: EXPRESSION
+      dimensions: 2
+      expression: |
+        BiomeShapeSmallCaveSpecialValue(x,z)
+    range:
+      min: $meta.yml:cave-bottom
+      max: ${meta.yml:cave-top}
+    #NOTE: Sums below of non-self biomes must equal the weight of SELF.
+    to:
+      - SELF: 2
+      - SPIDER_CAVES: 1
+      - SULFUR_CAVES: 1
 
   - type: REPLACE
     from: STANDARD_CAVES
@@ -132,7 +163,6 @@ extrusions:
       min: $meta.yml:cave-bottom
       max: ${meta.yml:cave-top}
     to:
-      - SPIDER_CAVES: 1
       - ANCIENT_CAVES: 2
       - RESIN_ROOTS: 3
       - MUSHROOM_CAVES: 3
@@ -150,14 +180,13 @@ extrusions:
       - DRIPSTONE_CAVERNS: 3
       - SCULK_CAVERNS: 1
       - LUSH_CAVERNS: 5 #lush caverns: 2                            24
-      - FUNGAL_CAVERNS: 3
       - LAVENDER_CAVERNS: 4
       - SPRUCE_CAVERNS: 3 #underground woodlands placeholder: 7     84
       - ACACIA_CAVERNS: 3
       - AUTUMNAL_CAVERNS: 2
       - BIRCH_CAVERNS: 2
-      - LUSH_CAVES: 1
-      - CORAL_COVES: 1
+      - LUSH_CAVES: 2
+      #- CORAL_COVES: 1
       - DARK_OAK_CAVERNS: 2
       - ENCHANTED_CAVERNS: 2
       - JUNGLE_CAVERNS: 2
@@ -179,3 +208,4 @@ extrusions:
       - DIORITE_MINES: 1
       - TROPICAL_MUSHROOM_CAVES: 1
       - JUNGLE_CAVES: 3
+

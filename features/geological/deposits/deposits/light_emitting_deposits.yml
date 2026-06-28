@@ -1,0 +1,66 @@
+id: LIGHT_EMITTING_DEPOSITS
+type: FEATURE
+
+anchors:
+  - &densityThreshold 1/256 * ${features/geological/deposits/distribution.yml:light_emitter.averageCountPerChunk} # Divide by 16^2 to get % per column
+  - &salt $features/geological/deposits/distribution.yml:light_emitter.salt
+  - &range $features/geological/deposits/distribution.yml:light_emitter.range
+  - &min $features/geological/deposits/distribution.yml:light_emitter.range.min
+  - &max $features/geological/deposits/distribution.yml:light_emitter.range.max
+
+distributor:
+  type: SAMPLER
+  sampler:
+    type: EXPRESSION
+    # Gate to warm-ish climate, but use rawTemperature (base climate noise) rather than
+    # temperature(): the latter subtracts an altitude-lapse term that pulls in the heavy
+    # elevation sampler stack, evaluated per column in every biome carrying this deposit.
+    # The lapse correction is meaningless for an underground deposit (range 10-55), so
+    # rawTemperature is both far cheaper and a better fit here.
+    expression: positiveWhiteNoise(x, z)
+  threshold: *densityThreshold
+
+locator:
+  type: AND
+  locators:
+  - type: RANDOM
+    height:
+      min: *min
+      max: *max
+    amount: 1
+    salt: 234678
+  - type: PATTERN
+    range: *range
+    pattern:
+      type: MATCH_SOLID
+      offset: 0
+
+structures:
+  #5 zones
+  #Normal, Cold Rare, Normal Rare, Hot Rare,
+  #-0.8, -0.4,0,0.4,0.8
+  distribution:
+    type: EXPRESSION
+    expression: |
+      if(rare(x,z),
+        if(temperature(x,z)<-0.4,-0.4,
+          if(temperature(x,z)>0.6,0.8,0.4)),
+      -0.8)
+    samplers:
+      rare:
+        dimensions: 2
+        type: EXPRESSION
+        expression: (noise(x,z)<0.003)&&(noise(x,z)>-0.003)
+        samplers:
+          noise:
+            dimensions: 2
+            type: WHITE_NOISE
+            salt: 12345678
+
+  structures:
+    - embedded_glow_lichen: 1
+    - BLOCK:minecraft:crying_obsidian: 1
+    - BLOCK:minecraft:shroomlight: 1
+    - BLOCK:minecraft:lava: 1
+
+    #glow_lichen

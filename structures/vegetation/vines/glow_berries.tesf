@@ -1,3 +1,10 @@
+// Glow berries glow at light level 14 and would melt ice/snow in cold caves. Gate the whole
+// placement on warm-ish climate, exactly like LIGHT_EMITTING_DEPOSITS: only generate where
+// rawTemperature (the base climate noise -- cheap, no altitude-lapse term) is above -0.4. This
+// is the single chokepoint for every CAVE_GLOW_BERRIES-style feature, since glow_berries.tesf
+// is the only structure that places berried cave vines. originX()/originZ() = world column.
+if (sampler("rawTemperature", originX(), originZ()) <= -0.4) fail;
+
 // Generate a column of leaves down from ceiling block
 num leafDepth = 2 + randomInt(4); // Length of center column of leaves
 

@@ -52,7 +52,7 @@ structures:
     type: EXPRESSION
     expression: |
       if(RiverSoulsandLocations(x,z),-1,
-        if((noise(x,z)<0.1)&&(noise(x,z)>-0.1), 1, 0))
+        if((noise(x,z)<0.003)&&(noise(x,z)>-0.003), 1, 0))
       
     #expression: |
     #  if(abs(floor(x) + floor(z)) % 2 > 0.5, -1, 1)

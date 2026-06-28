@@ -267,7 +267,7 @@ infested-pale:
     max: 62
 
 light_emitter:
-  averageCountPerChunk: 50
+  averageCountPerChunk: 80
   salt: 6712
   range:
     min: -30
